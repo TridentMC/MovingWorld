@@ -1,0 +1,16 @@
+[
+{
+  "modid": "movingworld",
+  "name": "Moving World",
+  "description": "A Library for allowing the movement of tile entities in the world while still enabling interaction.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Darkevilmac, Large portions of code based on Cuchaz Ship Mod"],
+  "credits": "T",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
