@@ -1,10 +1,7 @@
 package darkevilmac.movingworld.chunk;
 
-import ckathode.archimedes.ArchimedesShipMod;
-import ckathode.archimedes.blockitem.TileEntityHelm;
-import ckathode.archimedes.entity.EntityShip;
-import ckathode.archimedes.entity.IShipTileEntity;
-import ckathode.archimedes.util.MathHelperMod;
+import darkevilmac.movingworld.entity.EntityMovingWorld;
+import darkevilmac.movingworld.util.MathHelperMod;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
@@ -17,11 +14,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChunkDisassembler {
-    private EntityShip ship;
     public boolean overwrite;
+    private EntityMovingWorld ship;
 
-    public ChunkDisassembler(EntityShip entityship) {
-        ship = entityship;
+    public ChunkDisassembler(EntityMovingWorld EntityMovingWorld) {
+        ship = EntityMovingWorld;
         overwrite = false;
     }
 

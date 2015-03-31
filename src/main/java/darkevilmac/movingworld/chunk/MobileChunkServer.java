@@ -1,7 +1,6 @@
 package darkevilmac.movingworld.chunk;
 
-import ckathode.archimedes.entity.EntityShip;
-import darkevilmac.movingworld.chunk.MobileChunk;
+import darkevilmac.movingworld.entity.EntityMovingWorld;
 import net.minecraft.block.Block;
 import net.minecraft.world.ChunkPosition;
 import net.minecraft.world.World;
@@ -13,8 +12,8 @@ import java.util.Set;
 public class MobileChunkServer extends MobileChunk {
     private Set<ChunkPosition> sendQueue;
 
-    public MobileChunkServer(World world, EntityShip entityship) {
-        super(world, entityship);
+    public MobileChunkServer(World world, EntityMovingWorld entityMovingWorld) {
+        super(world, entityMovingWorld);
         sendQueue = new HashSet<ChunkPosition>();
     }
 

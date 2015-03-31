@@ -1,7 +1,7 @@
 package darkevilmac.movingworld.render;
 
-import darkevilmac.movingworld.entity.EntityMovingWorld;
 import darkevilmac.movingworld.chunk.MobileChunkClient;
+import darkevilmac.movingworld.entity.EntityMovingWorld;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.texture.TextureMap;

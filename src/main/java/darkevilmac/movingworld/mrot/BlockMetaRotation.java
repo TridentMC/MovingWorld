@@ -14,6 +14,10 @@ public class BlockMetaRotation {
         bitMask = bitmask;
     }
 
+    public static int wrapRotationIndex(int i) {
+        return i & 3;
+    }
+
     public int getRotatedMeta(int currentmeta, int rotate) {
         int mr;
         for (int i = 0; i < metaRotation.length; i++) {
@@ -23,9 +27,5 @@ public class BlockMetaRotation {
             }
         }
         return currentmeta;
-    }
-
-    public static int wrapRotationIndex(int i) {
-        return i & 3;
     }
 }

@@ -23,17 +23,13 @@ public class MobileChunk implements IBlockAccess {
 
     protected final World worldObj;
     protected final EntityMovingWorld entityMovingWorld;
-    private Map<ChunkPosition, ExtendedBlockStorage> blockStorageMap;
-
     public Map<ChunkPosition, TileEntity> chunkTileEntityMap;
-
+    public boolean isChunkLoaded;
+    public boolean isModified;
+    private Map<ChunkPosition, ExtendedBlockStorage> blockStorageMap;
     private boolean boundsInit;
     private int minX, minY, minZ, maxX, maxY, maxZ;
     private int blockCount;
-
-    public boolean isChunkLoaded;
-    public boolean isModified;
-
     private BiomeGenBase creationSpotBiome;
 
     public MobileChunk(World world, EntityMovingWorld entitymovingWorld) {

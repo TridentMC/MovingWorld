@@ -18,16 +18,14 @@ import java.util.List;
 public class AssembleResult {
     public static final int RESULT_NONE = 0, RESULT_OK = 1, RESULT_BLOCK_OVERFLOW = 2, RESULT_MISSING_MARKER = 3, RESULT_ERROR_OCCURED = 4,
             RESULT_BUSY_COMPILING = 5, RESULT_INCONSISTENT = 6, RESULT_OK_WITH_WARNINGS = 7;
-
-    LocatedBlock shipMarkingBlock;
     public final List<LocatedBlock> assembledBlocks = new ArrayList<LocatedBlock>();
+    public int xOffset, yOffset, zOffset;
+    LocatedBlock shipMarkingBlock;
     int resultCode;
     int blockCount;
     int balloonCount;
     int tileEntityCount;
     float mass;
-
-    public int xOffset, yOffset, zOffset;
 
     public AssembleResult(ByteBuf buf) {
         resultCode = buf.readByte();

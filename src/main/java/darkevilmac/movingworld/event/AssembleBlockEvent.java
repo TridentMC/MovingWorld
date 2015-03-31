@@ -1,6 +1,5 @@
 package darkevilmac.movingworld.event;
 
-import ckathode.archimedes.chunk.LocatedBlock;
 import cpw.mods.fml.common.eventhandler.Event;
 import darkevilmac.movingworld.chunk.LocatedBlock;
 

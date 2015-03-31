@@ -1,6 +1,5 @@
 package darkevilmac.movingworld.chunk;
 
-import ckathode.archimedes.ArchimedesShipMod;
 import net.minecraft.block.Block;
 import net.minecraft.world.ChunkPosition;
 import net.minecraft.world.World;
@@ -10,10 +9,9 @@ import java.util.HashSet;
 import java.util.List;
 
 public class ChunkAssembler {
-    private World worldObj;
     public final int startX, startY, startZ;
-
     private final int maxBlocks;
+    private World worldObj;
 
     public ChunkAssembler(World world, int x, int y, int z, int maxMovingWorldBlocks) {
         worldObj = world;

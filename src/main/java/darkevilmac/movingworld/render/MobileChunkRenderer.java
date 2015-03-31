@@ -19,37 +19,29 @@ import java.util.List;
 
 @SideOnly(Side.CLIENT)
 public class MobileChunkRenderer {
-    private MobileChunk chunk;
-
-    private int glRenderList = 0;
-
     public boolean isInFrustum = false;
-
     /**
      * Should this renderer skip this render pass
      */
     public boolean[] skipRenderPass = new boolean[2];
-
     /**
      * Boolean for whether this renderer needs to be updated or not
      */
     public boolean needsUpdate;
     public boolean isRemoved;
-
     /**
      * Axis aligned bounding box
      */
     public AxisAlignedBB rendererBoundingBox;
-
+    public List<TileEntity> tileEntities;
+    private MobileChunk chunk;
+    private int glRenderList = 0;
     @SuppressWarnings("unused")
     private boolean isInitialized = false;
-
     /**
      * All the tile entities that have special rendering code for this chunk
      */
     private List<TileEntity> tileEntityRenderers = new ArrayList<TileEntity>();
-    public List<TileEntity> tileEntities;
-
     /**
      * Bytes sent to the GPU
      */

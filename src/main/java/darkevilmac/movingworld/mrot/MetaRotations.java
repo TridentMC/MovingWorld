@@ -1,7 +1,5 @@
 package darkevilmac.movingworld.mrot;
 
-import darkevilmac.movingworld.mrot.BlockMetaRotation;
-import darkevilmac.movingworld.mrot.OutdatedMrotException;
 import net.minecraft.block.Block;
 
 import java.io.*;
@@ -9,8 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MetaRotations {
-    private File metaRotationsDirectory;
     public Map<Integer, BlockMetaRotation> metaRotationMap;
+    private File metaRotationsDirectory;
 
     public MetaRotations() {
         metaRotationMap = new HashMap<Integer, BlockMetaRotation>();
