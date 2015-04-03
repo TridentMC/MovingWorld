@@ -1,6 +1,8 @@
 package darkevilmac.movingworld.chunk;
 
+import darkevilmac.movingworld.MovingWorld;
 import darkevilmac.movingworld.entity.EntityMovingWorld;
+import darkevilmac.movingworld.entity.IMovingWorldTileEntity;
 import darkevilmac.movingworld.util.MathHelperMod;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
@@ -15,20 +17,20 @@ import java.util.List;
 
 public class ChunkDisassembler {
     public boolean overwrite;
-    private EntityMovingWorld ship;
+    private EntityMovingWorld movingWorld;
 
     public ChunkDisassembler(EntityMovingWorld EntityMovingWorld) {
-        ship = EntityMovingWorld;
+        movingWorld = EntityMovingWorld;
         overwrite = false;
     }
 
-    public boolean canDisassemble() {
+    public boolean canDisassemble(MovingWorldAssemblyInteractor assemblyInteractor) {
         if (overwrite) {
             return true;
         }
-        World world = ship.worldObj;
-        MobileChunk chunk = ship.getShipChunk();
-        float yaw = Math.round(ship.rotationYaw / 90F) * 90F;
+        World world = movingWorld.worldObj;
+        MobileChunk chunk = movingWorld.getShipChunk();
+        float yaw = Math.round(movingWorld.rotationYaw / 90F) * 90F;
         yaw = (float) Math.toRadians(yaw);
 
         float ox = -chunk.getCenterX();
@@ -47,12 +49,12 @@ public class ChunkDisassembler {
                     vec.zCoord = k + oz;
                     vec.rotateAroundY(yaw);
 
-                    ix = MathHelperMod.round_double(vec.xCoord + ship.posX);
-                    iy = MathHelperMod.round_double(vec.yCoord + ship.posY);
-                    iz = MathHelperMod.round_double(vec.zCoord + ship.posZ);
+                    ix = MathHelperMod.round_double(vec.xCoord + movingWorld.posX);
+                    iy = MathHelperMod.round_double(vec.yCoord + movingWorld.posY);
+                    iz = MathHelperMod.round_double(vec.zCoord + movingWorld.posZ);
 
                     block = world.getBlock(ix, iy, iz);
-                    if (block != null && !block.isAir(world, ix, iy, iz) && !block.getMaterial().isLiquid() && !ArchimedesShipMod.instance.modConfig.overwritableBlocks.contains(block)) {
+                    if (block != null && !block.isAir(world, ix, iy, iz) && !block.getMaterial().isLiquid() && !assemblyInteractor.canOverwriteBlock(block)) {
                         return false;
                     }
                 }
@@ -61,19 +63,19 @@ public class ChunkDisassembler {
         return true;
     }
 
-    public AssembleResult doDisassemble() {
-        World world = ship.worldObj;
-        MobileChunk chunk = ship.getShipChunk();
+    public AssembleResult doDisassemble(MovingWorldAssemblyInteractor assemblyInteractor) {
+        World world = movingWorld.worldObj;
+        MobileChunk chunk = movingWorld.getShipChunk();
         AssembleResult result = new AssembleResult();
         result.xOffset = Integer.MAX_VALUE;
         result.yOffset = Integer.MAX_VALUE;
         result.zOffset = Integer.MAX_VALUE;
 
-        int currentrot = Math.round(ship.rotationYaw / 90F) & 3;
-        int deltarot = (-currentrot) & 3;
-        ship.rotationYaw = currentrot * 90F;
-        ship.rotationPitch = 0F;
-        float yaw = currentrot * MathHelperMod.PI_HALF;
+        int currentRot = Math.round(movingWorld.rotationYaw / 90F) & 3;
+        int deltarot = (-currentRot) & 3;
+        movingWorld.rotationYaw = currentRot * 90F;
+        movingWorld.rotationPitch = 0F;
+        float yaw = currentRot * MathHelperMod.PI_HALF;
 
         boolean flag = world.getGameRules().getGameRuleBooleanValue("doTileDrops");
         world.getGameRules().setOrCreateGameRule("doTileDrops", "false");
@@ -99,16 +101,16 @@ public class ChunkDisassembler {
                     } else if (block.isAir(world, i, j, k)) continue;
                     tileentity = chunk.getTileEntity(i, j, k);
 
-                    meta = ArchimedesShipMod.instance.metaRotations.getRotatedMeta(block, meta, deltarot);
+                    meta = MovingWorld.instance.metaRotations.getRotatedMeta(block, meta, deltarot);
 
                     vec.xCoord = i + ox;
                     vec.yCoord = j + oy;
                     vec.zCoord = k + oz;
                     vec.rotateAroundY(yaw);
 
-                    ix = MathHelperMod.round_double(vec.xCoord + ship.posX);
-                    iy = MathHelperMod.round_double(vec.yCoord + ship.posY);
-                    iz = MathHelperMod.round_double(vec.zCoord + ship.posZ);
+                    ix = MathHelperMod.round_double(vec.xCoord + movingWorld.posX);
+                    iy = MathHelperMod.round_double(vec.yCoord + movingWorld.posY);
+                    iz = MathHelperMod.round_double(vec.zCoord + movingWorld.posZ);
 
                     if (!world.setBlock(ix, iy, iz, block, meta, 2) || block != world.getBlock(ix, iy, iz)) {
                         postlist.add(new LocatedBlock(block, meta, tileentity, new ChunkPosition(ix, iy, iz)));
@@ -118,26 +120,24 @@ public class ChunkDisassembler {
                         world.setBlockMetadataWithNotify(ix, iy, iz, meta, 2);
                     }
                     if (tileentity != null) {
-                        if (tileentity instanceof IShipTileEntity) {
-                            ((IShipTileEntity) tileentity).setParentShip(null, i, j, k);
+                        if (tileentity instanceof IMovingWorldTileEntity) {
+                            ((IMovingWorldTileEntity) tileentity).setParentMovingWorld(null, i, j, k);
                         }
                         tileentity.validate();
                         world.setTileEntity(ix, iy, iz, tileentity);
                     }
 
-                    if (!ArchimedesShipMod.instance.metaRotations.hasBlock(block)) {
+                    if (!MovingWorld.instance.metaRotations.hasBlock(block)) {
                         //ShipMod.modLog.debug("Forge-rotating block " + Block.blockRegistry.getNameForObject(block));
-                        rotateBlock(block, world, ix, iy, iz, currentrot);
+                        rotateBlock(block, world, assemblyInteractor, ix, iy, iz, currentRot);
                         block = world.getBlock(ix, iy, iz);
                         meta = world.getBlockMetadata(ix, iy, iz);
                         tileentity = world.getTileEntity(ix, iy, iz);
                     }
 
                     LocatedBlock lb = new LocatedBlock(block, meta, tileentity, new ChunkPosition(ix, iy, iz));
+                    assemblyInteractor.blockDisassembled(lb);
                     result.assembleBlock(lb);
-                    if (block == ArchimedesShipMod.blockMarkShip && i == ship.seatX && j == ship.seatY && k == ship.seatZ) {
-                        result.shipMarkingBlock = lb;
-                    }
                 }
             }
         }
@@ -148,22 +148,24 @@ public class ChunkDisassembler {
             ix = ilb.coords.chunkPosX;
             iy = ilb.coords.chunkPosY;
             iz = ilb.coords.chunkPosZ;
-            ArchimedesShipMod.modLog.debug("Post-rejoining block: " + ilb.toString());
+            MovingWorld.logger.debug("Post-rejoining block: " + ilb.toString());
             world.setBlock(ix, iy, iz, ilb.block, ilb.blockMeta, 0);
+            assemblyInteractor.blockDisassembled(ilb);
             result.assembleBlock(ilb);
         }
 
-        ship.setDead();
+        movingWorld.setDead();
 
-        if (result.shipMarkingBlock == null || !(result.shipMarkingBlock.tileEntity instanceof TileEntityHelm)) {
+        if (result.movingWorldMarkingBlock == null || !assemblyInteractor.isTileMovingWorldMarker(result.movingWorldMarkingBlock.tileEntity)) {
             result.resultCode = AssembleResult.RESULT_MISSING_MARKER;
         } else {
             result.checkConsistent(world);
         }
+        assemblyInteractor.chunkDissasembled(result);
         return result;
     }
 
-    private void rotateBlock(Block block, World world, int x, int y, int z, int deltarot) {
+    private void rotateBlock(Block block, World world, MovingWorldAssemblyInteractor assemblyInteractor, int x, int y, int z, int deltarot) {
         deltarot &= 3;
         if (deltarot != 0) {
             if (deltarot == 3) {

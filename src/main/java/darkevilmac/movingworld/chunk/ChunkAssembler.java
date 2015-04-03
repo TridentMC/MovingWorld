@@ -1,5 +1,6 @@
 package darkevilmac.movingworld.chunk;
 
+import darkevilmac.movingworld.MovingWorld;
 import net.minecraft.block.Block;
 import net.minecraft.world.ChunkPosition;
 import net.minecraft.world.World;
@@ -23,98 +24,97 @@ public class ChunkAssembler {
         maxBlocks = maxMovingWorldBlocks;
     }
 
-    public AssembleResult doAssemble() {
+    public AssembleResult doAssemble(MovingWorldAssemblyInteractor assemblyInteractor) {
         AssembleResult result = new AssembleResult();
         result.xOffset = startX;
         result.yOffset = startY;
         result.zOffset = startZ;
         try {
-            if (ArchimedesShipMod.instance.modConfig.useNewAlgorithm) {
-                assembleIterative(result, startX, startY, startZ);
+            if (MovingWorld.instance.mConfig.iterativeAlgorithm) {
+                assembleIterative(result, assemblyInteractor, startX, startY, startZ);
             } else {
-                assembleRecursive(result, new HashSet<ChunkPosition>(), startX, startY, startZ);
+                assembleRecursive(result, new HashSet<ChunkPosition>(), assemblyInteractor, startX, startY, startZ);
             }
-            if (result.shipMarkingBlock == null) {
+            if (result.movingWorldMarkingBlock == null) {
                 result.resultCode = AssembleResult.RESULT_MISSING_MARKER;
             } else {
                 result.resultCode = AssembleResult.RESULT_OK;
             }
-        } catch (ShipSizeOverflowException e) {
+        } catch (MovingWorldSizeOverflowException e) {
             result.resultCode = AssembleResult.RESULT_BLOCK_OVERFLOW;
         } catch (Error e) {
-            ArchimedesShipMod.modLog.error("Error while compiling ship", e);
+            MovingWorld.logger.error("Error while assembling Moving World instance.", e);
             result.resultCode = AssembleResult.RESULT_ERROR_OCCURED;
         }
+        assemblyInteractor.chunkAssembled(result);
         return result;
     }
 
-    private void assembleIterative(AssembleResult result, int sx, int sy, int sz) throws ShipSizeOverflowException {
-        HashSet<ChunkPosition> openset = new HashSet<ChunkPosition>();
-        HashSet<ChunkPosition> closedset = new HashSet<ChunkPosition>();
+    private void assembleIterative(AssembleResult result, MovingWorldAssemblyInteractor assemblyInteractor, int sx, int sy, int sz) throws MovingWorldSizeOverflowException {
+        HashSet<ChunkPosition> openSet = new HashSet<ChunkPosition>();
+        HashSet<ChunkPosition> closedSet = new HashSet<ChunkPosition>();
         List<ChunkPosition> iterator = new ArrayList<ChunkPosition>();
 
         int x = sx, y = sy, z = sz;
 
-        openset.add(new ChunkPosition(sx, sy, sz));
-        while (!openset.isEmpty()) {
-            iterator.addAll(openset);
+        openSet.add(new ChunkPosition(sx, sy, sz));
+        while (!openSet.isEmpty()) {
+            iterator.addAll(openSet);
             for (ChunkPosition pos : iterator) {
-                openset.remove(pos);
+                openSet.remove(pos);
 
-                if (closedset.contains(pos)) {
+                if (closedSet.contains(pos)) {
                     continue;
                 }
                 if (result.assembledBlocks.size() > maxBlocks) {
-                    throw new ShipSizeOverflowException();
+                    throw new MovingWorldSizeOverflowException();
                 }
 
                 x = pos.chunkPosX;
                 y = pos.chunkPosY;
                 z = pos.chunkPosZ;
 
-                closedset.add(pos);
+                closedSet.add(pos);
 
                 Block block = worldObj.getBlock(x, y, z);
-                if (!canUseBlockForVehicle(block, x, y, z)) {
+                if (!canUseBlockForVehicle(block, assemblyInteractor, x, y, z)) {
                     continue;
                 }
 
                 LocatedBlock lb = new LocatedBlock(block, worldObj.getBlockMetadata(x, y, z), worldObj.getTileEntity(x, y, z), pos);
+                assemblyInteractor.blockAssembled(lb);
                 result.assembleBlock(lb);
-                if (block == ArchimedesShipMod.blockMarkShip && result.shipMarkingBlock == null) {
-                    result.shipMarkingBlock = lb;
-                }
 
-                openset.add(new ChunkPosition(x - 1, y, z));
-                openset.add(new ChunkPosition(x, y - 1, z));
-                openset.add(new ChunkPosition(x, y, z - 1));
-                openset.add(new ChunkPosition(x + 1, y, z));
-                openset.add(new ChunkPosition(x, y + 1, z));
-                openset.add(new ChunkPosition(x, y, z + 1));
+                openSet.add(new ChunkPosition(x - 1, y, z));
+                openSet.add(new ChunkPosition(x, y - 1, z));
+                openSet.add(new ChunkPosition(x, y, z - 1));
+                openSet.add(new ChunkPosition(x + 1, y, z));
+                openSet.add(new ChunkPosition(x, y + 1, z));
+                openSet.add(new ChunkPosition(x, y, z + 1));
 
-                if (ArchimedesShipMod.instance.modConfig.connectDiagonalBlocks1) {
-                    openset.add(new ChunkPosition(x - 1, y - 1, z));
-                    openset.add(new ChunkPosition(x + 1, y - 1, z));
-                    openset.add(new ChunkPosition(x + 1, y + 1, z));
-                    openset.add(new ChunkPosition(x - 1, y + 1, z));
+                if (assemblyInteractor.doDiagonalAssembly()) {
+                    openSet.add(new ChunkPosition(x - 1, y - 1, z));
+                    openSet.add(new ChunkPosition(x + 1, y - 1, z));
+                    openSet.add(new ChunkPosition(x + 1, y + 1, z));
+                    openSet.add(new ChunkPosition(x - 1, y + 1, z));
 
-                    openset.add(new ChunkPosition(x - 1, y, z - 1));
-                    openset.add(new ChunkPosition(x + 1, y, z - 1));
-                    openset.add(new ChunkPosition(x + 1, y, z + 1));
-                    openset.add(new ChunkPosition(x - 1, y, z + 1));
+                    openSet.add(new ChunkPosition(x - 1, y, z - 1));
+                    openSet.add(new ChunkPosition(x + 1, y, z - 1));
+                    openSet.add(new ChunkPosition(x + 1, y, z + 1));
+                    openSet.add(new ChunkPosition(x - 1, y, z + 1));
 
-                    openset.add(new ChunkPosition(x, y - 1, z - 1));
-                    openset.add(new ChunkPosition(x, y + 1, z - 1));
-                    openset.add(new ChunkPosition(x, y + 1, z + 1));
-                    openset.add(new ChunkPosition(x, y - 1, z + 1));
+                    openSet.add(new ChunkPosition(x, y - 1, z - 1));
+                    openSet.add(new ChunkPosition(x, y + 1, z - 1));
+                    openSet.add(new ChunkPosition(x, y + 1, z + 1));
+                    openSet.add(new ChunkPosition(x, y - 1, z + 1));
                 }
             }
         }
     }
 
-    private void assembleRecursive(AssembleResult result, HashSet<ChunkPosition> set, int x, int y, int z) throws ShipSizeOverflowException {
+    private void assembleRecursive(AssembleResult result, HashSet<ChunkPosition> set, MovingWorldAssemblyInteractor assemblyInteractor, int x, int y, int z) throws MovingWorldSizeOverflowException {
         if (result.assembledBlocks.size() > maxBlocks) {
-            throw new ShipSizeOverflowException();
+            throw new MovingWorldSizeOverflowException();
         }
 
         ChunkPosition pos = new ChunkPosition(x, y, z);
@@ -122,40 +122,38 @@ public class ChunkAssembler {
 
         set.add(pos);
         Block block = worldObj.getBlock(x, y, z);
-        if (!canUseBlockForVehicle(block, x, y, z)) return;
+        if (!canUseBlockForVehicle(block, assemblyInteractor, x, y, z)) return;
 
         LocatedBlock lb = new LocatedBlock(block, worldObj.getBlockMetadata(x, y, z), worldObj.getTileEntity(x, y, z), pos);
+        assemblyInteractor.blockAssembled(lb);
         result.assembleBlock(lb);
-        if (block == ArchimedesShipMod.blockMarkShip && result.shipMarkingBlock == null) {
-            result.shipMarkingBlock = lb;
-        }
 
-        assembleRecursive(result, set, x - 1, y, z);
-        assembleRecursive(result, set, x, y - 1, z);
-        assembleRecursive(result, set, x, y, z - 1);
-        assembleRecursive(result, set, x + 1, y, z);
-        assembleRecursive(result, set, x, y + 1, z);
-        assembleRecursive(result, set, x, y, z + 1);
+        assembleRecursive(result, set, assemblyInteractor, x - 1, y, z);
+        assembleRecursive(result, set, assemblyInteractor, x, y - 1, z);
+        assembleRecursive(result, set, assemblyInteractor, x, y, z - 1);
+        assembleRecursive(result, set, assemblyInteractor, x + 1, y, z);
+        assembleRecursive(result, set, assemblyInteractor, x, y + 1, z);
+        assembleRecursive(result, set, assemblyInteractor, x, y, z + 1);
 
-        if (ArchimedesShipMod.instance.modConfig.connectDiagonalBlocks1) {
-            assembleRecursive(result, set, x - 1, y - 1, z);
-            assembleRecursive(result, set, x + 1, y - 1, z);
-            assembleRecursive(result, set, x + 1, y + 1, z);
-            assembleRecursive(result, set, x - 1, y + 1, z);
+        if (assemblyInteractor.doDiagonalAssembly()) {
+            assembleRecursive(result, set, assemblyInteractor, x - 1, y - 1, z);
+            assembleRecursive(result, set, assemblyInteractor, x + 1, y - 1, z);
+            assembleRecursive(result, set, assemblyInteractor, x + 1, y + 1, z);
+            assembleRecursive(result, set, assemblyInteractor, x - 1, y + 1, z);
 
-            assembleRecursive(result, set, x - 1, y, z - 1);
-            assembleRecursive(result, set, x + 1, y, z - 1);
-            assembleRecursive(result, set, x + 1, y, z + 1);
-            assembleRecursive(result, set, x - 1, y, z + 1);
+            assembleRecursive(result, set, assemblyInteractor, x - 1, y, z - 1);
+            assembleRecursive(result, set, assemblyInteractor, x + 1, y, z - 1);
+            assembleRecursive(result, set, assemblyInteractor, x + 1, y, z + 1);
+            assembleRecursive(result, set, assemblyInteractor, x - 1, y, z + 1);
 
-            assembleRecursive(result, set, x, y - 1, z - 1);
-            assembleRecursive(result, set, x, y + 1, z - 1);
-            assembleRecursive(result, set, x, y + 1, z + 1);
-            assembleRecursive(result, set, x, y - 1, z + 1);
+            assembleRecursive(result, set, assemblyInteractor, x, y - 1, z - 1);
+            assembleRecursive(result, set, assemblyInteractor, x, y + 1, z - 1);
+            assembleRecursive(result, set, assemblyInteractor, x, y + 1, z + 1);
+            assembleRecursive(result, set, assemblyInteractor, x, y - 1, z + 1);
         }
     }
 
-    public boolean canUseBlockForVehicle(Block block, int x, int y, int z) {
-        return !block.isAir(worldObj, x, y, z) && !block.getMaterial().isLiquid() && block != ArchimedesShipMod.blockBuffer && ArchimedesShipMod.instance.modConfig.isBlockAllowed(block);
+    public boolean canUseBlockForVehicle(Block block, MovingWorldAssemblyInteractor assemblyInteractor, int x, int y, int z) {
+        return assemblyInteractor.isBlockAllowed(worldObj, block, x, y, z);
     }
 }

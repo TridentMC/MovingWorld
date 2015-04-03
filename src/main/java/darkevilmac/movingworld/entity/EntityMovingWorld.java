@@ -37,12 +37,14 @@ public abstract class EntityMovingWorld extends Entity implements IEntityAdditio
 
     public float motionYaw;
     public int frontDirection;
+    public int riderDestinationX, riderDestinationY, riderDestinationZ;
     protected float groundFriction, horFriction, vertFriction;
     boolean isFlying;
     int[] layeredBlockVolumeCount;
     private MobileChunk shipChunk;
     private MovingWorldCapabilities capabilities;
     private MovingWorldInfo info;
+
     private ChunkDisassembler disassembler;
 
     // Related to actual movement. We don't ever really change this variables, they're changed by classes derived from EntityMovingWorld
@@ -115,15 +117,30 @@ public abstract class EntityMovingWorld extends Entity implements IEntityAdditio
     @SideOnly(Side.CLIENT)
     private void initClient() {
         shipChunk = new MobileChunkClient(worldObj, this);
+        initMovingWorldClient();
     }
 
     private void initCommon() {
         shipChunk = new MobileChunkServer(worldObj, this);
+        initMovingWorldCommon();
     }
 
     @Override
     protected void entityInit() {
         dataWatcher.addObject(30, Byte.valueOf((byte) 0));
+        movingWorldInit();
+    }
+
+    public void initMovingWorldClient() {
+        //No implementation.
+    }
+
+    public void initMovingWorldCommon() {
+        //No implementation.
+    }
+
+    public void movingWorldInit() {
+        //No implementation
     }
 
     public MobileChunk getShipChunk() {
@@ -363,6 +380,58 @@ public abstract class EntityMovingWorld extends Entity implements IEntityAdditio
         setRotation(rotationYaw, rotationPitch);
     }
 
+    @Override
+    public void updateRiderPosition() {
+        updateRiderPosition(riddenByEntity, riderDestinationX, riderDestinationY, riderDestinationZ, 1);
+    }
+
+    public void updateRiderPosition(Entity entity, int riderDestinationX, int riderDestinationY, int riderDestinationZ, int flags) {
+        if (entity != null) {
+            float yaw = (float) Math.toRadians(rotationYaw);
+            float pitch = (float) Math.toRadians(rotationPitch);
+
+            int x1 = riderDestinationX, y1 = riderDestinationY, z1 = riderDestinationZ;
+            if ((flags & 1) == 1) {
+                if (frontDirection == 0) {
+                    z1 -= 1;
+                } else if (frontDirection == 1) {
+                    x1 += 1;
+                } else if (frontDirection == 2) {
+                    z1 += 1;
+                } else if (frontDirection == 3) {
+                    x1 -= 1;
+                }
+
+                Block block = shipChunk.getBlock(x1, MathHelper.floor_double(y1 + getMountedYOffset() + entity.getYOffset()), z1);
+                if (block.isOpaqueCube()) {
+                    x1 = riderDestinationX;
+                    y1 = riderDestinationY;
+                    z1 = riderDestinationZ;
+                }
+            }
+
+            double yoff = (flags & 2) == 2 ? 0d : getMountedYOffset();
+            Vec3 vec = Vec3.createVectorHelper(x1 - shipChunk.getCenterX() + 0.5d, y1 - shipChunk.minY() + yoff, z1 - shipChunk.getCenterZ() + 0.5d);
+            switch (frontDirection) {
+                case 0:
+                    vec.rotateAroundZ(-pitch);
+                    break;
+                case 1:
+                    vec.rotateAroundX(pitch);
+                    break;
+                case 2:
+                    vec.rotateAroundZ(pitch);
+                    break;
+                case 3:
+                    vec.rotateAroundX(-pitch);
+                    break;
+            }
+            vec.rotateAroundY(yaw);
+
+            entity.setPosition(posX + vec.xCoord, posY + vec.yCoord + entity.getYOffset(), posZ + vec.zCoord);
+        }
+    }
+
     private boolean handleCollision(double cPosX, double cPosY, double cPosZ) {
         boolean didCollide = false;
         if (!worldObj.isRemote) {
@@ -424,9 +493,6 @@ public abstract class EntityMovingWorld extends Entity implements IEntityAdditio
             }
         }
         return didCollide;
-    }
-
-    private void handlePlayerControl() {
     }
 
     @Override
@@ -534,11 +600,11 @@ public abstract class EntityMovingWorld extends Entity implements IEntityAdditio
         ChunkDisassembler disassembler = getDisassembler();
         disassembler.overwrite = overwrite;
 
-        if (!disassembler.canDisassemble()) {
+        if (!disassembler.canDisassemble(getAssemblyInteractor())) {
             return false;
         }
 
-        AssembleResult result = disassembler.doDisassemble();
+        AssembleResult result = disassembler.doDisassemble(getAssemblyInteractor());
 
         return true;
     }
@@ -587,6 +653,13 @@ public abstract class EntityMovingWorld extends Entity implements IEntityAdditio
         }
     }
 
+    public void setPilotSeat(int frontDirection, int riderDestinationX, int riderDestinationY, int riderDestinationZ) {
+        this.frontDirection = frontDirection;
+        this.riderDestinationX = riderDestinationX;
+        this.riderDestinationY = riderDestinationY;
+        this.riderDestinationZ = riderDestinationZ;
+    }
+
     @Override
     protected void writeEntityToNBT(NBTTagCompound compound) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream(shipChunk.getMemoryUsage());
@@ -599,16 +672,19 @@ public abstract class EntityMovingWorld extends Entity implements IEntityAdditio
             e.printStackTrace();
         }
         compound.setByteArray("chunk", baos.toByteArray());
+        compound.setByte("riderDestinationX", (byte) riderDestinationX);
+        compound.setByte("riderDestinationY", (byte) riderDestinationY);
+        compound.setByte("riderDestinationZ", (byte) riderDestinationZ);
         compound.setByte("front", (byte) frontDirection);
 
         if (!shipChunk.chunkTileEntityMap.isEmpty()) {
-            NBTTagList tileentities = new NBTTagList();
+            NBTTagList tileEntities = new NBTTagList();
             for (TileEntity tileentity : shipChunk.chunkTileEntityMap.values()) {
                 NBTTagCompound comp = new NBTTagCompound();
                 tileentity.writeToNBT(comp);
-                tileentities.appendTag(comp);
+                tileEntities.appendTag(comp);
             }
-            compound.setTag("tileent", tileentities);
+            compound.setTag("tileent", tileEntities);
         }
 
         compound.setString("name", info.getName());
@@ -632,7 +708,18 @@ public abstract class EntityMovingWorld extends Entity implements IEntityAdditio
             e.printStackTrace();
         }
 
-        frontDirection = compound.getByte("front") & 3;
+        if (compound.hasKey("riderDestination")) {
+            short s = compound.getShort("riderDestination");
+            riderDestinationX = s & 0xF;
+            riderDestinationY = s >>> 4 & 0xF;
+            riderDestinationZ = s >>> 8 & 0xF;
+            frontDirection = s >>> 12 & 3;
+        } else {
+            riderDestinationX = compound.getByte("riderDestinationX") & 0xFF;
+            riderDestinationY = compound.getByte("riderDestinationY") & 0xFF;
+            riderDestinationZ = compound.getByte("riderDestinationZ") & 0xFF;
+            frontDirection = compound.getByte("front") & 3;
+        }
 
         NBTTagList tileentities = compound.getTagList("tileent", 10);
         if (tileentities != null) {
@@ -655,6 +742,9 @@ public abstract class EntityMovingWorld extends Entity implements IEntityAdditio
 
     @Override
     public void writeSpawnData(ByteBuf data) {
+        data.writeByte(riderDestinationX);
+        data.writeByte(riderDestinationY);
+        data.writeByte(riderDestinationZ);
         data.writeByte(frontDirection);
 
         data.writeShort(info.getName().length());
@@ -664,7 +754,7 @@ public abstract class EntityMovingWorld extends Entity implements IEntityAdditio
             ChunkIO.writeAllCompressed(data, shipChunk);
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (ShipSizeOverflowException ssoe) {
+        } catch (MovingWorldSizeOverflowException ssoe) {
             disassemble(false);
             MovingWorld.logger.warn("Ship is too large to be sent");
         }
@@ -675,6 +765,9 @@ public abstract class EntityMovingWorld extends Entity implements IEntityAdditio
 
     @Override
     public void readSpawnData(ByteBuf data) {
+        riderDestinationX = data.readUnsignedByte();
+        riderDestinationY = data.readUnsignedByte();
+        riderDestinationZ = data.readUnsignedByte();
         frontDirection = data.readUnsignedByte();
 
         byte[] ab = new byte[data.readShort()];
@@ -697,4 +790,6 @@ public abstract class EntityMovingWorld extends Entity implements IEntityAdditio
     public abstract float getYRenderScale();
 
     public abstract float getZRenderScale();
+
+    public abstract MovingWorldAssemblyInteractor getAssemblyInteractor();
 }

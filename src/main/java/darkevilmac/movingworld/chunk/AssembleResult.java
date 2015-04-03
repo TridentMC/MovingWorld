@@ -1,6 +1,8 @@
 package darkevilmac.movingworld.chunk;
 
 
+import darkevilmac.movingworld.MaterialDensity;
+import darkevilmac.movingworld.MovingWorld;
 import darkevilmac.movingworld.entity.EntityMovingWorld;
 import darkevilmac.movingworld.event.AssembleBlockEvent;
 import io.netty.buffer.ByteBuf;
@@ -20,10 +22,9 @@ public class AssembleResult {
             RESULT_BUSY_COMPILING = 5, RESULT_INCONSISTENT = 6, RESULT_OK_WITH_WARNINGS = 7;
     public final List<LocatedBlock> assembledBlocks = new ArrayList<LocatedBlock>();
     public int xOffset, yOffset, zOffset;
-    LocatedBlock shipMarkingBlock;
+    LocatedBlock movingWorldMarkingBlock;
     int resultCode;
     int blockCount;
-    int balloonCount;
     int tileEntityCount;
     float mass;
 
@@ -31,7 +32,6 @@ public class AssembleResult {
         resultCode = buf.readByte();
         if (resultCode == RESULT_NONE) return;
         blockCount = buf.readInt();
-        balloonCount = buf.readInt();
         tileEntityCount = buf.readInt();
         mass = buf.readFloat();
     }
@@ -39,7 +39,6 @@ public class AssembleResult {
     public AssembleResult(NBTTagCompound compound, World world) {
         resultCode = compound.getByte("res");
         blockCount = compound.getInteger("blockc");
-        balloonCount = compound.getInteger("balloonc");
         tileEntityCount = compound.getInteger("tec");
         mass = compound.getFloat("mass");
         xOffset = compound.getInteger("xO");
@@ -54,7 +53,7 @@ public class AssembleResult {
         }
         if (compound.hasKey("marker")) {
             NBTTagCompound comp = compound.getCompoundTag("marker");
-            shipMarkingBlock = new LocatedBlock(comp, world);
+            movingWorldMarkingBlock = new LocatedBlock(comp, world);
         }
     }
 
@@ -65,9 +64,6 @@ public class AssembleResult {
     void assembleBlock(LocatedBlock lb) {
         assembledBlocks.add(lb);
         blockCount = assembledBlocks.size();
-        if (lb.block == ArchimedesShipMod.blockBalloon) {
-            balloonCount++;
-        }
         if (lb.tileEntity != null) {
             tileEntityCount++;
         }
@@ -79,19 +75,21 @@ public class AssembleResult {
 
     public void clear() {
         resultCode = RESULT_NONE;
-        shipMarkingBlock = null;
+        movingWorldMarkingBlock = null;
         assembledBlocks.clear();
-        blockCount = balloonCount = tileEntityCount = 0;
         xOffset = yOffset = zOffset = 0;
     }
 
-    public EntityMovingWorld getEntity(World world) {
+    public EntityMovingWorld getEntity(World world, EntityMovingWorld entity) {
         if (!isOK()) return null;
 
-        EntityMovingWorld entity = new EntityMovingWorld(world);
+        if (entity == null) {
+            MovingWorld.logger.error("A null movingWorld was attempted!");
+            return null;
+        }
 
-        entity.setPilotSeat(shipMarkingBlock.blockMeta & 3, shipMarkingBlock.coords.chunkPosX - xOffset, shipMarkingBlock.coords.chunkPosY - yOffset, shipMarkingBlock.coords.chunkPosZ - zOffset);
-        entity.getShipChunk().setCreationSpotBiomeGen(world.getBiomeGenForCoords(shipMarkingBlock.coords.chunkPosX, shipMarkingBlock.coords.chunkPosZ));
+        entity.setPilotSeat(movingWorldMarkingBlock.blockMeta & 3, movingWorldMarkingBlock.coords.chunkPosX - xOffset, movingWorldMarkingBlock.coords.chunkPosY - yOffset, movingWorldMarkingBlock.coords.chunkPosZ - zOffset);
+        entity.getShipChunk().setCreationSpotBiomeGen(world.getBiomeGenForCoords(movingWorldMarkingBlock.coords.chunkPosX, movingWorldMarkingBlock.coords.chunkPosZ));
 
         boolean flag = world.getGameRules().getGameRuleBooleanValue("doTileDrops");
         world.getGameRules().setOrCreateGameRule("doTileDrops", "false");
@@ -141,15 +139,11 @@ public class AssembleResult {
     }
 
     public LocatedBlock getShipMarker() {
-        return shipMarkingBlock;
+        return movingWorldMarkingBlock;
     }
 
     public int getBlockCount() {
         return blockCount;
-    }
-
-    public int getBalloonCount() {
-        return balloonCount;
     }
 
     public int getTileEntityCount() {
@@ -186,9 +180,9 @@ public class AssembleResult {
         }
         compound.setTag("list", list);
 
-        if (shipMarkingBlock != null) {
+        if (movingWorldMarkingBlock != null) {
             NBTTagCompound comp = new NBTTagCompound();
-            shipMarkingBlock.writeToNBT(comp);
+            movingWorldMarkingBlock.writeToNBT(comp);
             compound.setTag("marker", comp);
         }
     }
@@ -196,7 +190,6 @@ public class AssembleResult {
     public void writeNBTMetadata(NBTTagCompound compound) {
         compound.setByte("res", (byte) getCode());
         compound.setInteger("blockc", getBlockCount());
-        compound.setInteger("balloonc", getBalloonCount());
         compound.setInteger("tec", getTileEntityCount());
         compound.setFloat("mass", getMass());
         compound.setInteger("xO", xOffset);
