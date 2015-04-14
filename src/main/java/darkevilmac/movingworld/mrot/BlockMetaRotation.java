@@ -8,7 +8,7 @@ public class BlockMetaRotation {
     private int bitMask;
 
     protected BlockMetaRotation(Block block, int[] metarotation, int bitmask) {
-        if (metarotation.length != 4) throw new IllegalArgumentException("MetaRotation int array must have length 4");
+        if (metarotation.length != 4) throw new IllegalArgumentException("ejejejej");
         this.block = block;
         metaRotation = metarotation;
         bitMask = bitmask;
