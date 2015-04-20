@@ -162,6 +162,7 @@ public class ChunkDisassembler {
             result.checkConsistent(world);
         }
         assemblyInteractor.chunkDissasembled(result);
+        result.assemblyInteractor = assemblyInteractor;
         return result;
     }
 

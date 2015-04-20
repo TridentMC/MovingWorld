@@ -33,20 +33,17 @@ import java.util.UUID;
 /**
  * All moving sections of blocks extend from this class.
  */
-public abstract class EntityMovingWorld extends Entity implements IEntityAdditionalSpawnData {
+public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdditionalSpawnData {
 
     public float motionYaw;
     public int frontDirection;
     public int riderDestinationX, riderDestinationY, riderDestinationZ;
     protected float groundFriction, horFriction, vertFriction;
-    boolean isFlying;
+    public boolean isFlying;
     int[] layeredBlockVolumeCount;
     private MobileChunk shipChunk;
-    private MovingWorldCapabilities capabilities;
     private MovingWorldInfo info;
-
     private ChunkDisassembler disassembler;
-
     // Related to actual movement. We don't ever really change this variables, they're changed by classes derived from EntityMovingWorld
     private boolean noControl;
     private boolean syncPosWithServer;
@@ -59,10 +56,9 @@ public abstract class EntityMovingWorld extends Entity implements IEntityAdditio
     @SideOnly(Side.CLIENT)
     private double controlVelX, controlVelY, controlVelZ;
 
-    public EntityMovingWorld(World world, MovingWorldCapabilities capabilities) {
+    public EntityMovingWorld(World world) {
         super(world);
         info = new MovingWorldInfo();
-        this.capabilities = capabilities;
         if (world.isRemote) {
             initClient();
         } else {
@@ -114,6 +110,14 @@ public abstract class EntityMovingWorld extends Entity implements IEntityAdditio
         return false;
     }
 
+    public int[] getLayeredBlockVolumeCount() {
+        return layeredBlockVolumeCount;
+    }
+
+    public void setLayeredBlockVolumeCount(int[] layeredBlockVolumeCount) {
+        this.layeredBlockVolumeCount = layeredBlockVolumeCount;
+    }
+
     @SideOnly(Side.CLIENT)
     private void initClient() {
         shipChunk = new MobileChunkClient(worldObj, this);
@@ -143,13 +147,11 @@ public abstract class EntityMovingWorld extends Entity implements IEntityAdditio
         //No implementation
     }
 
-    public MobileChunk getShipChunk() {
+    public MobileChunk getMovingWorldChunk() {
         return shipChunk;
     }
 
-    public MovingWorldCapabilities getCapabilities() {
-        return capabilities;
-    }
+    public abstract MovingWorldCapabilities getCapabilities();
 
     public ChunkDisassembler getDisassembler() {
         if (disassembler == null) {
@@ -171,7 +173,7 @@ public abstract class EntityMovingWorld extends Entity implements IEntityAdditio
     public void setDead() {
         super.setDead();
         shipChunk.onChunkUnload();
-        capabilities.clear();
+        getCapabilities().clear();
     }
 
     @Override
@@ -264,7 +266,7 @@ public abstract class EntityMovingWorld extends Entity implements IEntityAdditio
         double horvel = Math.sqrt(motionX * motionX + motionZ * motionZ);
         if (worldObj.isRemote) {
             if (riddenByEntity == null) {
-                noControl = true;
+                setNoControl(true);
             }
         }
 
@@ -306,6 +308,11 @@ public abstract class EntityMovingWorld extends Entity implements IEntityAdditio
         setRotatedBoundingBox();
     }
 
+    public void setNoControl(boolean noControl) {
+        this.noControl = noControl;
+        setIsBoatEmpty(this.noControl);
+    }
+
     protected void handleServerUpdate(double horvel) {
         //START outer forces
         byte b0 = 5;
@@ -341,7 +348,7 @@ public abstract class EntityMovingWorld extends Entity implements IEntityAdditio
         if (waterVolume > 0F) {
             isFlying = false;
             float buoyancyforce = 1F * waterVolume * gravity; //F = rho * V * g (Archimedes' law)
-            float mass = capabilities.getMass();
+            float mass = getCapabilities().getMass();
             motionY += buoyancyforce / mass;
         }
         if (!isFlying()) {
@@ -349,9 +356,11 @@ public abstract class EntityMovingWorld extends Entity implements IEntityAdditio
         }
         //END outer forces
 
+        handleControl(horvel);
+
         //START limit motion
         double newhorvel = Math.sqrt(motionX * motionX + motionZ * motionZ);
-        double maxvel = capabilities.getSpeedLimit();
+        double maxvel = getCapabilities().getSpeedLimit();
         if (newhorvel > maxvel) {
             double d = maxvel / newhorvel;
             motionX *= d;
@@ -366,7 +375,7 @@ public abstract class EntityMovingWorld extends Entity implements IEntityAdditio
             motionY *= groundFriction;
             motionZ *= groundFriction;
         }
-        rotationPitch = rotationPitch + (motionYaw * capabilities.getBankingMultiplier() - rotationPitch) * 0.15f;
+        rotationPitch = rotationPitch + (motionYaw * getCapabilities().getBankingMultiplier() - rotationPitch) * 0.15f;
         motionYaw *= 0.7F;
         //motionYaw = MathHelper.clamp_float(motionYaw, -BASE_TURN_SPEED * ShipMod.instance.modConfig.turnSpeed, BASE_TURN_SPEED * ShipMod.instance.modConfig.turnSpeed);
         rotationYaw += motionYaw;
@@ -505,7 +514,7 @@ public abstract class EntityMovingWorld extends Entity implements IEntityAdditio
     }
 
     public boolean isFlying() {
-        return capabilities.canFly() && isFlying;
+        return getCapabilities().canFly() && isFlying;
     }
 
     public abstract boolean isBraking();
@@ -636,7 +645,7 @@ public abstract class EntityMovingWorld extends Entity implements IEntityAdditio
         }
     }
 
-    void fillAirBlocks(Set<ChunkPosition> set, int x, int y, int z) {
+    protected void fillAirBlocks(Set<ChunkPosition> set, int x, int y, int z) {
         if (x < shipChunk.minX() - 1 || x > shipChunk.maxX() || y < shipChunk.minY() - 1 || y > shipChunk.maxY() || z < shipChunk.minZ() - 1 || z > shipChunk.maxZ())
             return;
         ChunkPosition pos = new ChunkPosition(x, y, z);
@@ -662,6 +671,7 @@ public abstract class EntityMovingWorld extends Entity implements IEntityAdditio
 
     @Override
     protected void writeEntityToNBT(NBTTagCompound compound) {
+        super.writeEntityToNBT(compound);
         ByteArrayOutputStream baos = new ByteArrayOutputStream(shipChunk.getMemoryUsage());
         DataOutputStream out = new DataOutputStream(baos);
         try {
@@ -698,6 +708,7 @@ public abstract class EntityMovingWorld extends Entity implements IEntityAdditio
 
     @Override
     protected void readEntityFromNBT(NBTTagCompound compound) {
+        super.readEntityFromNBT(compound);
         byte[] ab = compound.getByteArray("chunk");
         ByteArrayInputStream bais = new ByteArrayInputStream(ab);
         DataInputStream in = new DataInputStream(bais);
@@ -782,6 +793,12 @@ public abstract class EntityMovingWorld extends Entity implements IEntityAdditio
         shipChunk.onChunkLoad();
         readMovingWorldSpawnData(data);
     }
+
+    /**
+     * Server side only!
+     */
+    @SideOnly(Side.SERVER)
+    public abstract void handleControl(double horvel);
 
     public abstract void readMovingWorldSpawnData(ByteBuf data);
 

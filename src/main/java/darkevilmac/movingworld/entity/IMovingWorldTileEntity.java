@@ -9,5 +9,7 @@ public interface IMovingWorldTileEntity {
      */
     public void setParentMovingWorld(EntityMovingWorld entityMovingWorld, int x, int y, int z);
 
-    public EntityMovingWorld getParentShip();
+    public void setParentMovingWorld(EntityMovingWorld entityMovingWorld);
+
+    public EntityMovingWorld getParentMovingWorld();
 }

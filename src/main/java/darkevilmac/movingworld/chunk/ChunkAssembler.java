@@ -46,6 +46,7 @@ public class ChunkAssembler {
             MovingWorld.logger.error("Error while assembling Moving World instance.", e);
             result.resultCode = AssembleResult.RESULT_ERROR_OCCURED;
         }
+        result.assemblyInteractor = assemblyInteractor;
         assemblyInteractor.chunkAssembled(result);
         return result;
     }

@@ -14,7 +14,7 @@ public abstract class MovingWorldCapabilities {
     private float bankingMultiplier;
     private boolean canFly;
 
-    MovingWorldCapabilities(EntityMovingWorld movingWorld, boolean autoCalcMass) {
+    public MovingWorldCapabilities(EntityMovingWorld movingWorld, boolean autoCalcMass) {
         this.movingWorld = movingWorld;
         this.autoCalcMass = autoCalcMass;
         clear();
@@ -33,9 +33,7 @@ public abstract class MovingWorldCapabilities {
             mass += MaterialDensity.getDensity(block);
     }
 
-    public boolean mountEntity(Entity entity) {
-        return false;
-    }
+    public abstract boolean mountEntity(Entity entity);
 
     public void clearBlockCount() {
         blockCount = 0;
@@ -69,7 +67,6 @@ public abstract class MovingWorldCapabilities {
     public void setBankingMultiplier(float bankingMultiplier) {
         this.bankingMultiplier = bankingMultiplier;
     }
-
 
     public boolean canFly() {
         return canFly;

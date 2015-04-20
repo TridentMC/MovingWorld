@@ -27,6 +27,7 @@ public class AssembleResult {
     int blockCount;
     int tileEntityCount;
     float mass;
+    public MovingWorldAssemblyInteractor assemblyInteractor;
 
     public AssembleResult(ByteBuf buf) {
         resultCode = buf.readByte();
@@ -89,7 +90,7 @@ public class AssembleResult {
         }
 
         entity.setPilotSeat(movingWorldMarkingBlock.blockMeta & 3, movingWorldMarkingBlock.coords.chunkPosX - xOffset, movingWorldMarkingBlock.coords.chunkPosY - yOffset, movingWorldMarkingBlock.coords.chunkPosZ - zOffset);
-        entity.getShipChunk().setCreationSpotBiomeGen(world.getBiomeGenForCoords(movingWorldMarkingBlock.coords.chunkPosX, movingWorldMarkingBlock.coords.chunkPosZ));
+        entity.getMovingWorldChunk().setCreationSpotBiomeGen(world.getBiomeGenForCoords(movingWorldMarkingBlock.coords.chunkPosX, movingWorldMarkingBlock.coords.chunkPosZ));
 
         boolean flag = world.getGameRules().getGameRuleBooleanValue("doTileDrops");
         world.getGameRules().setOrCreateGameRule("doTileDrops", "false");
@@ -107,8 +108,8 @@ public class AssembleResult {
                 if (tileentity != null || lb.block.hasTileEntity(lb.blockMeta) && (tileentity = world.getTileEntity(lb.coords.chunkPosX, lb.coords.chunkPosY, lb.coords.chunkPosZ)) != null) {
                     tileentity.validate();
                 }
-                if (entity.getShipChunk().setBlockIDWithMetadata(ix, iy, iz, lb.block, lb.blockMeta)) {
-                    entity.getShipChunk().setTileEntity(ix, iy, iz, tileentity);
+                if (entity.getMovingWorldChunk().setBlockIDWithMetadata(ix, iy, iz, lb.block, lb.blockMeta)) {
+                    entity.getMovingWorldChunk().setTileEntity(ix, iy, iz, tileentity);
                     world.setBlock(lb.coords.chunkPosX, lb.coords.chunkPosY, lb.coords.chunkPosZ, Blocks.air, 1, 2);
                 }
             }
@@ -123,9 +124,10 @@ public class AssembleResult {
             world.getGameRules().setOrCreateGameRule("doTileDrops", String.valueOf(flag));
         }
 
-        entity.getShipChunk().setChunkModified();
-        entity.getShipChunk().onChunkLoad();
-        entity.setLocationAndAngles(xOffset + entity.getShipChunk().getCenterX(), yOffset, zOffset + entity.getShipChunk().getCenterZ(), 0F, 0F);
+        entity.getMovingWorldChunk().setChunkModified();
+        entity.getMovingWorldChunk().onChunkLoad();
+        entity.setLocationAndAngles(xOffset + entity.getMovingWorldChunk().getCenterX(), yOffset, zOffset + entity.getMovingWorldChunk().getCenterZ(), 0F, 0F);
+        assemblyInteractor.transferToCapabilities(entity.getCapabilities());
 
         return entity;
     }

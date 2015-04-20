@@ -1,6 +1,8 @@
 package darkevilmac.movingworld.chunk;
 
 import darkevilmac.movingworld.MovingWorld;
+import darkevilmac.movingworld.entity.EntityMovingWorld;
+import darkevilmac.movingworld.entity.MovingWorldCapabilities;
 import net.minecraft.block.Block;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
@@ -68,6 +70,12 @@ public class MovingWorldAssemblyInteractor {
 
     public boolean isTileMovingWorldMarker(TileEntity tile) {
         return false;
+    }
+
+    /**
+     * Use this method to transfer information to your ship capabilities.
+     */
+    public void transferToCapabilities(MovingWorldCapabilities capabilities){
     }
 
 }
