@@ -16,7 +16,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.IChatComponent;
 import net.minecraft.world.World;
-import org.lwjgl.Sys;
 
 import java.util.UUID;
 
@@ -135,7 +134,7 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
     @Override
     public Packet getDescriptionPacket() {
         NBTTagCompound compound = new NBTTagCompound();
-        writeNBTforSending(compound);
+        writeNBTForSending(compound);
         return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 0, compound);
     }
 
@@ -174,6 +173,7 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
         }
         if (compound.hasKey("res")) {
             assembleResult = new AssembleResult(compound.getCompoundTag("res"), worldObj);
+            assembleResult.assemblyInteractor = new MovingWorldAssemblyInteractor().fromNBT(compound.getCompoundTag("res"), worldObj);
         }
     }
 
@@ -192,11 +192,12 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
         if (assembleResult != null) {
             NBTTagCompound comp = new NBTTagCompound();
             assembleResult.writeNBTFully(comp);
+            assembleResult.assemblyInteractor.writeNBTFully(comp);
             compound.setTag("res", comp);
         }
     }
 
-    public void writeNBTforSending(NBTTagCompound compound) {
+    public void writeNBTForSending(NBTTagCompound compound) {
         super.writeToNBT(compound);
         compound.setInteger("meta", blockMetadata);
         compound.setString("name", getInfo().getName());
@@ -206,6 +207,7 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
         if (assembleResult != null) {
             NBTTagCompound comp = new NBTTagCompound();
             assembleResult.writeNBTMetadata(comp);
+            assembleResult.assemblyInteractor.writeNBTMetadata(comp);
             compound.setTag("res", comp);
         }
     }

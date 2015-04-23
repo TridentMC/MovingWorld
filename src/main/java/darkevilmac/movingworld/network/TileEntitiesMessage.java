@@ -40,7 +40,7 @@ public class TileEntitiesMessage extends EntityMovingWorldMessage {
         for (TileEntity te : movingWorld.getMovingWorldChunk().chunkTileEntityMap.values()) {
             NBTTagCompound nbt = new NBTTagCompound();
             if (te instanceof TileMovingWorldMarkingBlock) {
-                ((TileMovingWorldMarkingBlock) te).writeNBTforSending(nbt);
+                ((TileMovingWorldMarkingBlock) te).writeNBTForSending(nbt);
             } else {
                 te.writeToNBT(nbt);
             }

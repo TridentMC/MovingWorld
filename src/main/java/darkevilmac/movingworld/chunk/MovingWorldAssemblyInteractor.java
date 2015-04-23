@@ -1,9 +1,10 @@
 package darkevilmac.movingworld.chunk;
 
 import darkevilmac.movingworld.MovingWorld;
-import darkevilmac.movingworld.entity.EntityMovingWorld;
 import darkevilmac.movingworld.entity.MovingWorldCapabilities;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
@@ -11,6 +12,14 @@ import net.minecraft.world.World;
  * Used for storing information given by and taken by the (Dis)Assembler
  */
 public class MovingWorldAssemblyInteractor {
+
+    public MovingWorldAssemblyInteractor fromByteBuf(ByteBuf byteBuf){
+        return new MovingWorldAssemblyInteractor();
+    }
+
+    public MovingWorldAssemblyInteractor fromNBT(NBTTagCompound tag, World world){
+        return new MovingWorldAssemblyInteractor();
+    }
 
     public boolean doDiagonalAssembly() {
         return MovingWorld.instance.mConfig.diagonalAssembly;
@@ -75,7 +84,24 @@ public class MovingWorldAssemblyInteractor {
     /**
      * Use this method to transfer information to your ship capabilities.
      */
-    public void transferToCapabilities(MovingWorldCapabilities capabilities){
+    public void transferToCapabilities(MovingWorldCapabilities capabilities) {
+    }
+
+    /**
+     * Recommended to call writeNBTMetadata first, then write the rest of your data.
+     *
+     * @param compound
+     */
+    public void writeNBTFully(NBTTagCompound compound) {
+    }
+
+
+    /**
+     * Write metadata to NBT.
+     *
+     * @param compound
+     */
+    public void writeNBTMetadata(NBTTagCompound compound) {
     }
 
 }
