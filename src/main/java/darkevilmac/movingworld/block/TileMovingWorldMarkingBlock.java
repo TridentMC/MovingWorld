@@ -16,6 +16,9 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.IChatComponent;
 import net.minecraft.world.World;
+import org.lwjgl.Sys;
+
+import java.util.UUID;
 
 public abstract class TileMovingWorldMarkingBlock extends TileEntity implements IMovingWorldTileEntity {
 
@@ -25,9 +28,11 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
 
     public abstract MovingWorldInfo getInfo();
 
+    public abstract void setInfo(MovingWorldInfo info);
+
     public abstract int getMaxBlocks();
 
-    protected AssembleResult getPrevAssembleResult() {
+    public AssembleResult getPrevAssembleResult() {
         return prevResult;
     }
 
@@ -35,17 +40,13 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
         prevResult = result;
     }
 
-    protected AssembleResult getAssembleResult() {
+    public AssembleResult getAssembleResult() {
         return assembleResult;
     }
 
     public void setAssembleResult(AssembleResult assembleResult) {
         this.assembleResult = assembleResult;
     }
-
-    public abstract MovingWorldInfo getMovingWorldInfo();
-
-    public abstract void setMovingWorldInfo(MovingWorldInfo movingWorldInfo);
 
     /**
      * For getting a new instance of your ship type to create.
@@ -158,8 +159,12 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
     @Override
     public void readFromNBT(NBTTagCompound compound) {
         super.readFromNBT(compound);
+        setInfo(new MovingWorldInfo());
+        getInfo().setName(compound.getString("name"));
+        if (compound.hasKey("owner")) {
+            getInfo().setOwner(UUID.fromString(compound.getString("owner")));
+        }
         blockMetadata = compound.getInteger("meta");
-        getMovingWorldInfo().setName(compound.getString("name"));
         if (compound.hasKey("ship") && worldObj != null) {
             int id = compound.getInteger("ship");
             Entity entity = worldObj.getEntityByID(id);
@@ -175,8 +180,12 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
     @Override
     public void writeToNBT(NBTTagCompound compound) {
         super.writeToNBT(compound);
+        compound.setString("name", getInfo().getName());
+        if (getInfo().getOwner() != null) {
+            compound.setString("owner", getInfo().getOwner().toString());
+        }
         compound.setInteger("meta", blockMetadata);
-        compound.setString("name", getMovingWorldInfo().getName());
+        compound.setString("name", getInfo().getName());
         if (getParentMovingWorld() != null && !getParentMovingWorld().isDead) {
             compound.setInteger("movingWorld", getParentMovingWorld().getEntityId());
         }
@@ -190,7 +199,7 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
     public void writeNBTforSending(NBTTagCompound compound) {
         super.writeToNBT(compound);
         compound.setInteger("meta", blockMetadata);
-        compound.setString("name", getMovingWorldInfo().getName());
+        compound.setString("name", getInfo().getName());
         if (getParentMovingWorld() != null && !getParentMovingWorld().isDead) {
             compound.setInteger("movingWorld", getParentMovingWorld().getEntityId());
         }

@@ -13,6 +13,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.item.EntityBoat;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -38,8 +39,8 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     public float motionYaw;
     public int frontDirection;
     public int riderDestinationX, riderDestinationY, riderDestinationZ;
-    protected float groundFriction, horFriction, vertFriction;
     public boolean isFlying;
+    protected float groundFriction, horFriction, vertFriction;
     int[] layeredBlockVolumeCount;
     private MobileChunk shipChunk;
     private MovingWorldInfo info;
@@ -110,6 +111,8 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         return false;
     }
 
+    public abstract MovingWorldHandlerCommon getHandler();
+
     public int[] getLayeredBlockVolumeCount() {
         return layeredBlockVolumeCount;
     }
@@ -132,20 +135,14 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     @Override
     protected void entityInit() {
         dataWatcher.addObject(30, Byte.valueOf((byte) 0));
-        movingWorldInit();
+        initMovingWorld();
     }
 
-    public void initMovingWorldClient() {
-        //No implementation.
-    }
+    public abstract void initMovingWorld();
 
-    public void initMovingWorldCommon() {
-        //No implementation.
-    }
+    public abstract void initMovingWorldClient();
 
-    public void movingWorldInit() {
-        //No implementation
-    }
+    public abstract void initMovingWorldCommon();
 
     public MobileChunk getMovingWorldChunk() {
         return shipChunk;
@@ -170,6 +167,11 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     }
 
     @Override
+    public boolean interactFirst(EntityPlayer entityplayer) {
+        return getHandler().interact(entityplayer);
+    }
+
+    @Override
     public void setDead() {
         super.setDead();
         shipChunk.onChunkUnload();
@@ -181,6 +183,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         super.onEntityUpdate();
         if (shipChunk.isModified) {
             shipChunk.isModified = false;
+            getHandler().onChunkUpdate();
         }
     }
 
@@ -809,4 +812,6 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     public abstract float getZRenderScale();
 
     public abstract MovingWorldAssemblyInteractor getAssemblyInteractor();
+
+    public abstract void setAssemblyInteractor(MovingWorldAssemblyInteractor interactor);
 }

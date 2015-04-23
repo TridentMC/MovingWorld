@@ -5,7 +5,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import net.minecraft.entity.player.EntityPlayer;
 
-public class MovingWorldActionMessage extends EntityMovingWorldMessage {
+public class MovingWorldClientActionMessage extends EntityMovingWorldMessage {
 
     public enum Action {
         NONE, ALIGN, DISASSEMBLE, DISASSEMBLEOVERWRITE;
@@ -40,12 +40,12 @@ public class MovingWorldActionMessage extends EntityMovingWorldMessage {
 
     public Action actionID;
 
-    public MovingWorldActionMessage() {
+    public MovingWorldClientActionMessage() {
         super();
         actionID = Action.NONE;
     }
 
-    public MovingWorldActionMessage(EntityMovingWorld movingWorld, Action id) {
+    public MovingWorldClientActionMessage(EntityMovingWorld movingWorld, Action id) {
         super(movingWorld);
         actionID = id;
     }

@@ -1,15 +1,9 @@
 package darkevilmac.movingworld.network;
 
+import darkevilmac.movingworld.MovingWorld;
 import darkevilmac.movingworld.entity.EntityMovingWorld;
-import darkevilmac.movingworld.network.advanced.MsgTileEntities;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-
-import javax.swing.text.html.parser.Entity;
-
-/**
- * Created by DarkEvilMac on 4/17/2015.
- */
 
 public class RequestMovingWorldDataMessage extends EntityMovingWorldMessage {
 
@@ -23,18 +17,17 @@ public class RequestMovingWorldDataMessage extends EntityMovingWorldMessage {
 
     @Override
     public void handleClientSide(EntityPlayer player) {
+    }
+
+    @Override
+    public void handleServerSide(EntityPlayer player) {
         if (movingWorld != null) {
             if (movingWorld.getMovingWorldChunk().chunkTileEntityMap.isEmpty()) {
                 return;
             }
 
-            MsgTileEntities msg = new MsgTileEntities(movingWorld);
-            ArchimedesShipMod.instance.pipeline.sendTo(msg, (EntityPlayerMP) player);
+            TileEntitiesMessage msg = new TileEntitiesMessage(movingWorld);
+            MovingWorld.instance.network.sendTo(msg, (EntityPlayerMP) player);
         }
-    }
-
-    @Override
-    public void handleServerSide(EntityPlayer player) {
-
     }
 }

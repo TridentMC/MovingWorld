@@ -4,8 +4,12 @@ import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.network.NetworkRegistry;
 import darkevilmac.movingworld.config.MainConfig;
 import darkevilmac.movingworld.mrot.MetaRotations;
+import darkevilmac.movingworld.network.MovingWorldMessageToMessageCodec;
+import darkevilmac.movingworld.network.MovingWorldPacketHandler;
+import darkevilmac.movingworld.network.NetworkUtil;
 import org.apache.logging.log4j.core.Logger;
 
 import java.io.File;
@@ -23,10 +27,12 @@ public class MovingWorld {
 
     public MetaRotations metaRotations;
     public MainConfig mConfig;
+    public NetworkUtil network;
 
     public MovingWorld() {
         mConfig = new MainConfig();
         metaRotations = new MetaRotations();
+        network = new NetworkUtil();
     }
 
 
@@ -41,7 +47,7 @@ public class MovingWorld {
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent e) {
-
+        network.channels = NetworkRegistry.INSTANCE.newChannel(MOD_ID, new MovingWorldMessageToMessageCodec(), new MovingWorldPacketHandler());
     }
 
     @Mod.EventHandler

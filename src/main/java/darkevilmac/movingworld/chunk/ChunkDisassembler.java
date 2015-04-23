@@ -29,7 +29,7 @@ public class ChunkDisassembler {
             return true;
         }
         World world = movingWorld.worldObj;
-        MobileChunk chunk = movingWorld.getShipChunk();
+        MobileChunk chunk = movingWorld.getMovingWorldChunk();
         float yaw = Math.round(movingWorld.rotationYaw / 90F) * 90F;
         yaw = (float) Math.toRadians(yaw);
 
@@ -65,7 +65,7 @@ public class ChunkDisassembler {
 
     public AssembleResult doDisassemble(MovingWorldAssemblyInteractor assemblyInteractor) {
         World world = movingWorld.worldObj;
-        MobileChunk chunk = movingWorld.getShipChunk();
+        MobileChunk chunk = movingWorld.getMovingWorldChunk();
         AssembleResult result = new AssembleResult();
         result.xOffset = Integer.MAX_VALUE;
         result.yOffset = Integer.MAX_VALUE;

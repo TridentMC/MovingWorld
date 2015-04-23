@@ -28,13 +28,13 @@ public class RenderMovingWorld extends Render {
         GL11.glRotatef(yaw, 0F, 1F, 0F);
         GL11.glRotatef(pitch, rx, 0f, rz);
 
-        float fx = entity.getShipChunk().getCenterX();
-        float fz = entity.getShipChunk().getCenterZ();
-        GL11.glTranslatef(-fx, -entity.getShipChunk().minY(), -fz); //minY is always 0
+        float fx = entity.getMovingWorldChunk().getCenterX();
+        float fz = entity.getMovingWorldChunk().getCenterZ();
+        GL11.glTranslatef(-fx, -entity.getMovingWorldChunk().minY(), -fz); //minY is always 0
 
         //float f4 = 0.75F;
         bindEntityTexture(entity);
-        ((MobileChunkClient) entity.getShipChunk()).getRenderer().render(0F);
+        ((MobileChunkClient) entity.getMovingWorldChunk()).getRenderer().render(0F);
         GL11.glPopMatrix();
 
         GL11.glPopAttrib();
