@@ -62,9 +62,14 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
             ChunkAssembler assembler = new ChunkAssembler(worldObj, xCoord, yCoord, zCoord, getMaxBlocks());
             assembleResult = assembler.doAssemble(getInteractor());
 
+            assembledMovingWorld(player, returnVal);
+
             ChatComponentText c;
             switch (assembleResult.getCode()) {
                 case AssembleResult.RESULT_OK:
+                    c = new ChatComponentText("Assembled " + getInfo().getName() + "!");
+                    player.addChatMessage(c);
+                    break;
                 case AssembleResult.RESULT_OK_WITH_WARNINGS:
                     returnVal = true;
                 case AssembleResult.RESULT_BLOCK_OVERFLOW:
@@ -85,7 +90,6 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
                     break;
                 default:
             }
-            assembledMovingWorld(player, returnVal);
         }
         return returnVal;
     }
@@ -158,7 +162,13 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
     @Override
     public void readFromNBT(NBTTagCompound compound) {
         super.readFromNBT(compound);
-        setInfo(new MovingWorldInfo());
+
+        if (compound.hasKey("name"))
+            System.out.println("Reading from NBT: " + compound.getString("name"));
+        else
+            System.out.println("No key found no need to log");
+
+
         getInfo().setName(compound.getString("name"));
         if (compound.hasKey("owner")) {
             getInfo().setOwner(UUID.fromString(compound.getString("owner")));
@@ -180,10 +190,12 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
     @Override
     public void writeToNBT(NBTTagCompound compound) {
         super.writeToNBT(compound);
+
         compound.setString("name", getInfo().getName());
         if (getInfo().getOwner() != null) {
             compound.setString("owner", getInfo().getOwner().toString());
         }
+
         compound.setInteger("meta", blockMetadata);
         compound.setString("name", getInfo().getName());
         if (getParentMovingWorld() != null && !getParentMovingWorld().isDead) {
@@ -201,9 +213,11 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
         super.writeToNBT(compound);
         compound.setInteger("meta", blockMetadata);
         compound.setString("name", getInfo().getName());
+
         if (getParentMovingWorld() != null && !getParentMovingWorld().isDead) {
             compound.setInteger("movingWorld", getParentMovingWorld().getEntityId());
         }
+
         if (assembleResult != null) {
             NBTTagCompound comp = new NBTTagCompound();
             assembleResult.writeNBTMetadata(comp);

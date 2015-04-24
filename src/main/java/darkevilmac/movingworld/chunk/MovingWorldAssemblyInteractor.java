@@ -1,6 +1,8 @@
 package darkevilmac.movingworld.chunk;
 
 import darkevilmac.movingworld.MovingWorld;
+import darkevilmac.movingworld.block.BlockMovingWorldMarker;
+import darkevilmac.movingworld.block.TileMovingWorldMarkingBlock;
 import darkevilmac.movingworld.entity.MovingWorldCapabilities;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
@@ -13,17 +15,19 @@ import net.minecraft.world.World;
  */
 public class MovingWorldAssemblyInteractor {
 
-    public MovingWorldAssemblyInteractor fromByteBuf(ByteBuf byteBuf){
+    public MovingWorldAssemblyInteractor fromByteBuf(ByteBuf byteBuf) {
         return new MovingWorldAssemblyInteractor();
     }
 
-    public MovingWorldAssemblyInteractor fromNBT(NBTTagCompound tag, World world){
+    public MovingWorldAssemblyInteractor fromNBT(NBTTagCompound tag, World world) {
         return new MovingWorldAssemblyInteractor();
     }
 
     public boolean doDiagonalAssembly() {
         return MovingWorld.instance.mConfig.diagonalAssembly;
     }
+
+    public void toByteBuf(ByteBuf byteBuf){}
 
     /**
      * Called when a block is assembled to your moving world.
@@ -74,11 +78,11 @@ public class MovingWorldAssemblyInteractor {
     }
 
     public boolean isBlockMovingWorldMarker(Block block) {
-        return false;
+        return block != null && block instanceof BlockMovingWorldMarker;
     }
 
     public boolean isTileMovingWorldMarker(TileEntity tile) {
-        return false;
+        return tile != null && tile instanceof TileMovingWorldMarkingBlock;
     }
 
     /**

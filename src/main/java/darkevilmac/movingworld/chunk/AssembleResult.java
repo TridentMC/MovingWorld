@@ -35,6 +35,8 @@ public class AssembleResult {
         blockCount = buf.readInt();
         tileEntityCount = buf.readInt();
         mass = buf.readFloat();
+        assemblyInteractor = new MovingWorldAssemblyInteractor().fromByteBuf(buf);
+        System.out.println("UFHAIOFHWAIOUFHAWIFHAWIOFUHAWIH");
     }
 
     public AssembleResult(NBTTagCompound compound, World world) {
