@@ -1,11 +1,16 @@
 package darkevilmac.movingworld.network;
 
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.FMLIndexedMessageToMessageCodec;
 import cpw.mods.fml.common.network.NetworkRegistry;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
+import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.network.INetHandler;
 import net.minecraft.network.NetHandlerPlayServer;
-import net.minecraft.world.chunk.Chunk;
 
 public class MovingWorldMessageToMessageCodec extends FMLIndexedMessageToMessageCodec<MovingWorldMessage> {
 
@@ -26,7 +31,6 @@ public class MovingWorldMessageToMessageCodec extends FMLIndexedMessageToMessage
         return ret;
     }
 
-
     @Override
     public void encodeInto(ChannelHandlerContext ctx, MovingWorldMessage msg, ByteBuf target) throws Exception {
         msg.encodeInto(ctx, target);
@@ -34,6 +38,26 @@ public class MovingWorldMessageToMessageCodec extends FMLIndexedMessageToMessage
 
     @Override
     public void decodeInto(ChannelHandlerContext ctx, ByteBuf source, MovingWorldMessage msg) {
-        msg.decodeInto(ctx, source, ((NetHandlerPlayServer) ctx.channel().attr(NetworkRegistry.NET_HANDLER).get()).playerEntity);
+        EntityPlayer player;
+        switch (FMLCommonHandler.instance().getEffectiveSide()) {
+            case CLIENT:
+                player = this.getClientPlayer();
+                msg.decodeInto(ctx, source, player);
+                break;
+            case SERVER:
+                player = getServerPlayer(ctx);
+                msg.decodeInto(ctx, source, player);
+                break;
+        }
+    }
+
+    @SideOnly(Side.CLIENT)
+    private EntityPlayer getClientPlayer() {
+        return Minecraft.getMinecraft().thePlayer;
+    }
+
+    private EntityPlayer getServerPlayer(ChannelHandlerContext ctx) {
+        INetHandler netHandler = ctx.channel().attr(NetworkRegistry.NET_HANDLER).get();
+        return ((NetHandlerPlayServer) netHandler).playerEntity;
     }
 }
