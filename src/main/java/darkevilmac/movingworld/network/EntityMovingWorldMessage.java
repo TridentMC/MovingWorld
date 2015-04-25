@@ -1,5 +1,6 @@
 package darkevilmac.movingworld.network;
 
+import cpw.mods.fml.relauncher.Side;
 import darkevilmac.movingworld.MovingWorld;
 import darkevilmac.movingworld.entity.EntityMovingWorld;
 import io.netty.buffer.ByteBuf;
@@ -21,12 +22,12 @@ public abstract class EntityMovingWorldMessage extends MovingWorldMessage {
 
 
     @Override
-    public void encodeInto(ChannelHandlerContext ctx, ByteBuf buf) {
+    public void encodeInto(ChannelHandlerContext ctx, ByteBuf buf, Side side) {
         buf.writeInt(movingWorld.getEntityId());
     }
 
     @Override
-    public void decodeInto(ChannelHandlerContext ctx, ByteBuf buf, EntityPlayer player) {
+    public void decodeInto(ChannelHandlerContext ctx, ByteBuf buf, EntityPlayer player, Side side) {
         int entityID = buf.readInt();
         Entity entity = player.worldObj.getEntityByID(entityID);
         if (entity instanceof EntityMovingWorld) {

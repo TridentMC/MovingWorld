@@ -23,7 +23,15 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
 
     private AssembleResult assembleResult, prevResult;
 
+    public TileMovingWorldMarkingBlock() {
+        super();
+        setParentMovingWorld(null);
+        assembleResult = prevResult = null;
+    }
+
     public abstract MovingWorldAssemblyInteractor getInteractor();
+
+    public abstract void setInteractor(MovingWorldAssemblyInteractor interactor);
 
     public abstract MovingWorldInfo getInfo();
 
@@ -147,6 +155,8 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
         readFromNBT(packet.func_148857_g());
     }
 
+    public abstract MovingWorldAssemblyInteractor getNewAssemblyInteractor();
+
     /**
      * Called during/after mountMovingWorld();
      *
@@ -183,7 +193,7 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
         }
         if (compound.hasKey("res")) {
             assembleResult = new AssembleResult(compound.getCompoundTag("res"), worldObj);
-            assembleResult.assemblyInteractor = new MovingWorldAssemblyInteractor().fromNBT(compound.getCompoundTag("res"), worldObj);
+            assembleResult.assemblyInteractor = getNewAssemblyInteractor().fromNBT(compound.getCompoundTag("res"), worldObj);
         }
     }
 

@@ -1,5 +1,6 @@
 package darkevilmac.movingworld.network;
 
+import cpw.mods.fml.relauncher.Side;
 import darkevilmac.movingworld.chunk.ChunkIO;
 import darkevilmac.movingworld.entity.EntityMovingWorld;
 import io.netty.buffer.ByteBuf;
@@ -22,8 +23,8 @@ public class ChunkBlockUpdateMessage extends EntityMovingWorldMessage {
     }
 
     @Override
-    public void encodeInto(ChannelHandlerContext ctx, ByteBuf buf){
-        super.encodeInto(ctx, buf);
+    public void encodeInto(ChannelHandlerContext ctx, ByteBuf buf, Side side){
+        super.encodeInto(ctx, buf, side);
         try {
             ChunkIO.writeCompressed(buf, movingWorld.getMovingWorldChunk(), sendQueue);
         } catch (IOException e) {
@@ -32,8 +33,8 @@ public class ChunkBlockUpdateMessage extends EntityMovingWorldMessage {
     }
 
     @Override
-    public void decodeInto(ChannelHandlerContext ctx, ByteBuf buf, EntityPlayer player){
-        super.decodeInto(ctx, buf, player);
+    public void decodeInto(ChannelHandlerContext ctx, ByteBuf buf, EntityPlayer player, Side side){
+        super.decodeInto(ctx, buf, player, side);
         if (movingWorld != null) {
             try {
                 ChunkIO.readCompressed(buf, movingWorld.getMovingWorldChunk());

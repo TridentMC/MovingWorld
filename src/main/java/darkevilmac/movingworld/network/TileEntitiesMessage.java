@@ -33,8 +33,8 @@ public class TileEntitiesMessage extends EntityMovingWorldMessage {
     }
 
     @Override
-    public void encodeInto(ChannelHandlerContext ctx, ByteBuf buf) {
-        super.encodeInto(ctx, buf);
+    public void encodeInto(ChannelHandlerContext ctx, ByteBuf buf, Side side) {
+        super.encodeInto(ctx, buf, side);
         tagCompound = new NBTTagCompound();
         NBTTagList list = new NBTTagList();
         for (TileEntity te : movingWorld.getMovingWorldChunk().chunkTileEntityMap.values()) {
@@ -68,7 +68,7 @@ public class TileEntitiesMessage extends EntityMovingWorldMessage {
     }
 
     @Override
-    public void decodeInto(ChannelHandlerContext ctx, ByteBuf buf, EntityPlayer player) {
+    public void decodeInto(ChannelHandlerContext ctx, ByteBuf buf, EntityPlayer player, Side side) {
         if (movingWorld != null) {
             DataInputStream in = new DataInputStream(new ByteBufInputStream(buf));
             try {

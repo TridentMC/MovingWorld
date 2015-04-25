@@ -22,21 +22,18 @@ public class AssembleResult {
             RESULT_BUSY_COMPILING = 5, RESULT_INCONSISTENT = 6, RESULT_OK_WITH_WARNINGS = 7;
     public final List<LocatedBlock> assembledBlocks = new ArrayList<LocatedBlock>();
     public int xOffset, yOffset, zOffset;
+    public MovingWorldAssemblyInteractor assemblyInteractor;
     LocatedBlock movingWorldMarkingBlock;
     int resultCode;
     int blockCount;
     int tileEntityCount;
     float mass;
-    public MovingWorldAssemblyInteractor assemblyInteractor;
 
-    public AssembleResult(ByteBuf buf) {
-        resultCode = buf.readByte();
+    public AssembleResult(int resultCode, ByteBuf buf) {
         if (resultCode == RESULT_NONE) return;
         blockCount = buf.readInt();
         tileEntityCount = buf.readInt();
         mass = buf.readFloat();
-        assemblyInteractor = new MovingWorldAssemblyInteractor().fromByteBuf(buf);
-        System.out.println("UFHAIOFHWAIOUFHAWIFHAWIOFUHAWIH");
     }
 
     public AssembleResult(NBTTagCompound compound, World world) {

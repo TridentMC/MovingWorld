@@ -15,7 +15,7 @@ import net.minecraft.world.World;
  */
 public class MovingWorldAssemblyInteractor {
 
-    public MovingWorldAssemblyInteractor fromByteBuf(ByteBuf byteBuf) {
+    public MovingWorldAssemblyInteractor fromByteBuf(byte resultCode, ByteBuf byteBuf) {
         return new MovingWorldAssemblyInteractor();
     }
 
@@ -27,7 +27,8 @@ public class MovingWorldAssemblyInteractor {
         return MovingWorld.instance.mConfig.diagonalAssembly;
     }
 
-    public void toByteBuf(ByteBuf byteBuf){}
+    public void toByteBuf(ByteBuf byteBuf) {
+    }
 
     /**
      * Called when a block is assembled to your moving world.
