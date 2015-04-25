@@ -619,10 +619,12 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             return false;
         }
 
-        AssembleResult result = disassembler.doDisassemble(getAssemblyInteractor());
+        AssembleResult result = disassembler.doDisassemble(getNewAssemblyInteractor());
 
         return true;
     }
+
+    protected abstract MovingWorldAssemblyInteractor getNewAssemblyInteractor();
 
     public void dropAsItems() {
         TileEntity tileentity;

@@ -12,7 +12,7 @@ import darkevilmac.movingworld.network.MovingWorldMessageToMessageCodec;
 import darkevilmac.movingworld.network.MovingWorldPacketHandler;
 import darkevilmac.movingworld.network.NetworkUtil;
 import darkevilmac.movingworld.proxy.CommonProxy;
-import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 
@@ -43,6 +43,7 @@ public class MovingWorld {
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent e) {
+        logger = e.getModLog();
         String configFolder = e.getSuggestedConfigurationFile().toString().substring(0, e.getSuggestedConfigurationFile().toString().lastIndexOf("\\") + 1);
         File mConfigFile = new File(configFolder + "\\MovingWorld\\Main.cfg");
         mConfig.initConfig(mConfigFile);
