@@ -49,5 +49,4 @@ public class RenderMovingWorld extends Render {
     protected ResourceLocation getEntityTexture(Entity entity) {
         return TextureMap.locationBlocksTexture;
     }
-
 }

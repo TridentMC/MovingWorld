@@ -14,8 +14,8 @@ import java.util.List;
 public class MobileChunkClient extends MobileChunk {
     private MobileChunkRenderer renderer;
 
-    public MobileChunkClient(World world, EntityMovingWorld entityMovingWorld1) {
-        super(world, entityMovingWorld1);
+    public MobileChunkClient(World world, EntityMovingWorld movingWorld) {
+        super(world, movingWorld);
         renderer = new MobileChunkRenderer(this);
     }
 

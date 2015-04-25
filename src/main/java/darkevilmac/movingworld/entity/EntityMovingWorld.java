@@ -40,6 +40,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     public int frontDirection;
     public int riderDestinationX, riderDestinationY, riderDestinationZ;
     public boolean isFlying;
+    public Entity prevRiddenByEntity;
     protected float groundFriction, horFriction, vertFriction;
     int[] layeredBlockVolumeCount;
     private MobileChunk shipChunk;
@@ -75,6 +76,8 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         groundFriction = 0.9F;
         horFriction = 0.994F;
         vertFriction = 0.95F;
+
+        prevRiddenByEntity = null;
 
         isFlying = false;
     }
@@ -797,10 +800,6 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         readMovingWorldSpawnData(data);
     }
 
-    /**
-     * Server side only!
-     */
-    @SideOnly(Side.SERVER)
     public abstract void handleControl(double horvel);
 
     public abstract void readMovingWorldSpawnData(ByteBuf data);

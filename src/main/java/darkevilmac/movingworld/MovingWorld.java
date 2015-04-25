@@ -1,6 +1,7 @@
 package darkevilmac.movingworld;
 
 import cpw.mods.fml.common.Mod;
+import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
@@ -10,6 +11,7 @@ import darkevilmac.movingworld.mrot.MetaRotations;
 import darkevilmac.movingworld.network.MovingWorldMessageToMessageCodec;
 import darkevilmac.movingworld.network.MovingWorldPacketHandler;
 import darkevilmac.movingworld.network.NetworkUtil;
+import darkevilmac.movingworld.proxy.CommonProxy;
 import org.apache.logging.log4j.core.Logger;
 
 import java.io.File;
@@ -22,6 +24,9 @@ public class MovingWorld {
 
     @Mod.Instance(MOD_ID)
     public static MovingWorld instance;
+
+    @SidedProxy(clientSide = "darkevilmac.movingworld.proxy.ClientProxy", serverSide = "darkevilmac.movingworld.proxy.CommonProxy")
+    public static CommonProxy proxy;
 
     public static Logger logger;
 
@@ -48,6 +53,7 @@ public class MovingWorld {
     @Mod.EventHandler
     public void init(FMLInitializationEvent e) {
         network.channels = NetworkRegistry.INSTANCE.newChannel(MOD_ID, new MovingWorldMessageToMessageCodec(), new MovingWorldPacketHandler());
+        proxy.registerRenderers();
     }
 
     @Mod.EventHandler

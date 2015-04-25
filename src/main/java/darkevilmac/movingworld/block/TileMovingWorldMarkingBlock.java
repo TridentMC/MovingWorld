@@ -117,7 +117,7 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
                     return false;
                 }
                 if (assembleResult.getCode() == AssembleResult.RESULT_OK_WITH_WARNINGS) {
-                    IChatComponent c = new ChatComponentText("Ship contains changes");
+                    IChatComponent c = new ChatComponentText("Moving world contains changes");
                     player.addChatMessage(c);
                 }
 
@@ -125,12 +125,10 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
 
                 EntityMovingWorld entity = assembleResult.getEntity(worldObj, getMovingWorld(worldObj));
                 if (entity != null) {
-                    System.out.println("Not Null");
                     entity.setInfo(getInfo());
                     if (worldObj.spawnEntityInWorld(entity)) {
-                        System.out.println("Not Null spawned.");
-                        //player.mountEntity(entity);
-                        //entity.getCapabilities().mountEntity(entityplayer);
+                        player.mountEntity(entity);
+                        assembleResult = null;
                         assembleResult = null;
                         return true;
                     }
@@ -171,18 +169,12 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
      *                    http://github.com/darkevilmac/MovingWorld
      */
     public void mountedMovingWorld(EntityPlayer player, EntityMovingWorld movingWorld, int stage) {
+
     }
 
     @Override
     public void readFromNBT(NBTTagCompound compound) {
         super.readFromNBT(compound);
-
-        if (compound.hasKey("name"))
-            System.out.println("Reading from NBT: " + compound.getString("name"));
-        else
-            System.out.println("No key found no need to log");
-
-
         getInfo().setName(compound.getString("name"));
         if (compound.hasKey("owner")) {
             getInfo().setOwner(UUID.fromString(compound.getString("owner")));

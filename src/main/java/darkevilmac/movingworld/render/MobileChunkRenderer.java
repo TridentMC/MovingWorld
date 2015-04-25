@@ -2,6 +2,7 @@ package darkevilmac.movingworld.render;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import darkevilmac.movingworld.MovingWorld;
 import darkevilmac.movingworld.chunk.MobileChunk;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -58,9 +59,9 @@ public class MobileChunkRenderer {
     private void tryEndDrawing() {
         try {
             Tessellator.instance.draw();
-            //ArchimedesShipMod.modLog.trace("Drawing stopped");
+            MovingWorld.logger.trace("Drawing stopped");
         } catch (IllegalStateException ise) {
-            //ArchimedesShipMod.modLog.trace("Not drawing");
+            MovingWorld.logger.trace("Not drawing");
         }
     }
 
@@ -77,7 +78,7 @@ public class MobileChunkRenderer {
             try {
                 updateRender();
             } catch (Exception e) {
-                //ArchimedesShipMod.modLog.error("A mobile chunk render error has occured", e);
+                MovingWorld.logger.error("A mobile chunk render error has occured", e);
                 tryEndDrawing();
             }
         }
@@ -96,7 +97,7 @@ public class MobileChunkRenderer {
                         }
                     } catch (Exception e) {
                         it.remove();
-                        //ArchimedesShipMod.modLog.error("A tile entity render error has occured", e);
+                        MovingWorld.logger.error("A tile entity render error has occured", e);
                         tryEndDrawing();
                     }
                 }
@@ -213,12 +214,12 @@ public class MobileChunkRenderer {
 
         try {
             if (glRenderList != 0) {
-                //ArchimedesShipMod.modLog.debug("Deleting mobile chunk display list " + glRenderList);
+                MovingWorld.logger.debug("Deleting mobile chunk display list " + glRenderList);
                 GLAllocation.deleteDisplayLists(glRenderList);
                 glRenderList = 0;
             }
         } catch (Exception e) {
-            //ArchimedesShipMod.modLog.error("Failed to destroy mobile chunk display list", e);
+            MovingWorld.logger.error("Failed to destroy mobile chunk display list", e);
         }
     }
 }
