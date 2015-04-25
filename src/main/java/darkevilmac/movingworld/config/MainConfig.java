@@ -6,9 +6,9 @@ import java.io.File;
 
 public class MainConfig {
 
-    private Configuration config;
     public boolean iterativeAlgorithm;
     public boolean diagonalAssembly;
+    private Configuration config;
 
     public void initConfig(File configFile) {
         config = new Configuration(configFile);

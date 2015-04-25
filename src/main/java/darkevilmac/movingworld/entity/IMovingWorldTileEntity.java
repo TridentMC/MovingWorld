@@ -7,9 +7,9 @@ public interface IMovingWorldTileEntity {
      * @param y                 ,
      * @param z                 The original tile entity coordinates.
      */
-    public void setParentMovingWorld(EntityMovingWorld entityMovingWorld, int x, int y, int z);
+    void setParentMovingWorld(EntityMovingWorld entityMovingWorld, int x, int y, int z);
 
-    public void setParentMovingWorld(EntityMovingWorld entityMovingWorld);
+    EntityMovingWorld getParentMovingWorld();
 
-    public EntityMovingWorld getParentMovingWorld();
+    void setParentMovingWorld(EntityMovingWorld entityMovingWorld);
 }

@@ -23,7 +23,7 @@ public class ChunkBlockUpdateMessage extends EntityMovingWorldMessage {
     }
 
     @Override
-    public void encodeInto(ChannelHandlerContext ctx, ByteBuf buf, Side side){
+    public void encodeInto(ChannelHandlerContext ctx, ByteBuf buf, Side side) {
         super.encodeInto(ctx, buf, side);
         try {
             ChunkIO.writeCompressed(buf, movingWorld.getMovingWorldChunk(), sendQueue);
@@ -33,7 +33,7 @@ public class ChunkBlockUpdateMessage extends EntityMovingWorldMessage {
     }
 
     @Override
-    public void decodeInto(ChannelHandlerContext ctx, ByteBuf buf, EntityPlayer player, Side side){
+    public void decodeInto(ChannelHandlerContext ctx, ByteBuf buf, EntityPlayer player, Side side) {
         super.decodeInto(ctx, buf, player, side);
         if (movingWorld != null) {
             try {

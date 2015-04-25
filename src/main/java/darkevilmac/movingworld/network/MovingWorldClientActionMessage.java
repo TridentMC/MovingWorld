@@ -8,37 +8,6 @@ import net.minecraft.entity.player.EntityPlayer;
 
 public class MovingWorldClientActionMessage extends EntityMovingWorldMessage {
 
-    public enum Action {
-        NONE, ALIGN, DISASSEMBLE, DISASSEMBLEOVERWRITE;
-
-        public int toInt(Action action) {
-            switch (action) {
-                case ALIGN:
-                    return 1;
-                case DISASSEMBLE:
-                    return 2;
-                case DISASSEMBLEOVERWRITE:
-                    return 3;
-                default:
-                    return 0;
-            }
-        }
-
-        public Action fromInt(int actionInt) {
-            switch (actionInt) {
-                case 1:
-                    return ALIGN;
-                case 2:
-                    return DISASSEMBLE;
-                case 3:
-                    return DISASSEMBLEOVERWRITE;
-                default:
-                    return NONE;
-            }
-        }
-
-    }
-
     public Action actionID;
 
     public MovingWorldClientActionMessage() {
@@ -90,5 +59,36 @@ public class MovingWorldClientActionMessage extends EntityMovingWorldMessage {
                     break;
             }
         }
+    }
+
+    public enum Action {
+        NONE, ALIGN, DISASSEMBLE, DISASSEMBLEOVERWRITE;
+
+        public int toInt(Action action) {
+            switch (action) {
+                case ALIGN:
+                    return 1;
+                case DISASSEMBLE:
+                    return 2;
+                case DISASSEMBLEOVERWRITE:
+                    return 3;
+                default:
+                    return 0;
+            }
+        }
+
+        public Action fromInt(int actionInt) {
+            switch (actionInt) {
+                case 1:
+                    return ALIGN;
+                case 2:
+                    return DISASSEMBLE;
+                case 3:
+                    return DISASSEMBLEOVERWRITE;
+                default:
+                    return NONE;
+            }
+        }
+
     }
 }

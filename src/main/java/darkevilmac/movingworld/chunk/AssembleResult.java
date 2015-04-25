@@ -30,6 +30,7 @@ public class AssembleResult {
     float mass;
 
     public AssembleResult(int resultCode, ByteBuf buf) {
+        this.resultCode = resultCode;
         if (resultCode == RESULT_NONE) return;
         blockCount = buf.readInt();
         tileEntityCount = buf.readInt();

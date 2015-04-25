@@ -68,10 +68,12 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
         if (!worldObj.isRemote) {
             prevResult = assembleResult;
             ChunkAssembler assembler = new ChunkAssembler(worldObj, xCoord, yCoord, zCoord, getMaxBlocks());
-            assembleResult = assembler.doAssemble(getInteractor());
+            MovingWorldAssemblyInteractor interactor = getNewAssemblyInteractor();
+            assembleResult = assembler.doAssemble(interactor);
 
             assembledMovingWorld(player, returnVal);
 
+            setInteractor(interactor);
             ChatComponentText c;
             switch (assembleResult.getCode()) {
                 case AssembleResult.RESULT_OK:
@@ -123,11 +125,13 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
 
                 EntityMovingWorld entity = assembleResult.getEntity(worldObj, getMovingWorld(worldObj));
                 if (entity != null) {
+                    System.out.println("Not Null");
                     entity.setInfo(getInfo());
                     if (worldObj.spawnEntityInWorld(entity)) {
-                        player.mountEntity(entity);
-                        assembleResult = null;
+                        System.out.println("Not Null spawned.");
+                        //player.mountEntity(entity);
                         //entity.getCapabilities().mountEntity(entityplayer);
+                        assembleResult = null;
                         return true;
                     }
                 }
