@@ -12,11 +12,17 @@ import net.minecraft.world.World;
 
 /**
  * Used for storing information given by and taken by the (Dis)Assembler
+ * <p/>
+ * Mostly for use in GUIs, the ship pretty much immediately forgets this thing.
  */
 public class MovingWorldAssemblyInteractor {
 
     public MovingWorldAssemblyInteractor fromByteBuf(byte resultCode, ByteBuf byteBuf) {
         return new MovingWorldAssemblyInteractor();
+    }
+
+    public MovingWorldAssemblyInteractor fromByteBuf(ByteBuf byteBuf) {
+        return fromByteBuf((byte) AssembleResult.RESULT_OK, byteBuf);
     }
 
     public MovingWorldAssemblyInteractor fromNBT(NBTTagCompound tag, World world) {
@@ -87,9 +93,11 @@ public class MovingWorldAssemblyInteractor {
     }
 
     /**
-     * Use this method to transfer information to your ship capabilities.
+     * Use this method to transfer information to your moving world capabilities. (use methods in your capabilities, assembly interactors are for display stuffs.)
      */
-    public void transferToCapabilities(MovingWorldCapabilities capabilities) {
+    @Deprecated
+    public MovingWorldCapabilities transferToCapabilities(MovingWorldCapabilities capabilities) {
+        return capabilities;
     }
 
     /**

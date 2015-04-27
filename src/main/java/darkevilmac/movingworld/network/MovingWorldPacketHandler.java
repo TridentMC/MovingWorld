@@ -22,7 +22,6 @@ public class MovingWorldPacketHandler extends SimpleChannelInboundHandler<Moving
                 player = this.getClientPlayer();
                 msg.handleClientSide(player);
                 break;
-
             case SERVER:
                 player = getServerPlayer(ctx);
                 msg.handleServerSide(player);

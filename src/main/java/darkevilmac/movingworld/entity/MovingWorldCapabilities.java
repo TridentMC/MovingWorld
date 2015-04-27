@@ -3,6 +3,7 @@ package darkevilmac.movingworld.entity;
 import darkevilmac.movingworld.MaterialDensity;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
+import net.minecraft.nbt.NBTTagCompound;
 
 public abstract class MovingWorldCapabilities {
 
@@ -75,4 +76,9 @@ public abstract class MovingWorldCapabilities {
     public void setCanFly(boolean canFly) {
         this.canFly = canFly;
     }
+
+    public void readFromNBT(NBTTagCompound tag){}
+
+    public void writeToNBT(NBTTagCompound tag){}
+
 }

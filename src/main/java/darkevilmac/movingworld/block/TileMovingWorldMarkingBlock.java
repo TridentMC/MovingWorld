@@ -123,12 +123,12 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
 
                 mountedMovingWorld(player, movingWorld, 2);
 
-                EntityMovingWorld entity = assembleResult.getEntity(worldObj, getMovingWorld(worldObj));
+                EntityMovingWorld entity = assembleResult.getEntity(worldObj, movingWorld);
                 if (entity != null) {
+                    movingWorld = entity;
                     entity.setInfo(getInfo());
                     if (worldObj.spawnEntityInWorld(entity)) {
                         player.mountEntity(entity);
-                        assembleResult = null;
                         assembleResult = null;
                         return true;
                     }

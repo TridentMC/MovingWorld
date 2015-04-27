@@ -153,6 +153,8 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     public abstract MovingWorldCapabilities getCapabilities();
 
+    public abstract void setCapabilities(MovingWorldCapabilities capabilities);
+
     public ChunkDisassembler getDisassembler() {
         if (disassembler == null) {
             disassembler = new ChunkDisassembler(this);
@@ -624,7 +626,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         return true;
     }
 
-    protected abstract MovingWorldAssemblyInteractor getNewAssemblyInteractor();
+    public abstract MovingWorldAssemblyInteractor getNewAssemblyInteractor();
 
     public void dropAsItems() {
         TileEntity tileentity;
