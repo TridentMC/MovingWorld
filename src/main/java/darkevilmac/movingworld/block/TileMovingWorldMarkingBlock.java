@@ -125,7 +125,6 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
 
                 EntityMovingWorld entity = assembleResult.getEntity(worldObj, movingWorld);
                 if (entity != null) {
-                    movingWorld = entity;
                     entity.setInfo(getInfo());
                     if (worldObj.spawnEntityInWorld(entity)) {
                         player.mountEntity(entity);
@@ -133,7 +132,7 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
                         return true;
                     }
                 }
-                mountedMovingWorld(player, movingWorld, 3);
+                mountedMovingWorld(player, entity, 3);
             }
         }
         return false;
