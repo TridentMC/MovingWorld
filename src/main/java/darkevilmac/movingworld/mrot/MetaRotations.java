@@ -1,8 +1,10 @@
 package darkevilmac.movingworld.mrot;
 
+import darkevilmac.movingworld.MovingWorld;
 import net.minecraft.block.Block;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,16 +29,16 @@ public class MetaRotations {
 
     public void addMetaRotation(Block block, int bitmask, int... metarotation) {
         if (block == null) {
-            //ArchimedesShipMod.modLog.error("Adding null block meta rotations");
+            MovingWorld.logger.error("Adding null block meta rotations");
             return;
         }
-        //ArchimedesShipMod.modLog.trace("Adding meta rotations (block=" + Block.blockRegistry.getNameForObject(block) + ", id=" + Block.getIdFromBlock(block) + ", mask=" + bitmask + ", rot=" + Arrays.toString(metarotation) + ")");
+        MovingWorld.logger.trace("Adding meta rotations (block=" + Block.blockRegistry.getNameForObject(block) + ", id=" + Block.getIdFromBlock(block) + ", mask=" + bitmask + ", rot=" + Arrays.toString(metarotation) + ")");
 
         metaRotationMap.put(Block.getIdFromBlock(block), new BlockMetaRotation(block, metarotation, bitmask));
     }
 
     public void setConfigDirectory(File configdirectory) {
-        metaRotationsDirectory = new File(configdirectory, "ArchimedesShips");
+        metaRotationsDirectory = new File(configdirectory, "MovingWorld\\MetaRotation");
         if (!metaRotationsDirectory.isDirectory()) {
             metaRotationsDirectory.mkdirs();
         }
@@ -104,7 +106,7 @@ public class MetaRotations {
     }
 
     public void mrotError(String msg, int lineno) {
-        //ArchimedesShipMod.modLog.warn("Error in metarotation file at line " + lineno + " (" + msg + ")");
+        MovingWorld.logger.warn("Error in metarotation file at line " + lineno + " (" + msg + ")");
     }
 
     public void readMetaRotationFiles() {
@@ -115,18 +117,18 @@ public class MetaRotations {
             try {
                 readMetaRotationFile(new File(metaRotationsDirectory, "default.mrot"));
             } catch (OutdatedMrotException ome) {
-                //ArchimedesShipMod.modLog.info("Outdated default.mrot detected: " + ome.getLocalizedMessage());
+                MovingWorld.logger.info("Outdated default.mrot detected: " + ome.getLocalizedMessage());
                 createDefaultMrot();
                 readMetaRotationFile(new File(metaRotationsDirectory, "default.mrot"));
             } catch (FileNotFoundException fnfe) {
-                //ArchimedesShipMod.modLog.info("default.mrot file not found: " + fnfe.getLocalizedMessage());
+                MovingWorld.logger.info("default.mrot file not found: " + fnfe.getLocalizedMessage());
                 createDefaultMrot();
                 readMetaRotationFile(new File(metaRotationsDirectory, "default.mrot"));
             } catch (Exception e0) {
                 throw e0;
             }
         } catch (Exception e1) {
-            //ArchimedesShipMod.modLog.error("Could not load default meta rotations", e1);
+            MovingWorld.logger.error("Could not load default meta rotations", e1);
         }
 
         File[] files = metaRotationsDirectory.listFiles(new FilenameFilter() {
@@ -150,7 +152,7 @@ public class MetaRotations {
     }
 
     public void readMetaRotationFile(File file) throws IOException, OutdatedMrotException {
-        // ArchimedesShipMod.modLog.info("Reading metarotation file: " + file.getName());
+        MovingWorld.logger.info("Reading metarotation file: " + file.getName());
 
         BufferedReader reader = new BufferedReader(new FileReader(file));
         boolean flag = parseMetaRotations(reader);
@@ -161,7 +163,7 @@ public class MetaRotations {
     }
 
     public void createDefaultMrot() {
-        //ArchimedesShipMod.modLog.info("Creating default.mrot");
+        MovingWorld.logger.info("Creating default.mrot");
         File defaultfile = new File(metaRotationsDirectory, "default.mrot");
         BufferedWriter writer = null;
         try {

@@ -137,7 +137,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     @Override
     protected void entityInit() {
-        dataWatcher.addObject(30, Byte.valueOf((byte) 0));
+        dataWatcher.addObject(30, 0);
         initMovingWorld();
     }
 
@@ -552,7 +552,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     @Override
     public AxisAlignedBB getCollisionBox(Entity entity) {
-        return entity instanceof EntityMovingWorldAttachment || entity.ridingEntity instanceof EntityMovingWorldAttachment || entity instanceof EntityLiving ? null : entity.boundingBox;
+        return entity instanceof EntityLiving ? null : entity.boundingBox;
     }
 
     @Override

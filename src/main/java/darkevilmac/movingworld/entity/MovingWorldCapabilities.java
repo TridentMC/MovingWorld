@@ -77,8 +77,10 @@ public abstract class MovingWorldCapabilities {
         this.canFly = canFly;
     }
 
-    public void readFromNBT(NBTTagCompound tag){}
+    public void readFromNBT(NBTTagCompound tag) {
+    }
 
-    public void writeToNBT(NBTTagCompound tag){}
+    public void writeToNBT(NBTTagCompound tag) {
+    }
 
 }
