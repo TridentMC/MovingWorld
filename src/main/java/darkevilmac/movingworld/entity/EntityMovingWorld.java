@@ -44,7 +44,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     public Entity prevRiddenByEntity;
     protected float groundFriction, horFriction, vertFriction;
     int[] layeredBlockVolumeCount;
-    private MobileChunk shipChunk;
+    private MobileChunk mobileChunk;
     private MovingWorldInfo info;
     private ChunkDisassembler disassembler;
     // Related to actual movement. We don't ever really change this variables, they're changed by classes derived from EntityMovingWorld
@@ -132,12 +132,12 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     @SideOnly(Side.CLIENT)
     private void initClient() {
-        shipChunk = new MobileChunkClient(worldObj, this);
+        mobileChunk = new MobileChunkClient(worldObj, this);
         initMovingWorldClient();
     }
 
     private void initCommon() {
-        shipChunk = new MobileChunkServer(worldObj, this);
+        mobileChunk = new MobileChunkServer(worldObj, this);
         initMovingWorldCommon();
     }
 
@@ -154,7 +154,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     public abstract void initMovingWorldCommon();
 
     public MobileChunk getMovingWorldChunk() {
-        return shipChunk;
+        return mobileChunk;
     }
 
     public abstract MovingWorldCapabilities getCapabilities();
@@ -185,25 +185,25 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     @Override
     public void setDead() {
         super.setDead();
-        shipChunk.onChunkUnload();
+        mobileChunk.onChunkUnload();
         getCapabilities().clear();
     }
 
     @Override
     public void onEntityUpdate() {
         super.onEntityUpdate();
-        if (shipChunk.isModified) {
-            shipChunk.isModified = false;
+        if (mobileChunk.isModified) {
+            mobileChunk.isModified = false;
             getHandler().onChunkUpdate();
         }
     }
 
     public void setRotatedBoundingBox() {
-        if (shipChunk == null) {
+        if (mobileChunk == null) {
             float hw = width / 2F;
             boundingBox.setBounds(posX - hw, posY, posZ - hw, posX + hw, posY + height, posZ + hw);
         } else {
-            boundingBox.setBounds(posX - shipChunk.getCenterX(), posY, posZ - shipChunk.getCenterZ(), posX + shipChunk.getCenterX(), posY + height, posZ + shipChunk.getCenterZ());
+            boundingBox.setBounds(posX - mobileChunk.getCenterX(), posY, posZ - mobileChunk.getCenterZ(), posX + mobileChunk.getCenterX(), posY + height, posZ + mobileChunk.getCenterZ());
             AABBRotator.rotateAABBAroundY(boundingBox, posX, posZ, (float) Math.toRadians(rotationYaw));
         }
     }
@@ -280,7 +280,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         double horvel = Math.sqrt(motionX * motionX + motionZ * motionZ);
         if (worldObj.isRemote) {
             if (riddenByEntity == null) {
-                setNoControl(true);
+                setIsBoatEmpty(true);
             }
         }
 
@@ -322,9 +322,10 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         setRotatedBoundingBox();
     }
 
-    public void setNoControl(boolean noControl) {
-        this.noControl = noControl;
-        setIsBoatEmpty(this.noControl);
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void setIsBoatEmpty(boolean flag) {
+        noControl = flag;
     }
 
     protected void handleServerUpdate(double horvel) {
@@ -400,7 +401,17 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         motionY *= vertFriction;
         motionZ *= horFriction;
 
+        handleServerUpdatePreRotation();
+
         setRotation(rotationYaw, rotationPitch);
+
+        handleCollision(posX, posY, posZ);
+    }
+
+    public void handleServerUpdatePreRotation() {
+        //No implementation basically just a hook for archimedes ships.
+
+        // dis mai code i do wut i wan
     }
 
     @Override
@@ -425,7 +436,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
                     x1 -= 1;
                 }
 
-                Block block = shipChunk.getBlock(x1, MathHelper.floor_double(y1 + getMountedYOffset() + entity.getYOffset()), z1);
+                Block block = mobileChunk.getBlock(x1, MathHelper.floor_double(y1 + getMountedYOffset() + entity.getYOffset()), z1);
                 if (block.isOpaqueCube()) {
                     x1 = riderDestinationX;
                     y1 = riderDestinationY;
@@ -434,7 +445,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             }
 
             double yoff = (flags & 2) == 2 ? 0d : getMountedYOffset();
-            Vec3 vec = Vec3.createVectorHelper(x1 - shipChunk.getCenterX() + 0.5d, y1 - shipChunk.minY() + yoff, z1 - shipChunk.getCenterZ() + 0.5d);
+            Vec3 vec = Vec3.createVectorHelper(x1 - mobileChunk.getCenterX() + 0.5d, y1 - mobileChunk.minY() + yoff, z1 - mobileChunk.getCenterZ() + 0.5d);
             switch (frontDirection) {
                 case 0:
                     vec.rotateAroundZ(-pitch);
@@ -601,7 +612,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         rotationYaw = Math.round(rotationYaw / 90F) * 90F;
         rotationPitch = 0F;
 
-        Vec3 vec = Vec3.createVectorHelper(-shipChunk.getCenterX(), -shipChunk.minY(), -shipChunk.getCenterZ());
+        Vec3 vec = Vec3.createVectorHelper(-mobileChunk.getCenterX(), -mobileChunk.minY(), -mobileChunk.getCenterZ());
         vec.rotateAroundY((float) Math.toRadians(rotationYaw));
 
         int ix = MathHelperMod.round_double(vec.xCoord + posX);
@@ -637,10 +648,10 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     public void dropAsItems() {
         TileEntity tileentity;
         Block block;
-        for (int i = shipChunk.minX(); i < shipChunk.maxX(); i++) {
-            for (int j = shipChunk.minY(); j < shipChunk.maxY(); j++) {
-                for (int k = shipChunk.minZ(); k < shipChunk.maxZ(); k++) {
-                    tileentity = shipChunk.getTileEntity(i, j, k);
+        for (int i = mobileChunk.minX(); i < mobileChunk.maxX(); i++) {
+            for (int j = mobileChunk.minY(); j < mobileChunk.maxY(); j++) {
+                for (int k = mobileChunk.minZ(); k < mobileChunk.maxZ(); k++) {
+                    tileentity = mobileChunk.getTileEntity(i, j, k);
                     if (tileentity instanceof IInventory) {
                         IInventory inv = (IInventory) tileentity;
                         for (int it = 0; it < inv.getSizeInventory(); it++) {
@@ -650,10 +661,10 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
                             }
                         }
                     }
-                    block = shipChunk.getBlock(i, j, k);
+                    block = mobileChunk.getBlock(i, j, k);
 
                     if (block != Blocks.air) {
-                        int meta = shipChunk.getBlockMetadata(i, j, k);
+                        int meta = mobileChunk.getBlockMetadata(i, j, k);
                         block.dropBlockAsItem(worldObj, MathHelper.floor_double(posX), MathHelper.floor_double(posY), MathHelper.floor_double(posZ), meta, 0);
                     }
                 }
@@ -662,13 +673,13 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     }
 
     protected void fillAirBlocks(Set<ChunkPosition> set, int x, int y, int z) {
-        if (x < shipChunk.minX() - 1 || x > shipChunk.maxX() || y < shipChunk.minY() - 1 || y > shipChunk.maxY() || z < shipChunk.minZ() - 1 || z > shipChunk.maxZ())
+        if (x < mobileChunk.minX() - 1 || x > mobileChunk.maxX() || y < mobileChunk.minY() - 1 || y > mobileChunk.maxY() || z < mobileChunk.minZ() - 1 || z > mobileChunk.maxZ())
             return;
         ChunkPosition pos = new ChunkPosition(x, y, z);
         if (set.contains(pos)) return;
 
         set.add(pos);
-        if (shipChunk.setBlockAsFilledAir(x, y, z)) {
+        if (mobileChunk.setBlockAsFilledAir(x, y, z)) {
             fillAirBlocks(set, x, y + 1, z);
             //fillAirBlocks(set, x, y - 1, z);
             fillAirBlocks(set, x - 1, y, z);
@@ -688,10 +699,10 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     @Override
     protected void writeEntityToNBT(NBTTagCompound compound) {
         super.writeEntityToNBT(compound);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(shipChunk.getMemoryUsage());
+        ByteArrayOutputStream baos = new ByteArrayOutputStream(mobileChunk.getMemoryUsage());
         DataOutputStream out = new DataOutputStream(baos);
         try {
-            ChunkIO.writeAll(out, shipChunk);
+            ChunkIO.writeAll(out, mobileChunk);
             out.flush();
             out.close();
         } catch (IOException e) {
@@ -703,9 +714,9 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         compound.setByte("riderDestinationZ", (byte) riderDestinationZ);
         compound.setByte("front", (byte) frontDirection);
 
-        if (!shipChunk.chunkTileEntityMap.isEmpty()) {
+        if (!mobileChunk.chunkTileEntityMap.isEmpty()) {
             NBTTagList tileEntities = new NBTTagList();
-            for (TileEntity tileentity : shipChunk.chunkTileEntityMap.values()) {
+            for (TileEntity tileentity : mobileChunk.chunkTileEntityMap.values()) {
                 NBTTagCompound comp = new NBTTagCompound();
                 tileentity.writeToNBT(comp);
                 tileEntities.appendTag(comp);
@@ -729,7 +740,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         ByteArrayInputStream bais = new ByteArrayInputStream(ab);
         DataInputStream in = new DataInputStream(bais);
         try {
-            ChunkIO.read(in, shipChunk);
+            ChunkIO.read(in, mobileChunk);
             in.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -753,7 +764,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             for (int i = 0; i < tileentities.tagCount(); i++) {
                 NBTTagCompound comp = tileentities.getCompoundTagAt(i);
                 TileEntity tileentity = TileEntity.createAndLoadEntity(comp);
-                shipChunk.setTileEntity(tileentity.xCoord, tileentity.yCoord, tileentity.zCoord, tileentity);
+                mobileChunk.setTileEntity(tileentity.xCoord, tileentity.yCoord, tileentity.zCoord, tileentity);
             }
         }
 
@@ -778,7 +789,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         data.writeBytes(info.getName().getBytes());
 
         try {
-            ChunkIO.writeAllCompressed(data, shipChunk);
+            ChunkIO.writeAllCompressed(data, mobileChunk);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (MovingWorldSizeOverflowException ssoe) {
@@ -801,12 +812,12 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         data.readBytes(ab);
         info.setName(new String(ab));
         try {
-            ChunkIO.readCompressed(data, shipChunk);
+            ChunkIO.readCompressed(data, mobileChunk);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        shipChunk.onChunkLoad();
+        mobileChunk.onChunkLoad();
         readMovingWorldSpawnData(data);
     }
 
