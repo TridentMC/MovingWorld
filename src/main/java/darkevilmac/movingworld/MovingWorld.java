@@ -12,6 +12,7 @@ import darkevilmac.movingworld.network.MovingWorldMessageToMessageCodec;
 import darkevilmac.movingworld.network.MovingWorldPacketHandler;
 import darkevilmac.movingworld.network.NetworkUtil;
 import darkevilmac.movingworld.proxy.CommonProxy;
+import net.minecraftforge.common.config.Configuration;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
@@ -35,7 +36,6 @@ public class MovingWorld {
     public NetworkUtil network;
 
     public MovingWorld() {
-        mConfig = new MainConfig();
         metaRotations = new MetaRotations();
         network = new NetworkUtil();
     }
@@ -46,7 +46,8 @@ public class MovingWorld {
         logger = e.getModLog();
         String configFolder = e.getSuggestedConfigurationFile().toString().substring(0, e.getSuggestedConfigurationFile().toString().lastIndexOf("\\") + 1);
         File mConfigFile = new File(configFolder + "\\MovingWorld\\Main.cfg");
-        mConfig.initConfig(mConfigFile);
+        mConfig = new MainConfig(new Configuration(mConfigFile));
+        mConfig.loadAndSave();
 
         metaRotations.setConfigDirectory(e.getModConfigurationDirectory());
     }

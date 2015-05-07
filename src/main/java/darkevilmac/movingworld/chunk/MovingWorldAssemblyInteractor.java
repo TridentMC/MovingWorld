@@ -3,7 +3,6 @@ package darkevilmac.movingworld.chunk;
 import darkevilmac.movingworld.MovingWorld;
 import darkevilmac.movingworld.block.BlockMovingWorldMarker;
 import darkevilmac.movingworld.block.TileMovingWorldMarkingBlock;
-import darkevilmac.movingworld.entity.MovingWorldCapabilities;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
@@ -19,10 +18,6 @@ public class MovingWorldAssemblyInteractor {
 
     public MovingWorldAssemblyInteractor fromByteBuf(byte resultCode, ByteBuf byteBuf) {
         return new MovingWorldAssemblyInteractor();
-    }
-
-    public MovingWorldAssemblyInteractor fromByteBuf(ByteBuf byteBuf) {
-        return fromByteBuf((byte) AssembleResult.RESULT_OK, byteBuf);
     }
 
     public MovingWorldAssemblyInteractor fromNBT(NBTTagCompound tag, World world) {
@@ -52,8 +47,11 @@ public class MovingWorldAssemblyInteractor {
      * @return returns if it is an over writable block in the config.
      */
     public boolean canOverwriteBlock(Block block) {
-        //TODO: implement over writable blocks in config file!
-        return false;
+        return MovingWorld.instance.mConfig.canOverwriteBlock(block);
+    }
+
+    public boolean isBlockAllowed(Block block) {
+        return MovingWorld.instance.mConfig.isBlockAllowed(block);
     }
 
     /**
@@ -90,14 +88,6 @@ public class MovingWorldAssemblyInteractor {
 
     public boolean isTileMovingWorldMarker(TileEntity tile) {
         return tile != null && tile instanceof TileMovingWorldMarkingBlock;
-    }
-
-    /**
-     * Use this method to transfer information to your moving world capabilities. (use methods in your capabilities, assembly interactors are for display stuffs.)
-     */
-    @Deprecated
-    public MovingWorldCapabilities transferToCapabilities(MovingWorldCapabilities capabilities) {
-        return capabilities;
     }
 
     /**

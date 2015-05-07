@@ -71,7 +71,6 @@ public class ChunkAssembler {
                     continue;
                 }
                 if (result.assembledBlocks.size() > maxBlocks) {
-                    System.out.println("Size: " + result.assembledBlocks.size() + " MaxBlocks: " + maxBlocks);
                     throw new MovingWorldSizeOverflowException();
                 }
 

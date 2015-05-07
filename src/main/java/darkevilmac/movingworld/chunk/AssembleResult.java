@@ -127,7 +127,6 @@ public class AssembleResult {
         entity.getMovingWorldChunk().setChunkModified();
         entity.getMovingWorldChunk().onChunkLoad();
         entity.setLocationAndAngles(xOffset + entity.getMovingWorldChunk().getCenterX(), yOffset, zOffset + entity.getMovingWorldChunk().getCenterZ(), 0F, 0F);
-        //entity.setAssemblyInteractor(assemblyInteractor);
 
         return entity;
     }

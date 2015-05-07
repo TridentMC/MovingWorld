@@ -89,6 +89,7 @@ public class ChunkDisassembler {
         Vec3 vec = Vec3.createVectorHelper(0D, 0D, 0D);
         TileEntity tileentity;
         Block block;
+        Block owBlock;
         int meta;
         int ix, iy, iz;
         for (int i = chunk.minX(); i < chunk.maxX(); i++) {
@@ -112,6 +113,10 @@ public class ChunkDisassembler {
                     iy = MathHelperMod.round_double(vec.yCoord + movingWorld.posY);
                     iz = MathHelperMod.round_double(vec.zCoord + movingWorld.posZ);
 
+                    owBlock = world.getBlock(ix, iy, iz);
+                    if (owBlock != null)
+                        assemblyInteractor.blockOverwritten(owBlock);
+
                     if (!world.setBlock(ix, iy, iz, block, meta, 2) || block != world.getBlock(ix, iy, iz)) {
                         postlist.add(new LocatedBlock(block, meta, tileentity, new ChunkPosition(ix, iy, iz)));
                         continue;
@@ -128,8 +133,8 @@ public class ChunkDisassembler {
                     }
 
                     if (!MovingWorld.instance.metaRotations.hasBlock(block)) {
-                        //ShipMod.modLog.debug("Forge-rotating block " + Block.blockRegistry.getNameForObject(block));
-                        rotateBlock(block, world, assemblyInteractor, ix, iy, iz, currentRot);
+                        assemblyInteractor.blockRotated(block, world, ix, iy, iz, currentRot);
+                        rotateBlock(block, world, ix, iy, iz, currentRot);
                         block = world.getBlock(ix, iy, iz);
                         meta = world.getBlockMetadata(ix, iy, iz);
                         tileentity = world.getTileEntity(ix, iy, iz);
@@ -166,7 +171,7 @@ public class ChunkDisassembler {
         return result;
     }
 
-    private void rotateBlock(Block block, World world, MovingWorldAssemblyInteractor assemblyInteractor, int x, int y, int z, int deltarot) {
+    private void rotateBlock(Block block, World world, int x, int y, int z, int deltarot) {
         deltarot &= 3;
         if (deltarot != 0) {
             if (deltarot == 3) {
