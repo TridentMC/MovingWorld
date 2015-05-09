@@ -98,7 +98,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
                     if (block != null && (block.getMaterial() == Material.water || block.getMaterial() == Material.lava)) {
                         int j2 = world.getBlockMetadata(x, y, z);
-                        double d0 = y + 1;
+                        double d0;
 
                         if (j2 < 8) {
                             d0 = y + 1 - j2 / 8.0D;
@@ -282,6 +282,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             if (riddenByEntity == null) {
                 setIsBoatEmpty(true);
             }
+            spawnParticles(horvel);
         }
 
         if (worldObj.isRemote && (noControl || syncPosWithServer)) {
@@ -777,6 +778,10 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     }
 
     public abstract void readMovingWorldNBT(NBTTagCompound compound);
+
+    @SideOnly(Side.CLIENT)
+    public void spawnParticles(double horvel) {
+    }
 
     @Override
     public void writeSpawnData(ByteBuf data) {
