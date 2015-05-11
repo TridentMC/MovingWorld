@@ -147,8 +147,8 @@ public class MetaRotations {
         }
 
         //Discover other defaults.
-        File thisClass = new File(getClass().getResource("MetaRotations.class").getPath());
-        File modMetaRotations = new File(thisClass.getParentFile().getPath() + "\\mod");
+        File vanillaMRot = new File(getClass().getResource("/mrot/vanilla.mrot").getPath());
+        File modMetaRotations = new File(vanillaMRot.getParent() + "\\mod");
 
         if (modMetaRotations != null && modMetaRotations.isDirectory() && modMetaRotations.listFiles() != null && !Arrays.asList(modMetaRotations.listFiles()).isEmpty()) {
             List<File> discovered = Arrays.asList(modMetaRotations.listFiles());
@@ -197,7 +197,7 @@ public class MetaRotations {
     public void createDefaultMrot() {
         MovingWorld.logger.info("Creating vanilla.mrot");
         try {
-            registerMetaRotationFile("vanilla.mrot", getClass().getResourceAsStream("/darkevilmac/movingworld/mrot/vanilla.mrot"));
+            registerMetaRotationFile("vanilla.mrot", getClass().getResourceAsStream("/mrot/vanilla.mrot"));
         } catch (IOException e) {
             MovingWorld.instance.logger.error("UNABLE TO LOAD VANILLA.MROT");
         }
