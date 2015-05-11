@@ -2,10 +2,12 @@ package darkevilmac.movingworld.mrot;
 
 import darkevilmac.movingworld.MovingWorld;
 import net.minecraft.block.Block;
+import org.apache.commons.io.IOUtils;
 
 import java.io.*;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MetaRotations {
@@ -42,6 +44,19 @@ public class MetaRotations {
         if (!metaRotationsDirectory.isDirectory()) {
             metaRotationsDirectory.mkdirs();
         }
+    }
+
+    public void registerMetaRotationFile(String fileName, InputStream iStream) throws IOException {
+        File rotFile = new File(metaRotationsDirectory + "\\" + fileName);
+        if (!rotFile.exists()) {
+            rotFile.createNewFile();
+            FileOutputStream oStream = new FileOutputStream(rotFile);
+            IOUtils.copy(iStream, oStream);
+            iStream.close();
+            oStream.close();
+            MovingWorld.instance.logger.debug("Created " + fileName + " meta rotation");
+        }
+        MovingWorld.instance.logger.debug(fileName + " ready to load");
     }
 
     public boolean parseMetaRotations(BufferedReader reader) throws IOException, OutdatedMrotException {
@@ -115,15 +130,15 @@ public class MetaRotations {
 
         try {
             try {
-                readMetaRotationFile(new File(metaRotationsDirectory, "default.mrot"));
+                readMetaRotationFile(new File(metaRotationsDirectory, "vanilla.mrot"));
             } catch (OutdatedMrotException ome) {
-                MovingWorld.logger.info("Outdated default.mrot detected: " + ome.getLocalizedMessage());
+                MovingWorld.logger.info("Outdated vanilla.mrot detected: " + ome.getLocalizedMessage());
                 createDefaultMrot();
-                readMetaRotationFile(new File(metaRotationsDirectory, "default.mrot"));
+                readMetaRotationFile(new File(metaRotationsDirectory, "vanilla.mrot"));
             } catch (FileNotFoundException fnfe) {
-                MovingWorld.logger.info("default.mrot file not found: " + fnfe.getLocalizedMessage());
+                MovingWorld.logger.info("vanilla.mrot file not found: " + fnfe.getLocalizedMessage());
                 createDefaultMrot();
-                readMetaRotationFile(new File(metaRotationsDirectory, "default.mrot"));
+                readMetaRotationFile(new File(metaRotationsDirectory, "vanilla.mrot"));
             } catch (Exception e0) {
                 throw e0;
             }
@@ -131,10 +146,27 @@ public class MetaRotations {
             MovingWorld.logger.error("Could not load default meta rotations", e1);
         }
 
+        //Discover other defaults.
+        File thisClass = new File(getClass().getResource("MetaRotations.class").getPath());
+        File modMetaRotations = new File(thisClass.getParentFile().getPath() + "\\mod");
+
+        if (modMetaRotations != null && modMetaRotations.isDirectory() && modMetaRotations.listFiles() != null && !Arrays.asList(modMetaRotations.listFiles()).isEmpty()) {
+            List<File> discovered = Arrays.asList(modMetaRotations.listFiles());
+            if (discovered != null && !discovered.isEmpty()) {
+                for (File file : discovered) {
+                    try {
+                        registerMetaRotationFile(file.getName(), new FileInputStream(file));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+
         File[] files = metaRotationsDirectory.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File f, String name) {
-                return !name.equals("default.mrot") && name.endsWith(".mrot");
+                return !name.equals("vanilla.mrot") && name.endsWith(".mrot");
             }
         });
 
@@ -156,75 +188,18 @@ public class MetaRotations {
 
         BufferedReader reader = new BufferedReader(new FileReader(file));
         boolean flag = parseMetaRotations(reader);
-        if (!flag && file.getName().equals("default.mrot")) {
+        if (!flag && file.getName().equals("vanilla.mrot")) {
             throw new OutdatedMrotException("pre-1.4.4");
         }
         reader.close();
     }
 
     public void createDefaultMrot() {
-        MovingWorld.logger.info("Creating default.mrot");
-        File defaultfile = new File(metaRotationsDirectory, "default.mrot");
-        BufferedWriter writer = null;
+        MovingWorld.logger.info("Creating vanilla.mrot");
         try {
-            defaultfile.createNewFile();
-            writer = new BufferedWriter(new FileWriter(defaultfile));
-            writer.write("version=");
-            writer.write("NULL");
-            writer.write("\n");
-            writer.write("#----------------#\n");
-            writer.write("# VANILLA BLOCKS #\n");
-            writer.write("#----------------#\n");
-            writer.write("# Default vanilla block meta rotations\n");
-            writer.write("# This file will be overwritten every start, changes will not be implemented!\n");
-            writer.write("# blocknames/blockIDs; bitmask; 4 metadata values in the clockwise rotation order\n");
-            writer.write("\n");
-            writer.write("# Pumpkin & Lantern\n");
-            writer.write("pumpkin, lit_pumpkin; 0x3; 0, 1, 2, 3;\n");
-            writer.write("\n");
-            writer.write("# Stairs\n");
-            writer.write("oak_stairs, stone_stairs, brick_stairs, stone_brick_stairs, nether_brick_stairs, sandstone_stairs, spruce_stairs, birch_stairs, jungle_stairs, quartz_stairs, acacia_stairs, dark_oak_stairs; 0x3; 2, 1, 3, 0;\n");
-            writer.write("\n");
-            writer.write("# Torches, levers and buttons\n");
-            writer.write("torch, unlit_redstone_torch, redstone_torch, stone_button, wooden_button, lever; 0x7; 4, 1, 3, 2;\n");
-            writer.write("\n");
-            writer.write("# Sign\n");
-            writer.write("wall_sign; 0x7; 3, 4, 2, 5;\n");
-            writer.write("\n");
-            writer.write("# Log\n");
-            writer.write("log, log2; 0xC; 4, 8, 4, 8;\n");
-            writer.write("\n");
-            writer.write("# Quarts pillar\n");
-            writer.write("quartz_block; 0x7; 3, 4, 3, 4;\n");
-            writer.write("\n");
-            writer.write("# Ladder\n");
-            writer.write("ladder; 0x7; 3, 4, 2, 5;\n");
-            writer.write("\n# Fence gate\n");
-            writer.write("fence_gate; 0x3; 0, 1, 2, 3;\n");
-            writer.write("\n# Furnace, dispenser, chest, pistons\n");
-            writer.write("furnace, lit_furnace, dispenser, chest, ender_chest, trapped_chest, sticky_piston, piston; 0x7; 2, 5, 3, 4;\n");
-            writer.write("\n# Redstone repeater, comparator\n");
-            writer.write("unpowered_repeater, powered_repeater, unpowered_comparator, powered_comparator; 0x3; 0, 1, 2, 3;\n");
-            writer.write("\n# Doors\n");
-            writer.write("wooden_door, iron_door; 0x3; 0, 1, 2, 3;\n");
-            writer.write("\n# Trapdoor\n");
-            writer.write("trapdoor; 0x3; 3, 1, 2, 0;\n");
-            writer.write("\n# Bed\n");
-            writer.write("bed, tripwire_hook; 0x3; 0, 1, 2, 3;\n");
-            writer.write("# Archimedes' Ships block meta rotations\n");
-            writer.write("ArchimedesShips:marker; 0x3; 0, 1, 2, 3;\n");
-            writer.write("ArchimedesShips:gauge; 0x3; 0, 1, 2, 3;\n");
-            writer.write("ArchimedesShips:seat; 0x3; 0, 1, 2, 3;\n");
+            registerMetaRotationFile("vanilla.mrot", getClass().getResourceAsStream("/darkevilmac/movingworld/mrot/vanilla.mrot"));
         } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (writer != null) {
-                try {
-                    writer.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            MovingWorld.instance.logger.error("UNABLE TO LOAD VANILLA.MROT");
         }
     }
 }

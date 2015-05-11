@@ -13,14 +13,16 @@ import darkevilmac.movingworld.network.MovingWorldPacketHandler;
 import darkevilmac.movingworld.network.NetworkUtil;
 import darkevilmac.movingworld.proxy.CommonProxy;
 import net.minecraftforge.common.config.Configuration;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
+import java.io.IOException;
 
 @Mod(modid = MovingWorld.MOD_ID, name = MovingWorld.MOD_NAME, version = MovingWorld.MOD_VERSION)
 public class MovingWorld {
     public static final String MOD_ID = "MovingWorld";
-    public static final String MOD_VERSION = "1.7.10-B1";
+    public static final String MOD_VERSION = "1.7.10-ALPHA-0";
     public static final String MOD_NAME = "Moving World";
 
     @Mod.Instance(MOD_ID)
