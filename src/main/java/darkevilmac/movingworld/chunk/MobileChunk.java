@@ -1,7 +1,7 @@
 package darkevilmac.movingworld.chunk;
 
 import darkevilmac.movingworld.entity.EntityMovingWorld;
-import darkevilmac.movingworld.entity.IMovingWorldTileEntity;
+import darkevilmac.movingworld.tile.IMovingWorldTileEntity;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;

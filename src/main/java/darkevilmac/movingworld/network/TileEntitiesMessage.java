@@ -2,9 +2,9 @@ package darkevilmac.movingworld.network;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import darkevilmac.movingworld.block.TileMovingWorldMarkingBlock;
 import darkevilmac.movingworld.chunk.MobileChunkClient;
 import darkevilmac.movingworld.entity.EntityMovingWorld;
+import darkevilmac.movingworld.tile.TileMovingWorldMarkingBlock;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;

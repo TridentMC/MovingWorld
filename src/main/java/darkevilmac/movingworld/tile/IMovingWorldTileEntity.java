@@ -1,6 +1,9 @@
-package darkevilmac.movingworld.entity;
+package darkevilmac.movingworld.tile;
+
+import darkevilmac.movingworld.entity.EntityMovingWorld;
 
 public interface IMovingWorldTileEntity {
+
     /**
      * @param entityMovingWorld moving world
      * @param x                 ,
@@ -12,4 +15,5 @@ public interface IMovingWorldTileEntity {
     EntityMovingWorld getParentMovingWorld();
 
     void setParentMovingWorld(EntityMovingWorld entityMovingWorld);
+
 }

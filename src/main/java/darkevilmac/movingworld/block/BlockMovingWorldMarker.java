@@ -1,5 +1,6 @@
 package darkevilmac.movingworld.block;
 
+import darkevilmac.movingworld.tile.TileMovingWorldMarkingBlock;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.EntityLivingBase;

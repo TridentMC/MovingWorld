@@ -1,10 +1,9 @@
-package darkevilmac.movingworld.block;
+package darkevilmac.movingworld.tile;
 
 import darkevilmac.movingworld.chunk.AssembleResult;
 import darkevilmac.movingworld.chunk.ChunkAssembler;
 import darkevilmac.movingworld.chunk.MovingWorldAssemblyInteractor;
 import darkevilmac.movingworld.entity.EntityMovingWorld;
-import darkevilmac.movingworld.entity.IMovingWorldTileEntity;
 import darkevilmac.movingworld.entity.MovingWorldInfo;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;

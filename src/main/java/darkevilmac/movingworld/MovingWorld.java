@@ -13,11 +13,9 @@ import darkevilmac.movingworld.network.MovingWorldPacketHandler;
 import darkevilmac.movingworld.network.NetworkUtil;
 import darkevilmac.movingworld.proxy.CommonProxy;
 import net.minecraftforge.common.config.Configuration;
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
-import java.io.IOException;
 
 @Mod(modid = MovingWorld.MOD_ID, name = MovingWorld.MOD_NAME, version = MovingWorld.MOD_VERSION)
 public class MovingWorld {

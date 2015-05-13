@@ -2,7 +2,7 @@ package darkevilmac.movingworld.chunk;
 
 import darkevilmac.movingworld.MovingWorld;
 import darkevilmac.movingworld.block.BlockMovingWorldMarker;
-import darkevilmac.movingworld.block.TileMovingWorldMarkingBlock;
+import darkevilmac.movingworld.tile.TileMovingWorldMarkingBlock;
 import net.minecraft.block.Block;
 import net.minecraft.world.ChunkPosition;
 import net.minecraft.world.World;
