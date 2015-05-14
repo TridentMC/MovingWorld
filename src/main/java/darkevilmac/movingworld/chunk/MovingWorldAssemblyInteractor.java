@@ -50,10 +50,6 @@ public class MovingWorldAssemblyInteractor {
         return MovingWorld.instance.mConfig.canOverwriteBlock(block);
     }
 
-    public boolean isBlockAllowed(Block block) {
-        return MovingWorld.instance.mConfig.isBlockAllowed(block);
-    }
-
     /**
      * Called when a block is overwritten when a moving world is disassembled.
      */
@@ -79,7 +75,7 @@ public class MovingWorldAssemblyInteractor {
     }
 
     public boolean isBlockAllowed(World world, Block block, int x, int y, int z) {
-        return !block.isAir(world, x, y, z) && !block.getMaterial().isLiquid();
+        return !block.isAir(world, x, y, z) && !block.getMaterial().isLiquid() && MovingWorld.instance.mConfig.isBlockAllowed(block);
     }
 
     public boolean isBlockMovingWorldMarker(Block block) {
