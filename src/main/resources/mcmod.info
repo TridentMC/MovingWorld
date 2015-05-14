@@ -7,9 +7,9 @@
   "mcversion": "${mcversion}",
   "url": "",
   "updateUrl": "",
-  "authorList": ["Darkevilmac, Large portions of code based on Cuchaz Ship Mod"],
+  "authorList": ["Darkevilmac, Large portions of code based on Archimedes' Ships"],
   "credits": "T",
-  "logoFile": "",
+  "logoFile": "/movingworld_logo.png",
   "screenshots": [],
   "dependencies": []
 }
