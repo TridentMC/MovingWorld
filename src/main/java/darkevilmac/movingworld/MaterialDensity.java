@@ -18,7 +18,7 @@ public class MaterialDensity {
     }
 
     public static void addDensity(Block block, float dens) {
-        blockDensityMap.put(Block.blockRegistry.getNameForObject(block), Float.valueOf(dens));
+        blockDensityMap.put((String) Block.blockRegistry.getNameForObject(block), Float.valueOf(dens));
     }
 
     public static float getDensity(Block block) {

@@ -4,13 +4,14 @@ import darkevilmac.movingworld.MovingWorld;
 import darkevilmac.movingworld.entity.EntityMovingWorld;
 import darkevilmac.movingworld.tile.IMovingWorldTileEntity;
 import darkevilmac.movingworld.util.MathHelperMod;
+import darkevilmac.movingworld.util.Vec3Mod;
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Vec3;
-import net.minecraft.world.ChunkPosition;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,24 +38,26 @@ public class ChunkDisassembler {
         float oy = -chunk.minY(); //Created the normal way, through a VehicleFiller, this value will always be 0.
         float oz = -chunk.getCenterZ();
 
-        Vec3 vec = Vec3.createVectorHelper(0D, 0D, 0D);
+        Vec3Mod vec;
+        IBlockState state;
         Block block;
-        int ix, iy, iz;
+        BlockPos pos;
         for (int i = chunk.minX(); i < chunk.maxX(); i++) {
             for (int j = chunk.minY(); j < chunk.maxY(); j++) {
                 for (int k = chunk.minZ(); k < chunk.maxZ(); k++) {
-                    if (chunk.isAirBlock(i, j, k)) continue;
-                    vec.xCoord = i + ox;
-                    vec.yCoord = j + oy;
-                    vec.zCoord = k + oz;
-                    vec.rotateAroundY(yaw);
+                    if (chunk.isAirBlock(new BlockPos(i, j, k))) continue;
+                    Vec3Mod vecB = new Vec3Mod(i + ox, j + oy, k + oz);
 
-                    ix = MathHelperMod.round_double(vec.xCoord + movingWorld.posX);
-                    iy = MathHelperMod.round_double(vec.yCoord + movingWorld.posY);
-                    iz = MathHelperMod.round_double(vec.zCoord + movingWorld.posZ);
+                    vec = vecB;
+                    vec.rotateYaw(yaw);
 
-                    block = world.getBlock(ix, iy, iz);
-                    if (block != null && !block.isAir(world, ix, iy, iz) && !block.getMaterial().isLiquid() && !assemblyInteractor.canOverwriteBlock(block)) {
+                    pos = new BlockPos(MathHelperMod.round_double(vec.xCoord + movingWorld.posX),
+                            MathHelperMod.round_double(vec.yCoord + movingWorld.posY),
+                            MathHelperMod.round_double(vec.zCoord + movingWorld.posZ));
+
+                    state = world.getBlockState(pos);
+                    block = state.getBlock();
+                    if (block != null && !block.isAir(world, pos) && !block.getMaterial().isLiquid() && !assemblyInteractor.canOverwriteBlock(block)) {
                         return false;
                     }
                 }
@@ -86,61 +89,61 @@ public class ChunkDisassembler {
         float oy = -chunk.minY(); //Created the normal way, through a ChunkAssembler, this value will always be 0.
         float oz = -chunk.getCenterZ();
 
-        Vec3 vec = Vec3.createVectorHelper(0D, 0D, 0D);
+        Vec3Mod vec;
         TileEntity tileentity;
+        IBlockState blockState;
         Block block;
+        IBlockState owBlockState;
         Block owBlock;
-        int meta;
-        int ix, iy, iz;
+        BlockPos pos;
         for (int i = chunk.minX(); i < chunk.maxX(); i++) {
             for (int j = chunk.minY(); j < chunk.maxY(); j++) {
                 for (int k = chunk.minZ(); k < chunk.maxZ(); k++) {
-                    block = chunk.getBlock(i, j, k);
-                    meta = chunk.getBlockMetadata(i, j, k);
+                    blockState = chunk.getBlockState(new BlockPos(i, j, k));
+                    block = blockState.getBlock();
                     if (block == Blocks.air) {
-                        if (meta == 1) continue;
-                    } else if (block.isAir(world, i, j, k)) continue;
-                    tileentity = chunk.getTileEntity(i, j, k);
+                        if (block.getMetaFromState(blockState) == 1) continue;
+                    } else if (block.isAir(world, new BlockPos(i, j, k))) continue;
+                    tileentity = chunk.getTileEntity(new BlockPos(i, j, k));
 
-                    meta = MovingWorld.instance.metaRotations.getRotatedMeta(block, meta, deltarot);
+                    //meta = MovingWorld.instance.metaRotations.getRotatedMeta(block, block.getMetaFromState(blockState), deltarot);
 
-                    vec.xCoord = i + ox;
-                    vec.yCoord = j + oy;
-                    vec.zCoord = k + oz;
-                    vec.rotateAroundY(yaw);
+                    vec = new Vec3Mod(i + ox, j + oy, k + oz);
+                    vec.rotateYaw(yaw);
 
-                    ix = MathHelperMod.round_double(vec.xCoord + movingWorld.posX);
-                    iy = MathHelperMod.round_double(vec.yCoord + movingWorld.posY);
-                    iz = MathHelperMod.round_double(vec.zCoord + movingWorld.posZ);
+                    pos = new BlockPos(MathHelperMod.round_double(vec.xCoord + movingWorld.posX),
+                            MathHelperMod.round_double(vec.yCoord + movingWorld.posY),
+                            MathHelperMod.round_double(vec.zCoord + movingWorld.posZ));
 
-                    owBlock = world.getBlock(ix, iy, iz);
+                    owBlockState = world.getBlockState(pos);
+                    owBlock = owBlockState.getBlock();
                     if (owBlock != null)
                         assemblyInteractor.blockOverwritten(owBlock);
 
-                    if (!world.setBlock(ix, iy, iz, block, meta, 2) || block != world.getBlock(ix, iy, iz)) {
-                        postlist.add(new LocatedBlock(block, meta, tileentity, new ChunkPosition(ix, iy, iz)));
+                    if (!world.setBlockState(pos, blockState, 2) || block != world.getBlockState(pos).getBlock()) {
+                        postlist.add(new LocatedBlock(blockState, tileentity, pos));
                         continue;
                     }
-                    if (meta != world.getBlockMetadata(ix, iy, iz)) {
-                        world.setBlockMetadataWithNotify(ix, iy, iz, meta, 2);
+                    if (blockState != world.getBlockState(pos)) {
+                        world.setBlockState(pos, blockState, 2);
                     }
                     if (tileentity != null) {
                         if (tileentity instanceof IMovingWorldTileEntity) {
-                            ((IMovingWorldTileEntity) tileentity).setParentMovingWorld(null, i, j, k);
+                            ((IMovingWorldTileEntity) tileentity).setParentMovingWorld(new BlockPos(i, j, k), null);
                         }
                         tileentity.validate();
-                        world.setTileEntity(ix, iy, iz, tileentity);
+                        world.setTileEntity(pos, tileentity);
                     }
 
                     if (!MovingWorld.instance.metaRotations.hasBlock(block)) {
-                        assemblyInteractor.blockRotated(block, world, ix, iy, iz, currentRot);
-                        rotateBlock(block, world, ix, iy, iz, currentRot);
-                        block = world.getBlock(ix, iy, iz);
-                        meta = world.getBlockMetadata(ix, iy, iz);
-                        tileentity = world.getTileEntity(ix, iy, iz);
+                        assemblyInteractor.blockRotated(block, world, pos, currentRot);
+                        rotateBlock(block, world, pos, currentRot);
+                        blockState = world.getBlockState(pos);
+                        block = blockState.getBlock();
+                        tileentity = world.getTileEntity(pos);
                     }
 
-                    LocatedBlock lb = new LocatedBlock(block, meta, tileentity, new ChunkPosition(ix, iy, iz));
+                    LocatedBlock lb = new LocatedBlock(blockState, tileentity, pos);
                     assemblyInteractor.blockDisassembled(lb);
                     result.assembleBlock(lb);
                 }
@@ -150,11 +153,9 @@ public class ChunkDisassembler {
         world.getGameRules().setOrCreateGameRule("doTileDrops", String.valueOf(flag));
 
         for (LocatedBlock ilb : postlist) {
-            ix = ilb.coords.chunkPosX;
-            iy = ilb.coords.chunkPosY;
-            iz = ilb.coords.chunkPosZ;
+            pos = ilb.blockPos;
             MovingWorld.logger.debug("Post-rejoining block: " + ilb.toString());
-            world.setBlock(ix, iy, iz, ilb.block, ilb.blockMeta, 0);
+            world.setBlockState(pos, ilb.blockState, 0);
             assemblyInteractor.blockDisassembled(ilb);
             result.assembleBlock(ilb);
         }
@@ -171,14 +172,14 @@ public class ChunkDisassembler {
         return result;
     }
 
-    private void rotateBlock(Block block, World world, int x, int y, int z, int deltarot) {
+    private void rotateBlock(Block block, World world, BlockPos pos, int deltarot) {
         deltarot &= 3;
         if (deltarot != 0) {
             if (deltarot == 3) {
-                block.rotateBlock(world, x, y, z, ForgeDirection.UP);
+                block.rotateBlock(world, pos, EnumFacing.UP);
             } else {
                 for (int r = 0; r < deltarot; r++) {
-                    block.rotateBlock(world, x, y, z, ForgeDirection.DOWN);
+                    block.rotateBlock(world, pos, EnumFacing.DOWN);
                 }
             }
         }

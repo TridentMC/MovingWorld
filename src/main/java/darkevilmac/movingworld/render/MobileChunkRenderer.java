@@ -1,16 +1,23 @@
 package darkevilmac.movingworld.render;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import darkevilmac.movingworld.MovingWorld;
 import darkevilmac.movingworld.chunk.MobileChunk;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.*;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.GLAllocation;
+import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.BlockPos;
+import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
@@ -58,7 +65,7 @@ public class MobileChunkRenderer {
 
     private void tryEndDrawing() {
         try {
-            Tessellator.instance.draw();
+            Tessellator.getInstance().draw();
             MovingWorld.logger.trace("Drawing stopped");
         } catch (IllegalStateException ise) {
             MovingWorld.logger.trace("Not drawing");
@@ -108,13 +115,13 @@ public class MobileChunkRenderer {
     /**
      * Render this TileEntity at its current position from the player
      */
-    public void renderTileEntity(TileEntity tileentity, float partialticks) {
-        int i = chunk.getLightBrightnessForSkyBlocks(tileentity.xCoord, tileentity.yCoord, tileentity.zCoord, 0);
+    public void renderTileEntity(TileEntity tileEntity, float partialTicks) {
+        int i = chunk.getCombinedLight(tileEntity.getPos(), 0);
         int j = i % 65536;
         int k = i / 65536;
         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, j / 1.0F, k / 1.0F);
         GL11.glColor4f(1F, 1F, 1F, 1F);
-        TileEntityRendererDispatcher.instance.renderTileEntityAt(tileentity, tileentity.xCoord, tileentity.yCoord, tileentity.zCoord, partialticks);
+        TileEntityRendererDispatcher.instance.renderTileEntityAt(tileEntity, tileEntity.getPos().getX(), tileEntity.getPos().getY(), tileEntity.getPos().getZ(), partialTicks);
     }
 
     private void updateRender() {
@@ -203,6 +210,13 @@ public class MobileChunkRenderer {
         isInitialized = true;
 
         needsUpdate = false;
+    }
+
+    public void dispatchBlockRender(IBlockState state, BlockPos pos, TextureAtlasSprite atlasSprite, World world) {
+        if (state.getBlock().isAir(world, pos))
+            return; //Don't render air, trust me it's a bad idea.
+
+
     }
 
     public void markDirty() {

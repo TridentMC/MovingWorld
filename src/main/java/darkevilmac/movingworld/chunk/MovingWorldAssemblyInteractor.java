@@ -7,6 +7,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 
 /**
@@ -59,7 +60,7 @@ public class MovingWorldAssemblyInteractor {
     /**
      * Called when a block is rotated during disassembling.
      */
-    public void blockRotated(Block block, World world, int x, int y, int z, int deltarot) {
+    public void blockRotated(Block block, World world, BlockPos pos, int deltarot) {
     }
 
     /**
@@ -74,8 +75,8 @@ public class MovingWorldAssemblyInteractor {
     public void chunkDissasembled(AssembleResult assembleResult) {
     }
 
-    public boolean isBlockAllowed(World world, Block block, int x, int y, int z) {
-        return !block.isAir(world, x, y, z) && !block.getMaterial().isLiquid() && MovingWorld.instance.mConfig.isBlockAllowed(block);
+    public boolean isBlockAllowed(World world, Block block, BlockPos pos) {
+        return !block.isAir(world, pos) && !block.getMaterial().isLiquid() && MovingWorld.instance.mConfig.isBlockAllowed(block);
     }
 
     public boolean isBlockMovingWorldMarker(Block block) {

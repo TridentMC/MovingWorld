@@ -1,45 +1,43 @@
 package darkevilmac.movingworld.chunk;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.ChunkPosition;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 
 public class LocatedBlock {
-    public final Block block;
-    public final int blockMeta;
+    public final IBlockState blockState;
     public final TileEntity tileEntity;
-    public final ChunkPosition coords;
+    public final BlockPos blockPos;
 
-    public LocatedBlock(Block block, int meta, ChunkPosition coords) {
-        this(block, meta, null, coords);
+    public LocatedBlock(IBlockState blockState, BlockPos blockPos) {
+        this(blockState, null, blockPos);
     }
 
-    public LocatedBlock(Block block, int meta, TileEntity tileentity, ChunkPosition coords) {
-        this.block = block;
-        blockMeta = meta;
+    public LocatedBlock(IBlockState blockState, TileEntity tileentity, BlockPos blockPos) {
+        this.blockState = blockState;
+        this.blockPos = blockPos;
         tileEntity = tileentity;
-        this.coords = coords;
     }
 
     public LocatedBlock(NBTTagCompound comp, World world) {
-        block = Block.getBlockById(comp.getInteger("block"));
-        blockMeta = comp.getInteger("meta");
-        coords = new ChunkPosition(comp.getInteger("x"), comp.getInteger("y"), comp.getInteger("z"));
-        tileEntity = world == null ? null : world.getTileEntity(coords.chunkPosX, coords.chunkPosY, coords.chunkPosZ);
+        blockState = Block.getBlockById(comp.getInteger("block")).getStateFromMeta(comp.getInteger("meta"));
+        blockPos = new BlockPos(comp.getInteger("x"), comp.getInteger("y"), comp.getInteger("z"));
+        tileEntity = world == null ? null : world.getTileEntity(new BlockPos(blockPos.getX(), blockPos.getY(), blockPos.getZ()));
     }
 
     @Override
     public String toString() {
-        return new StringBuilder("LocatedBlock [block=").append(block).append(", meta=").append(blockMeta).append(", coords=[").append(coords.chunkPosX).append(", ").append(coords.chunkPosY).append(", ").append(coords.chunkPosZ).append("]]").toString();
+        return new StringBuilder("LocatedBlock [block=").append(blockState.getBlock()).append(", state=").append(blockState).append(", blockPos=[").append(blockPos.getX()).append(", ").append(blockPos.getY()).append(", ").append(blockPos.getZ()).append("]]").toString();
     }
 
     public void writeToNBT(NBTTagCompound comp) {
-        comp.setShort("block", (short) Block.getIdFromBlock(block));
-        comp.setInteger("meta", blockMeta);
-        comp.setInteger("x", coords.chunkPosX);
-        comp.setInteger("y", coords.chunkPosY);
-        comp.setInteger("z", coords.chunkPosZ);
+        comp.setShort("block", (short) Block.getIdFromBlock(blockState.getBlock()));
+        comp.setInteger("meta", blockState.getBlock().getMetaFromState(blockState));
+        comp.setInteger("x", blockPos.getX());
+        comp.setInteger("y", blockPos.getY());
+        comp.setInteger("z", blockPos.getZ());
     }
 }

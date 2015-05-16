@@ -2,10 +2,10 @@ package darkevilmac.movingworld.entity;
 
 import darkevilmac.movingworld.MovingWorld;
 import darkevilmac.movingworld.chunk.MobileChunk;
-import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.world.ChunkPosition;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 
 import java.util.HashSet;
@@ -30,9 +30,10 @@ public abstract class MovingWorldHandlerCommon {
         for (int i = chunk.minX(); i < chunk.maxX(); i++) {
             for (int j = chunk.minY(); j < chunk.maxY(); j++) {
                 for (int k = chunk.minZ(); k < chunk.maxZ(); k++) {
-                    Block block = chunk.getBlock(i, j, k);
-                    if (block.getMaterial() != Material.air) {
-                        getMovingWorld().getCapabilities().onChunkBlockAdded(block, chunk.getBlockMetadata(i, j, k), i, j, k);
+                    BlockPos pos = new BlockPos(i, j, k);
+                    IBlockState blockState = chunk.getBlockState(pos);
+                    if (blockState.getBlock().getMaterial() != Material.air) {
+                        getMovingWorld().getCapabilities().onChunkBlockAdded(blockState, pos);
                     }
                 }
             }
@@ -42,7 +43,7 @@ public abstract class MovingWorldHandlerCommon {
         World.MAX_ENTITY_RADIUS = Math.max(World.MAX_ENTITY_RADIUS, Math.max(getMovingWorld().width, getMovingWorld().height) + 2F);
 
         try {
-            getMovingWorld().fillAirBlocks(new HashSet<ChunkPosition>(), -1, -1, -1);
+            getMovingWorld().fillAirBlocks(new HashSet<BlockPos>(), -1, -1, -1);
         } catch (StackOverflowError e) {
             MovingWorld.logger.error("Failure during moving world post-initialization", e);
         }
@@ -51,7 +52,8 @@ public abstract class MovingWorldHandlerCommon {
         for (int y = 0; y < getMovingWorld().getLayeredBlockVolumeCount().length; y++) {
             for (int i = chunk.minX(); i < chunk.maxX(); i++) {
                 for (int j = chunk.minZ(); j < chunk.maxZ(); j++) {
-                    if (chunk.isBlockTakingWaterVolume(i, y + chunk.minY(), j)) {
+                    BlockPos pos = new BlockPos(i, y + chunk.minY(), j);
+                    if (chunk.isBlockTakingWaterVolume(pos)) {
                         int[] layeredBlockVolCount = getMovingWorld().getLayeredBlockVolumeCount();
                         layeredBlockVolCount[y]++;
                         getMovingWorld().setLayeredBlockVolumeCount(layeredBlockVolCount);

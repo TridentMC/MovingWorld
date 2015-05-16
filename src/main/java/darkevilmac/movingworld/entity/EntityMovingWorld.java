@@ -1,15 +1,14 @@
 package darkevilmac.movingworld.entity;
 
-import cpw.mods.fml.common.registry.IEntityAdditionalSpawnData;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import darkevilmac.movingworld.MovingWorld;
 import darkevilmac.movingworld.chunk.*;
 import darkevilmac.movingworld.util.AABBRotator;
 import darkevilmac.movingworld.util.MathHelperMod;
+import darkevilmac.movingworld.util.Vec3Mod;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.item.EntityBoat;
@@ -20,12 +19,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.MathHelper;
-import net.minecraft.util.Vec3;
-import net.minecraft.world.ChunkPosition;
+import net.minecraft.util.*;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.io.*;
 import java.util.List;
@@ -72,7 +70,6 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
         layeredBlockVolumeCount = null;
         frontDirection = 0;
-        yOffset = 0F;
 
         groundFriction = 0.9F;
         horFriction = 0.994F;
@@ -94,10 +91,11 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         for (int x = i; x < j; ++x) {
             for (int y = k; y < l; ++y) {
                 for (int z = i1; z < j1; ++z) {
-                    Block block = world.getBlock(x, y, z);
+                    IBlockState blockState = world.getBlockState(new BlockPos(x, y, z));
+                    Block block = blockState.getBlock();
 
                     if (block != null && (block.getMaterial() == Material.water || block.getMaterial() == Material.lava)) {
-                        int j2 = world.getBlockMetadata(x, y, z);
+                        int j2 = block.getMetaFromState(blockState);
                         double d0;
 
                         if (j2 < 8) {
@@ -113,6 +111,11 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         }
 
         return false;
+    }
+
+    @Override
+    public double getYOffset() {
+        return 0.0D;
     }
 
     @Override
@@ -201,10 +204,10 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     public void setRotatedBoundingBox() {
         if (mobileChunk == null) {
             float hw = width / 2F;
-            boundingBox.setBounds(posX - hw, posY, posZ - hw, posX + hw, posY + height, posZ + hw);
+            setEntityBoundingBox(new AxisAlignedBB(posX - hw, posY, posZ - hw, posX + hw, posY + height, posZ + hw));
         } else {
-            boundingBox.setBounds(posX - mobileChunk.getCenterX(), posY, posZ - mobileChunk.getCenterZ(), posX + mobileChunk.getCenterX(), posY + height, posZ + mobileChunk.getCenterZ());
-            AABBRotator.rotateAABBAroundY(boundingBox, posX, posZ, (float) Math.toRadians(rotationYaw));
+            setEntityBoundingBox(new AxisAlignedBB(posX - mobileChunk.getCenterX(), posY, posZ - mobileChunk.getCenterZ(), posX + mobileChunk.getCenterX(), posY + height, posZ + mobileChunk.getCenterZ()));
+            AABBRotator.rotateAABBAroundY(getEntityBoundingBox(), posX, posZ, (float) Math.toRadians(rotationYaw));
         }
     }
 
@@ -214,52 +217,50 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             width = w;
             height = h;
             float hw = w / 2F;
-            boundingBox.setBounds(posX - hw, posY, posZ - hw, posX + hw, posY + height, posZ + hw);
-        }
-
-        float f = w % 2.0F;
-        if (f < 0.375D) {
-            myEntitySize = EnumEntitySize.SIZE_1;
-        } else if (f < 0.75D) {
-            myEntitySize = EnumEntitySize.SIZE_2;
-        } else if (f < 1.0D) {
-            myEntitySize = EnumEntitySize.SIZE_3;
-        } else if (f < 1.375D) {
-            myEntitySize = EnumEntitySize.SIZE_4;
-        } else if (f < 1.75D) {
-            myEntitySize = EnumEntitySize.SIZE_5;
-        } else {
-            myEntitySize = EnumEntitySize.SIZE_6;
+            setEntityBoundingBox(new AxisAlignedBB(posX - hw, posY, posZ - hw, posX + hw, posY + height, posZ + hw));
         }
     }
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void setPositionAndRotation2(double x, double y, double z, float yaw, float pitch, int incr) {
-        if (noControl) {
-            controlPosRotationIncrements = incr + 5;
+    public void func_180426_a(double x, double y, double z, float yaw, float pitch, int inc, boolean control) {
+        if (control && this.riddenByEntity != null) {
+            this.prevPosX = this.posX = x;
+            this.prevPosY = this.posY = y;
+            this.prevPosZ = this.posZ = z;
+            this.rotationYaw = yaw;
+            this.rotationPitch = pitch;
+            this.controlPosRotationIncrements = 0;
+            this.setPosition(x, y, z);
+            this.motionX = this.controlVelX = 0.0D;
+            this.motionY = this.controlVelY = 0.0D;
+            this.motionZ = this.controlVelZ = 0.0D;
         } else {
-            double dx = x - posX;
-            double dy = y - posY;
-            double dz = z - posZ;
-            double d = dx * dx + dy * dy + dz * dz;
+            if (noControl) {
+                controlPosRotationIncrements = inc + 5;
+            } else {
+                double dx = x - posX;
+                double dy = y - posY;
+                double dz = z - posZ;
+                double d = dx * dx + dy * dy + dz * dz;
 
-            if (d < 0.3D) {
-                return;
+                if (d < 0.3D) {
+                    return;
+                }
+
+                syncPosWithServer = true;
+                controlPosRotationIncrements = inc;
             }
 
-            syncPosWithServer = true;
-            controlPosRotationIncrements = incr;
+            controlX = x;
+            controlY = y;
+            controlZ = z;
+            controlYaw = yaw;
+            controlPitch = pitch;
+            motionX = controlVelX;
+            motionY = controlVelY;
+            motionZ = controlVelZ;
         }
-
-        controlX = x;
-        controlY = y;
-        controlZ = z;
-        controlYaw = yaw;
-        controlPitch = pitch;
-        motionX = controlVelX;
-        motionY = controlVelY;
-        motionZ = controlVelZ;
     }
 
     @Override
@@ -332,14 +333,14 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     protected void handleServerUpdate(double horvel) {
         //START outer forces
         byte b0 = 5;
-        int bpermeter = (int) (b0 * (boundingBox.maxY - boundingBox.minY));
+        int bpermeter = (int) (b0 * (getEntityBoundingBox().maxY - getEntityBoundingBox().minY));
         float waterVolume = 0F;
-        AxisAlignedBB axisalignedbb = AxisAlignedBB.getBoundingBox(0D, 0D, 0D, 0D, 0D, 0D);
+        AxisAlignedBB axisalignedbb = new AxisAlignedBB(0D, 0D, 0D, 0D, 0D, 0D);
         int belowWater = 0;
         for (; belowWater < bpermeter; belowWater++) {
-            double d1 = boundingBox.minY + (boundingBox.maxY - boundingBox.minY) * belowWater / bpermeter;
-            double d2 = boundingBox.minY + (boundingBox.maxY - boundingBox.minY) * (belowWater + 1) / bpermeter;
-            axisalignedbb.setBounds(boundingBox.minX, d1, boundingBox.minZ, boundingBox.maxX, d2, boundingBox.maxZ);
+            double d1 = getEntityBoundingBox().minY + (getEntityBoundingBox().maxY - getEntityBoundingBox().minY) * belowWater / bpermeter;
+            double d2 = getEntityBoundingBox().minY + (getEntityBoundingBox().maxY - getEntityBoundingBox().minY) * (belowWater + 1) / bpermeter;
+            axisalignedbb = new AxisAlignedBB(getEntityBoundingBox().minX, d1, getEntityBoundingBox().minZ, getEntityBoundingBox().maxX, d2, getEntityBoundingBox().maxZ);
 
             if (!isAABBInLiquidNotFall(worldObj, axisalignedbb)) {
                 break;
@@ -437,8 +438,8 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
                     x1 -= 1;
                 }
 
-                Block block = mobileChunk.getBlock(x1, MathHelper.floor_double(y1 + getMountedYOffset() + entity.getYOffset()), z1);
-                if (block.isOpaqueCube()) {
+                IBlockState blockState = mobileChunk.getBlockState(new BlockPos(x1, MathHelper.floor_double(y1 + getMountedYOffset() + entity.getYOffset()), z1));
+                if (blockState.getBlock().isOpaqueCube()) {
                     x1 = riderDestinationX;
                     y1 = riderDestinationY;
                     z1 = riderDestinationZ;
@@ -446,22 +447,22 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             }
 
             double yoff = (flags & 2) == 2 ? 0d : getMountedYOffset();
-            Vec3 vec = Vec3.createVectorHelper(x1 - mobileChunk.getCenterX() + 0.5d, y1 - mobileChunk.minY() + yoff, z1 - mobileChunk.getCenterZ() + 0.5d);
+            Vec3Mod vec = new Vec3Mod(x1 - mobileChunk.getCenterX() + 0.5d, y1 - mobileChunk.minY() + yoff, z1 - mobileChunk.getCenterZ() + 0.5d);
             switch (frontDirection) {
                 case 0:
-                    vec.rotateAroundZ(-pitch);
+                    vec.rotateRoll(-pitch);
                     break;
                 case 1:
-                    vec.rotateAroundX(pitch);
+                    vec.rotatePitch(pitch);
                     break;
                 case 2:
-                    vec.rotateAroundZ(pitch);
+                    vec.rotateRoll(pitch);
                     break;
                 case 3:
-                    vec.rotateAroundX(-pitch);
+                    vec.rotatePitch(-pitch);
                     break;
             }
-            vec.rotateAroundY(yaw);
+            vec.rotateYaw(yaw);
 
             entity.setPosition(posX + vec.xCoord, posY + vec.yCoord + entity.getYOffset(), posZ + vec.zCoord);
         }
@@ -471,7 +472,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         boolean didCollide = false;
         if (!worldObj.isRemote) {
             @SuppressWarnings("unchecked")
-            List<Entity> list = worldObj.getEntitiesWithinAABBExcludingEntity(this, boundingBox.expand(0.2D, 0.0D, 0.2D));
+            List<Entity> list = worldObj.getEntitiesWithinAABBExcludingEntity(this, getBoundingBox().expand(0.2D, 0.0D, 0.2D));
             if (list != null && !list.isEmpty()) {
                 didCollide = true;
                 for (Entity entity : list) {
@@ -512,13 +513,14 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
                 for (int k1 = 0; k1 < 2; ++k1) {
                     int l1 = MathHelper.floor_double(cPosY) + k1;
-                    Block block = worldObj.getBlock(i1, l1, j1);
+                    IBlockState blockState = worldObj.getBlockState(new BlockPos(i1, l1, j1));
+                    Block block = blockState.getBlock();
 
                     if (block == Blocks.snow) {
-                        worldObj.setBlockToAir(i1, l1, j1);
+                        worldObj.setBlockToAir(new BlockPos(i1, l1, j1));
                         isCollidedHorizontally = false;
                     } else if (block == Blocks.waterlily) {
-                        worldObj.func_147480_a(i1, l1, j1, true);
+                        worldObj.destroyBlock(new BlockPos(i1, l1, j1), true);
                         isCollidedHorizontally = false;
                     } else {
                         didCollide = true;
@@ -560,7 +562,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     @Override
     public double getMountedYOffset() {
-        return yOffset + 0.5D;
+        return getYOffset() + 0.5D;
     }
 
     @Override
@@ -570,12 +572,12 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     @Override
     public AxisAlignedBB getCollisionBox(Entity entity) {
-        return entity instanceof EntityLiving ? null : entity.boundingBox;
+        return entity instanceof EntityLiving ? null : entity.getEntityBoundingBox();
     }
 
     @Override
     public AxisAlignedBB getBoundingBox() {
-        return boundingBox;
+        return getEntityBoundingBox();
     }
 
     @Override
@@ -589,20 +591,15 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     }
 
     @Override
-    protected void updateFallState(double distancefallen, boolean onground) {
+    protected void func_180433_a(double distanceFallen, boolean onGround, Block p3, BlockPos p4) {
         if (!isFlying()) {
-
+            // This does nothing? Why was the code here, was there something to be implemented, if so, what?
         }
     }
 
     @Override
-    protected void fall(float distance) {
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public float getShadowSize() {
-        return 0.5F;
+    public void fall(float distance, float damageMultiplier) {
+        //We 2 cool to take fall damage.
     }
 
     public float getHorizontalVelocity() {
@@ -613,8 +610,8 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         rotationYaw = Math.round(rotationYaw / 90F) * 90F;
         rotationPitch = 0F;
 
-        Vec3 vec = Vec3.createVectorHelper(-mobileChunk.getCenterX(), -mobileChunk.minY(), -mobileChunk.getCenterZ());
-        vec.rotateAroundY((float) Math.toRadians(rotationYaw));
+        Vec3 vec = new Vec3(-mobileChunk.getCenterX(), -mobileChunk.minY(), -mobileChunk.getCenterZ());
+        vec.rotateYaw((float) Math.toRadians(rotationYaw));
 
         int ix = MathHelperMod.round_double(vec.xCoord + posX);
         int iy = MathHelperMod.round_double(vec.yCoord + posY);
@@ -648,7 +645,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     public void dropAsItems() {
         TileEntity tileentity;
-        Block block;
+        IBlockState blockState;
         for (int i = mobileChunk.minX(); i < mobileChunk.maxX(); i++) {
             for (int j = mobileChunk.minY(); j < mobileChunk.maxY(); j++) {
                 for (int k = mobileChunk.minZ(); k < mobileChunk.maxZ(); k++) {
@@ -662,21 +659,20 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
                             }
                         }
                     }
-                    block = mobileChunk.getBlock(i, j, k);
+                    blockState = mobileChunk.getBlockState(new BlockPos(i, j, k));
 
-                    if (block != Blocks.air) {
-                        int meta = mobileChunk.getBlockMetadata(i, j, k);
-                        block.dropBlockAsItem(worldObj, MathHelper.floor_double(posX), MathHelper.floor_double(posY), MathHelper.floor_double(posZ), meta, 0);
+                    if (blockState.getBlock() != Blocks.air) {
+                        blockState.getBlock().dropBlockAsItem(worldObj, new BlockPos(MathHelper.floor_double(posX), MathHelper.floor_double(posY), MathHelper.floor_double(posZ)), blockState, 0);
                     }
                 }
             }
         }
     }
 
-    protected void fillAirBlocks(Set<ChunkPosition> set, int x, int y, int z) {
+    protected void fillAirBlocks(Set<BlockPos> set, int x, int y, int z) {
         if (x < mobileChunk.minX() - 1 || x > mobileChunk.maxX() || y < mobileChunk.minY() - 1 || y > mobileChunk.maxY() || z < mobileChunk.minZ() - 1 || z > mobileChunk.maxZ())
             return;
-        ChunkPosition pos = new ChunkPosition(x, y, z);
+        BlockPos pos = new BlockPos(x, y, z);
         if (set.contains(pos)) return;
 
         set.add(pos);
@@ -765,7 +761,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             for (int i = 0; i < tileentities.tagCount(); i++) {
                 NBTTagCompound comp = tileentities.getCompoundTagAt(i);
                 TileEntity tileentity = TileEntity.createAndLoadEntity(comp);
-                mobileChunk.setTileEntity(tileentity.xCoord, tileentity.yCoord, tileentity.zCoord, tileentity);
+                mobileChunk.setTileEntity(tileentity.getPos().getX(), tileentity.getPos().getY(), tileentity.getPos().getZ(), tileentity);
             }
         }
 

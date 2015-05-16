@@ -1,9 +1,10 @@
 package darkevilmac.movingworld.entity;
 
 import darkevilmac.movingworld.MaterialDensity;
-import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.BlockPos;
 
 public abstract class MovingWorldCapabilities {
 
@@ -28,10 +29,10 @@ public abstract class MovingWorldCapabilities {
         return blockCount;
     }
 
-    public void onChunkBlockAdded(Block block, int metadata, int x, int y, int z) {
+    public void onChunkBlockAdded(IBlockState blockState, BlockPos pos) {
         blockCount++;
         if (autoCalcMass)
-            mass += MaterialDensity.getDensity(block);
+            mass += MaterialDensity.getDensity(blockState.getBlock());
     }
 
     public abstract boolean mountEntity(Entity entity);

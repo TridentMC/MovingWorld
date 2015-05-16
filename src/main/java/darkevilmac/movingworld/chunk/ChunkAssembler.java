@@ -4,17 +4,19 @@ import darkevilmac.movingworld.MovingWorld;
 import darkevilmac.movingworld.block.BlockMovingWorldMarker;
 import darkevilmac.movingworld.tile.TileMovingWorldMarkingBlock;
 import net.minecraft.block.Block;
-import net.minecraft.world.ChunkPosition;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+
 public class ChunkAssembler {
     public final int startX, startY, startZ;
     private final int maxBlocks;
     private World worldObj;
+
 
     public ChunkAssembler(World world, int x, int y, int z, int maxMovingWorldBlocks) {
         worldObj = world;
@@ -36,7 +38,7 @@ public class ChunkAssembler {
             if (MovingWorld.instance.mConfig.iterativeAlgorithm) {
                 assembleIterative(result, result.assemblyInteractor, startX, startY, startZ);
             } else {
-                assembleRecursive(result, new HashSet<ChunkPosition>(), result.assemblyInteractor, startX, startY, startZ);
+                assembleRecursive(result, new HashSet<BlockPos>(), result.assemblyInteractor, startX, startY, startZ);
             }
             if (result.movingWorldMarkingBlock == null) {
                 result.resultCode = AssembleResult.RESULT_MISSING_MARKER;
@@ -53,18 +55,18 @@ public class ChunkAssembler {
     }
 
     private void assembleIterative(AssembleResult result, MovingWorldAssemblyInteractor assemblyInteractor, int sx, int sy, int sz) throws MovingWorldSizeOverflowException {
-        HashSet<ChunkPosition> openSet = new HashSet<ChunkPosition>();
-        HashSet<ChunkPosition> closedSet = new HashSet<ChunkPosition>();
-        List<ChunkPosition> iterator = new ArrayList<ChunkPosition>();
+        HashSet<BlockPos> openSet = new HashSet<BlockPos>();
+        HashSet<BlockPos> closedSet = new HashSet<BlockPos>();
+        List<BlockPos> iterator = new ArrayList<BlockPos>();
 
         LocatedBlock movingWorldMarker = null;
 
         int x = sx, y = sy, z = sz;
 
-        openSet.add(new ChunkPosition(sx, sy, sz));
+        openSet.add(new BlockPos(sx, sy, sz));
         while (!openSet.isEmpty()) {
             iterator.addAll(openSet);
-            for (ChunkPosition pos : iterator) {
+            for (BlockPos pos : iterator) {
                 openSet.remove(pos);
 
                 if (closedSet.contains(pos)) {
@@ -74,18 +76,18 @@ public class ChunkAssembler {
                     throw new MovingWorldSizeOverflowException();
                 }
 
-                x = pos.chunkPosX;
-                y = pos.chunkPosY;
-                z = pos.chunkPosZ;
+                x = pos.getX();
+                y = pos.getY();
+                z = pos.getZ();
 
                 closedSet.add(pos);
 
-                Block block = worldObj.getBlock(x, y, z);
+                Block block = worldObj.getBlockState(new BlockPos(x, y, z)).getBlock();
                 if (!canUseBlockForVehicle(block, assemblyInteractor, x, y, z)) {
                     continue;
                 }
 
-                LocatedBlock lb = new LocatedBlock(block, worldObj.getBlockMetadata(x, y, z), worldObj.getTileEntity(x, y, z), pos);
+                LocatedBlock lb = new LocatedBlock(block, block.getMetaFromState(worldObj.getBlockState(new BlockPos(x, y, z))), worldObj.getTileEntity(new BlockPos(x, y, z)), pos);
                 assemblyInteractor.blockAssembled(lb);
                 if ((lb.block != null && lb.block instanceof BlockMovingWorldMarker) || (lb.tileEntity != null && lb.tileEntity instanceof TileMovingWorldMarkingBlock)) {
                     if (movingWorldMarker == null)
@@ -93,49 +95,49 @@ public class ChunkAssembler {
                 }
                 result.assembleBlock(lb);
 
-                openSet.add(new ChunkPosition(x - 1, y, z));
-                openSet.add(new ChunkPosition(x, y - 1, z));
-                openSet.add(new ChunkPosition(x, y, z - 1));
-                openSet.add(new ChunkPosition(x + 1, y, z));
-                openSet.add(new ChunkPosition(x, y + 1, z));
-                openSet.add(new ChunkPosition(x, y, z + 1));
+                openSet.add(new BlockPos(x - 1, y, z));
+                openSet.add(new BlockPos(x, y - 1, z));
+                openSet.add(new BlockPos(x, y, z - 1));
+                openSet.add(new BlockPos(x + 1, y, z));
+                openSet.add(new BlockPos(x, y + 1, z));
+                openSet.add(new BlockPos(x, y, z + 1));
 
                 if (assemblyInteractor.doDiagonalAssembly()) {
-                    openSet.add(new ChunkPosition(x - 1, y - 1, z));
-                    openSet.add(new ChunkPosition(x + 1, y - 1, z));
-                    openSet.add(new ChunkPosition(x + 1, y + 1, z));
-                    openSet.add(new ChunkPosition(x - 1, y + 1, z));
+                    openSet.add(new BlockPos(x - 1, y - 1, z));
+                    openSet.add(new BlockPos(x + 1, y - 1, z));
+                    openSet.add(new BlockPos(x + 1, y + 1, z));
+                    openSet.add(new BlockPos(x - 1, y + 1, z));
 
-                    openSet.add(new ChunkPosition(x - 1, y, z - 1));
-                    openSet.add(new ChunkPosition(x + 1, y, z - 1));
-                    openSet.add(new ChunkPosition(x + 1, y, z + 1));
-                    openSet.add(new ChunkPosition(x - 1, y, z + 1));
+                    openSet.add(new BlockPos(x - 1, y, z - 1));
+                    openSet.add(new BlockPos(x + 1, y, z - 1));
+                    openSet.add(new BlockPos(x + 1, y, z + 1));
+                    openSet.add(new BlockPos(x - 1, y, z + 1));
 
-                    openSet.add(new ChunkPosition(x, y - 1, z - 1));
-                    openSet.add(new ChunkPosition(x, y + 1, z - 1));
-                    openSet.add(new ChunkPosition(x, y + 1, z + 1));
-                    openSet.add(new ChunkPosition(x, y - 1, z + 1));
+                    openSet.add(new BlockPos(x, y - 1, z - 1));
+                    openSet.add(new BlockPos(x, y + 1, z - 1));
+                    openSet.add(new BlockPos(x, y + 1, z + 1));
+                    openSet.add(new BlockPos(x, y - 1, z + 1));
                 }
             }
         }
         result.movingWorldMarkingBlock = movingWorldMarker;
     }
 
-    private void assembleRecursive(AssembleResult result, HashSet<ChunkPosition> set, MovingWorldAssemblyInteractor assemblyInteractor, int x, int y, int z) throws MovingWorldSizeOverflowException {
+    private void assembleRecursive(AssembleResult result, HashSet<BlockPos> set, MovingWorldAssemblyInteractor assemblyInteractor, int x, int y, int z) throws MovingWorldSizeOverflowException {
         LocatedBlock movingWorldMarker = null;
 
         if (result.assembledBlocks.size() > maxBlocks) {
             throw new MovingWorldSizeOverflowException();
         }
 
-        ChunkPosition pos = new ChunkPosition(x, y, z);
+        BlockPos pos = new BlockPos(x, y, z);
         if (set.contains(pos)) return;
 
         set.add(pos);
-        Block block = worldObj.getBlock(x, y, z);
+        Block block = worldObj.getBlockState(new BlockPos(x, y, z)).getBlock();
         if (!canUseBlockForVehicle(block, assemblyInteractor, x, y, z)) return;
 
-        LocatedBlock lb = new LocatedBlock(block, worldObj.getBlockMetadata(x, y, z), worldObj.getTileEntity(x, y, z), pos);
+        LocatedBlock lb = new LocatedBlock(block, block.getMetaFromState(worldObj.getBlockState(new BlockPos(x, y, z))), worldObj.getTileEntity(new BlockPos(x, y, z)), pos);
         assemblyInteractor.blockAssembled(lb);
         if ((lb.block != null && lb.block instanceof BlockMovingWorldMarker) || (lb.tileEntity != null && lb.tileEntity instanceof TileMovingWorldMarkingBlock)) {
             if (movingWorldMarker == null)
