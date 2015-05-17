@@ -4,13 +4,15 @@ import darkevilmac.movingworld.chunk.MobileChunkClient;
 import darkevilmac.movingworld.entity.EntityMovingWorld;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.Render;
+import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
 public class RenderMovingWorld extends Render {
-    public RenderMovingWorld() {
+    public RenderMovingWorld(RenderManager renderManager) {
+        super(renderManager);
         shadowSize = 1F;
     }
 

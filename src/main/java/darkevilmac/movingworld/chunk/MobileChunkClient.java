@@ -1,7 +1,7 @@
 package darkevilmac.movingworld.chunk;
 
 import darkevilmac.movingworld.entity.EntityMovingWorld;
-import darkevilmac.movingworld.render.old.MobileChunkRenderer;
+import darkevilmac.movingworld.render.MobileChunkRenderer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;

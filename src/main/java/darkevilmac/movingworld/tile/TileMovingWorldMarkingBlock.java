@@ -147,12 +147,12 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
     public Packet getDescriptionPacket() {
         NBTTagCompound compound = new NBTTagCompound();
         writeNBTForSending(compound);
-        return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 0, compound);
+        return new S35PacketUpdateTileEntity(pos, 0, compound);
     }
 
     @Override
     public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity packet) {
-        readFromNBT(packet.func_148857_g());
+        readFromNBT(packet.getNbtCompound());
     }
 
     public abstract MovingWorldAssemblyInteractor getNewAssemblyInteractor();

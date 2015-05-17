@@ -2,20 +2,16 @@ package darkevilmac.movingworld.render;
 
 import darkevilmac.movingworld.MovingWorld;
 import darkevilmac.movingworld.chunk.MobileChunk;
-import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.GLAllocation;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
@@ -72,7 +68,7 @@ public class MobileChunkRenderer {
         }
     }
 
-    public void render(float partialticks) {
+    public void render(float partialTicks) {
         if (isRemoved) {
             if (glRenderList != 0) {
                 GLAllocation.deleteDisplayLists(glRenderList);
@@ -85,27 +81,29 @@ public class MobileChunkRenderer {
             try {
                 updateRender();
             } catch (Exception e) {
-                MovingWorld.logger.error("A mobile chunk render error has occured", e);
+                MovingWorld.logger.error("A mobile chunk render error has occurred", e);
                 tryEndDrawing();
             }
         }
 
         if (glRenderList != 0) {
             for (int pass = 0; pass < 2; ++pass) {
-                GL11.glCallList(glRenderList + pass);
+                for (EnumWorldBlockLayer layer : EnumWorldBlockLayer.values()) {
+                    GL11.glCallList(glRenderList + layer.ordinal());
 
-                RenderHelper.enableStandardItemLighting();
-                Iterator<TileEntity> it = tileEntityRenderers.iterator();
-                while (it.hasNext()) {
-                    TileEntity tile = it.next();
-                    try {
-                        if (tile.shouldRenderInPass(pass)) {
-                            renderTileEntity(tile, partialticks);
+                    RenderHelper.enableStandardItemLighting();
+                    Iterator<TileEntity> it = tileEntityRenderers.iterator();
+                    while (it.hasNext()) {
+                        TileEntity tile = it.next();
+                        try {
+                            if (tile.shouldRenderInPass(pass)) {
+                                renderTileEntity(tile, partialTicks);
+                            }
+                        } catch (Exception e) {
+                            it.remove();
+                            MovingWorld.logger.error("A tile entity render error has occurred", e);
+                            tryEndDrawing();
                         }
-                    } catch (Exception e) {
-                        it.remove();
-                        MovingWorld.logger.error("A tile entity render error has occured", e);
-                        tryEndDrawing();
                     }
                 }
             }
@@ -133,90 +131,94 @@ public class MobileChunkRenderer {
             skipRenderPass[i] = true;
         }
 
-        Chunk.isLit = false;
-        HashSet<TileEntity> hashset0 = new HashSet<TileEntity>();
-        hashset0.addAll(tileEntityRenderers);
+        //Chunk.isLit = false;
+        HashSet<TileEntity> hashSet0 = new HashSet<TileEntity>();
+        hashSet0.addAll(tileEntityRenderers);
         tileEntityRenderers.clear();
 
-        RenderBlocks renderblocks = new RenderBlocks(chunk);
+        //RenderBlocks renderblocks = new RenderBlocks(chunk);
         bytesDrawn = 0;
 
         for (int pass = 0; pass < 2; ++pass) {
-            boolean flag = false;
-            boolean flag1 = false;
-            boolean glliststarted = false;
+            for (EnumWorldBlockLayer layer : EnumWorldBlockLayer.values()) {
+                boolean flag = false;
+                boolean flag1 = false;
+                boolean glliststarted = false;
 
-            for (int y = chunk.minY(); y < chunk.maxY(); ++y) {
-                for (int z = chunk.minZ(); z < chunk.maxZ(); ++z) {
-                    for (int x = chunk.minX(); x < chunk.maxX(); ++x) {
-                        Block block = chunk.getBlock(x, y, z);
-                        if (block != null && block.getMaterial() != Material.air) {
-                            if (!glliststarted) {
-                                glliststarted = true;
-                                GL11.glNewList(glRenderList + pass, GL11.GL_COMPILE);
-                                GL11.glPushMatrix();
-                                float f = 1.000001F;
-                                GL11.glTranslatef(-8.0F, -8.0F, -8.0F);
-                                GL11.glScalef(f, f, f);
-                                GL11.glTranslatef(8.0F, 8.0F, 8.0F);
-                                Tessellator.instance.startDrawingQuads();
-                            }
-
-                            if (pass == 0 && block.hasTileEntity(chunk.getBlockMetadata(x, y, z))) {
-                                TileEntity tileentity = chunk.getTileEntity(x, y, z);
-
-                                if (TileEntityRendererDispatcher.instance.hasSpecialRenderer(tileentity)) {
-                                    tileEntityRenderers.add(tileentity);
+                for (int y = chunk.minY(); y < chunk.maxY(); ++y) {
+                    for (int z = chunk.minZ(); z < chunk.maxZ(); ++z) {
+                        for (int x = chunk.minX(); x < chunk.maxX(); ++x) {
+                            BlockPos pos = new BlockPos(x, y, z);
+                            IBlockState blockState = chunk.getBlockState(pos);
+                            if (blockState != null && blockState.getBlock() != null && blockState.getBlock().getMaterial() != Material.air) {
+                                if (!glliststarted) {
+                                    glliststarted = true;
+                                    GL11.glNewList(glRenderList + layer.ordinal(), GL11.GL_COMPILE);
+                                    GL11.glPushMatrix();
+                                    float f = 1.000001F;
+                                    GL11.glTranslatef(-8.0F, -8.0F, -8.0F);
+                                    GL11.glScalef(f, f, f);
+                                    GL11.glTranslatef(8.0F, 8.0F, 8.0F);
+                                    Tessellator.getInstance().getWorldRenderer().startDrawingQuads();
                                 }
-                            }
 
-                            int blockpass = block.getRenderBlockPass();
-                            if (blockpass > pass) {
-                                flag = true;
+                                if (pass == 0 && blockState.getBlock().hasTileEntity(blockState)) {
+                                    TileEntity tileentity = chunk.getTileEntity(pos);
+
+                                    if (TileEntityRendererDispatcher.instance.hasSpecialRenderer(tileentity)) {
+                                        tileEntityRenderers.add(tileentity);
+                                    }
+                                }
+
+                                int blockPass = blockState.getBlock().getRenderType();
+                                if (blockPass > pass) {
+                                    flag = true;
+                                }
+                                if (!blockState.getBlock().canRenderInLayer(layer)) {
+                                    continue;
+                                }
+                                dispatchBlockRender(blockState, pos, chunk.worldObj);
                             }
-                            if (!block.canRenderInPass(pass)) {
-                                continue;
-                            }
-                            flag1 |= renderblocks.renderBlockByRenderType(block, x, y, z);
                         }
                     }
                 }
-            }
 
-            if (glliststarted) {
-                bytesDrawn += Tessellator.instance.draw();
-                GL11.glPopMatrix();
-                GL11.glEndList();
-                Tessellator.instance.setTranslation(0D, 0D, 0D);
-            } else {
-                flag1 = false;
-            }
+                if (glliststarted) {
+                    bytesDrawn += Tessellator.getInstance().draw();
+                    GL11.glPopMatrix();
+                    GL11.glEndList();
+                    Tessellator.getInstance().getWorldRenderer().setTranslation(0D, 0D, 0D);
+                } else {
+                    flag1 = false;
+                }
 
-            if (flag1) {
-                skipRenderPass[pass] = false;
-            }
+                if (flag1) {
+                    skipRenderPass[pass] = false;
+                }
 
-            if (!flag) {
-                break;
+                if (!flag) {
+                    break;
+                }
             }
         }
 
         HashSet<TileEntity> hashset1 = new HashSet<TileEntity>();
         hashset1.addAll(tileEntityRenderers);
-        hashset1.removeAll(hashset0);
+        hashset1.removeAll(hashSet0);
         tileEntities.addAll(hashset1);
-        hashset0.removeAll(tileEntityRenderers);
-        tileEntities.removeAll(hashset0);
+        hashSet0.removeAll(tileEntityRenderers);
+        tileEntities.removeAll(hashSet0);
         isInitialized = true;
 
         needsUpdate = false;
     }
 
-    public void dispatchBlockRender(IBlockState state, BlockPos pos, TextureAtlasSprite atlasSprite, World world) {
+    public void dispatchBlockRender(IBlockState state, BlockPos pos, World world) {
         if (state.getBlock().isAir(world, pos))
             return; //Don't render air, trust me it's a bad idea.
 
-
+        BlockRendererDispatcher blockRendererDispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
+        blockRendererDispatcher.renderBlock(state, pos, world, Tessellator.getInstance().getWorldRenderer());
     }
 
     public void markDirty() {
