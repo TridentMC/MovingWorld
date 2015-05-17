@@ -1,10 +1,10 @@
 package darkevilmac.movingworld.network;
 
-import cpw.mods.fml.relauncher.Side;
 import darkevilmac.movingworld.entity.EntityMovingWorld;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraftforge.fml.relauncher.Side;
 
 public class FarInteractMessage extends EntityMovingWorldMessage {
     public FarInteractMessage() {

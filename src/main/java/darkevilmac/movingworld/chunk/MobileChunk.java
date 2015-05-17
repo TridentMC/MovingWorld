@@ -25,7 +25,7 @@ public class MobileChunk implements IBlockAccess {
     public static final int CHUNK_SIZE_EXP = 4;
     public static final int CHUNK_MEMORY_USING = CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE * (4 + 2);    //(16*16*16 shorts and ints)
 
-    protected final World worldObj;
+    public final World worldObj;
     protected final EntityMovingWorld entityMovingWorld;
     public Map<BlockPos, TileEntity> chunkTileEntityMap;
     public boolean isChunkLoaded;
@@ -110,7 +110,9 @@ public class MobileChunk implements IBlockAccess {
         creationSpotBiome = biomegenbase;
     }
 
-    public boolean setBlockIDWithState(BlockPos pos, Block block, IBlockState state) {
+    public boolean setBlockIDWithState(BlockPos pos, IBlockState state) {
+        if (state == null) return false;
+        Block block = state.getBlock();
         if (block == null) return false;
 
         ExtendedBlockStorage storage = getBlockStorageOrCreate(pos);
@@ -166,7 +168,7 @@ public class MobileChunk implements IBlockAccess {
         return true;
     }
 
-    public boolean setBlockMetadata(BlockPos pos, IBlockState state) {
+    public boolean setBlockState(BlockPos pos, IBlockState state) {
         ExtendedBlockStorage storage = getBlockStorage(pos);
         if (storage == null) return false;
 

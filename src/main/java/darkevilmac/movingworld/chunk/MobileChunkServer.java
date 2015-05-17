@@ -1,8 +1,8 @@
 package darkevilmac.movingworld.chunk;
 
 import darkevilmac.movingworld.entity.EntityMovingWorld;
-import net.minecraft.block.Block;
-import net.minecraft.world.ChunkPosition;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 
 import java.util.Collection;
@@ -10,36 +10,36 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class MobileChunkServer extends MobileChunk {
-    private Set<ChunkPosition> sendQueue;
+    private Set<BlockPos> sendQueue;
 
     public MobileChunkServer(World world, EntityMovingWorld entityMovingWorld) {
         super(world, entityMovingWorld);
-        sendQueue = new HashSet<ChunkPosition>();
+        sendQueue = new HashSet<BlockPos>();
     }
 
-    public Collection<ChunkPosition> getSendQueue() {
+    public Collection<BlockPos> getSendQueue() {
         return sendQueue;
     }
 
     @Override
-    public boolean setBlockIDWithMetadata(int x, int y, int z, Block block, int meta) {
-        if (super.setBlockIDWithMetadata(x, y, z, block, meta)) {
-            sendQueue.add(new ChunkPosition(x, y, z));
+    public boolean setBlockIDWithState(BlockPos pos, IBlockState blockState) {
+        if (super.setBlockIDWithState(pos, blockState)) {
+            sendQueue.add(pos);
             return true;
         }
         return false;
     }
 
     @Override
-    public boolean setBlockMetadata(int x, int y, int z, int meta) {
-        if (super.setBlockMetadata(x, y, z, meta)) {
-            sendQueue.add(new ChunkPosition(x, y, z));
+    public boolean setBlockState(BlockPos pos, IBlockState state) {
+        if (super.setBlockState(pos, state)) {
+            sendQueue.add(pos);
             return true;
         }
         return false;
     }
 
     @Override
-    protected void onSetBlockAsFilledAir(int x, int y, int z) {
+    protected void onSetBlockAsFilledAir(BlockPos pos) {
     }
 }

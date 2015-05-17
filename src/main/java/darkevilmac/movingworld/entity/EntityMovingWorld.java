@@ -37,7 +37,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     public float motionYaw;
     public int frontDirection;
-    public int riderDestinationX, riderDestinationY, riderDestinationZ;
+    public BlockPos riderDestination;
     public boolean isFlying;
     public Entity prevRiddenByEntity;
     protected float groundFriction, horFriction, vertFriction;
@@ -418,36 +418,34 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     @Override
     public void updateRiderPosition() {
-        updateRiderPosition(riddenByEntity, riderDestinationX, riderDestinationY, riderDestinationZ, 1);
+        updateRiderPosition(riddenByEntity, riderDestination, 1);
     }
 
-    public void updateRiderPosition(Entity entity, int riderDestinationX, int riderDestinationY, int riderDestinationZ, int flags) {
+    public void updateRiderPosition(Entity entity, BlockPos riderDestinationPos, int flags) {
         if (entity != null) {
             float yaw = (float) Math.toRadians(rotationYaw);
             float pitch = (float) Math.toRadians(rotationPitch);
 
-            int x1 = riderDestinationX, y1 = riderDestinationY, z1 = riderDestinationZ;
+            BlockPos pos1 = new BlockPos(riderDestinationPos.getX(), riderDestinationPos.getY(), riderDestinationPos.getZ());
             if ((flags & 1) == 1) {
                 if (frontDirection == 0) {
-                    z1 -= 1;
+                    pos1 = pos1.add(0, 0, -1);
                 } else if (frontDirection == 1) {
-                    x1 += 1;
+                    pos1 = pos1.add(1, 0, 0);
                 } else if (frontDirection == 2) {
-                    z1 += 1;
+                    pos1 = pos1.add(0, 0, 1);
                 } else if (frontDirection == 3) {
-                    x1 -= 1;
+                    pos1 = pos1.add(-1, 0, 0);
                 }
 
-                IBlockState blockState = mobileChunk.getBlockState(new BlockPos(x1, MathHelper.floor_double(y1 + getMountedYOffset() + entity.getYOffset()), z1));
+                IBlockState blockState = mobileChunk.getBlockState(new BlockPos(pos1.getX(), MathHelper.floor_double(pos1.getY() + getMountedYOffset() + entity.getYOffset()), pos1.getZ()));
                 if (blockState.getBlock().isOpaqueCube()) {
-                    x1 = riderDestinationX;
-                    y1 = riderDestinationY;
-                    z1 = riderDestinationZ;
+                    pos1 = riderDestinationPos;
                 }
             }
 
             double yoff = (flags & 2) == 2 ? 0d : getMountedYOffset();
-            Vec3Mod vec = new Vec3Mod(x1 - mobileChunk.getCenterX() + 0.5d, y1 - mobileChunk.minY() + yoff, z1 - mobileChunk.getCenterZ() + 0.5d);
+            Vec3Mod vec = new Vec3Mod(pos1.getX() - mobileChunk.getCenterX() + 0.5d, pos1.getY() - mobileChunk.minY() + yoff, pos1.getZ() - mobileChunk.getCenterZ() + 0.5d);
             switch (frontDirection) {
                 case 0:
                     vec.rotateRoll(-pitch);
@@ -649,7 +647,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         for (int i = mobileChunk.minX(); i < mobileChunk.maxX(); i++) {
             for (int j = mobileChunk.minY(); j < mobileChunk.maxY(); j++) {
                 for (int k = mobileChunk.minZ(); k < mobileChunk.maxZ(); k++) {
-                    tileentity = mobileChunk.getTileEntity(i, j, k);
+                    tileentity = mobileChunk.getTileEntity(new BlockPos(i, j, k));
                     if (tileentity instanceof IInventory) {
                         IInventory inv = (IInventory) tileentity;
                         for (int it = 0; it < inv.getSizeInventory(); it++) {
@@ -669,28 +667,25 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         }
     }
 
-    protected void fillAirBlocks(Set<BlockPos> set, int x, int y, int z) {
-        if (x < mobileChunk.minX() - 1 || x > mobileChunk.maxX() || y < mobileChunk.minY() - 1 || y > mobileChunk.maxY() || z < mobileChunk.minZ() - 1 || z > mobileChunk.maxZ())
+    protected void fillAirBlocks(Set<BlockPos> set, BlockPos pos) {
+        if (pos.getX() < mobileChunk.minX() - 1 || pos.getX() > mobileChunk.maxX() || pos.getY() < mobileChunk.minY() - 1 || pos.getY() > mobileChunk.maxY() || pos.getZ() < mobileChunk.minZ() - 1 || pos.getZ() > mobileChunk.maxZ())
             return;
-        BlockPos pos = new BlockPos(x, y, z);
         if (set.contains(pos)) return;
 
         set.add(pos);
-        if (mobileChunk.setBlockAsFilledAir(x, y, z)) {
-            fillAirBlocks(set, x, y + 1, z);
+        if (mobileChunk.setBlockAsFilledAir(pos)) {
+            fillAirBlocks(set, pos.add(0, 1, 0));
             //fillAirBlocks(set, x, y - 1, z);
-            fillAirBlocks(set, x - 1, y, z);
-            fillAirBlocks(set, x, y, z - 1);
-            fillAirBlocks(set, x + 1, y, z);
-            fillAirBlocks(set, x, y, z + 1);
+            fillAirBlocks(set, pos.add(-1, 0, 0));
+            fillAirBlocks(set, pos.add(0, 0, -1));
+            fillAirBlocks(set, pos.add(1, 0, 0));
+            fillAirBlocks(set, pos.add(0, 0, 1));
         }
     }
 
-    public void setPilotSeat(int frontDirection, int riderDestinationX, int riderDestinationY, int riderDestinationZ) {
+    public void setPilotSeat(int frontDirection, BlockPos pos) {
         this.frontDirection = frontDirection;
-        this.riderDestinationX = riderDestinationX;
-        this.riderDestinationY = riderDestinationY;
-        this.riderDestinationZ = riderDestinationZ;
+        this.riderDestination = pos;
     }
 
     @Override
@@ -706,9 +701,9 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             e.printStackTrace();
         }
         compound.setByteArray("chunk", baos.toByteArray());
-        compound.setByte("riderDestinationX", (byte) riderDestinationX);
-        compound.setByte("riderDestinationY", (byte) riderDestinationY);
-        compound.setByte("riderDestinationZ", (byte) riderDestinationZ);
+        compound.setByte("riderDestinationX", (byte) riderDestination.getX());
+        compound.setByte("riderDestinationY", (byte) riderDestination.getY());
+        compound.setByte("riderDestinationZ", (byte) riderDestination.getZ());
         compound.setByte("front", (byte) frontDirection);
 
         if (!mobileChunk.chunkTileEntityMap.isEmpty()) {
@@ -745,14 +740,16 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
         if (compound.hasKey("riderDestination")) {
             short s = compound.getShort("riderDestination");
-            riderDestinationX = s & 0xF;
-            riderDestinationY = s >>> 4 & 0xF;
-            riderDestinationZ = s >>> 8 & 0xF;
+            int rX = s & 0xF;
+            int rY = s >>> 4 & 0xF;
+            int rZ = s >>> 8 & 0xF;
+            riderDestination = new BlockPos(rX, rY, rZ);
             frontDirection = s >>> 12 & 3;
         } else {
-            riderDestinationX = compound.getByte("riderDestinationX") & 0xFF;
-            riderDestinationY = compound.getByte("riderDestinationY") & 0xFF;
-            riderDestinationZ = compound.getByte("riderDestinationZ") & 0xFF;
+            int rX = compound.getByte("riderDestinationX") & 0xFF;
+            int rY = compound.getByte("riderDestinationY") & 0xFF;
+            int rZ = compound.getByte("riderDestinationZ") & 0xFF;
+            riderDestination = new BlockPos(rX, rY, rZ);
             frontDirection = compound.getByte("front") & 3;
         }
 
@@ -761,7 +758,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             for (int i = 0; i < tileentities.tagCount(); i++) {
                 NBTTagCompound comp = tileentities.getCompoundTagAt(i);
                 TileEntity tileentity = TileEntity.createAndLoadEntity(comp);
-                mobileChunk.setTileEntity(tileentity.getPos().getX(), tileentity.getPos().getY(), tileentity.getPos().getZ(), tileentity);
+                mobileChunk.setTileEntity(tileentity.getPos(), tileentity);
             }
         }
 
@@ -781,9 +778,9 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     @Override
     public void writeSpawnData(ByteBuf data) {
-        data.writeByte(riderDestinationX);
-        data.writeByte(riderDestinationY);
-        data.writeByte(riderDestinationZ);
+        data.writeByte(riderDestination.getX());
+        data.writeByte(riderDestination.getY());
+        data.writeByte(riderDestination.getZ());
         data.writeByte(frontDirection);
 
         data.writeShort(info.getName().length());
@@ -804,9 +801,10 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     @Override
     public void readSpawnData(ByteBuf data) {
-        riderDestinationX = data.readUnsignedByte();
-        riderDestinationY = data.readUnsignedByte();
-        riderDestinationZ = data.readUnsignedByte();
+        int rX = data.readUnsignedByte();
+        int rY = data.readUnsignedByte();
+        int rZ = data.readUnsignedByte();
+        riderDestination = new BlockPos(rX, rY, rZ);
         frontDirection = data.readUnsignedByte();
 
         byte[] ab = new byte[data.readShort()];

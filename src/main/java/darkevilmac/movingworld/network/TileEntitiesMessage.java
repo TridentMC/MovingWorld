@@ -1,7 +1,5 @@
 package darkevilmac.movingworld.network;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import darkevilmac.movingworld.chunk.MobileChunkClient;
 import darkevilmac.movingworld.entity.EntityMovingWorld;
 import darkevilmac.movingworld.tile.TileMovingWorldMarkingBlock;
@@ -14,6 +12,9 @@ import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -100,8 +101,9 @@ public class TileEntitiesMessage extends EntityMovingWorldMessage {
                 int x = nbt.getInteger("x");
                 int y = nbt.getInteger("y");
                 int z = nbt.getInteger("z");
+                BlockPos pos = new BlockPos(x, y, z);
                 try {
-                    TileEntity te = movingWorld.getMovingWorldChunk().getTileEntity(x, y, z);
+                    TileEntity te = movingWorld.getMovingWorldChunk().getTileEntity(pos);
                     if (te != null)
                         te.readFromNBT(nbt);
                 } catch (Exception e) {

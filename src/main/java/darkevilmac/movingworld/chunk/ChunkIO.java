@@ -4,8 +4,9 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
-import net.minecraft.world.ChunkPosition;
+import net.minecraft.util.BlockPos;
 
 import java.io.*;
 import java.util.Collection;
@@ -13,10 +14,10 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 public abstract class ChunkIO {
-    public static void write(DataOutput out, MobileChunk chunk, Collection<ChunkPosition> blocks) throws IOException {
+    public static void write(DataOutput out, MobileChunk chunk, Collection<BlockPos> blocks) throws IOException {
         out.writeShort(blocks.size());
-        for (ChunkPosition p : blocks) {
-            writeBlock(out, chunk, p.chunkPosX, p.chunkPosY, p.chunkPosZ);
+        for (BlockPos p : blocks) {
+            writeBlock(out, chunk, p);
         }
     }
 
@@ -25,7 +26,7 @@ public abstract class ChunkIO {
         for (int i = chunk.minX(); i < chunk.maxX(); i++) {
             for (int j = chunk.minY(); j < chunk.maxY(); j++) {
                 for (int k = chunk.minZ(); k < chunk.maxZ(); k++) {
-                    Block block = chunk.getBlock(i, j, k);
+                    Block block = chunk.getBlockState(new BlockPos(i, j, k)).getBlock();
                     if (block != Blocks.air) {
                         count++;
                     }
@@ -38,9 +39,9 @@ public abstract class ChunkIO {
         for (int i = chunk.minX(); i < chunk.maxX(); i++) {
             for (int j = chunk.minY(); j < chunk.maxY(); j++) {
                 for (int k = chunk.minZ(); k < chunk.maxZ(); k++) {
-                    Block block = chunk.getBlock(i, j, k);
+                    Block block = chunk.getBlockState(new BlockPos(i, j, k)).getBlock();
                     if (block != Blocks.air) {
-                        writeBlock(out, Block.getIdFromBlock(block), chunk.getBlockMetadata(i, j, k), i, j, k);
+                        writeBlock(out, chunk.getBlockState(new BlockPos(i, j, k)), new BlockPos(i, j, k));
                     }
                 }
             }
@@ -50,16 +51,16 @@ public abstract class ChunkIO {
 
     }
 
-    public static void writeBlock(DataOutput out, MobileChunk chunk, int x, int y, int z) throws IOException {
-        writeBlock(out, Block.getIdFromBlock(chunk.getBlock(x, y, z)), chunk.getBlockMetadata(x, y, z), x, y, z);
+    public static void writeBlock(DataOutput out, MobileChunk chunk, BlockPos pos) throws IOException {
+        writeBlock(out, chunk.getBlockState(pos), pos);
     }
 
-    public static void writeBlock(DataOutput out, int id, int meta, int x, int y, int z) throws IOException {
-        out.writeByte(x);
-        out.writeByte(y);
-        out.writeByte(z);
-        out.writeShort(id);
-        out.writeInt(meta);
+    public static void writeBlock(DataOutput out, IBlockState state, BlockPos pos) throws IOException {
+        out.writeByte(pos.getX());
+        out.writeByte(pos.getY());
+        out.writeByte(pos.getZ());
+        out.writeShort(Block.getIdFromBlock(state.getBlock()));
+        out.writeInt(state.getBlock().getMetaFromState(state));
     }
 
     public static void read(DataInput in, MobileChunk chunk) throws IOException {
@@ -69,18 +70,18 @@ public abstract class ChunkIO {
 
         int x, y, z;
         int id;
-        int meta;
+        IBlockState state;
         for (int i = 0; i < count; i++) {
             x = in.readByte();
             y = in.readByte();
             z = in.readByte();
             id = in.readShort();
-            meta = in.readInt();
-            chunk.setBlockIDWithMetadata(x, y, z, Block.getBlockById(id), meta);
+            state = Block.getBlockById(id).getStateFromMeta(in.readInt());
+            chunk.setBlockIDWithState(new BlockPos(x, y, z), Block.getBlockById(id), state);
         }
     }
 
-    public static void writeCompressed(ByteBuf buf, MobileChunk chunk, Collection<ChunkPosition> blocks) throws IOException {
+    public static void writeCompressed(ByteBuf buf, MobileChunk chunk, Collection<BlockPos> blocks) throws IOException {
         DataOutputStream out = preCompress(buf);
         write(out, chunk, blocks);
         postCompress(buf, out, blocks.size());

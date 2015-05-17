@@ -1,23 +1,24 @@
 package darkevilmac.movingworld.network;
 
-import cpw.mods.fml.relauncher.Side;
 import darkevilmac.movingworld.chunk.ChunkIO;
 import darkevilmac.movingworld.entity.EntityMovingWorld;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.world.ChunkPosition;
+import net.minecraft.util.BlockPos;
+import net.minecraftforge.fml.relauncher.Side;
+import sun.org.mozilla.javascript.internal.ast.Block;
 
 import java.io.IOException;
 import java.util.Collection;
 
 public class ChunkBlockUpdateMessage extends EntityMovingWorldMessage {
-    private Collection<ChunkPosition> sendQueue;
+    private Collection<BlockPos> sendQueue;
 
     public ChunkBlockUpdateMessage() {
     }
 
-    public ChunkBlockUpdateMessage(EntityMovingWorld movingWorld, Collection<ChunkPosition> blocks) {
+    public ChunkBlockUpdateMessage(EntityMovingWorld movingWorld, Collection<BlockPos> blocks) {
         super(movingWorld);
         sendQueue = blocks;
     }

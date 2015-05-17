@@ -13,6 +13,18 @@ public class Vec3Mod extends Vec3 {
         super(x, y, z);
     }
 
+    public Vec3Mod setX(double x) {
+        return new Vec3Mod(x, this.yCoord, this.zCoord);
+    }
+
+    public Vec3Mod setY(double y) {
+        return new Vec3Mod(this.xCoord, y, this.zCoord);
+    }
+
+    public Vec3Mod setZ(double z) {
+        return new Vec3Mod(this.xCoord, this.yCoord, z);
+    }
+
     public Vec3Mod rotateRoll(float roll) {
         float var2 = MathHelper.cos(roll);
         float var3 = MathHelper.sin(roll);

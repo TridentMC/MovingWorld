@@ -1,10 +1,10 @@
 package darkevilmac.movingworld.network;
 
-import cpw.mods.fml.relauncher.Side;
 import darkevilmac.movingworld.entity.EntityMovingWorld;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraftforge.fml.relauncher.Side;
 
 public class MovingWorldClientActionMessage extends EntityMovingWorldMessage {
 
@@ -44,12 +44,12 @@ public class MovingWorldClientActionMessage extends EntityMovingWorldMessage {
             switch (actionID) {
                 case DISASSEMBLE:
                     movingWorld.alignToGrid();
-                    movingWorld.updateRiderPosition(player, movingWorld.riderDestinationX, movingWorld.riderDestinationY, movingWorld.riderDestinationZ, 1);
+                    movingWorld.updateRiderPosition(player, movingWorld.riderDestination, 1);
                     movingWorld.disassemble(false);
                     break;
                 case DISASSEMBLEOVERWRITE:
                     movingWorld.alignToGrid();
-                    movingWorld.updateRiderPosition(player, movingWorld.riderDestinationX, movingWorld.riderDestinationY, movingWorld.riderDestinationZ, 1);
+                    movingWorld.updateRiderPosition(player, movingWorld.riderDestination, 1);
                     movingWorld.disassemble(true);
                     break;
                 case ALIGN:

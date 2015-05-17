@@ -70,9 +70,7 @@ public class ChunkDisassembler {
         World world = movingWorld.worldObj;
         MobileChunk chunk = movingWorld.getMovingWorldChunk();
         AssembleResult result = new AssembleResult();
-        result.xOffset = Integer.MAX_VALUE;
-        result.yOffset = Integer.MAX_VALUE;
-        result.zOffset = Integer.MAX_VALUE;
+        result.offset = new BlockPos(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
 
         int currentRot = Math.round(movingWorld.rotationYaw / 90F) & 3;
         int deltarot = (-currentRot) & 3;

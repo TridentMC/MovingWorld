@@ -66,7 +66,7 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
 
         if (!worldObj.isRemote) {
             prevResult = assembleResult;
-            ChunkAssembler assembler = new ChunkAssembler(worldObj, xCoord, yCoord, zCoord, getMaxBlocks());
+            ChunkAssembler assembler = new ChunkAssembler(worldObj, pos, getMaxBlocks());
             MovingWorldAssemblyInteractor interactor = getNewAssemblyInteractor();
             assembleResult = assembler.doAssemble(interactor);
 

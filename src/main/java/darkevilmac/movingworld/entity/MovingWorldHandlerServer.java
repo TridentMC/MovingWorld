@@ -1,11 +1,11 @@
 package darkevilmac.movingworld.entity;
 
-import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
 import darkevilmac.movingworld.MovingWorld;
 import darkevilmac.movingworld.chunk.MobileChunkServer;
 import darkevilmac.movingworld.network.ChunkBlockUpdateMessage;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.world.ChunkPosition;
+import net.minecraft.util.BlockPos;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 
 import java.util.Collection;
 
@@ -32,10 +32,10 @@ public abstract class MovingWorldHandlerServer extends MovingWorldHandlerCommon 
     @Override
     public void onChunkUpdate() {
         super.onChunkUpdate();
-        Collection<ChunkPosition> list = ((MobileChunkServer) getMovingWorld().getMovingWorldChunk()).getSendQueue();
+        Collection<BlockPos> list = ((MobileChunkServer) getMovingWorld().getMovingWorldChunk()).getSendQueue();
         if (!firstChunkUpdate) {
             ChunkBlockUpdateMessage msg = new ChunkBlockUpdateMessage(getMovingWorld(), list);
-            MovingWorld.instance.network.sendToAllAround(msg, new TargetPoint(getMovingWorld().worldObj.provider.dimensionId, getMovingWorld().posX, getMovingWorld().posY, getMovingWorld().posZ, 64D));
+            MovingWorld.instance.network.sendToAllAround(msg, new NetworkRegistry.TargetPoint(getMovingWorld().worldObj.provider.getDimensionId(), getMovingWorld().posX, getMovingWorld().posY, getMovingWorld().posZ, 64D));
         }
         list.clear();
         firstChunkUpdate = false;
