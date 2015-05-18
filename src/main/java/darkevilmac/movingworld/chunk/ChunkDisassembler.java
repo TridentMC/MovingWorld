@@ -49,7 +49,7 @@ public class ChunkDisassembler {
                     Vec3Mod vecB = new Vec3Mod(i + ox, j + oy, k + oz);
 
                     vec = vecB;
-                    vec.rotateYaw(yaw);
+                    vec = new Vec3Mod(vec.rotateYaw(yaw));
 
                     pos = new BlockPos(MathHelperMod.round_double(vec.xCoord + movingWorld.posX),
                             MathHelperMod.round_double(vec.yCoord + movingWorld.posY),
@@ -107,7 +107,7 @@ public class ChunkDisassembler {
                     //meta = MovingWorld.instance.metaRotations.getRotatedMeta(block, block.getMetaFromState(blockState), deltarot);
 
                     vec = new Vec3Mod(i + ox, j + oy, k + oz);
-                    vec.rotateYaw(yaw);
+                    vec = new Vec3Mod(vec.rotateYaw(yaw));
 
                     pos = new BlockPos(MathHelperMod.round_double(vec.xCoord + movingWorld.posX),
                             MathHelperMod.round_double(vec.yCoord + movingWorld.posY),

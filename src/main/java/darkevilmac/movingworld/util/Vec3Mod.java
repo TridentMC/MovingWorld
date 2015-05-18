@@ -9,6 +9,14 @@ import net.minecraft.util.Vec3;
 
 public class Vec3Mod extends Vec3 {
 
+    public static Vec3Mod getOrigin() {
+        return new Vec3Mod(0, 0, 0);
+    }
+
+    public Vec3Mod(Vec3 vec3) {
+        super(vec3.xCoord, vec3.yCoord, vec3.zCoord);
+    }
+
     public Vec3Mod(double x, double y, double z) {
         super(x, y, z);
     }

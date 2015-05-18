@@ -448,19 +448,19 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             Vec3Mod vec = new Vec3Mod(pos1.getX() - mobileChunk.getCenterX() + 0.5d, pos1.getY() - mobileChunk.minY() + yoff, pos1.getZ() - mobileChunk.getCenterZ() + 0.5d);
             switch (frontDirection) {
                 case 0:
-                    vec.rotateRoll(-pitch);
+                    vec = new Vec3Mod(vec.rotateRoll(-pitch));
                     break;
                 case 1:
-                    vec.rotatePitch(pitch);
+                    vec = new Vec3Mod(vec.rotatePitch(pitch));
                     break;
                 case 2:
-                    vec.rotateRoll(pitch);
+                    vec = new Vec3Mod(vec.rotateRoll(pitch));
                     break;
                 case 3:
-                    vec.rotatePitch(-pitch);
+                    vec = new Vec3Mod(vec.rotatePitch(-pitch));
                     break;
             }
-            vec.rotateYaw(yaw);
+            vec = new Vec3Mod(vec.rotateYaw(yaw));
 
             entity.setPosition(posX + vec.xCoord, posY + vec.yCoord + entity.getYOffset(), posZ + vec.zCoord);
         }
@@ -609,7 +609,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         rotationPitch = 0F;
 
         Vec3 vec = new Vec3(-mobileChunk.getCenterX(), -mobileChunk.minY(), -mobileChunk.getCenterZ());
-        vec.rotateYaw((float) Math.toRadians(rotationYaw));
+        vec = new Vec3Mod(vec.rotateYaw((float) Math.toRadians(rotationYaw)));
 
         int ix = MathHelperMod.round_double(vec.xCoord + posX);
         int iy = MathHelperMod.round_double(vec.yCoord + posY);

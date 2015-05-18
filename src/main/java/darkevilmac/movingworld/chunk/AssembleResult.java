@@ -80,7 +80,7 @@ public class AssembleResult {
         resultCode = RESULT_NONE;
         movingWorldMarkingBlock = null;
         assembledBlocks.clear();
-        offset = BlockPos.ORIGIN;
+        offset = new BlockPos(BlockPos.ORIGIN);
     }
 
     public EntityMovingWorld getEntity(World world, EntityMovingWorld entity) {
