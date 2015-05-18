@@ -2,6 +2,7 @@ package darkevilmac.movingworld;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,6 +20,11 @@ public class MaterialDensity {
 
     public static void addDensity(Block block, float dens) {
         blockDensityMap.put((String) Block.blockRegistry.getNameForObject(block), Float.valueOf(dens));
+    }
+
+    public static float getDensity(IBlockState state) {
+        if (state == null) return DEFAULT_DENSITY;
+        return getDensity(state.getBlock());
     }
 
     public static float getDensity(Block block) {
