@@ -7,7 +7,6 @@ import io.netty.channel.ChannelHandlerContext;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
-import sun.org.mozilla.javascript.internal.ast.Block;
 
 import java.io.IOException;
 import java.util.Collection;
