@@ -32,3 +32,5 @@ project_libraries
 ArchimedesShips.iws
 MovingWorld.iws
 .project
+ui/
+gradle-app.setting
