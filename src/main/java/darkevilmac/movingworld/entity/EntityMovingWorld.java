@@ -21,6 +21,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -422,47 +423,52 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     }
 
     public void updateRiderPosition(Entity entity, BlockPos riderDestinationPos, int flags) {
+        int rX = riderDestinationPos.getX();
+        int rY = riderDestinationPos.getY();
+        int rZ = riderDestinationPos.getZ();
+
         if (entity != null) {
             float yaw = (float) Math.toRadians(rotationYaw);
             float pitch = (float) Math.toRadians(rotationPitch);
 
-            BlockPos pos1 = new BlockPos(riderDestinationPos.getX(), riderDestinationPos.getY(), riderDestinationPos.getZ());
+            int x1 = rX, y1 = rY, z1 = rZ;
             if ((flags & 1) == 1) {
                 if (frontDirection == 0) {
-                    pos1 = pos1.add(0, 0, -1);
+                    z1 -= 1;
                 } else if (frontDirection == 1) {
-                    pos1 = pos1.add(1, 0, 0);
+                    x1 += 1;
                 } else if (frontDirection == 2) {
-                    pos1 = pos1.add(0, 0, 1);
+                    z1 += 1;
                 } else if (frontDirection == 3) {
-                    pos1 = pos1.add(-1, 0, 0);
+                    x1 -= 1;
                 }
 
-                IBlockState blockState = mobileChunk.getBlockState(new BlockPos(pos1.getX(), MathHelper.floor_double(pos1.getY() + getMountedYOffset() + entity.getYOffset()), pos1.getZ()));
-                if (blockState.getBlock().isOpaqueCube()) {
-                    pos1 = riderDestinationPos;
+                Block block = getMovingWorldChunk().getBlockState(new BlockPos(x1, MathHelper.floor_double(y1 + getMountedYOffset() + entity.getYOffset()), z1)).getBlock();
+                if (block.isOpaqueCube()) {
+                    x1 = rX;
+                    y1 = rY;
+                    z1 = rZ;
                 }
             }
 
-            double yoff = (flags & 2) == 2 ? 0d : getMountedYOffset();
-            Vec3Mod vec = new Vec3Mod(pos1.getX() - mobileChunk.getCenterX() + 0.5d, pos1.getY() - mobileChunk.minY() + yoff, pos1.getZ() - mobileChunk.getCenterZ() + 0.5d);
+            double yOff = (flags & 2) == 2 ? 0d : getMountedYOffset();
+            Vec3Mod vec = new Vec3Mod(x1 - getMovingWorldChunk().getCenterX() + 0.5d, y1 - getMovingWorldChunk().minY() + yOff, z1 - getMovingWorldChunk().getCenterZ() + 0.5d);
             switch (frontDirection) {
                 case 0:
-                    vec = new Vec3Mod(vec.rotateRoll(-pitch));
+                    vec = vec.rotateRoll(-pitch);
                     break;
                 case 1:
-                    vec = new Vec3Mod(vec.rotatePitch(pitch));
+                    vec = vec.rotatePitch(pitch);
                     break;
                 case 2:
-                    vec = new Vec3Mod(vec.rotateRoll(pitch));
+                    vec = vec.rotateRoll(pitch);
                     break;
                 case 3:
-                    vec = new Vec3Mod(vec.rotatePitch(-pitch));
+                    vec = vec.rotatePitch(-pitch);
                     break;
             }
-            vec = new Vec3Mod(vec.rotateYaw(yaw));
 
-            entity.setPosition(posX + vec.xCoord, posY + vec.yCoord + entity.getYOffset(), posZ + vec.zCoord);
+            entity.setPosition(vec.xCoord, vec.yCoord, vec.zCoord);
         }
     }
 
@@ -778,9 +784,9 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     @Override
     public void writeSpawnData(ByteBuf data) {
-        data.writeByte(riderDestination.getX());
-        data.writeByte(riderDestination.getY());
-        data.writeByte(riderDestination.getZ());
+        data.writeInt(riderDestination.getX());
+        data.writeInt(riderDestination.getY());
+        data.writeInt(riderDestination.getZ());
         data.writeByte(frontDirection);
 
         data.writeShort(info.getName().length());
@@ -801,9 +807,9 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     @Override
     public void readSpawnData(ByteBuf data) {
-        int rX = data.readUnsignedByte();
-        int rY = data.readUnsignedByte();
-        int rZ = data.readUnsignedByte();
+        int rX = data.readInt();
+        int rY = data.readInt();
+        int rZ = data.readInt();
         riderDestination = new BlockPos(rX, rY, rZ);
         frontDirection = data.readUnsignedByte();
 

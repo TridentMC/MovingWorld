@@ -18,7 +18,6 @@ public class ChunkAssembler {
     private final int maxBlocks;
     private World worldObj;
 
-
     public ChunkAssembler(World world, BlockPos startPos, int maxMovingWorldBlocks) {
         worldObj = world;
 

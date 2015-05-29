@@ -67,7 +67,7 @@ public class ChunkDisassembler {
     }
 
     public AssembleResult doDisassemble(MovingWorldAssemblyInteractor assemblyInteractor) {
-        World world = movingWorld.worldObj;
+        World world = movingWorld.getEntityWorld();
         MobileChunk chunk = movingWorld.getMovingWorldChunk();
         AssembleResult result = new AssembleResult();
         result.offset = new BlockPos(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
@@ -81,7 +81,7 @@ public class ChunkDisassembler {
         boolean flag = world.getGameRules().getGameRuleBooleanValue("doTileDrops");
         world.getGameRules().setOrCreateGameRule("doTileDrops", "false");
 
-        List<LocatedBlock> postlist = new ArrayList<LocatedBlock>(4);
+        List<LocatedBlock> postList = new ArrayList<LocatedBlock>(4);
 
         float ox = -chunk.getCenterX();
         float oy = -chunk.minY(); //Created the normal way, through a ChunkAssembler, this value will always be 0.
@@ -90,7 +90,6 @@ public class ChunkDisassembler {
         Vec3Mod vec;
         TileEntity tileentity;
         IBlockState blockState;
-        Block block;
         IBlockState owBlockState;
         Block owBlock;
         BlockPos pos;
@@ -98,10 +97,10 @@ public class ChunkDisassembler {
             for (int j = chunk.minY(); j < chunk.maxY(); j++) {
                 for (int k = chunk.minZ(); k < chunk.maxZ(); k++) {
                     blockState = chunk.getBlockState(new BlockPos(i, j, k));
-                    block = blockState.getBlock();
-                    if (block == Blocks.air) {
-                        if (block.getMetaFromState(blockState) == 1) continue;
-                    } else if (block.isAir(world, new BlockPos(i, j, k))) continue;
+                    System.out.println(blockState.toString());
+                    if (blockState.getBlock() == Blocks.air) {
+                        if (blockState.getBlock().getMetaFromState(blockState) == 1) continue;
+                    } else if (blockState.getBlock().isAir(world, new BlockPos(i, j, k))) continue;
                     tileentity = chunk.getTileEntity(new BlockPos(i, j, k));
 
                     //meta = MovingWorld.instance.metaRotations.getRotatedMeta(block, block.getMetaFromState(blockState), deltarot);
@@ -118,8 +117,8 @@ public class ChunkDisassembler {
                     if (owBlock != null)
                         assemblyInteractor.blockOverwritten(owBlock);
 
-                    if (!world.setBlockState(pos, blockState, 2) || block != world.getBlockState(pos).getBlock()) {
-                        postlist.add(new LocatedBlock(blockState, tileentity, pos));
+                    if (!world.setBlockState(pos, blockState, 2) || blockState.getBlock() != world.getBlockState(pos).getBlock()) {
+                        postList.add(new LocatedBlock(blockState, tileentity, pos));
                         continue;
                     }
                     if (blockState != world.getBlockState(pos)) {
@@ -133,11 +132,10 @@ public class ChunkDisassembler {
                         world.setTileEntity(pos, tileentity);
                     }
 
-                    if (!MovingWorld.instance.metaRotations.hasBlock(block)) {
-                        assemblyInteractor.blockRotated(block, world, pos, currentRot);
-                        rotateBlock(block, world, pos, currentRot);
+                    if (!MovingWorld.instance.metaRotations.hasBlock(blockState.getBlock())) {
+                        assemblyInteractor.blockRotated(blockState.getBlock(), world, pos, currentRot);
+                        rotateBlock(blockState.getBlock(), world, pos, currentRot);
                         blockState = world.getBlockState(pos);
-                        block = blockState.getBlock();
                         tileentity = world.getTileEntity(pos);
                     }
 
@@ -150,12 +148,12 @@ public class ChunkDisassembler {
 
         world.getGameRules().setOrCreateGameRule("doTileDrops", String.valueOf(flag));
 
-        for (LocatedBlock ilb : postlist) {
-            pos = ilb.blockPos;
-            MovingWorld.logger.debug("Post-rejoining block: " + ilb.toString());
-            world.setBlockState(pos, ilb.blockState, 0);
-            assemblyInteractor.blockDisassembled(ilb);
-            result.assembleBlock(ilb);
+        for (LocatedBlock locatedBlockInstance : postList) {
+            pos = locatedBlockInstance.blockPos;
+            MovingWorld.logger.debug("Post-rejoining block: " + locatedBlockInstance.toString());
+            world.setBlockState(pos, locatedBlockInstance.blockState);
+            assemblyInteractor.blockDisassembled(locatedBlockInstance);
+            result.assembleBlock(locatedBlockInstance);
         }
 
         movingWorld.setDead();

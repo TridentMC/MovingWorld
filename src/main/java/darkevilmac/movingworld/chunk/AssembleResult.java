@@ -109,7 +109,7 @@ public class AssembleResult {
                 if (tileentity != null || lb.blockState.getBlock().hasTileEntity(lb.blockState) && (tileentity = world.getTileEntity(lb.blockPos)) != null) {
                     tileentity.validate();
                 }
-                if (entity.getMovingWorldChunk().setBlockIDWithState(iPos, lb.blockState)) {
+                if (entity.getMovingWorldChunk().setBlockWithState(iPos, lb.blockState)) {
                     entity.getMovingWorldChunk().setTileEntity(iPos, tileentity);
                     world.setBlockState(lb.blockPos, Blocks.air.getDefaultState(), 2);
                 }

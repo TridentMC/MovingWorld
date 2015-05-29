@@ -26,6 +26,11 @@ public class MobileChunk implements IBlockAccess {
     public static final int CHUNK_MEMORY_USING = CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE * (4 + 2);    //(16*16*16 shorts and ints)
 
     public final World worldObj;
+
+    public EntityMovingWorld getEntityMovingWorld() {
+        return entityMovingWorld;
+    }
+
     protected final EntityMovingWorld entityMovingWorld;
     public Map<BlockPos, TileEntity> chunkTileEntityMap;
     public boolean isChunkLoaded;
@@ -57,11 +62,12 @@ public class MobileChunk implements IBlockAccess {
         return blockStorageMap.get(bPos);
     }
 
-    public ExtendedBlockStorage getBlockStorageOrCreate(BlockPos pos) {
+    public ExtendedBlockStorage getBlockStorageOrCreate(BlockPos pos, IBlockState state) {
         BlockPos bPos = new BlockPos(pos.getX() >> CHUNK_SIZE_EXP, pos.getY() >> CHUNK_SIZE_EXP, pos.getZ() >> CHUNK_SIZE_EXP);
         ExtendedBlockStorage storage = blockStorageMap.get(bPos);
         if (storage != null) return storage;
         storage = new ExtendedBlockStorage(bPos.getY(), false);
+        storage.set(bPos.getX(), bPos.getY(), bPos.getZ(), state);
         blockStorageMap.put(bPos, storage);
         return storage;
     }
@@ -110,12 +116,12 @@ public class MobileChunk implements IBlockAccess {
         creationSpotBiome = biomegenbase;
     }
 
-    public boolean setBlockIDWithState(BlockPos pos, IBlockState state) {
+    public boolean setBlockWithState(BlockPos pos, IBlockState state) {
         if (state == null) return false;
         Block block = state.getBlock();
         if (block == null) return false;
 
-        ExtendedBlockStorage storage = getBlockStorageOrCreate(pos);
+        ExtendedBlockStorage storage = getBlockStorageOrCreate(pos, state);
         int i = pos.getX() & 15;
         int j = pos.getY() & 15;
         int k = pos.getZ() & 15;
@@ -127,8 +133,6 @@ public class MobileChunk implements IBlockAccess {
             return false;
         }
 
-        // storage.func_150818_a(i, j, k, block); Method gone, use set();
-        //storage.setExtBlockMetadata(i, j, k, meta); Method gone, use set();
         storage.set(i, j, k, blockState);
 
         if (boundsInit) {
@@ -338,11 +342,25 @@ public class MobileChunk implements IBlockAccess {
         return CHUNK_SIZE;
     }
 
+    protected Block getBlock(BlockPos pos) {
+        ExtendedBlockStorage storage = getBlockStorage(pos);
+        if (storage == null) return Blocks.air;
+        return storage.getBlockByExtId(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);
+    }
+
+    protected int getBlockMetadata(BlockPos pos) {
+        ExtendedBlockStorage storage = getBlockStorage(pos);
+        if (storage == null) return 0;
+        return storage.getExtBlockMetadata(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);
+    }
+
+
     @Override
     public IBlockState getBlockState(BlockPos pos) {
-        ExtendedBlockStorage storage = getBlockStorage(pos);
-        if (storage == null) return Blocks.air.getDefaultState();
-        return storage.get(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);
+        int meta = getBlockMetadata(pos);
+        Block block = getBlock(pos);
+
+        return block.getStateFromMeta(meta);
     }
 
     @Override

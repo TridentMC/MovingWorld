@@ -1,12 +1,15 @@
 package darkevilmac.movingworld.render;
 
+import com.sun.javafx.geom.Vec3d;
 import darkevilmac.movingworld.MovingWorld;
 import darkevilmac.movingworld.chunk.MobileChunk;
+import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
@@ -23,7 +26,6 @@ import java.util.List;
 
 @SideOnly(Side.CLIENT)
 public class MobileChunkRenderer {
-    public boolean isInFrustum = false;
     /**
      * Should this renderer skip this render pass
      */
@@ -69,6 +71,12 @@ public class MobileChunkRenderer {
     }
 
     public void render(float partialTicks) {
+
+        updateSimpleRender();
+
+        if (true)
+            return;
+
         if (isRemoved) {
             if (glRenderList != 0) {
                 GLAllocation.deleteDisplayLists(glRenderList);
@@ -118,11 +126,59 @@ public class MobileChunkRenderer {
         int j = i % 65536;
         int k = i / 65536;
         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, j / 1.0F, k / 1.0F);
-        GL11.glColor4f(1F, 1F, 1F, 1F);
+        GlStateManager.color(1F, 1F, 1F, 1F);
         TileEntityRendererDispatcher.instance.renderTileEntityAt(tileEntity, tileEntity.getPos().getX(), tileEntity.getPos().getY(), tileEntity.getPos().getZ(), partialTicks);
     }
 
+    private void updateSimpleRender() {
+        for (int y = chunk.minY(); y < chunk.maxY(); ++y) {
+            for (int z = chunk.minZ(); z < chunk.maxZ(); ++z) {
+                for (int x = chunk.minX(); x < chunk.maxX(); ++x) {
+                    BlockPos pos = new BlockPos(x, y, z);
+                    IBlockState blockState = chunk.getBlockState(pos);
+                    Block block = blockState.getBlock();
+                    TileEntity tile = chunk.getTileEntity(pos);
+
+                    if (tile != null && TileEntityRendererDispatcher.instance.hasSpecialRenderer(tile)) {
+                        dispatchTileRender(tile, new Vec3d(chunk.getEntityMovingWorld().posX + pos.getX(),
+                                chunk.getEntityMovingWorld().posY + pos.getY(),
+                                chunk.getEntityMovingWorld().posZ + pos.getZ()));
+                    }
+
+                    for (EnumWorldBlockLayer enumWorldBlockLayer : EnumWorldBlockLayer.values()) {
+                        if (!block.canRenderInLayer(enumWorldBlockLayer)) continue;
+                        net.minecraftforge.client.ForgeHooksClient.setRenderLayer(enumWorldBlockLayer);
+                        int layerOrdinal = enumWorldBlockLayer.ordinal();
+                    }
+                }
+            }
+        }
+    }
+
+    public void dispatchTileRender(TileEntity tileEntity, Vec3d worldPos) {
+        // Renders a tile entity.
+        TileEntityRendererDispatcher tesrDispatcher = TileEntityRendererDispatcher.instance;
+        tesrDispatcher.renderTileEntityAt(tileEntity, worldPos.x, worldPos.y, worldPos.z, 0);
+        System.out.println("Rendered Tile at " + worldPos.x + " " + worldPos.y + " " + worldPos.z);
+    }
+
+    public void dispatchBlockRender(IBlockState blockState, Vec3d worldPos) {
+        BlockRendererDispatcher dispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
+    }
+
+    private void preRenderBlocks(WorldRenderer worldRenderer, BlockPos pos) {
+        worldRenderer.startDrawing(7);
+        worldRenderer.setVertexFormat(DefaultVertexFormats.BLOCK);
+        worldRenderer.setTranslation((double) (-pos.getX()), (double) (-pos.getY()), (double) (-pos.getZ()));
+    }
+
+    private void postRenderBlocks(WorldRenderer worldRenderer) {
+        worldRenderer.finishDrawing();
+    }
+
+
     private void updateRender() {
+
         if (glRenderList == 0) {
             glRenderList = GLAllocation.generateDisplayLists(2);
         }
@@ -154,11 +210,11 @@ public class MobileChunkRenderer {
                                 if (!glliststarted) {
                                     glliststarted = true;
                                     GL11.glNewList(glRenderList + layer.ordinal(), GL11.GL_COMPILE);
-                                    GL11.glPushMatrix();
+                                    GlStateManager.pushMatrix();
                                     float f = 1.000001F;
-                                    GL11.glTranslatef(-8.0F, -8.0F, -8.0F);
-                                    GL11.glScalef(f, f, f);
-                                    GL11.glTranslatef(8.0F, 8.0F, 8.0F);
+                                    GlStateManager.translate(-8.0F, -8.0F, -8.0F);
+                                    GlStateManager.scale(f, f, f);
+                                    GlStateManager.translate(8.0F, 8.0F, 8.0F);
                                     Tessellator.getInstance().getWorldRenderer().startDrawingQuads();
                                 }
 
@@ -185,7 +241,7 @@ public class MobileChunkRenderer {
 
                 if (glliststarted) {
                     bytesDrawn += Tessellator.getInstance().draw();
-                    GL11.glPopMatrix();
+                    GlStateManager.popMatrix();
                     GL11.glEndList();
                     Tessellator.getInstance().getWorldRenderer().setTranslation(0D, 0D, 0D);
                 } else {
@@ -215,10 +271,12 @@ public class MobileChunkRenderer {
 
     public void dispatchBlockRender(IBlockState state, BlockPos pos, World world) {
         if (state.getBlock().isAir(world, pos))
-            return; //Don't render air, trust me it's a bad idea.
+            return;
 
         BlockRendererDispatcher blockRendererDispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
         blockRendererDispatcher.renderBlock(state, pos, world, Tessellator.getInstance().getWorldRenderer());
+
+        System.out.println("Dispatched block render of " + state.getBlock().getUnlocalizedName() + " " + pos);
     }
 
     public void markDirty() {

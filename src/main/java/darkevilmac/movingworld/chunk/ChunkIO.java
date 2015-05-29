@@ -77,7 +77,7 @@ public abstract class ChunkIO {
             z = in.readByte();
             id = in.readShort();
             state = Block.getBlockById(id).getStateFromMeta(in.readInt());
-            chunk.setBlockIDWithState(new BlockPos(x, y, z), state);
+            chunk.setBlockWithState(new BlockPos(x, y, z), state);
         }
     }
 
