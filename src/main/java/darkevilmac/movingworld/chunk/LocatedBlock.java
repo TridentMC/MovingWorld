@@ -1,6 +1,7 @@
 package darkevilmac.movingworld.chunk;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.state.BlockStateBase;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -23,7 +24,7 @@ public class LocatedBlock {
     }
 
     public LocatedBlock(NBTTagCompound comp, World world) {
-        blockState = Block.getBlockById(comp.getInteger("block")).getStateFromMeta(comp.getInteger("meta"));
+        blockState = Block.getBlockById(comp.getInteger("block")).getDefaultState().getBlock().getStateFromMeta(comp.getInteger("meta"));
         blockPos = new BlockPos(comp.getInteger("x"), comp.getInteger("y"), comp.getInteger("z"));
         tileEntity = world == null ? null : world.getTileEntity(new BlockPos(blockPos.getX(), blockPos.getY(), blockPos.getZ()));
     }

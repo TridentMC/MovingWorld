@@ -97,7 +97,6 @@ public class ChunkDisassembler {
             for (int j = chunk.minY(); j < chunk.maxY(); j++) {
                 for (int k = chunk.minZ(); k < chunk.maxZ(); k++) {
                     blockState = chunk.getBlockState(new BlockPos(i, j, k));
-                    System.out.println(blockState.toString());
                     if (blockState.getBlock() == Blocks.air) {
                         if (blockState.getBlock().getMetaFromState(blockState) == 1) continue;
                     } else if (blockState.getBlock().isAir(world, new BlockPos(i, j, k))) continue;

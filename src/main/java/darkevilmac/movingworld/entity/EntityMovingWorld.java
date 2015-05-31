@@ -697,6 +697,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     @Override
     protected void writeEntityToNBT(NBTTagCompound compound) {
         super.writeEntityToNBT(compound);
+
         ByteArrayOutputStream baos = new ByteArrayOutputStream(mobileChunk.getMemoryUsage());
         DataOutputStream out = new DataOutputStream(baos);
         try {
@@ -707,9 +708,9 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             e.printStackTrace();
         }
         compound.setByteArray("chunk", baos.toByteArray());
-        compound.setByte("riderDestinationX", (byte) riderDestination.getX());
-        compound.setByte("riderDestinationY", (byte) riderDestination.getY());
-        compound.setByte("riderDestinationZ", (byte) riderDestination.getZ());
+        compound.setInteger("riderDestinationX", riderDestination.getX());
+        compound.setInteger("riderDestinationY", riderDestination.getY());
+        compound.setInteger("riderDestinationZ", riderDestination.getZ());
         compound.setByte("front", (byte) frontDirection);
 
         if (!mobileChunk.chunkTileEntityMap.isEmpty()) {
@@ -752,9 +753,9 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             riderDestination = new BlockPos(rX, rY, rZ);
             frontDirection = s >>> 12 & 3;
         } else {
-            int rX = compound.getByte("riderDestinationX") & 0xFF;
-            int rY = compound.getByte("riderDestinationY") & 0xFF;
-            int rZ = compound.getByte("riderDestinationZ") & 0xFF;
+            int rX = compound.getInteger("riderDestinationX");
+            int rY = compound.getInteger("riderDestinationY");
+            int rZ = compound.getInteger("riderDestinationZ");
             riderDestination = new BlockPos(rX, rY, rZ);
             frontDirection = compound.getByte("front") & 3;
         }

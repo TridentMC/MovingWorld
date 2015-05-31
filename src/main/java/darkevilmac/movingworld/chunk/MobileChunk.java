@@ -22,7 +22,6 @@ import java.util.Map;
 
 public class MobileChunk implements IBlockAccess {
     public static final int CHUNK_SIZE = 16;
-    public static final int CHUNK_SIZE_EXP = 4;
     public static final int CHUNK_MEMORY_USING = CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE * (4 + 2);    //(16*16*16 shorts and ints)
 
     public final World worldObj;
@@ -37,7 +36,8 @@ public class MobileChunk implements IBlockAccess {
     public boolean isModified;
     private Map<BlockPos, ExtendedBlockStorage> blockStorageMap;
     private boolean boundsInit;
-    private int minX, minY, minZ, maxX, maxY, maxZ;
+    private BlockPos minBounds;
+    private BlockPos maxBounds;
     private int blockCount;
     private BiomeGenBase creationSpotBiome;
 
@@ -51,24 +51,24 @@ public class MobileChunk implements IBlockAccess {
         isModified = false;
 
         boundsInit = false;
-        minX = minY = minZ = maxX = maxY = maxZ = -1;
+        minBounds = new BlockPos(-1, -1, -1);
+        maxBounds = new BlockPos(-1, -1, -1);
+
         blockCount = 0;
 
         creationSpotBiome = BiomeGenBase.ocean;
     }
 
     public ExtendedBlockStorage getBlockStorage(BlockPos pos) {
-        BlockPos bPos = new BlockPos(pos.getX() >> CHUNK_SIZE_EXP, pos.getY() >> CHUNK_SIZE_EXP, pos.getZ() >> CHUNK_SIZE_EXP);
-        return blockStorageMap.get(bPos);
+        ExtendedBlockStorage storage = blockStorageMap.get(pos);
+        return storage;
     }
 
-    public ExtendedBlockStorage getBlockStorageOrCreate(BlockPos pos, IBlockState state) {
-        BlockPos bPos = new BlockPos(pos.getX() >> CHUNK_SIZE_EXP, pos.getY() >> CHUNK_SIZE_EXP, pos.getZ() >> CHUNK_SIZE_EXP);
-        ExtendedBlockStorage storage = blockStorageMap.get(bPos);
+    public ExtendedBlockStorage getBlockStorageOrCreate(BlockPos pos) {
+        ExtendedBlockStorage storage = blockStorageMap.get(pos);
         if (storage != null) return storage;
-        storage = new ExtendedBlockStorage(bPos.getY(), false);
-        storage.set(bPos.getX(), bPos.getY(), bPos.getZ(), state);
-        blockStorageMap.put(bPos, storage);
+        storage = new ExtendedBlockStorage(pos.getY(), false);
+        blockStorageMap.put(pos, storage);
         return storage;
     }
 
@@ -77,39 +77,39 @@ public class MobileChunk implements IBlockAccess {
     }
 
     public float getCenterX() {
-        return (minX + maxX) / 2F;
+        return (minBounds.getX() + maxBounds.getX()) / 2F;
     }
 
     public float getCenterY() {
-        return (minY + maxY) / 2F;
+        return (minBounds.getY() + maxBounds.getY()) / 2F;
     }
 
     public float getCenterZ() {
-        return (minZ + maxZ) / 2F;
+        return (minBounds.getZ() + maxBounds.getZ()) / 2F;
     }
 
     public int minX() {
-        return minX;
+        return minBounds.getX();
     }
 
     public int maxX() {
-        return maxX;
+        return maxBounds.getX();
     }
 
     public int minY() {
-        return minY;
+        return minBounds.getY();
     }
 
     public int maxY() {
-        return maxY;
+        return maxBounds.getY();
     }
 
     public int minZ() {
-        return minZ;
+        return minBounds.getZ();
     }
 
     public int maxZ() {
-        return maxZ;
+        return maxBounds.getZ();
     }
 
     public void setCreationSpotBiomeGen(BiomeGenBase biomegenbase) {
@@ -118,54 +118,63 @@ public class MobileChunk implements IBlockAccess {
 
     public boolean setBlockWithState(BlockPos pos, IBlockState state) {
         if (state == null) return false;
+
         Block block = state.getBlock();
+        int meta = block.getMetaFromState(state);
+
         if (block == null) return false;
 
-        ExtendedBlockStorage storage = getBlockStorageOrCreate(pos, state);
+        ExtendedBlockStorage storage = getBlockStorageOrCreate(pos);
         int i = pos.getX() & 15;
         int j = pos.getY() & 15;
         int k = pos.getZ() & 15;
 
-        IBlockState blockState = storage.get(i, j, k);
-        Block currentBlock = blockState.getBlock();
+        IBlockState currentState = storage.get(i, j, k);
+        Block currentBlock = storage.getBlockByExtId(i, j, k);
         int currentMeta = storage.getExtBlockMetadata(i, j, k);
-        if (currentBlock == block && currentMeta == currentBlock.getMetaFromState(state)) {
+        if (currentBlock == block && currentMeta == meta) {
             return false;
         }
 
-        storage.set(i, j, k, blockState);
+        storage.set(i, j, k, state);
 
         if (boundsInit) {
-            minX = Math.min(minX, pos.getX());
-            minY = Math.min(minY, pos.getY());
-            minZ = Math.min(minZ, pos.getZ());
-            maxX = Math.max(maxX, pos.getX() + 1);
-            maxY = Math.max(maxY, pos.getY() + 1);
-            maxZ = Math.max(maxZ, pos.getZ() + 1);
+            int minX = Math.min(minBounds.getX(), pos.getX());
+            int minY = Math.min(minBounds.getY(), pos.getY());
+            int minZ = Math.min(minBounds.getZ(), pos.getZ());
+            int maxX = Math.max(maxBounds.getX(), pos.getX() + 1);
+            int maxY = Math.max(maxBounds.getY(), pos.getY() + 1);
+            int maxZ = Math.max(maxBounds.getZ(), pos.getZ() + 1);
+
+            minBounds = new BlockPos(minX, minY, minZ);
+            maxBounds = new BlockPos(maxX, maxY, maxZ);
         } else {
             boundsInit = true;
-            minX = pos.getX();
-            minY = pos.getY();
-            minZ = pos.getZ();
-            maxX = pos.getX() + 1;
-            maxY = pos.getY() + 1;
-            maxZ = pos.getZ() + 1;
+            int minX = pos.getX();
+            int minY = pos.getY();
+            int minZ = pos.getZ();
+            int maxX = pos.getX() + 1;
+            int maxY = pos.getY() + 1;
+            int maxZ = pos.getZ() + 1;
+
+            minBounds = new BlockPos(minX, minY, minZ);
+            maxBounds = new BlockPos(maxX, maxY, maxZ);
         }
         blockCount++;
         setChunkModified();
 
-        TileEntity tileEntity;
+        TileEntity tileentity;
         if (block.hasTileEntity(state)) {
-            tileEntity = getTileEntity(pos);
+            tileentity = getTileEntity(pos);
 
-            if (tileEntity == null) {
-                setTileEntity(pos, tileEntity);
+            if (tileentity == null) {
+                setTileEntity(pos, tileentity);
             }
 
-            if (tileEntity != null) {
-                tileEntity.updateContainingBlockInfo();
-                tileEntity.blockType = block;
-                tileEntity.blockMetadata = block.getMetaFromState(state);
+            if (tileentity != null) {
+                tileentity.updateContainingBlockInfo();
+                tileentity.blockType = block;
+                tileentity.blockMetadata = meta;
             }
         }
 
@@ -354,13 +363,12 @@ public class MobileChunk implements IBlockAccess {
         return storage.getExtBlockMetadata(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);
     }
 
-
     @Override
     public IBlockState getBlockState(BlockPos pos) {
         int meta = getBlockMetadata(pos);
         Block block = getBlock(pos);
 
-        return block.getStateFromMeta(meta);
+        return block.getDefaultState().getBlock().getStateFromMeta(meta);
     }
 
     @Override
