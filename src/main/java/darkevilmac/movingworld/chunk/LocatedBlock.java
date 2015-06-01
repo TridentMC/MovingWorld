@@ -31,7 +31,7 @@ public class LocatedBlock {
 
     @Override
     public String toString() {
-        return new StringBuilder("LocatedBlock [block=").append(blockState.getBlock()).append(", state=").append(blockState).append(", blockPos=[").append(blockPos.getX()).append(", ").append(blockPos.getY()).append(", ").append(blockPos.getZ()).append("]]").toString();
+        return new StringBuilder("LocatedBlock [block=").append(blockState.getBlock()).append(", state=").append(blockState.toString()).append(", blockPos=[").append(blockPos.getX()).append(", ").append(blockPos.getY()).append(", ").append(blockPos.getZ()).append("]]").toString();
     }
 
     public void writeToNBT(NBTTagCompound comp) {

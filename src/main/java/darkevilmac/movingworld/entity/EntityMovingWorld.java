@@ -208,7 +208,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             setEntityBoundingBox(new AxisAlignedBB(posX - hw, posY, posZ - hw, posX + hw, posY + height, posZ + hw));
         } else {
             setEntityBoundingBox(new AxisAlignedBB(posX - mobileChunk.getCenterX(), posY, posZ - mobileChunk.getCenterZ(), posX + mobileChunk.getCenterX(), posY + height, posZ + mobileChunk.getCenterZ()));
-            AABBRotator.rotateAABBAroundY(getEntityBoundingBox(), posX, posZ, (float) Math.toRadians(rotationYaw));
+            setEntityBoundingBox(AABBRotator.rotateAABBAroundY(getEntityBoundingBox(), posX, posZ, (float) Math.toRadians(rotationYaw)));
         }
     }
 
@@ -422,16 +422,16 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         updateRiderPosition(riddenByEntity, riderDestination, 1);
     }
 
-    public void updateRiderPosition(Entity entity, BlockPos riderDestinationPos, int flags) {
-        int rX = riderDestinationPos.getX();
-        int rY = riderDestinationPos.getY();
-        int rZ = riderDestinationPos.getZ();
+    public void updateRiderPosition(Entity entity, BlockPos riderDestination, int flags) {
+        int riderDestinationX = riderDestination.getX();
+        int riderDestinationY = riderDestination.getY();
+        int riderDestinationZ = riderDestination.getZ();
 
         if (entity != null) {
             float yaw = (float) Math.toRadians(rotationYaw);
             float pitch = (float) Math.toRadians(rotationPitch);
 
-            int x1 = rX, y1 = rY, z1 = rZ;
+            int x1 = riderDestinationX, y1 = riderDestinationY, z1 = riderDestinationZ;
             if ((flags & 1) == 1) {
                 if (frontDirection == 0) {
                     z1 -= 1;
@@ -443,32 +443,33 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
                     x1 -= 1;
                 }
 
-                Block block = getMovingWorldChunk().getBlockState(new BlockPos(x1, MathHelper.floor_double(y1 + getMountedYOffset() + entity.getYOffset()), z1)).getBlock();
+                Block block = mobileChunk.getBlockState(new BlockPos(x1, MathHelper.floor_double(y1 + getMountedYOffset() + entity.getYOffset()), z1)).getBlock();
                 if (block.isOpaqueCube()) {
-                    x1 = rX;
-                    y1 = rY;
-                    z1 = rZ;
+                    x1 = riderDestinationX;
+                    y1 = riderDestinationY;
+                    z1 = riderDestinationZ;
                 }
             }
 
             double yOff = (flags & 2) == 2 ? 0d : getMountedYOffset();
-            Vec3Mod vec = new Vec3Mod(x1 - getMovingWorldChunk().getCenterX() + 0.5d, y1 - getMovingWorldChunk().minY() + yOff, z1 - getMovingWorldChunk().getCenterZ() + 0.5d);
+            Vec3Mod vec = new Vec3Mod(x1 - mobileChunk.getCenterX() + 0.5d, y1 - mobileChunk.minY() + yOff, z1 - mobileChunk.getCenterZ() + 0.5d);
             switch (frontDirection) {
                 case 0:
-                    vec = vec.rotateRoll(-pitch);
+                    vec.rotateRoll(-pitch);
                     break;
                 case 1:
-                    vec = vec.rotatePitch(pitch);
+                    vec.rotatePitch(pitch);
                     break;
                 case 2:
-                    vec = vec.rotateRoll(pitch);
+                    vec.rotateRoll(pitch);
                     break;
                 case 3:
-                    vec = vec.rotatePitch(-pitch);
+                    vec.rotatePitch(-pitch);
                     break;
             }
+            vec.rotateYaw(yaw);
 
-            entity.setPosition(vec.xCoord, vec.yCoord, vec.zCoord);
+            entity.setPosition(posX + vec.xCoord, posY + vec.yCoord + entity.getYOffset(), posZ + vec.zCoord);
         }
     }
 
@@ -615,7 +616,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         rotationPitch = 0F;
 
         Vec3 vec = new Vec3(-mobileChunk.getCenterX(), -mobileChunk.minY(), -mobileChunk.getCenterZ());
-        vec = new Vec3Mod(vec.rotateYaw((float) Math.toRadians(rotationYaw)));
+        vec = vec.rotateYaw((float) Math.toRadians(rotationYaw));
 
         int ix = MathHelperMod.round_double(vec.xCoord + posX);
         int iy = MathHelperMod.round_double(vec.yCoord + posY);
@@ -689,9 +690,9 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         }
     }
 
-    public void setPilotSeat(int frontDirection, BlockPos pos) {
+    public void setRiderDestination(int frontDirection, BlockPos riderDestination) {
         this.frontDirection = frontDirection;
-        this.riderDestination = pos;
+        this.riderDestination = riderDestination;
     }
 
     @Override

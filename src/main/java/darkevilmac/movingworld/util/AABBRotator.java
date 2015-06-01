@@ -22,7 +22,7 @@ public class AABBRotator {
      * @param aabb The axis aligned boundingbox to rotate
      * @param ang  The angle to rotate the aabb in radians
      */
-    public static void rotateAABBAroundY(AxisAlignedBB aabb, double xoff, double zoff, float ang) {
+    public static AxisAlignedBB rotateAABBAroundY(AxisAlignedBB aabb, double xoff, double zoff, float ang) {
         double y0 = aabb.minY;
         double y1 = aabb.maxY;
 
@@ -56,6 +56,8 @@ public class AABBRotator {
         vech1 = vech1.setZ((vec01.zCoord + vec11.zCoord) / 2D);
 
         aabb = new AxisAlignedBB(minX(), y0, minZ(), maxX(), y1, maxZ()).offset(xoff, 0F, zoff);
+
+        return aabb;
     }
 
     private static double minX() {

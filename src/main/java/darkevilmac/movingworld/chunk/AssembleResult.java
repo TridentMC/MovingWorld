@@ -91,7 +91,10 @@ public class AssembleResult {
             return null;
         }
 
-        entity.setPilotSeat(movingWorldMarkingBlock.blockState.getBlock().getMetaFromState(movingWorldMarkingBlock.blockState) & 3, movingWorldMarkingBlock.blockPos);
+        int markingBlockMeta = movingWorldMarkingBlock.blockState.getBlock().getMetaFromState(movingWorldMarkingBlock.blockState);
+        BlockPos riderDestination = new BlockPos(movingWorldMarkingBlock.blockPos.getX() - offset.getX(), movingWorldMarkingBlock.blockPos.getY() - offset.getY(), movingWorldMarkingBlock.blockPos.getZ() - offset.getZ());
+
+        entity.setRiderDestination(markingBlockMeta & 3, riderDestination);
         entity.getMovingWorldChunk().setCreationSpotBiomeGen(world.getBiomeGenForCoords(movingWorldMarkingBlock.blockPos));
 
         boolean flag = world.getGameRules().getGameRuleBooleanValue("doTileDrops");

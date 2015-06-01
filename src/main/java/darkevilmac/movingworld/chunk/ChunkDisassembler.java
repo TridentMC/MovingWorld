@@ -4,6 +4,7 @@ import darkevilmac.movingworld.MovingWorld;
 import darkevilmac.movingworld.entity.EntityMovingWorld;
 import darkevilmac.movingworld.tile.IMovingWorldTileEntity;
 import darkevilmac.movingworld.util.MathHelperMod;
+import darkevilmac.movingworld.util.RotationHelper;
 import darkevilmac.movingworld.util.Vec3Mod;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -49,7 +50,7 @@ public class ChunkDisassembler {
                     Vec3Mod vecB = new Vec3Mod(i + ox, j + oy, k + oz);
 
                     vec = vecB;
-                    vec = new Vec3Mod(vec.rotateYaw(yaw));
+                    vec = vec.rotateYaw(yaw);
 
                     pos = new BlockPos(MathHelperMod.round_double(vec.xCoord + movingWorld.posX),
                             MathHelperMod.round_double(vec.yCoord + movingWorld.posY),
@@ -72,8 +73,7 @@ public class ChunkDisassembler {
         AssembleResult result = new AssembleResult();
         result.offset = new BlockPos(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
 
-        int currentRot = Math.round(movingWorld.rotationYaw / 90F) & 3;
-        int deltarot = (-currentRot) & 3;
+        int currentRot = Math.round(movingWorld.rotationYaw / 90F);
         movingWorld.rotationYaw = currentRot * 90F;
         movingWorld.rotationPitch = 0F;
         float yaw = currentRot * MathHelperMod.PI_HALF;
@@ -105,7 +105,7 @@ public class ChunkDisassembler {
                     //meta = MovingWorld.instance.metaRotations.getRotatedMeta(block, block.getMetaFromState(blockState), deltarot);
 
                     vec = new Vec3Mod(i + ox, j + oy, k + oz);
-                    vec = new Vec3Mod(vec.rotateYaw(yaw));
+                    vec = vec.rotateYaw(yaw);
 
                     pos = new BlockPos(MathHelperMod.round_double(vec.xCoord + movingWorld.posX),
                             MathHelperMod.round_double(vec.yCoord + movingWorld.posY),
@@ -131,12 +131,12 @@ public class ChunkDisassembler {
                         world.setTileEntity(pos, tileentity);
                     }
 
-                    if (!MovingWorld.instance.metaRotations.hasBlock(blockState.getBlock())) {
-                        assemblyInteractor.blockRotated(blockState.getBlock(), world, pos, currentRot);
-                        rotateBlock(blockState.getBlock(), world, pos, currentRot);
-                        blockState = world.getBlockState(pos);
-                        tileentity = world.getTileEntity(pos);
-                    }
+
+                    assemblyInteractor.blockRotated(blockState.getBlock(), world, pos, currentRot);
+                    rotateBlock(world, pos, currentRot);
+                    blockState = world.getBlockState(pos);
+                    tileentity = world.getTileEntity(pos);
+
 
                     LocatedBlock lb = new LocatedBlock(blockState, tileentity, pos);
                     assemblyInteractor.blockDisassembled(lb);
@@ -167,14 +167,13 @@ public class ChunkDisassembler {
         return result;
     }
 
-    private void rotateBlock(Block block, World world, BlockPos pos, int deltarot) {
-        deltarot &= 3;
-        if (deltarot != 0) {
-            if (deltarot == 3) {
-                block.rotateBlock(world, pos, EnumFacing.UP);
-            } else {
-                for (int r = 0; r < deltarot; r++) {
-                    block.rotateBlock(world, pos, EnumFacing.DOWN);
+    private void rotateBlock(World world, BlockPos pos, int deltaRot) {
+        deltaRot &= 3;
+
+        if (deltaRot != 0) {
+            {
+                for (int r = 0; r < deltaRot + 2; r++) {
+                    RotationHelper.rotateBlock(world, pos);
                 }
             }
         }

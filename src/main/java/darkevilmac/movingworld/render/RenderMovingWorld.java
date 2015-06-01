@@ -18,10 +18,6 @@ public class RenderMovingWorld extends Render {
     }
 
     public void renderVehicle(EntityMovingWorld entity, double x, double y, double z, float yaw, float rendertime) {
-
-        if(true)
-            return;
-
         GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_LIGHTING_BIT);
         RenderHelper.disableStandardItemLighting();
 
@@ -41,10 +37,12 @@ public class RenderMovingWorld extends Render {
 
         //float f4 = 0.75F;
         bindEntityTexture(entity);
-        ((MobileChunkClient) entity.getMovingWorldChunk()).getRenderer().render(0F);
+        ((MobileChunkClient) entity.getMovingWorldChunk()).getRenderer().render(z, y, z, 0F);
         GlStateManager.popMatrix();
 
         GlStateManager.popAttrib();
+        RenderHelper.enableStandardItemLighting();
+
     }
 
     @Override

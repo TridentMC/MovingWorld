@@ -53,15 +53,6 @@ public class Vec3Mod extends Vec3 {
         return new Vec3Mod(super.rotateYaw(yaw));
     }
 
-    public Vec3Mod rotateAroundY(float p_72442_1_) {
-        float var2 = MathHelper.cos(p_72442_1_);
-        float var3 = MathHelper.sin(p_72442_1_);
-        double var4 = this.xCoord * (double) var2 + this.zCoord * (double) var3;
-        double var6 = this.yCoord;
-        double var8 = this.zCoord * (double) var2 - this.xCoord * (double) var3;
-        return new Vec3Mod(var4, var6, var8);
-    }
-
     /**
      * Rotate around the Z axis.
      *
