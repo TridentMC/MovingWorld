@@ -25,11 +25,6 @@ public class MobileChunk implements IBlockAccess {
     public static final int CHUNK_MEMORY_USING = CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE * (4 + 2);    //(16*16*16 shorts and ints)
 
     public final World worldObj;
-
-    public EntityMovingWorld getEntityMovingWorld() {
-        return entityMovingWorld;
-    }
-
     protected final EntityMovingWorld entityMovingWorld;
     public Map<BlockPos, TileEntity> chunkTileEntityMap;
     public boolean isChunkLoaded;
@@ -40,7 +35,6 @@ public class MobileChunk implements IBlockAccess {
     private BlockPos maxBounds;
     private int blockCount;
     private BiomeGenBase creationSpotBiome;
-
     public MobileChunk(World world, EntityMovingWorld entitymovingWorld) {
         worldObj = world;
         entityMovingWorld = entitymovingWorld;
@@ -57,6 +51,10 @@ public class MobileChunk implements IBlockAccess {
         blockCount = 0;
 
         creationSpotBiome = BiomeGenBase.ocean;
+    }
+
+    public EntityMovingWorld getEntityMovingWorld() {
+        return entityMovingWorld;
     }
 
     public ExtendedBlockStorage getBlockStorage(BlockPos pos) {

@@ -1,7 +1,6 @@
 package darkevilmac.movingworld.chunk;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.state.BlockStateBase;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;

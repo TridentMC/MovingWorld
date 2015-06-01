@@ -4,26 +4,19 @@ import com.sun.javafx.geom.Vec3d;
 import darkevilmac.movingworld.MovingWorld;
 import darkevilmac.movingworld.chunk.MobileChunk;
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.client.renderer.tileentity.TileEntityPistonRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumWorldBlockLayer;
-import net.minecraftforge.client.model.IFlexibleBakedModel;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 
 @SideOnly(Side.CLIENT)
@@ -67,7 +60,7 @@ public class MobileChunkRenderer {
     public void render(double x, double y, double z, float partialTicks) {
 
         if (needsUpdate)
-        updateSimpleRender(x, y, z);
+            updateSimpleRender(x, y, z);
 
     }
 
