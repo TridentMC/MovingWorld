@@ -23,8 +23,8 @@ public class RenderMovingWorld extends Render {
 
         float pitch = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * rendertime;
 
-        float rx = entity.frontDirection == 1 ? -1f : entity.frontDirection == 3 ? 1f : 0f;
-        float rz = entity.frontDirection == 0 ? 1f : entity.frontDirection == 2 ? -1f : 0f;
+        float rx = entity.frontDirection.getIndex() == 1 ? -1f : entity.frontDirection.getIndex() == 3 ? 1f : 0f;
+        float rz = entity.frontDirection.getIndex() == 0 ? 1f : entity.frontDirection.getIndex() == 2 ? -1f : 0f;
 
         GlStateManager.pushMatrix();
         GlStateManager.translate((float) x, (float) y, (float) z);

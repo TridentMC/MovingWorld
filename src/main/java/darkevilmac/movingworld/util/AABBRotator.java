@@ -38,10 +38,10 @@ public class AABBRotator {
         vec11 = vec11.setX(aabb.maxX - xoff);
         vec11 = vec11.setZ(aabb.maxZ - zoff);
 
-        vec00 = new Vec3Mod(vec00.rotateYaw(ang));
-        vec01 = new Vec3Mod(vec01.rotateYaw(ang));
-        vec10 = new Vec3Mod(vec10.rotateYaw(ang));
-        vec11 = new Vec3Mod(vec11.rotateYaw(ang));
+        vec00 = vec00.rotateAroundY(ang);
+        vec01 = vec01.rotateAroundY(ang);
+        vec10 = vec10.rotateAroundY(ang);
+        vec11 = vec11.rotateAroundY(ang);
 
         vec0h = vec0h.setX((vec00.xCoord + vec01.xCoord) / 2D);
         vec0h = vec0h.setZ((vec00.zCoord + vec01.zCoord) / 2D);

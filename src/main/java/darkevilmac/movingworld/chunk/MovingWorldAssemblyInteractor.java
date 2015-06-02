@@ -8,6 +8,7 @@ import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 
 /**
@@ -85,6 +86,10 @@ public class MovingWorldAssemblyInteractor {
 
     public boolean isTileMovingWorldMarker(TileEntity tile) {
         return tile != null && tile instanceof TileMovingWorldMarkingBlock;
+    }
+
+    public EnumFacing getFrontDirection(LocatedBlock marker){
+        return (EnumFacing) marker.blockState.getValue(BlockMovingWorldMarker.FACING);
     }
 
     /**

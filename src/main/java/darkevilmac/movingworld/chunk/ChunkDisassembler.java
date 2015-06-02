@@ -49,7 +49,7 @@ public class ChunkDisassembler {
                     Vec3Mod vecB = new Vec3Mod(i + ox, j + oy, k + oz);
 
                     vec = vecB;
-                    vec = vec.rotateYaw(yaw);
+                    vec = vec.rotateAroundY(yaw);
 
                     pos = new BlockPos(MathHelperMod.round_double(vec.xCoord + movingWorld.posX),
                             MathHelperMod.round_double(vec.yCoord + movingWorld.posY),
@@ -101,10 +101,8 @@ public class ChunkDisassembler {
                     } else if (blockState.getBlock().isAir(world, new BlockPos(i, j, k))) continue;
                     tileentity = chunk.getTileEntity(new BlockPos(i, j, k));
 
-                    //meta = MovingWorld.instance.metaRotations.getRotatedMeta(block, block.getMetaFromState(blockState), deltarot);
-
                     vec = new Vec3Mod(i + ox, j + oy, k + oz);
-                    vec = vec.rotateYaw(yaw);
+                    vec = vec.rotateAroundY(yaw);
 
                     pos = new BlockPos(MathHelperMod.round_double(vec.xCoord + movingWorld.posX),
                             MathHelperMod.round_double(vec.yCoord + movingWorld.posY),

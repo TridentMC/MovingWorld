@@ -13,6 +13,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 
@@ -91,10 +92,10 @@ public class AssembleResult {
             return null;
         }
 
-        int markingBlockMeta = movingWorldMarkingBlock.blockState.getBlock().getMetaFromState(movingWorldMarkingBlock.blockState);
+        EnumFacing facing = assemblyInteractor.getFrontDirection(movingWorldMarkingBlock);
         BlockPos riderDestination = new BlockPos(movingWorldMarkingBlock.blockPos.getX() - offset.getX(), movingWorldMarkingBlock.blockPos.getY() - offset.getY(), movingWorldMarkingBlock.blockPos.getZ() - offset.getZ());
 
-        entity.setRiderDestination(markingBlockMeta & 3, riderDestination);
+        entity.setRiderDestination(facing, riderDestination);
         entity.getMovingWorldChunk().setCreationSpotBiomeGen(world.getBiomeGenForCoords(movingWorldMarkingBlock.blockPos));
 
         boolean flag = world.getGameRules().getGameRuleBooleanValue("doTileDrops");
