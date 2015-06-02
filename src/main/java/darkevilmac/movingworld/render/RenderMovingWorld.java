@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
@@ -23,11 +24,11 @@ public class RenderMovingWorld extends Render {
 
         float pitch = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * rendertime;
 
-        float rx = entity.frontDirection.getIndex() == 1 ? -1f : entity.frontDirection.getIndex() == 3 ? 1f : 0f;
-        float rz = entity.frontDirection.getIndex() == 0 ? 1f : entity.frontDirection.getIndex() == 2 ? -1f : 0f;
+        float rx = entity.frontDirection == EnumFacing.WEST ? -1f : entity.frontDirection == EnumFacing.EAST ? 1f : 0f;
+        float rz = entity.frontDirection == EnumFacing.SOUTH ? 1f : entity.frontDirection == EnumFacing.NORTH ? -1f : 0f;
 
         GlStateManager.pushMatrix();
-        GlStateManager.translate((float) x, (float) y, (float) z);
+        GlStateManager.translate((float) x, (float) y, (float) z - 1);
         GlStateManager.rotate(yaw, 0F, 1F, 0F);
         GlStateManager.rotate(pitch, rx, 0f, rz);
 

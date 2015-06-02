@@ -45,7 +45,8 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     private MobileChunk mobileChunk;
     private MovingWorldInfo info;
     private ChunkDisassembler disassembler;
-    // Related to actual movement. We don't ever really change this variables, they're changed by classes derived from EntityMovingWorld
+
+    // Related to actual movement. We don't ever really change these variables, they're changed by classes derived from EntityMovingWorld
     private boolean noControl;
     private boolean syncPosWithServer;
     @SideOnly(Side.CLIENT)
@@ -432,13 +433,13 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
             int x1 = riderDestinationX, y1 = riderDestinationY, z1 = riderDestinationZ;
             if ((flags & 1) == 1) {
-                if (frontDirection.getOpposite().getHorizontalIndex() == 0) {
+                if (frontDirection == EnumFacing.SOUTH) {
                     z1 -= 1;
-                } else if (frontDirection.getOpposite().getHorizontalIndex() == 1) {
+                } else if (frontDirection == EnumFacing.WEST) {
                     x1 += 1;
-                } else if (frontDirection.getOpposite().getHorizontalIndex() == 2) {
+                } else if (frontDirection == EnumFacing.NORTH) {
                     z1 += 1;
-                } else if (frontDirection.getOpposite().getHorizontalIndex() == 3) {
+                } else if (frontDirection == EnumFacing.EAST) {
                     x1 -= 1;
                 }
 
@@ -452,21 +453,21 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
             double yOff = (flags & 2) == 2 ? 0d : getMountedYOffset();
             Vec3Mod vec = new Vec3Mod(x1 - mobileChunk.getCenterX() + 0.5d, y1 - mobileChunk.minY() + yOff, z1 - mobileChunk.getCenterZ() + 0.5d);
-            switch (frontDirection.getOpposite().getHorizontalIndex()) {
-                case 0:
-                    vec.rotateAroundZ(-pitch);
+            switch (frontDirection) {
+                case SOUTH:
+                    vec = vec.rotateAroundZ(-pitch);
                     break;
-                case 1:
-                    vec.rotateAroundX(pitch);
+                case WEST:
+                    vec = vec.rotateAroundX(pitch);
                     break;
-                case 2:
-                    vec.rotateAroundZ(pitch);
+                case NORTH:
+                    vec = vec.rotateAroundZ(pitch);
                     break;
-                case 3:
-                    vec.rotateAroundX(-pitch);
+                case EAST:
+                    vec = vec.rotateAroundX(-pitch);
                     break;
             }
-            vec.rotateAroundY(yaw);
+            vec = vec.rotateAroundY(yaw);
 
             entity.setPosition(posX + vec.xCoord, posY + vec.yCoord + entity.getYOffset(), posZ + vec.zCoord);
         }
@@ -711,7 +712,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         compound.setInteger("riderDestinationX", riderDestination.getX());
         compound.setInteger("riderDestinationY", riderDestination.getY());
         compound.setInteger("riderDestinationZ", riderDestination.getZ());
-        compound.setInteger("front", frontDirection.getIndex());
+        compound.setInteger("front", frontDirection.getHorizontalIndex());
 
         if (!mobileChunk.chunkTileEntityMap.isEmpty()) {
             NBTTagList tileEntities = new NBTTagList();
@@ -751,13 +752,13 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             int rY = s >>> 4 & 0xF;
             int rZ = s >>> 8 & 0xF;
             riderDestination = new BlockPos(rX, rY, rZ);
-            frontDirection = EnumFacing.VALUES[(s >>> 12)];
+            frontDirection = EnumFacing.NORTH;
         } else {
             int rX = compound.getInteger("riderDestinationX");
             int rY = compound.getInteger("riderDestinationY");
             int rZ = compound.getInteger("riderDestinationZ");
             riderDestination = new BlockPos(rX, rY, rZ);
-            frontDirection = EnumFacing.VALUES[compound.getInteger("front")];
+            frontDirection = EnumFacing.getHorizontal(compound.getInteger("front"));
         }
 
         NBTTagList tileentities = compound.getTagList("tileent", 10);
@@ -788,7 +789,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         data.writeInt(riderDestination.getX());
         data.writeInt(riderDestination.getY());
         data.writeInt(riderDestination.getZ());
-        data.writeInt(frontDirection.getIndex());
+        data.writeInt(frontDirection.getHorizontalIndex());
 
         data.writeShort(info.getName().length());
         data.writeBytes(info.getName().getBytes());
@@ -812,7 +813,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         int rY = data.readInt();
         int rZ = data.readInt();
         riderDestination = new BlockPos(rX, rY, rZ);
-        frontDirection = EnumFacing.VALUES[data.readInt()];
+        frontDirection = EnumFacing.getHorizontal(data.readInt());
 
         byte[] ab = new byte[data.readShort()];
         data.readBytes(ab);
