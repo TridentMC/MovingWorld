@@ -224,7 +224,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void func_180426_a(double x, double y, double z, float yaw, float pitch, int inc, boolean control) {
+    public void setPositionAndRotation2(double x, double y, double z, float yaw, float pitch, int inc, boolean control) {
         if (control && this.riddenByEntity != null) {
             this.prevPosX = this.posX = x;
             this.prevPosY = this.posY = y;
@@ -596,7 +596,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     }
 
     @Override
-    protected void func_180433_a(double distanceFallen, boolean onGround, Block p3, BlockPos p4) {
+    protected void updateFallState(double distanceFallen, boolean onGround, Block p3, BlockPos p4) {
         if (!isFlying()) {
             // This does nothing? Why was the code here, was there something to be implemented, if so, what?
         }
