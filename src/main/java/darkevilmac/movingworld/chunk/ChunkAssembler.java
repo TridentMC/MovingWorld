@@ -2,11 +2,13 @@ package darkevilmac.movingworld.chunk;
 
 import darkevilmac.movingworld.MovingWorld;
 import darkevilmac.movingworld.block.BlockMovingWorldMarker;
+import darkevilmac.movingworld.event.AssembleBlockEvent;
 import darkevilmac.movingworld.tile.TileMovingWorldMarkingBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -86,7 +88,10 @@ public class ChunkAssembler {
                     if (movingWorldMarker == null)
                         movingWorldMarker = lb;
                 }
+                AssembleBlockEvent event = new AssembleBlockEvent(lb);
+                MinecraftForge.EVENT_BUS.post(event);
                 result.assembleBlock(lb);
+
 
                 openSet.add(pos.add(-1, 0, 0));
                 openSet.add(pos.add(0, -1, 0));
@@ -136,7 +141,10 @@ public class ChunkAssembler {
             if (movingWorldMarker == null)
                 movingWorldMarker = lb;
         }
+        AssembleBlockEvent event = new AssembleBlockEvent(lb);
+        MinecraftForge.EVENT_BUS.post(event);
         result.assembleBlock(lb);
+
 
         assembleRecursive(result, set, assemblyInteractor, pos.add(-1, +0, +0));
         assembleRecursive(result, set, assemblyInteractor, pos.add(+0, -1, +0));

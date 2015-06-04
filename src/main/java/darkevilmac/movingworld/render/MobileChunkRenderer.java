@@ -120,7 +120,7 @@ public class MobileChunkRenderer {
                 TileEntityRendererDispatcher.instance.renderTileEntityAt(tile, tile.getPos().getX(), tile.getPos().getY(), tile.getPos().getZ(), partialTicks);
             }
         }
-        GlStateManager.translate(0,0,0);
+        GlStateManager.translate(0, 0, 0);
         GlStateManager.popMatrix();
     }
 

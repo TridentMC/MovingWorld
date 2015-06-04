@@ -35,6 +35,7 @@ public class MobileChunk implements IBlockAccess {
     private BlockPos maxBounds;
     private int blockCount;
     private BiomeGenBase creationSpotBiome;
+
     public MobileChunk(World world, EntityMovingWorld entitymovingWorld) {
         worldObj = world;
         entityMovingWorld = entitymovingWorld;

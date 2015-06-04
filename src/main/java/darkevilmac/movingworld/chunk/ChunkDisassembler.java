@@ -2,6 +2,7 @@ package darkevilmac.movingworld.chunk;
 
 import darkevilmac.movingworld.MovingWorld;
 import darkevilmac.movingworld.entity.EntityMovingWorld;
+import darkevilmac.movingworld.event.DisassembleBlockEvent;
 import darkevilmac.movingworld.tile.IMovingWorldTileEntity;
 import darkevilmac.movingworld.util.MathHelperMod;
 import darkevilmac.movingworld.util.RotationHelper;
@@ -12,6 +13,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -137,6 +139,8 @@ public class ChunkDisassembler {
 
                     LocatedBlock lb = new LocatedBlock(blockState, tileentity, pos);
                     assemblyInteractor.blockDisassembled(lb);
+                    DisassembleBlockEvent event = new DisassembleBlockEvent(lb);
+                    MinecraftForge.EVENT_BUS.post(event);
                     result.assembleBlock(lb);
                 }
             }
@@ -149,6 +153,8 @@ public class ChunkDisassembler {
             MovingWorld.logger.debug("Post-rejoining block: " + locatedBlockInstance.toString());
             world.setBlockState(pos, locatedBlockInstance.blockState);
             assemblyInteractor.blockDisassembled(locatedBlockInstance);
+            DisassembleBlockEvent event = new DisassembleBlockEvent(locatedBlockInstance);
+            MinecraftForge.EVENT_BUS.post(event);
             result.assembleBlock(locatedBlockInstance);
         }
 

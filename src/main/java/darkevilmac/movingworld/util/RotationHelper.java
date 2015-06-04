@@ -1,13 +1,10 @@
 package darkevilmac.movingworld.util;
 
-import net.minecraft.block.BlockBanner;
 import net.minecraft.block.BlockLog;
-import net.minecraft.block.BlockPortal;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.tileentity.TileEntityBannerRenderer;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;

@@ -88,7 +88,7 @@ public class MovingWorldAssemblyInteractor {
         return tile != null && tile instanceof TileMovingWorldMarkingBlock;
     }
 
-    public EnumFacing getFrontDirection(LocatedBlock marker){
+    public EnumFacing getFrontDirection(LocatedBlock marker) {
         return ((EnumFacing) marker.blockState.getValue(BlockMovingWorldMarker.FACING)).getOpposite();
     }
 

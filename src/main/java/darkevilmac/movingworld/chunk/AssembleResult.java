@@ -4,7 +4,6 @@ package darkevilmac.movingworld.chunk;
 import darkevilmac.movingworld.MaterialDensity;
 import darkevilmac.movingworld.MovingWorld;
 import darkevilmac.movingworld.entity.EntityMovingWorld;
-import darkevilmac.movingworld.event.AssembleBlockEvent;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -15,7 +14,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
-import net.minecraftforge.common.MinecraftForge;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -105,8 +103,6 @@ public class AssembleResult {
             TileEntity tileentity;
             BlockPos iPos;
             for (LocatedBlock lb : assembledBlocks) {
-                AssembleBlockEvent event = new AssembleBlockEvent(lb);
-                MinecraftForge.EVENT_BUS.post(event);
                 iPos = lb.blockPos.subtract(offset);
 
                 tileentity = lb.tileEntity;
