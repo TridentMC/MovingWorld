@@ -44,8 +44,8 @@ public class MovingWorld {
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent e) {
         logger = e.getModLog();
-        String configFolder = e.getSuggestedConfigurationFile().toString().substring(0, e.getSuggestedConfigurationFile().toString().lastIndexOf("\\") + 1);
-        File mConfigFile = new File(configFolder + "\\MovingWorld\\Main.cfg");
+        File configFolder =  new File(e.getModConfigurationDirectory(), "MovingWorld");
+        File mConfigFile = new File(configFolder, "Main.cfg");
         mConfig = new MainConfig(new Configuration(mConfigFile));
         mConfig.loadAndSave();
 

@@ -47,7 +47,7 @@ public class MetaRotations {
     }
 
     public void registerMetaRotationFile(String fileName, InputStream iStream) throws IOException {
-        File rotFile = new File(metaRotationsDirectory + "\\" + fileName);
+        File rotFile = new File(metaRotationsDirectory, fileName);
         if (!rotFile.exists()) {
             rotFile.createNewFile();
             FileOutputStream oStream = new FileOutputStream(rotFile);
