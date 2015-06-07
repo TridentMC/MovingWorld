@@ -39,8 +39,8 @@ public class MetaRotations {
         metaRotationMap.put(Block.getIdFromBlock(block), new BlockMetaRotation(block, metarotation, bitmask));
     }
 
-    public void setConfigDirectory(File configdirectory) {
-        metaRotationsDirectory = new File(configdirectory, "MovingWorld\\MetaRotation");
+    public void setConfigDirectory(File configDirectory) {
+        metaRotationsDirectory = new File(new File(configDirectory, "MovingWorld"), "MetaRotation");
         if (!metaRotationsDirectory.isDirectory()) {
             metaRotationsDirectory.mkdirs();
         }
