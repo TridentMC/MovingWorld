@@ -20,7 +20,7 @@ import java.io.File;
 @Mod(modid = MovingWorld.MOD_ID, name = MovingWorld.MOD_NAME, version = MovingWorld.MOD_VERSION)
 public class MovingWorld {
     public static final String MOD_ID = "MovingWorld";
-    public static final String MOD_VERSION = "1.7.10-ALPHA-0";
+    public static final String MOD_VERSION = "1.7.10-1.7.12";
     public static final String MOD_NAME = "Moving World";
 
     @Mod.Instance(MOD_ID)
@@ -56,6 +56,7 @@ public class MovingWorld {
     public void init(FMLInitializationEvent e) {
         network.channels = NetworkRegistry.INSTANCE.newChannel(MOD_ID, new MovingWorldMessageToMessageCodec(), new MovingWorldPacketHandler());
         proxy.registerRenderers();
+        mConfig.discoverPoweredBlocks();
     }
 
     @Mod.EventHandler

@@ -1,5 +1,7 @@
 package darkevilmac.movingworld.util;
 
+import net.minecraft.block.BlockLeaves;
+import net.minecraft.block.BlockLever;
 import net.minecraft.block.BlockLog;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyDirection;
@@ -11,7 +13,7 @@ import net.minecraft.world.World;
 
 public abstract class RotationHelper {
 
-    public static void rotateBlock(World world, BlockPos pos) {
+    public static void rotateBlock(World world, BlockPos pos, boolean ccw) {
         if (world != null && world.getBlockState(pos) != null && world.getBlockState(pos).getBlock() != null) {
             IBlockState blockState = world.getBlockState(pos);
 
@@ -19,8 +21,12 @@ public abstract class RotationHelper {
                 if (prop.getName().equals("facing") && prop instanceof PropertyDirection) {
                     EnumFacing facing = (EnumFacing) blockState.getValue(prop);
 
-                    blockState = blockState.withProperty(prop, facing.rotateY());
-
+                    if (facing.getHorizontalIndex() != -1) {
+                        if (!ccw)
+                            blockState = blockState.withProperty(prop, facing.rotateY());
+                        else
+                            blockState = blockState.withProperty(prop, facing.rotateYCCW());
+                    }
                     break;
                 } else {
                     if (prop.getName().equals("axis") && prop instanceof PropertyEnum) {

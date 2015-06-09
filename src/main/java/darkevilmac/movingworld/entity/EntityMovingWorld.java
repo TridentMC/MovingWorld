@@ -334,14 +334,14 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     protected void handleServerUpdate(double horvel) {
         //START outer forces
         byte b0 = 5;
-        int bpermeter = (int) (b0 * (getEntityBoundingBox().maxY - getEntityBoundingBox().minY));
+        int bpermeter = (int) (b0 * (getBoundingBox().maxY - getBoundingBox().minY));
         float waterVolume = 0F;
         AxisAlignedBB axisalignedbb = new AxisAlignedBB(0D, 0D, 0D, 0D, 0D, 0D);
         int belowWater = 0;
         for (; belowWater < bpermeter; belowWater++) {
-            double d1 = getEntityBoundingBox().minY + (getEntityBoundingBox().maxY - getEntityBoundingBox().minY) * belowWater / bpermeter;
-            double d2 = getEntityBoundingBox().minY + (getEntityBoundingBox().maxY - getEntityBoundingBox().minY) * (belowWater + 1) / bpermeter;
-            axisalignedbb = new AxisAlignedBB(getEntityBoundingBox().minX, d1, getEntityBoundingBox().minZ, getEntityBoundingBox().maxX, d2, getEntityBoundingBox().maxZ);
+            double d1 = getBoundingBox().minY + (getBoundingBox().maxY - getBoundingBox().minY) * belowWater / bpermeter;
+            double d2 = getBoundingBox().minY + (getBoundingBox().maxY - getBoundingBox().minY) * (belowWater + 1) / bpermeter;
+            axisalignedbb = new AxisAlignedBB(getBoundingBox().minX, d1, getBoundingBox().minZ, getBoundingBox().maxX, d2, getBoundingBox().maxZ);
 
             if (!isAABBInLiquidNotFall(worldObj, axisalignedbb)) {
                 break;
@@ -423,47 +423,45 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     }
 
     public void updateRiderPosition(Entity entity, BlockPos riderDestination, int flags) {
-        int riderDestinationX = riderDestination.getX();
-        int riderDestinationY = riderDestination.getY();
-        int riderDestinationZ = riderDestination.getZ();
-
         if (entity != null) {
+            int frontDir = frontDirection.getHorizontalIndex();
+
             float yaw = (float) Math.toRadians(rotationYaw);
             float pitch = (float) Math.toRadians(rotationPitch);
 
-            int x1 = riderDestinationX, y1 = riderDestinationY, z1 = riderDestinationZ;
+            int x1 = riderDestination.getX(), y1 = riderDestination.getY(), z1 = riderDestination.getZ();
             if ((flags & 1) == 1) {
-                if (frontDirection == EnumFacing.SOUTH) {
+                if (frontDir == 0) {
                     z1 -= 1;
-                } else if (frontDirection == EnumFacing.WEST) {
+                } else if (frontDir == 1) {
                     x1 += 1;
-                } else if (frontDirection == EnumFacing.NORTH) {
+                } else if (frontDir == 2) {
                     z1 += 1;
-                } else if (frontDirection == EnumFacing.EAST) {
+                } else if (frontDir == 3) {
                     x1 -= 1;
                 }
 
-                Block block = mobileChunk.getBlockState(new BlockPos(x1, MathHelper.floor_double(y1 + getMountedYOffset() + entity.getYOffset()), z1)).getBlock();
-                if (block.isOpaqueCube()) {
-                    x1 = riderDestinationX;
-                    y1 = riderDestinationY;
-                    z1 = riderDestinationZ;
+                IBlockState state = mobileChunk.getBlockState(new BlockPos(x1, MathHelper.floor_double(y1 + getMountedYOffset() + entity.getYOffset()), z1));
+                if (state.getBlock().isOpaqueCube()) {
+                    x1 = riderDestination.getX();
+                    y1 = riderDestination.getY();
+                    z1 = riderDestination.getZ();
                 }
             }
 
             double yOff = (flags & 2) == 2 ? 0d : getMountedYOffset();
             Vec3Mod vec = new Vec3Mod(x1 - mobileChunk.getCenterX() + 0.5d, y1 - mobileChunk.minY() + yOff, z1 - mobileChunk.getCenterZ() + 0.5d);
-            switch (frontDirection) {
-                case SOUTH:
+            switch (frontDir) {
+                case 0:
                     vec = vec.rotateAroundZ(-pitch);
                     break;
-                case WEST:
+                case 1:
                     vec = vec.rotateAroundX(pitch);
                     break;
-                case NORTH:
+                case 2:
                     vec = vec.rotateAroundZ(pitch);
                     break;
-                case EAST:
+                case 3:
                     vec = vec.rotateAroundX(-pitch);
                     break;
             }

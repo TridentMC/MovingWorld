@@ -11,20 +11,27 @@ public class LocatedBlock {
     public final IBlockState blockState;
     public final TileEntity tileEntity;
     public final BlockPos blockPos;
+    public final BlockPos bPosNoOffset;
 
     public LocatedBlock(IBlockState blockState, BlockPos blockPos) {
         this(blockState, null, blockPos);
     }
 
     public LocatedBlock(IBlockState blockState, TileEntity tileentity, BlockPos blockPos) {
+        this(blockState, tileentity, blockPos, null);
+    }
+
+    public LocatedBlock(IBlockState blockState, TileEntity tileentity, BlockPos blockPos, BlockPos bPosNoOffset) {
         this.blockState = blockState;
         this.blockPos = blockPos;
+        this.bPosNoOffset = bPosNoOffset;
         tileEntity = tileentity;
     }
 
     public LocatedBlock(NBTTagCompound comp, World world) {
         blockState = Block.getBlockById(comp.getInteger("block")).getDefaultState().getBlock().getStateFromMeta(comp.getInteger("meta"));
         blockPos = new BlockPos(comp.getInteger("x"), comp.getInteger("y"), comp.getInteger("z"));
+        bPosNoOffset = null;
         tileEntity = world == null ? null : world.getTileEntity(new BlockPos(blockPos.getX(), blockPos.getY(), blockPos.getZ()));
     }
 

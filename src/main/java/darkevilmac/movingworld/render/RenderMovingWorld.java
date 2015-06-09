@@ -1,14 +1,13 @@
 package darkevilmac.movingworld.render;
 
+import darkevilmac.movingworld.MovingWorld;
 import darkevilmac.movingworld.chunk.MobileChunkClient;
 import darkevilmac.movingworld.entity.EntityMovingWorld;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
@@ -18,17 +17,15 @@ public class RenderMovingWorld extends Render {
         shadowSize = 1F;
     }
 
-    public void renderVehicle(EntityMovingWorld entity, double x, double y, double z, float yaw, float rendertime) {
+    public void renderVehicle(EntityMovingWorld entity, double x, double y, double z, float yaw, float renderTime) {
         GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_LIGHTING_BIT);
-        RenderHelper.disableStandardItemLighting();
+        float pitch = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * renderTime;
 
-        float pitch = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * rendertime;
-
-        float rx = entity.frontDirection == EnumFacing.WEST ? -1f : entity.frontDirection == EnumFacing.EAST ? 1f : 0f;
-        float rz = entity.frontDirection == EnumFacing.SOUTH ? 1f : entity.frontDirection == EnumFacing.NORTH ? -1f : 0f;
+        float rx = entity.frontDirection.getHorizontalIndex() == 1 ? -1f : entity.frontDirection.getHorizontalIndex() == 3 ? 1f : 0f;
+        float rz = entity.frontDirection.getHorizontalIndex() == 0 ? 1f : entity.frontDirection.getHorizontalIndex() == 2 ? -1f : 0f;
 
         GlStateManager.pushMatrix();
-        GlStateManager.translate((float) x, (float) y, (float) z - 1);
+        GlStateManager.translate((float) x, (float) y, (float) z);
         GlStateManager.rotate(yaw, 0F, 1F, 0F);
         GlStateManager.rotate(pitch, rx, 0f, rz);
 
@@ -36,14 +33,11 @@ public class RenderMovingWorld extends Render {
         float fz = entity.getMovingWorldChunk().getCenterZ();
         GlStateManager.translate(-fx, -entity.getMovingWorldChunk().minY(), -fz); //minY is always 0
 
-        //float f4 = 0.75F;
         bindEntityTexture(entity);
-        ((MobileChunkClient) entity.getMovingWorldChunk()).getRenderer().render(z, y, z, 0F);
-        GlStateManager.popMatrix();
+        ((MobileChunkClient) entity.getMovingWorldChunk()).getRenderer().render(0F);
+        GL11.glPopMatrix();
 
-        GlStateManager.popAttrib();
-        RenderHelper.enableStandardItemLighting();
-
+        GL11.glPopAttrib();
     }
 
     @Override

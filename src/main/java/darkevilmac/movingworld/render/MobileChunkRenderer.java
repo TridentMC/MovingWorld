@@ -46,7 +46,7 @@ public class MobileChunkRenderer {
     }
 
 
-    public void render(double x, double y, double z, float partialTicks) {
+    public void render(float partialTicks) {
         tileEntityRenderers.clear();
         if (needsUpdate) {
             updateSimpleRender();
@@ -57,7 +57,6 @@ public class MobileChunkRenderer {
     private void updateSimpleRender() {
         GlStateManager.pushMatrix();
         GlStateManager.rotate(1.0F, 0.0F, 180.0F, 0.0F);
-        GlStateManager.translate(0, 0, 1.0F);
 
         Tessellator tessellator = Tessellator.getInstance();
         WorldRenderer worldrenderer = tessellator.getWorldRenderer();
@@ -109,7 +108,6 @@ public class MobileChunkRenderer {
     public void renderTiles(float partialTicks) {
         GlStateManager.pushMatrix();
         GlStateManager.rotate(1.0F, 0.0F, 180.0F, 0.0F);
-        GlStateManager.translate(0, 0, 1.0F);
         if (tileEntityRenderers != null && !tileEntityRenderers.isEmpty()) {
             for (TileEntity tile : tileEntityRenderers) {
                 int i = chunk.getCombinedLight(tile.getPos(), 0);

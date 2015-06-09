@@ -4,6 +4,7 @@ package darkevilmac.movingworld.chunk;
 import darkevilmac.movingworld.MaterialDensity;
 import darkevilmac.movingworld.MovingWorld;
 import darkevilmac.movingworld.entity.EntityMovingWorld;
+import darkevilmac.movingworld.util.LocatedBlockList;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -15,13 +16,10 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class AssembleResult {
     public static final int RESULT_NONE = 0, RESULT_OK = 1, RESULT_BLOCK_OVERFLOW = 2, RESULT_MISSING_MARKER = 3, RESULT_ERROR_OCCURED = 4,
             RESULT_BUSY_COMPILING = 5, RESULT_INCONSISTENT = 6, RESULT_OK_WITH_WARNINGS = 7;
-    public final List<LocatedBlock> assembledBlocks = new ArrayList<LocatedBlock>();
+    public final LocatedBlockList assembledBlocks = new LocatedBlockList();
     public BlockPos offset;
     public MovingWorldAssemblyInteractor assemblyInteractor;
     LocatedBlock movingWorldMarkingBlock;
@@ -99,23 +97,16 @@ public class AssembleResult {
         boolean flag = world.getGameRules().getGameRuleBooleanValue("doTileDrops");
         world.getGameRules().setOrCreateGameRule("doTileDrops", "false");
 
-        try {
-            TileEntity tileentity;
-            BlockPos iPos;
-            for (LocatedBlock lb : assembledBlocks) {
-                iPos = lb.blockPos.subtract(offset);
+        LocatedBlockList highPriorityAssembledBlocks = assembledBlocks.getHighPriorityBlocks();
+        LocatedBlockList normalPriorityAssembledBlocks = assembledBlocks.getNormalPriorityBlocks();
 
-                tileentity = lb.tileEntity;
-                if (tileentity != null || lb.blockState.getBlock().hasTileEntity(lb.blockState) && (tileentity = world.getTileEntity(lb.blockPos)) != null) {
-                    tileentity.validate();
-                }
-                if (entity.getMovingWorldChunk().setBlockWithState(iPos, lb.blockState)) {
-                    entity.getMovingWorldChunk().setTileEntity(iPos, tileentity);
-                    world.setBlockState(lb.blockPos, Blocks.air.getDefaultState(), 2);
-                }
-            }
-            for (LocatedBlock block : assembledBlocks) {
-                world.setBlockToAir(block.blockPos);
+        try {
+            if (highPriorityAssembledBlocks != null && !highPriorityAssembledBlocks.isEmpty()) {
+                setWorldBlocksToAir(world, entity, highPriorityAssembledBlocks);
+                if (normalPriorityAssembledBlocks != null && !normalPriorityAssembledBlocks.isEmpty())
+                    setWorldBlocksToAir(world, entity, normalPriorityAssembledBlocks);
+            } else {
+                setWorldBlocksToAir(world, entity, assembledBlocks);
             }
         } catch (Exception e) {
             resultCode = RESULT_ERROR_OCCURED;
@@ -131,6 +122,26 @@ public class AssembleResult {
         entity.setLocationAndAngles(offset.getX() + entity.getMovingWorldChunk().getCenterX(), offset.getY(), offset.getZ() + entity.getMovingWorldChunk().getCenterZ(), 0F, 0F);
 
         return entity;
+    }
+
+    public void setWorldBlocksToAir(World world, EntityMovingWorld entityMovingWorld, LocatedBlockList locatedBlocks) {
+        TileEntity tileentity;
+        BlockPos iPos;
+        for (LocatedBlock lb : locatedBlocks) {
+            iPos = new BlockPos(lb.blockPos.getX() - offset.getX(), lb.blockPos.getY() - offset.getY(), lb.blockPos.getZ() - offset.getZ());
+
+            tileentity = lb.tileEntity;
+            if (tileentity != null || lb.blockState.getBlock().hasTileEntity(lb.blockState) && (tileentity = world.getTileEntity(lb.blockPos)) != null) {
+                tileentity.validate();
+            }
+            if (entityMovingWorld.getMovingWorldChunk().setBlockWithState(iPos, lb.blockState)) {
+                entityMovingWorld.getMovingWorldChunk().setTileEntity(iPos, tileentity);
+                world.setBlockState(lb.blockPos, Blocks.air.getDefaultState());
+            }
+        }
+        for (LocatedBlock block : locatedBlocks) {
+            world.setBlockToAir(block.blockPos);
+        }
     }
 
     public int getCode() {
