@@ -20,7 +20,7 @@ public abstract class RotationHelper {
                 if (prop instanceof IRotationProperty) {
                     // Custom rotation property found.
                     IRotationProperty rotationProperty = (IRotationProperty) prop;
-                    blockState = ((IRotationProperty) prop).rotateBlock(world, pos, ccw);
+                    blockState = rotationProperty.rotateBlock(world, pos, ccw);
                 } else if (prop.getName().equals("facing") && prop instanceof PropertyDirection) {
                     EnumFacing facing = (EnumFacing) blockState.getValue(prop);
 
