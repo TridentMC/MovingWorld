@@ -116,10 +116,10 @@ public class ChunkDisassembler {
         LocatedBlockList highPriorityBlockList = lbList.getHighPriorityBlocks();
         LocatedBlockList normalPriorityBlockList = lbList.getNormalPriorityBlocks();
 
-        if (highPriorityBlockList != null && !highPriorityBlockList.isEmpty()) {
-            postList = processLocatedBlockList(world, highPriorityBlockList, postList, assemblyInteractor, currentRot);
-            if (normalPriorityBlockList != null && !normalPriorityBlockList.isEmpty())
-                postList = processLocatedBlockList(world, normalPriorityBlockList, postList, assemblyInteractor, currentRot);
+        if (normalPriorityBlockList != null && !normalPriorityBlockList.isEmpty()) {
+            postList = processLocatedBlockList(world, normalPriorityBlockList, postList, assemblyInteractor, currentRot);
+            if (highPriorityBlockList != null && !highPriorityBlockList.isEmpty())
+                postList = processLocatedBlockList(world, highPriorityBlockList, postList, assemblyInteractor, currentRot);
         } else {
             postList = processLocatedBlockList(world, lbList, postList, assemblyInteractor, currentRot);
         }
