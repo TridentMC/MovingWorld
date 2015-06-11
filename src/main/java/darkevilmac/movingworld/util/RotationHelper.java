@@ -1,5 +1,6 @@
 package darkevilmac.movingworld.util;
 
+import darkevilmac.movingworld.MovingWorld;
 import darkevilmac.movingworld.util.rotation.IRotationProperty;
 import net.minecraft.block.BlockLog;
 import net.minecraft.block.properties.IProperty;
@@ -18,9 +19,14 @@ public abstract class RotationHelper {
 
             for (IProperty prop : (java.util.Set<IProperty>) blockState.getProperties().keySet()) {
                 if (prop instanceof IRotationProperty) {
+
+                    MovingWorld.logger.info("PROPERTY IS A ROTATIONPROPERTY " + prop.toString());
+
                     // Custom rotation property found.
                     IRotationProperty rotationProperty = (IRotationProperty) prop;
                     blockState = rotationProperty.rotateBlock(world, pos, ccw);
+
+                    break;
                 } else if (prop.getName().equals("facing") && prop instanceof PropertyDirection) {
                     EnumFacing facing = (EnumFacing) blockState.getValue(prop);
 

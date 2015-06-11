@@ -1,13 +1,14 @@
 buildscript {
     repositories {
         mavenCentral()
+        jcenter()
         maven {
-            name = "forge"
-            url = "http://files.minecraftforge.net/maven"
+            name = 'forge'
+            url = 'http://files.minecraftforge.net/maven'
         }
         maven {
-            name = "sonatype"
-            url = "https://oss.sonatype.org/content/repositories/snapshots/"
+            name = 'sonatype-snapshots'
+            url = 'https://oss.sonatype.org/content/repositories/snapshots'
         }
     }
     dependencies {
@@ -21,10 +22,22 @@ version = "1.8-ALPHA-0"
 group = "darkevilmac.movingworld" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "movingworld"
 
+ext.mixinSrg = new File(project.buildDir, "tmp/mixins/mixins.movingworld.srg")
+ext.mixinRefMap = new File(project.buildDir, "tmp/mixins/movingworld.mixin.refmap.json")
+
+reobf.addExtraSrgFile project.mixinSrg
+
+repositories {
+    mavenCentral()
+    maven {
+        url 'http://repo.spongepowered.org/maven'
+    }
+}
+
 minecraft {
     version = "1.8-11.14.2.1427"
     runDir = "run"
-    
+
     // the mappings can be changed at any time, and must be in the following format.
     // snapshot_YYYYMMDD   snapshot are built nightly.
     // stable_#            stables are built at the discretion of the MCP team.
@@ -34,18 +47,7 @@ minecraft {
 }
 
 dependencies {
-    // you may put jars on which you depend on in ./libs
-    // or you may define them like so..
-    //compile "some.group:artifact:version:classifier"
-    //compile "some.group:artifact:version"
-
-    // real examples
-    //compile 'com.mod-buildcraft:buildcraft:6.0.8:dev'  // adds buildcraft to the dev env
-    //compile 'com.googlecode.efficient-java-matrix-library:ejml:0.24' // adds ejml to the dev env
-
-    // for more info...
-    // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
-    // http://www.gradle.org/docs/current/userguide/dependency_management.html
+    compile('org.spongepowered:mixin:0.4.4-SNAPSHOT')
 }
 
 processResources
@@ -59,7 +61,7 @@ processResources
                 include 'mcmod.info'
 
                 // replace version and mcversion
-                expand 'version': project.version, 'mcversion': project.minecraft.version
+                expand 'version':project.version, 'mcversion':project.minecraft.version
             }
 
             // copy everything else, thats not the mcmod.info
@@ -68,8 +70,22 @@ processResources
             }
         }
 
+def defaultEncoding = 'UTF-8'
+compileJava {
+    options.compilerArgs += [
+            '-Xlint:all',
+            '-Xlint:-path',
+            '-Xlint:-processing',
+            "-AoutSrgFile=${project.mixinSrg.getCanonicalPath()}",
+            "-AoutRefMapFile=${project.mixinRefMap.getCanonicalPath()}"
+    ]
+    options.deprecation = true
+    options.encoding = defaultEncoding
+}
+
 jar {
+    from project.mixinRefMap
     manifest {
-        attributes 'FMLAT': 'movingworld_at.cfg'
-    }
+        attributes ( "FMLCorePlugin": "darkevilmac.movingworld.asm.coremod.MovingWorldCoreMod", "FMLCorePluginContainsFMLMod": 'true')
+	}
 }
