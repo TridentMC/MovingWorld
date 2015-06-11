@@ -2,7 +2,7 @@
   "required":true,
   "package": "darkevilmac.movingworld.asm.mixin.core",
   "mixins": [
-    "block.property.MixinPropertyDirection"
+    "block.property.MixinPropertyEnum"
   ],
   "refmap":"movingworld.mixin.refmap.json"
 }
