@@ -467,6 +467,9 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             }
             vec = vec.rotateAroundY(yaw);
 
+            if ((flags & 1) == 1)
+                vec.addVector(0, 0.25, 0);
+
             entity.setPosition(posX + vec.xCoord, posY + vec.yCoord + entity.getYOffset(), posZ + vec.zCoord);
         }
     }

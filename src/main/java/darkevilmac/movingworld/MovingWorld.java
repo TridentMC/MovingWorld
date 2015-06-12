@@ -36,7 +36,7 @@ public class MovingWorld {
     public NetworkUtil network;
 
     public MovingWorld() {
-        metaRotations = new MetaRotations();
+        //metaRotations = new MetaRotations();
         network = new NetworkUtil();
     }
 
@@ -49,7 +49,7 @@ public class MovingWorld {
         mConfig = new MainConfig(new Configuration(mConfigFile));
         mConfig.loadAndSave();
 
-        metaRotations.setConfigDirectory(e.getModConfigurationDirectory());
+        //metaRotations.setConfigDirectory(e.getModConfigurationDirectory());
     }
 
     @Mod.EventHandler
@@ -61,7 +61,7 @@ public class MovingWorld {
 
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent e) {
-        metaRotations.readMetaRotationFiles();
+        //metaRotations.readMetaRotationFiles();
     }
 
 }

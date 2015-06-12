@@ -19,6 +19,7 @@ import net.minecraftforge.common.MinecraftForge;
 public class ChunkDisassembler {
     public boolean overwrite;
     private EntityMovingWorld movingWorld;
+    private AssembleResult result;
 
     public ChunkDisassembler(EntityMovingWorld EntityMovingWorld) {
         movingWorld = EntityMovingWorld;
@@ -116,10 +117,10 @@ public class ChunkDisassembler {
         LocatedBlockList highPriorityBlockList = lbList.getHighPriorityBlocks();
         LocatedBlockList normalPriorityBlockList = lbList.getNormalPriorityBlocks();
 
-        if (normalPriorityBlockList != null && !normalPriorityBlockList.isEmpty()) {
-            postList = processLocatedBlockList(world, normalPriorityBlockList, postList, assemblyInteractor, currentRot);
-            if (highPriorityBlockList != null && !highPriorityBlockList.isEmpty())
-                postList = processLocatedBlockList(world, highPriorityBlockList, postList, assemblyInteractor, currentRot);
+        if (highPriorityBlockList != null && !highPriorityBlockList.isEmpty()) {
+            postList = processLocatedBlockList(world, highPriorityBlockList, postList, assemblyInteractor, currentRot);
+            if (normalPriorityBlockList != null && !normalPriorityBlockList.isEmpty())
+                postList = processLocatedBlockList(world, normalPriorityBlockList, postList, assemblyInteractor, currentRot);
         } else {
             postList = processLocatedBlockList(world, lbList, postList, assemblyInteractor, currentRot);
         }
@@ -169,12 +170,12 @@ public class ChunkDisassembler {
             if (owBlock != null)
                 assemblyInteractor.blockOverwritten(owBlock);
 
-            if (!world.setBlockState(pos, blockState, 2) || blockState.getBlock() != world.getBlockState(pos).getBlock()) {
+            if (!world.setBlockState(pos, blockState) || blockState.getBlock() != world.getBlockState(pos).getBlock()) {
                 postList.add(new LocatedBlock(blockState, tileentity, pos));
                 continue;
             }
             if (blockState != world.getBlockState(pos)) {
-                world.setBlockState(pos, blockState, 2);
+                world.setBlockState(pos, blockState);
             }
             if (tileentity != null) {
                 if (tileentity instanceof IMovingWorldTileEntity) {
@@ -201,17 +202,11 @@ public class ChunkDisassembler {
         return postList;
     }
 
-    private AssembleResult result;
-
     private void rotateBlock(World world, BlockPos pos, int deltaRot) {
         deltaRot &= 3;
         if (deltaRot != 0) {
-            if (deltaRot == 3) {
-                RotationHelper.rotateBlock(world, pos, false);
-            } else {
-                for (int r = 0; r < deltaRot; r++) {
-                    RotationHelper.rotateBlock(world, pos, true);
-                }
+            for (int r = 0; r < deltaRot; r++) {
+                RotationHelper.rotateBlock(world, pos, true);
             }
         }
     }
