@@ -56,12 +56,13 @@ public class MovingWorld {
     public void init(FMLInitializationEvent e) {
         network.channels = NetworkRegistry.INSTANCE.newChannel(MOD_ID, new MovingWorldMessageToMessageCodec(), new MovingWorldPacketHandler());
         proxy.registerRenderers();
-        mConfig.discoverPoweredBlocks();
+        mConfig.assemblePriorityConfig.loadAndSaveInit();
     }
 
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent e) {
         //metaRotations.readMetaRotationFiles();
+        mConfig.assemblePriorityConfig.loadAndSavePostInit();
     }
 
 }

@@ -3,29 +3,26 @@ package darkevilmac.movingworld.util;
 import darkevilmac.movingworld.util.rotation.IRotationProperty;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Vec3i;
-import net.minecraft.world.World;
 
 public class RotationHelper {
 
-    public static void rotateBlock(World world, BlockPos pos, boolean ccw) {
-        if (world != null && world.getBlockState(pos) != null && world.getBlockState(pos).getBlock() != null) {
-            IBlockState blockState = world.getBlockState(pos);
-
+    public static IBlockState rotateBlock(IBlockState blockState, boolean ccw) {
+        if (blockState != null) {
             for (IProperty prop : (java.util.Set<IProperty>) blockState.getProperties().keySet()) {
                 if (prop instanceof IRotationProperty) {
                     // Custom rotation property found.
                     IRotationProperty rotationProperty = (IRotationProperty) prop;
-                    blockState = rotationProperty.rotateBlock(world, pos, ccw);
+                    blockState = rotationProperty.rotateBlock(blockState, ccw);
 
                     break;
                 }
             }
-
-            world.setBlockState(pos, blockState);
+            return blockState;
         }
+
+        return blockState;
     }
 
     public static Vec3i getDirectionVec(EnumFacing facing) {

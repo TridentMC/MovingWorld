@@ -16,6 +16,8 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 
+import java.util.ArrayList;
+
 public class ChunkDisassembler {
     public boolean overwrite;
     private EntityMovingWorld movingWorld;
@@ -114,27 +116,29 @@ public class ChunkDisassembler {
             }
         }
 
-        LocatedBlockList highPriorityBlockList = lbList.getHighPriorityBlocks();
-        LocatedBlockList normalPriorityBlockList = lbList.getNormalPriorityBlocks();
+        ArrayList<LocatedBlockList> separatedLbLists = lbList.getSortedDisassemblyBlocks();
 
-        if (highPriorityBlockList != null && !highPriorityBlockList.isEmpty()) {
-            postList = processLocatedBlockList(world, highPriorityBlockList, postList, assemblyInteractor, currentRot);
-            if (normalPriorityBlockList != null && !normalPriorityBlockList.isEmpty())
-                postList = processLocatedBlockList(world, normalPriorityBlockList, postList, assemblyInteractor, currentRot);
-        } else {
-            postList = processLocatedBlockList(world, lbList, postList, assemblyInteractor, currentRot);
+        for (LocatedBlockList locatedBlockList : separatedLbLists) {
+            if (locatedBlockList != null && !locatedBlockList.isEmpty()) {
+                postList = processLocatedBlockList(world, locatedBlockList, postList, assemblyInteractor, currentRot);
+            }
         }
 
         world.getGameRules().setOrCreateGameRule("doTileDrops", String.valueOf(flag));
 
-        for (LocatedBlock locatedBlockInstance : postList) {
-            pos = locatedBlockInstance.blockPos;
-            MovingWorld.logger.debug("Post-rejoining block: " + locatedBlockInstance.toString());
-            world.setBlockState(pos, locatedBlockInstance.blockState);
-            assemblyInteractor.blockDisassembled(locatedBlockInstance);
-            DisassembleBlockEvent event = new DisassembleBlockEvent(locatedBlockInstance);
-            MinecraftForge.EVENT_BUS.post(event);
-            this.result.assembleBlock(locatedBlockInstance);
+        ArrayList<LocatedBlockList> sortedPostList = postList.getSortedDisassemblyBlocks();
+
+        for (LocatedBlockList pList : sortedPostList) {
+            if (pList != null && !pList.isEmpty())
+                for (LocatedBlock locatedBlockInstance : pList) {
+                    pos = locatedBlockInstance.blockPos;
+                    MovingWorld.logger.debug("Post-rejoining block: " + locatedBlockInstance.toString());
+                    world.setBlockState(pos, locatedBlockInstance.blockState, 2);
+                    assemblyInteractor.blockDisassembled(locatedBlockInstance);
+                    DisassembleBlockEvent event = new DisassembleBlockEvent(locatedBlockInstance);
+                    MinecraftForge.EVENT_BUS.post(event);
+                    this.result.assembleBlock(locatedBlockInstance);
+                }
         }
 
         movingWorld.setDead();
@@ -165,17 +169,20 @@ public class ChunkDisassembler {
             int j = locatedBlock.bPosNoOffset.getY();
             int k = locatedBlock.bPosNoOffset.getZ();
 
+            blockState = rotateBlock(blockState, currentRot);
+            blockState = assemblyInteractor.blockRotated(blockState, currentRot);
+
             owBlockState = world.getBlockState(pos);
             owBlock = owBlockState.getBlock();
             if (owBlock != null)
                 assemblyInteractor.blockOverwritten(owBlock);
 
-            if (!world.setBlockState(pos, blockState) || blockState.getBlock() != world.getBlockState(pos).getBlock()) {
+            if (!world.setBlockState(pos, blockState, 2) || blockState.getBlock() != world.getBlockState(pos).getBlock()) {
                 postList.add(new LocatedBlock(blockState, tileentity, pos));
                 continue;
             }
             if (blockState != world.getBlockState(pos)) {
-                world.setBlockState(pos, blockState);
+                world.setBlockState(pos, blockState, 2);
             }
             if (tileentity != null) {
                 if (tileentity instanceof IMovingWorldTileEntity) {
@@ -185,12 +192,8 @@ public class ChunkDisassembler {
                 world.setTileEntity(pos, tileentity);
             }
 
-
-            assemblyInteractor.blockRotated(blockState.getBlock(), world, pos, currentRot);
-            rotateBlock(world, pos, currentRot);
             blockState = world.getBlockState(pos);
             tileentity = world.getTileEntity(pos);
-
 
             LocatedBlock lb = new LocatedBlock(blockState, tileentity, pos);
             assemblyInteractor.blockDisassembled(lb);
@@ -202,12 +205,13 @@ public class ChunkDisassembler {
         return postList;
     }
 
-    private void rotateBlock(World world, BlockPos pos, int deltaRot) {
+    private IBlockState rotateBlock(IBlockState blockState, int deltaRot) {
         deltaRot &= 3;
         if (deltaRot != 0) {
             for (int r = 0; r < deltaRot; r++) {
-                RotationHelper.rotateBlock(world, pos, true);
+                blockState = RotationHelper.rotateBlock(blockState, true);
             }
         }
+        return blockState;
     }
 }

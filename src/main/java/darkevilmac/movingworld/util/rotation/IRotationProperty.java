@@ -1,8 +1,6 @@
 package darkevilmac.movingworld.util.rotation;
 
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.BlockPos;
-import net.minecraft.world.World;
 
 /**
  * If a block is for whatever reason not using one of the pre-made rotation systems Minecraft provides they can make
@@ -13,11 +11,10 @@ public interface IRotationProperty {
     /**
      * Rotates the specified block state without effecting the world.
      *
-     * @param world world.
-     * @param pos   position in world.
-     * @param ccw   counterClockwise?
-     * @return The blockstate of the rotated block.
+     * @param blockState the blockstate to rotate.
+     * @param ccw        counterClockwise?
+     * @return The blockstate post rotation.
      */
-    IBlockState rotateBlock(World world, BlockPos pos, boolean ccw);
+    IBlockState rotateBlock(IBlockState blockState, boolean ccw);
 
 }

@@ -6,19 +6,15 @@ import net.minecraft.block.BlockLog;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(PropertyEnum.class)
 public class MixinPropertyEnum implements IRotationProperty {
 
     @Override
-    public IBlockState rotateBlock(World world, BlockPos pos, boolean ccw) {
-        IBlockState blockState = world.getBlockState(pos);
+    public IBlockState rotateBlock(IBlockState blockState, boolean ccw) {
         IProperty propertyEnum = (IProperty) this;
-
         Object propertyValue = blockState.getValue(propertyEnum);
 
         if (propertyValue == null) return blockState;
@@ -54,26 +50,35 @@ public class MixinPropertyEnum implements IRotationProperty {
             BlockLever.EnumOrientation orientation = (BlockLever.EnumOrientation) blockState.getValue(propertyEnum);
             EnumFacing facing = orientation.getFacing();
 
-            if (facing != EnumFacing.UP && facing != EnumFacing.DOWN) {
+            if (facing.getHorizontalIndex() != -1) {
+                // Not on the vertical axis.
+
                 if (!ccw)
                     facing = facing.rotateY();
                 else
                     facing = facing.rotateYCCW();
 
-                blockState = blockState.withProperty(propertyEnum,
-                        BlockLever.EnumOrientation.byMetadata(BlockLever.getMetadataForFacing(facing) & 7));
+                for (BlockLever.EnumOrientation enumOrientation : BlockLever.EnumOrientation.values()) {
+                    if (enumOrientation.getFacing() == facing) {
+                        orientation = enumOrientation;
+                        break;
+                    }
+                }
             } else {
-                if (orientation == BlockLever.EnumOrientation.UP_X) orientation = BlockLever.EnumOrientation.UP_Z;
-                else if (orientation == BlockLever.EnumOrientation.UP_Z) orientation = BlockLever.EnumOrientation.UP_X;
+                // On the vertical axis.
 
-                if (orientation == BlockLever.EnumOrientation.DOWN_X) orientation = BlockLever.EnumOrientation.DOWN_Z;
+                if (orientation == BlockLever.EnumOrientation.DOWN_X)
+                    orientation = BlockLever.EnumOrientation.DOWN_Z;
                 else if (orientation == BlockLever.EnumOrientation.DOWN_Z)
                     orientation = BlockLever.EnumOrientation.DOWN_X;
-
-                blockState = blockState.withProperty(propertyEnum, orientation);
+                else if (orientation == BlockLever.EnumOrientation.UP_X)
+                    orientation = BlockLever.EnumOrientation.UP_Z;
+                else if (orientation == BlockLever.EnumOrientation.UP_Z)
+                    orientation = BlockLever.EnumOrientation.UP_X;
             }
-        }
 
+            blockState = blockState.withProperty(propertyEnum, orientation);
+        }
 
         return blockState;
     }

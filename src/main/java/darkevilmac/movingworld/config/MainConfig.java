@@ -1,24 +1,16 @@
 package darkevilmac.movingworld.config;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import darkevilmac.movingworld.MovingWorld;
+import darkevilmac.movingworld.config.priority.AssemblePriorityConfig;
 import net.minecraft.block.Block;
-import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraftforge.common.config.Configuration;
-import org.apache.commons.lang3.ArrayUtils;
 
-import java.util.ArrayList;
+import java.io.File;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 public class MainConfig {
-
-    public static String CONFIG_VERSION = "MovingWorldCFG.1.0.0";
-    public String detectedVersion;
 
     public boolean iterativeAlgorithm;
     public boolean diagonalAssembly;
@@ -26,19 +18,17 @@ public class MainConfig {
     public Set<String> blockBlacklist;
     public Set<String> blockWhitelist;
     public Set<String> overwritableBlocks;
-    public Set<String> highPriorityAssembly;
-    Block[] defaultHighPriorityAssemblyBlocks = {Blocks.redstone_wire, Blocks.piston, Blocks.piston_extension, Blocks.piston_head, Blocks.portal};
-    private boolean rediscoverPoweredBlocks;
+    public AssemblePriorityConfig assemblePriorityConfig;
     private Configuration config;
 
     public MainConfig(Configuration config) {
         this.config = config;
+        this.assemblePriorityConfig = new AssemblePriorityConfig(
+                new Configuration(new File(config.getConfigFile().getParentFile(), "AssemblePriority.cfg")));
 
         blockBlacklist = new HashSet<String>();
         blockWhitelist = new HashSet<String>();
         overwritableBlocks = new HashSet<String>();
-
-        highPriorityAssembly = new HashSet<String>();
     }
 
     public void loadAndSave() {
@@ -56,11 +46,6 @@ public class MainConfig {
             blockWhiteListNames[i] = Block.blockRegistry.getNameForObject(defaultBlockWhiteList[i]).toString();
         }
 
-        String[] highPriorityAssemblyBlockNames = new String[defaultHighPriorityAssemblyBlocks.length];
-        for (int i = 0; i < defaultHighPriorityAssemblyBlocks.length; i++) {
-            highPriorityAssemblyBlockNames[i] = Block.blockRegistry.getNameForObject(defaultHighPriorityAssemblyBlocks[i]).toString();
-        }
-
         blockWhiteListNames[blockWhiteListNames.length - 6] = "ArchimedesShipsPlus:marker";
         blockWhiteListNames[blockWhiteListNames.length - 5] = "ArchimedesShipsPlus:floater";
         blockWhiteListNames[blockWhiteListNames.length - 4] = "ArchimedesShipsPlus:balloon";
@@ -74,61 +59,21 @@ public class MainConfig {
         }
         config.load();
 
-        detectedVersion = config.get("DONT TOUCH", "CONFIG VERSION", MainConfig.CONFIG_VERSION).getString();
         iterativeAlgorithm = config.get(Configuration.CATEGORY_GENERAL, "Use Iterative Algorithm", false).getBoolean();
         diagonalAssembly = config.get(Configuration.CATEGORY_GENERAL, "Assemble Diagonal Blocks NOTE:Can be overridden by mods!", false).getBoolean();
         useWhitelist = config.get("mobile_chunk", "use_whitelist", false, "Switch this property to select the block restriction list to use. 'true' for the 'allowed_blocks' whitelist, 'false' for the 'forbidden_blocks' blacklist.").getBoolean(false);
-        rediscoverPoweredBlocks = config.get(Configuration.CATEGORY_GENERAL, "Rediscover powered blocks on next restart?", true).getBoolean();
-
-        if (detectedVersion != MainConfig.CONFIG_VERSION) {
-            config.get("DONT TOUCH", "CONFIG VERSION", MainConfig.CONFIG_VERSION).set(MainConfig.CONFIG_VERSION);
-            rediscoverPoweredBlocks = true;
-        }
 
         String[] forbiddenBlocks = config.get("mobile_chunk", "forbidden_blocks", blockBlackListNames, "A list of blocks that will not be added to a Moving World.").getStringList();
         String[] allowedBlocks = config.get("mobile_chunk", "allowed_blocks", blockWhiteListNames, "A list of blocks that are allowed on a Moving World.").getStringList();
         String[] overwritableBlocks = config.get("mobile_chunk", "overwritable_blocks", overWritableBlockNames, "A list of blocks that may be overwritten when decompiling a Moving World.").getStringList();
-        String[] highPriorityAssemblyBlocks = config.get("mobile_chunk", "highpriorityassembly_blocks", highPriorityAssemblyBlockNames, "A list of blocks that should be set to air first, and then placed last when disassembled.").getStringList();
 
         Collections.addAll(blockBlacklist, forbiddenBlocks);
         Collections.addAll(blockWhitelist, allowedBlocks);
         Collections.addAll(this.overwritableBlocks, overwritableBlocks);
-        Collections.addAll(highPriorityAssembly, highPriorityAssemblyBlocks);
-    }
-
-    public void discoverPoweredBlocks() {
-        if (rediscoverPoweredBlocks) {
-            ArrayList<String> poweredBlockNames = new ArrayList<String>();
-            ArrayList<Block> allBlocks = Lists.newArrayList(Block.blockRegistry.iterator());
-
-            for (Block checkBlock : allBlocks) {
-                IBlockState state = checkBlock.getDefaultState();
-                for (IProperty prop : (java.util.Set<IProperty>) state.getProperties().keySet()) {
-                    if (prop.getName().equals("powered")) {
-                        String poweredBlockName = Block.blockRegistry.getNameForObject(checkBlock).toString();
-                        poweredBlockNames.add(poweredBlockName);
-                        MovingWorld.logger.info("Found powered block with name: " + poweredBlockName);
-                    }
-                }
-            }
-
-            String[] discoveredPoweredBlockNames = new String[poweredBlockNames.size()];
-            for (int i = 0; i < poweredBlockNames.size(); i++) {
-                discoveredPoweredBlockNames[i] = poweredBlockNames.get(i);
-            }
-
-            String[] defaultHighPriorityAssemblyBlockNames = new String[defaultHighPriorityAssemblyBlocks.length];
-            for (int i = 0; i < defaultHighPriorityAssemblyBlocks.length; i++) {
-                defaultHighPriorityAssemblyBlockNames[i] = Block.blockRegistry.getNameForObject(defaultHighPriorityAssemblyBlocks[i]).toString();
-            }
-
-            config.get("mobile_chunk", "highpriorityassembly_blocks", defaultHighPriorityAssemblyBlockNames, "A list of blocks that should be set to air first, and then placed last when disassembled.").set(ArrayUtils.addAll(defaultHighPriorityAssemblyBlockNames, discoveredPoweredBlockNames));
-            config.get(Configuration.CATEGORY_GENERAL, "Rediscover powered blocks on next restart?", true).set(false);
-
-            highPriorityAssembly = Sets.newHashSet(ArrayUtils.addAll(defaultHighPriorityAssemblyBlockNames, discoveredPoweredBlockNames));
-        }
 
         config.save();
+
+        this.assemblePriorityConfig.loadAndSavePreInit();
     }
 
     public boolean isBlockAllowed(Block block) {

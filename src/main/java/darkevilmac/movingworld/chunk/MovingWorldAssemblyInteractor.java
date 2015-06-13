@@ -5,6 +5,7 @@ import darkevilmac.movingworld.block.BlockMovingWorldMarker;
 import darkevilmac.movingworld.tile.TileMovingWorldMarkingBlock;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
@@ -61,7 +62,8 @@ public class MovingWorldAssemblyInteractor {
     /**
      * Called when a block is rotated during disassembling.
      */
-    public void blockRotated(Block block, World world, BlockPos pos, int deltarot) {
+    public IBlockState blockRotated(IBlockState blockState, int deltarot) {
+        return blockState;
     }
 
     /**

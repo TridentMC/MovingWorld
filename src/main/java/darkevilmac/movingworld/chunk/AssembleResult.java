@@ -16,6 +16,8 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 
+import java.util.ArrayList;
+
 public class AssembleResult {
     public static final int RESULT_NONE = 0, RESULT_OK = 1, RESULT_BLOCK_OVERFLOW = 2, RESULT_MISSING_MARKER = 3, RESULT_ERROR_OCCURED = 4,
             RESULT_BUSY_COMPILING = 5, RESULT_INCONSISTENT = 6, RESULT_OK_WITH_WARNINGS = 7;
@@ -97,16 +99,13 @@ public class AssembleResult {
         boolean flag = world.getGameRules().getGameRuleBooleanValue("doTileDrops");
         world.getGameRules().setOrCreateGameRule("doTileDrops", "false");
 
-        LocatedBlockList highPriorityAssembledBlocks = assembledBlocks.getHighPriorityBlocks();
-        LocatedBlockList normalPriorityAssembledBlocks = assembledBlocks.getNormalPriorityBlocks();
+        ArrayList<LocatedBlockList> separatedLbLists = assembledBlocks.getSortedAssemblyBlocks();
 
         try {
-            if (highPriorityAssembledBlocks != null && !highPriorityAssembledBlocks.isEmpty()) {
-                setWorldBlocksToAir(world, entity, highPriorityAssembledBlocks);
-                if (normalPriorityAssembledBlocks != null && !normalPriorityAssembledBlocks.isEmpty())
-                    setWorldBlocksToAir(world, entity, normalPriorityAssembledBlocks);
-            } else {
-                setWorldBlocksToAir(world, entity, assembledBlocks);
+            for (LocatedBlockList locatedBlockList : separatedLbLists) {
+                if (locatedBlockList != null && !locatedBlockList.isEmpty()) {
+                    setWorldBlocksToAir(world, entity, locatedBlockList);
+                }
             }
         } catch (Exception e) {
             resultCode = RESULT_ERROR_OCCURED;
@@ -136,7 +135,7 @@ public class AssembleResult {
             }
             if (entityMovingWorld.getMovingWorldChunk().setBlockWithState(iPos, lb.blockState)) {
                 entityMovingWorld.getMovingWorldChunk().setTileEntity(iPos, tileentity);
-                world.setBlockState(lb.blockPos, Blocks.air.getDefaultState());
+                world.setBlockState(lb.blockPos, Blocks.air.getDefaultState(), 2);
             }
         }
         for (LocatedBlock block : locatedBlocks) {
