@@ -60,6 +60,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     public EntityMovingWorld(World world) {
         super(world);
+        ignoreFrustumCheck = true;
         info = new MovingWorldInfo();
         if (world.isRemote) {
             initClient();

@@ -17,7 +17,6 @@ public class RenderMovingWorld extends Render {
     }
 
     public void renderVehicle(EntityMovingWorld entity, double x, double y, double z, float yaw, float renderTime) {
-        GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_LIGHTING_BIT);
         float pitch = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * renderTime;
 
         float rx = entity.frontDirection.getHorizontalIndex() == 1 ? -1f : entity.frontDirection.getHorizontalIndex() == 3 ? 1f : 0f;
@@ -35,8 +34,6 @@ public class RenderMovingWorld extends Render {
         bindEntityTexture(entity);
         ((MobileChunkClient) entity.getMovingWorldChunk()).getRenderer().render(0F);
         GL11.glPopMatrix();
-
-        GL11.glPopAttrib();
     }
 
     @Override
