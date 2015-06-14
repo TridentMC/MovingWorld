@@ -599,14 +599,10 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     @Override
     protected void updateFallState(double distanceFallen, boolean onGround, Block p3, BlockPos p4) {
-        if (!isFlying()) {
-            // This does nothing? Why was the code here, was there something to be implemented, if so, what?
-        }
     }
 
     @Override
     public void fall(float distance, float damageMultiplier) {
-        //We 2 cool to take fall damage.
     }
 
     public float getHorizontalVelocity() {
