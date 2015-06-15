@@ -40,6 +40,11 @@ public class LocatedBlock {
         return new StringBuilder("LocatedBlock [block=").append(blockState.getBlock()).append(", state=").append(blockState.toString()).append(", blockPos=[").append(blockPos.getX()).append(", ").append(blockPos.getY()).append(", ").append(blockPos.getZ()).append("]]").toString();
     }
 
+    @Override
+    public LocatedBlock clone() {
+        return new LocatedBlock(blockState, tileEntity, blockPos, bPosNoOffset);
+    }
+
     public String getBlockName() {
         return Block.blockRegistry.getNameForObject(blockState.getBlock()).toString();
     }

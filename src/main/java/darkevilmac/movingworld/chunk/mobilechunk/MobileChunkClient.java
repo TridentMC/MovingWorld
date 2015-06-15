@@ -1,4 +1,4 @@
-package darkevilmac.movingworld.chunk;
+package darkevilmac.movingworld.chunk.mobilechunk;
 
 import darkevilmac.movingworld.entity.EntityMovingWorld;
 import darkevilmac.movingworld.render.MobileChunkRenderer;

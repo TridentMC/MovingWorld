@@ -15,6 +15,6 @@ public interface IRotationProperty {
      * @param ccw        counterClockwise?
      * @return The blockstate post rotation.
      */
-    IBlockState rotateBlock(IBlockState blockState, boolean ccw);
+    IBlockState rotate(IBlockState blockState, boolean ccw);
 
 }

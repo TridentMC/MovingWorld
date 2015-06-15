@@ -1,6 +1,6 @@
 package darkevilmac.movingworld.network;
 
-import darkevilmac.movingworld.chunk.MobileChunkClient;
+import darkevilmac.movingworld.chunk.mobilechunk.MobileChunkClient;
 import darkevilmac.movingworld.entity.EntityMovingWorld;
 import darkevilmac.movingworld.tile.TileMovingWorldMarkingBlock;
 import io.netty.buffer.ByteBuf;

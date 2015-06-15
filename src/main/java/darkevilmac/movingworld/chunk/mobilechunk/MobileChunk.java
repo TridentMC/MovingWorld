@@ -1,5 +1,6 @@
-package darkevilmac.movingworld.chunk;
+package darkevilmac.movingworld.chunk.mobilechunk;
 
+import darkevilmac.movingworld.chunk.mobilechunk.world.FakeWorld;
 import darkevilmac.movingworld.entity.EntityMovingWorld;
 import darkevilmac.movingworld.tile.IMovingWorldTileEntity;
 import net.minecraft.block.Block;
@@ -52,6 +53,10 @@ public class MobileChunk implements IBlockAccess {
         blockCount = 0;
 
         creationSpotBiome = BiomeGenBase.ocean;
+    }
+
+    public FakeWorld getFakeWorld() {
+        return FakeWorld.getFakeWorld(this);
     }
 
     public EntityMovingWorld getEntityMovingWorld() {

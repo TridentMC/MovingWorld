@@ -1,7 +1,10 @@
-package darkevilmac.movingworld.chunk;
+package darkevilmac.movingworld.chunk.assembly;
 
 import darkevilmac.movingworld.MovingWorld;
 import darkevilmac.movingworld.block.BlockMovingWorldMarker;
+import darkevilmac.movingworld.chunk.LocatedBlock;
+import darkevilmac.movingworld.chunk.MovingWorldAssemblyInteractor;
+import darkevilmac.movingworld.chunk.MovingWorldSizeOverflowException;
 import darkevilmac.movingworld.event.AssembleBlockEvent;
 import darkevilmac.movingworld.tile.TileMovingWorldMarkingBlock;
 import net.minecraft.block.Block;
@@ -92,7 +95,6 @@ public class ChunkAssembler {
                 MinecraftForge.EVENT_BUS.post(event);
                 result.assembleBlock(lb);
 
-
                 openSet.add(pos.add(-1, 0, 0));
                 openSet.add(pos.add(0, -1, 0));
                 openSet.add(pos.add(0, 0, -1));
@@ -144,7 +146,6 @@ public class ChunkAssembler {
         AssembleBlockEvent event = new AssembleBlockEvent(lb);
         MinecraftForge.EVENT_BUS.post(event);
         result.assembleBlock(lb);
-
 
         assembleRecursive(result, set, assemblyInteractor, pos.add(-1, +0, +0));
         assembleRecursive(result, set, assemblyInteractor, pos.add(+0, -1, +0));

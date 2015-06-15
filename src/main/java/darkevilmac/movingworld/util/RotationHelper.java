@@ -1,5 +1,7 @@
 package darkevilmac.movingworld.util;
 
+import darkevilmac.movingworld.chunk.LocatedBlock;
+import darkevilmac.movingworld.util.rotation.IRotationBlock;
 import darkevilmac.movingworld.util.rotation.IRotationProperty;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
@@ -8,21 +10,44 @@ import net.minecraft.util.Vec3i;
 
 public class RotationHelper {
 
-    public static IBlockState rotateBlock(IBlockState blockState, boolean ccw) {
-        if (blockState != null) {
+    public static LocatedBlock rotateBlock(LocatedBlock locatedBlock, boolean ccw) {
+        IBlockState blockState = locatedBlock.blockState;
+        if (locatedBlock != null && locatedBlock.blockState != null) {
+            if (blockState.getBlock() != null && blockState.getBlock() instanceof IRotationBlock) {
+                locatedBlock = ((IRotationBlock) blockState.getBlock()).rotate(locatedBlock, ccw);
+
+                if (((IRotationBlock) blockState.getBlock()).fullRotation())
+                    return locatedBlock;
+            }
+
             for (IProperty prop : (java.util.Set<IProperty>) blockState.getProperties().keySet()) {
                 if (prop instanceof IRotationProperty) {
                     // Custom rotation property found.
                     IRotationProperty rotationProperty = (IRotationProperty) prop;
-                    blockState = rotationProperty.rotateBlock(blockState, ccw);
-
-                    break;
+                    blockState = rotationProperty.rotate(blockState, ccw);
                 }
             }
-            return blockState;
         }
 
-        return blockState;
+        return new LocatedBlock(blockState, locatedBlock.tileEntity, locatedBlock.blockPos, locatedBlock.bPosNoOffset);
+    }
+
+    public static int rotateInteger(int integer, int min, int max, boolean ccw) {
+        int retVal = integer;
+
+        if (!ccw) {
+            if (retVal + 1 > max)
+                retVal = min;
+            else
+                retVal = retVal + 1;
+        } else {
+            if (retVal - 1 < min)
+                retVal = max;
+            else
+                retVal = retVal - 1;
+        }
+
+        return retVal;
     }
 
     public static Vec3i getDirectionVec(EnumFacing facing) {

@@ -1,7 +1,7 @@
 package darkevilmac.movingworld.entity;
 
 import darkevilmac.movingworld.MovingWorld;
-import darkevilmac.movingworld.chunk.MobileChunkServer;
+import darkevilmac.movingworld.chunk.mobilechunk.MobileChunkServer;
 import darkevilmac.movingworld.network.ChunkBlockUpdateMessage;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.BlockPos;

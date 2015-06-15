@@ -1,7 +1,7 @@
 package darkevilmac.movingworld.render;
 
 import darkevilmac.movingworld.MovingWorld;
-import darkevilmac.movingworld.chunk.MobileChunk;
+import darkevilmac.movingworld.chunk.mobilechunk.MobileChunk;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -13,9 +13,6 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @SideOnly(Side.CLIENT)
 public class MobileChunkRenderer {
@@ -29,10 +26,6 @@ public class MobileChunkRenderer {
     private int glRenderList = 0;
 
     /**
-     * All the tile entities that have special rendering code for this chunk
-     */
-    private List<TileEntity> tileEntityRenderers = new ArrayList<TileEntity>();
-    /**
      * Bytes sent to the GPU
      */
     @SuppressWarnings("unused")
@@ -41,26 +34,21 @@ public class MobileChunkRenderer {
     public MobileChunkRenderer(MobileChunk mobilechunk) {
         chunk = mobilechunk;
         needsUpdate = true;
-
-        tileEntityRenderers = new ArrayList<TileEntity>();
     }
 
-
     public void render(float partialTicks) {
-        tileEntityRenderers.clear();
         if (needsUpdate) {
-            updateSimpleRender();
-            renderTiles(partialTicks);
+            updateSimpleRender(partialTicks);
         }
     }
 
-    private void updateSimpleRender() {
-        GlStateManager.pushMatrix();
-        GlStateManager.rotate(1.0F, 0.0F, 180.0F, 0.0F);
 
+    private void updateSimpleRender(float partialTicks) {
         Tessellator tessellator = Tessellator.getInstance();
         WorldRenderer worldrenderer = tessellator.getWorldRenderer();
 
+        GlStateManager.pushMatrix();
+        GlStateManager.rotate(1.0F, 0.0F, 180.0F, 0.0F);
         RenderHelper.disableStandardItemLighting();
         GlStateManager.blendFunc(770, 771);
         GlStateManager.enableBlend();
@@ -82,10 +70,6 @@ public class MobileChunkRenderer {
                     Block block = blockState.getBlock();
                     TileEntity tile = chunk.getTileEntity(pos);
 
-                    if (tile != null && TileEntityRendererDispatcher.instance.hasSpecialRenderer(tile)) {
-                        tileEntityRenderers.add(tile);
-                    }
-
                     for (EnumWorldBlockLayer enumWorldBlockLayer : EnumWorldBlockLayer.values()) {
                         if (!block.canRenderInLayer(enumWorldBlockLayer)) continue;
                         net.minecraftforge.client.ForgeHooksClient.setRenderLayer(enumWorldBlockLayer);
@@ -100,26 +84,30 @@ public class MobileChunkRenderer {
         worldrenderer.setTranslation(0.0D, 0.0D, 0.0D);
         tessellator.draw();
 
+        GlStateManager.pushMatrix();
+        for (int y = chunk.minY(); y < chunk.maxY(); ++y) {
+            for (int z = chunk.minZ(); z < chunk.maxZ(); ++z) {
+                for (int x = chunk.minX(); x < chunk.maxX(); ++x) {
+                    BlockPos pos = new BlockPos(x, y, z);
+                    TileEntity tile = chunk.getTileEntity(pos);
+                    if (tile != null) {
+                        if (TileEntityRendererDispatcher.instance.hasSpecialRenderer(tile)) {
+                            TileEntity tileClone = tile;
+                            tileClone.setWorldObj(chunk.getFakeWorld());
+                            TileEntityRendererDispatcher.instance.renderTileEntityAt(tileClone, tileClone.getPos().getX(), tileClone.getPos().getY(), tileClone.getPos().getZ(), partialTicks);
+                        }
+                    }
+                }
+            }
+        }
         RenderHelper.enableStandardItemLighting();
 
         GlStateManager.popMatrix();
+        GlStateManager.popMatrix();
     }
 
-    public void renderTiles(float partialTicks) {
-        GlStateManager.pushMatrix();
-        GlStateManager.rotate(1.0F, 0.0F, 180.0F, 0.0F);
-        if (tileEntityRenderers != null && !tileEntityRenderers.isEmpty()) {
-            for (TileEntity tile : tileEntityRenderers) {
-                int i = chunk.getCombinedLight(tile.getPos(), 0);
-                int j = i % 65536;
-                int k = i / 65536;
-                OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, j / 1.0F, k / 1.0F);
-                GlStateManager.color(1F, 1F, 1F, 1F);
-                TileEntityRendererDispatcher.instance.renderTileEntityAt(tile, tile.getPos().getX(), tile.getPos().getY(), tile.getPos().getZ(), partialTicks);
-            }
-        }
-        GlStateManager.translate(0, 0, 0);
-        GlStateManager.popMatrix();
+    public void dispatchTileRender(TileEntity tileEntity) {
+
     }
 
     public void dispatchBlockRender(IBlockState blockState, BlockPos blockPos, WorldRenderer worldRenderer) {

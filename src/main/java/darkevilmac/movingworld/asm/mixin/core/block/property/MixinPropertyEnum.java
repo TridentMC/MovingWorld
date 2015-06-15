@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.Mixin;
 public class MixinPropertyEnum implements IRotationProperty {
 
     @Override
-    public IBlockState rotateBlock(IBlockState blockState, boolean ccw) {
+    public IBlockState rotate(IBlockState blockState, boolean ccw) {
         IProperty propertyEnum = (IProperty) this;
         Object propertyValue = blockState.getValue(propertyEnum);
 

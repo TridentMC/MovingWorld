@@ -1,6 +1,9 @@
-package darkevilmac.movingworld.chunk;
+package darkevilmac.movingworld.chunk.assembly;
 
 import darkevilmac.movingworld.MovingWorld;
+import darkevilmac.movingworld.chunk.LocatedBlock;
+import darkevilmac.movingworld.chunk.MovingWorldAssemblyInteractor;
+import darkevilmac.movingworld.chunk.mobilechunk.MobileChunk;
 import darkevilmac.movingworld.entity.EntityMovingWorld;
 import darkevilmac.movingworld.event.DisassembleBlockEvent;
 import darkevilmac.movingworld.tile.IMovingWorldTileEntity;
@@ -12,6 +15,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntitySkull;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
@@ -161,15 +165,24 @@ public class ChunkDisassembler {
         Block owBlock;
 
         for (LocatedBlock locatedBlock : locatedBlocks) {
-            pos = locatedBlock.blockPos;
-            blockState = locatedBlock.blockState;
-            tileentity = locatedBlock.tileEntity;
+            TileEntitySkull skull = null;
+            if (locatedBlock.tileEntity != null && locatedBlock.tileEntity instanceof TileEntitySkull)
+                skull = (TileEntitySkull) locatedBlock.tileEntity;
+
+            if (skull != null) System.out.println(skull.getSkullRotation());
+
+            locatedBlock = rotateBlock(locatedBlock, currentRot);
 
             int i = locatedBlock.bPosNoOffset.getX();
             int j = locatedBlock.bPosNoOffset.getY();
             int k = locatedBlock.bPosNoOffset.getZ();
 
-            blockState = rotateBlock(blockState, currentRot);
+            pos = locatedBlock.blockPos;
+            blockState = locatedBlock.blockState;
+            tileentity = locatedBlock.tileEntity;
+
+            if (skull != null) System.out.println(skull.getSkullRotation() + " POST");
+
             blockState = assemblyInteractor.blockRotated(blockState, currentRot);
 
             owBlockState = world.getBlockState(pos);
@@ -205,13 +218,13 @@ public class ChunkDisassembler {
         return postList;
     }
 
-    private IBlockState rotateBlock(IBlockState blockState, int deltaRot) {
+    private LocatedBlock rotateBlock(LocatedBlock locatedBlock, int deltaRot) {
         deltaRot &= 3;
         if (deltaRot != 0) {
             for (int r = 0; r < deltaRot; r++) {
-                blockState = RotationHelper.rotateBlock(blockState, true);
+                locatedBlock = RotationHelper.rotateBlock(locatedBlock, true);
             }
         }
-        return blockState;
+        return locatedBlock;
     }
 }

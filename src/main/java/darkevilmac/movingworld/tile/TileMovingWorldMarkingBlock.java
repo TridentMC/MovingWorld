@@ -1,8 +1,8 @@
 package darkevilmac.movingworld.tile;
 
-import darkevilmac.movingworld.chunk.AssembleResult;
-import darkevilmac.movingworld.chunk.ChunkAssembler;
 import darkevilmac.movingworld.chunk.MovingWorldAssemblyInteractor;
+import darkevilmac.movingworld.chunk.assembly.AssembleResult;
+import darkevilmac.movingworld.chunk.assembly.ChunkAssembler;
 import darkevilmac.movingworld.entity.EntityMovingWorld;
 import darkevilmac.movingworld.entity.MovingWorldInfo;
 import net.minecraft.entity.Entity;
