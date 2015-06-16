@@ -167,12 +167,6 @@ public class ChunkDisassembler {
         Block owBlock;
 
         for (LocatedBlock locatedBlock : locatedBlocks) {
-            TileEntitySkull skull = null;
-            if (locatedBlock.tileEntity != null && locatedBlock.tileEntity instanceof TileEntitySkull)
-                skull = (TileEntitySkull) locatedBlock.tileEntity;
-
-            if (skull != null) System.out.println(skull.getSkullRotation());
-
             locatedBlock = rotateBlock(locatedBlock, currentRot);
 
             int i = locatedBlock.bPosNoOffset.getX();
@@ -182,9 +176,6 @@ public class ChunkDisassembler {
             pos = locatedBlock.blockPos;
             blockState = locatedBlock.blockState;
             tileentity = locatedBlock.tileEntity;
-
-            if (skull != null) System.out.println(skull.getSkullRotation() + " POST");
-
             blockState = assemblyInteractor.blockRotated(blockState, currentRot);
 
             owBlockState = world.getBlockState(pos);
