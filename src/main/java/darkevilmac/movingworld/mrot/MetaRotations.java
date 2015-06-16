@@ -39,15 +39,15 @@ public class MetaRotations {
         metaRotationMap.put(Block.getIdFromBlock(block), new BlockMetaRotation(block, metarotation, bitmask));
     }
 
-    public void setConfigDirectory(File configdirectory) {
-        metaRotationsDirectory = new File(configdirectory, "MovingWorld\\MetaRotation");
+    public void setConfigDirectory(File configDirectory) {
+        metaRotationsDirectory = new File(new File(configDirectory, "MovingWorld"), "MetaRotation");
         if (!metaRotationsDirectory.isDirectory()) {
             metaRotationsDirectory.mkdirs();
         }
     }
 
     public void registerMetaRotationFile(String fileName, InputStream iStream) throws IOException {
-        File rotFile = new File(metaRotationsDirectory + "\\" + fileName);
+        File rotFile = new File(metaRotationsDirectory, fileName);
         if (!rotFile.exists()) {
             rotFile.createNewFile();
             FileOutputStream oStream = new FileOutputStream(rotFile);
