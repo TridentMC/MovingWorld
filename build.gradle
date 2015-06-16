@@ -16,23 +16,18 @@ buildscript {
     }
 }
 
+// Apply plugin
 apply plugin: 'forge'
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+
+sourceCompatibility = '1.6'
+targetCompatibility = '1.6'
 
 version = "1.8-ALPHA-0"
 group = "darkevilmac.movingworld" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "movingworld"
-
-ext.mixinSrg = new File(project.buildDir, "tmp/mixins/mixins.movingworld.srg")
-ext.mixinRefMap = new File(project.buildDir, "tmp/mixins/movingworld.mixin.refmap.json")
-
-reobf.addExtraSrgFile project.mixinSrg
-
-repositories {
-    mavenCentral()
-    maven {
-        url 'http://repo.spongepowered.org/maven'
-    }
-}
 
 minecraft {
     version = "1.8-11.14.2.1427"
@@ -46,46 +41,85 @@ minecraft {
     mappings = "snapshot_20150602"
 }
 
-dependencies {
-    compile('org.spongepowered:mixin:0.4.4-SNAPSHOT')
+// Mixins
+ext {
+    mixinSrg = new File(project.buildDir, 'tmp/mixins/mixins.srg')
+    mixinRefMap = new File(project.buildDir, "tmp/mixins/mixins.crystal.refmap.json")
 }
 
-processResources
-        {
-            // this will ensure that this task is redone when the versions change.
-            inputs.property "version", project.version
-            inputs.property "mcversion", project.minecraft.version
+// Repositories
+repositories {
+	mavenCentral()
+    maven {
+		url 'http://repo.spongepowered.org/maven'
+	}
+	maven {
+		url 'https://oss.sonatype.org/content/groups/public'
+	}
+}
 
-            // replace stuff in mcmod.info, nothing else
-            from(sourceSets.main.resources.srcDirs) {
-                include 'mcmod.info'
+dependencies {
+	compile 'org.spongepowered:mixin:0.4.4-SNAPSHOT'
+}
 
-                // replace version and mcversion
-                expand 'version':project.version, 'mcversion':project.minecraft.version
-            }
+// Jar shading and packaging configuration
+jar {
+	from project.mixinRefMap
 
-            // copy everything else, thats not the mcmod.info
-            from(sourceSets.main.resources.srcDirs) {
-                exclude 'mcmod.info'
-            }
-        }
+	manifest {
+		attributes(
+			'FMLCorePlugin': 'darkevilmac.movingworld.asm.coremod.MovingWorldCoreMod',
+			'FMLAT': 'MovingWorld_at.cfg'
+		)
+	}
+}
 
-def defaultEncoding = 'UTF-8'
+processResources {
+	inputs.property "version", project.version
+	inputs.property "mcversion", minecraft.version
+
+    // Replace stuff in mcmod.info, nothing else
+	from(sourceSets.main.resources.srcDirs) {
+		include 'mcmod.info'
+
+		// Replace the properties
+		expand([
+			'version': project.version,
+			'mcversion': minecraft.version
+		])
+	}
+
+	// Copy everything else, thats not the mcmod.info
+	from(sourceSets.main.resources.srcDirs) {
+		exclude 'mcmod.info'
+	}
+}
+
+// Compile options
 compileJava {
     options.compilerArgs += [
-            '-Xlint:all',
-            '-Xlint:-path',
             '-Xlint:-processing',
-            "-AoutSrgFile=${project.mixinSrg.getCanonicalPath()}",
-            "-AoutRefMapFile=${project.mixinRefMap.getCanonicalPath()}"
+            "-AoutSrgFile=${project.mixinSrg.canonicalPath}",
+            "-AoutRefMapFile=${project.mixinRefMap.canonicalPath}",
+            "-AreobfSrgFile=${project.file('build/srgs/mcp-srg.srg').canonicalPath}"
     ]
-    options.deprecation = true
-    options.encoding = defaultEncoding
 }
 
-jar {
-    from project.mixinRefMap
-    manifest {
-        attributes ( "FMLCorePlugin": "darkevilmac.movingworld.asm.coremod.MovingWorldCoreMod", "FMLCorePluginContainsFMLMod": 'true')
-	}
+// Copy the current srgs to the build dir so the user doesn't have to go hunting for them
+task copySrgs(type: Copy, dependsOn: 'genSrgs') {
+    from plugins.getPlugin("forge").delayedFile("{SRG_DIR}")
+
+    include '**/*.srg'
+    into 'build/srgs'
+}
+
+setupDecompWorkspace.dependsOn copySrgs
+setupDevWorkspace.dependsOn copySrgs
+compileJava.dependsOn copySrgs
+
+// Configure reobfuscation for mixins
+reobf.doFirst {
+    if (project.mixinSrg.exists()) {
+        addExtraSrgFile project.mixinSrg
+    }
 }

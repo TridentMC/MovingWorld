@@ -35,6 +35,6 @@ public class MovingWorldCoreMod implements IFMLLoadingPlugin {
 
     @Override
     public String getAccessTransformerClass() {
-        return "darkevilmac.movingworld.asm.coremod.MovingWorldAccessTransformer";
+        return "";
     }
 }

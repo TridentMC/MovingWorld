@@ -14,6 +14,7 @@ import darkevilmac.movingworld.util.Vec3Mod;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntitySkull;
 import net.minecraft.util.BlockPos;
@@ -64,7 +65,8 @@ public class ChunkDisassembler {
 
                     state = world.getBlockState(pos);
                     block = state.getBlock();
-                    if (block != null && !block.isAir(world, pos) && !block.getMaterial().isLiquid() && !assemblyInteractor.canOverwriteBlock(block)) {
+                    if ((block != null && !block.isAir(world, pos) && !block.getMaterial().isLiquid() && !assemblyInteractor.canOverwriteBlock(block))
+                            || (j > world.getActualHeight())) {
                         return false;
                     }
                 }

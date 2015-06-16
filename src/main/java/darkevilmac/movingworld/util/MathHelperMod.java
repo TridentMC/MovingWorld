@@ -1,13 +1,8 @@
 package darkevilmac.movingworld.util;
 
-import net.minecraft.util.MathHelper;
-
-public class MathHelperMod extends MathHelper {
+public class MathHelperMod {
 
     public static final float PI_HALF = (float) (Math.PI / 2D);
-
-    public MathHelperMod() {
-    }
 
     public static double clamp_double(double d, double lowerbound, double upperbound) {
         return d < lowerbound ? lowerbound : d > upperbound ? upperbound : d;
