@@ -30,11 +30,10 @@ public class MovingWorldCoreMod implements IFMLLoadingPlugin {
 
     @Override
     public void injectData(Map<String, Object> data) {
-
     }
 
     @Override
     public String getAccessTransformerClass() {
-        return "";
+        return MovingWorldAccessTransformer.class.getName();
     }
 }

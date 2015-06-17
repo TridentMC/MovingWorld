@@ -75,11 +75,13 @@ jar {
 
     manifest {
         attributes(
-                'FMLCorePlugin': 'darkevilmac.movingworld.asm.coremod.MovingWorldCoreMod',
-                'FMLAT': 'MovingWorld_at.cfg',
-                "MixinConfigs": "mixins.movingworld.json",
+		        'MixinConfigs': 'mixins.movingworld.json',
                 'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
-                'TweakOrder': '0'
+                'TweakOrder': '0',
+                'FMLCorePlugin': 'darkevilmac.movingworld.asm.coremod.MovingWorldCoreMod',
+                'FMLCorePluginContainsFMLMod': 'true',
+                'ForceLoadAsMod': 'true',
+                'FMLAT': 'MovingWorld_at.cfg'
         )
     }
     configurations.shade.each { dep ->
