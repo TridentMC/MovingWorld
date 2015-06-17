@@ -56,31 +56,33 @@ configurations {
 
 // Repositories
 repositories {
-	mavenCentral()
+    mavenCentral()
     maven {
-		url 'http://repo.spongepowered.org/maven'
-	}
-	maven {
-		url 'https://oss.sonatype.org/content/groups/public'
-	}
+        url 'http://repo.spongepowered.org/maven'
+    }
+    maven {
+        url 'https://oss.sonatype.org/content/groups/public'
+    }
 }
 
 dependencies {
-	shade 'org.spongepowered:mixin:0.4.4-SNAPSHOT'
+    shade 'org.spongepowered:mixin:0.4.4-SNAPSHOT'
 }
 
 // Jar shading and packaging configuration
 jar {
-	from project.mixinRefMap
-	
-	manifest {
-		attributes(
-			'FMLCorePlugin': 'darkevilmac.movingworld.asm.coremod.MovingWorldCoreMod',
-			'FMLAT': 'MovingWorld_at.cfg',
-			"MixinConfigs": "mixins.movingworld.json"
-		)
-	}
-	configurations.shade.each { dep ->
+    from project.mixinRefMap
+
+    manifest {
+        attributes(
+                'FMLCorePlugin': 'darkevilmac.movingworld.asm.coremod.MovingWorldCoreMod',
+                'FMLAT': 'MovingWorld_at.cfg',
+                "MixinConfigs": "mixins.movingworld.json",
+                'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
+                'TweakOrder': '0'
+        )
+    }
+    configurations.shade.each { dep ->
         from(project.zipTree(dep)) {
             include "org/spongepowered/asm/**"
         }
@@ -88,24 +90,24 @@ jar {
 }
 
 processResources {
-	inputs.property "version", project.version
-	inputs.property "mcversion", minecraft.version
+    inputs.property "version", project.version
+    inputs.property "mcversion", minecraft.version
 
     // Replace stuff in mcmod.info, nothing else
-	from(sourceSets.main.resources.srcDirs) {
-		include 'mcmod.info'
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
 
-		// Replace the properties
-		expand([
-			'version': project.version,
-			'mcversion': minecraft.version
-		])
-	}
+        // Replace the properties
+        expand([
+                'version'  : project.version,
+                'mcversion': minecraft.version
+        ])
+    }
 
-	// Copy everything else, thats not the mcmod.info
-	from(sourceSets.main.resources.srcDirs) {
-		exclude 'mcmod.info'
-	}
+    // Copy everything else, thats not the mcmod.info
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
 }
 
 // Compile options
