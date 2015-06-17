@@ -47,6 +47,13 @@ ext {
     mixinRefMap = new File(project.buildDir, "tmp/mixins/mixins.crystal.refmap.json")
 }
 
+configurations {
+    shade
+    myCompile
+    myCompile.extendsFrom shade
+    compile.extendsFrom myCompile
+}
+
 // Repositories
 repositories {
 	mavenCentral()
@@ -59,19 +66,25 @@ repositories {
 }
 
 dependencies {
-	compile 'org.spongepowered:mixin:0.4.4-SNAPSHOT'
+	shade 'org.spongepowered:mixin:0.4.4-SNAPSHOT'
 }
 
 // Jar shading and packaging configuration
 jar {
 	from project.mixinRefMap
-
+	
 	manifest {
 		attributes(
 			'FMLCorePlugin': 'darkevilmac.movingworld.asm.coremod.MovingWorldCoreMod',
-			'FMLAT': 'MovingWorld_at.cfg'
+			'FMLAT': 'MovingWorld_at.cfg',
+			"MixinConfigs": "mixins.movingworld.json"
 		)
 	}
+	configurations.shade.each { dep ->
+        from(project.zipTree(dep)) {
+            include "org/spongepowered/asm/**"
+        }
+    }
 }
 
 processResources {
