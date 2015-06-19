@@ -4,7 +4,8 @@
   "mixins": [
     "block.property.MixinPropertyEnum",
     "block.property.MixinPropertyInteger",
-    "block.MixinBlockSkull"
+    "block.MixinBlockSkull",
+    "entity.MixinEntity"
   ],
   "refmap": "movingworld.mixin.refmap.json"
 }
