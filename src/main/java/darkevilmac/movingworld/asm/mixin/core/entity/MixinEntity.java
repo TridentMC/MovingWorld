@@ -1,5 +1,6 @@
 package darkevilmac.movingworld.asm.mixin.core.entity;
 
+import darkevilmac.movingworld.entity.EntityMovingWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
@@ -27,7 +28,7 @@ public class MixinEntity {
 
         AxisAlignedBB boundingBox = new AxisAlignedBB(thisEntity.posX - 3, thisEntity.posY - 5, thisEntity.posZ - 3,
                 thisEntity.posX + 3, thisEntity.posY + 5, thisEntity.posZ + 3);
-        List<Entity> movingWorldsInBox = worldObj.getEntitiesWithinAABBExcludingEntity(thisEntity, boundingBox);
+        List<Entity> movingWorldsInBox = worldObj.getEntitiesWithinAABB(EntityMovingWorld.class, boundingBox);
 
         if (movingWorldsInBox != null && !movingWorldsInBox.isEmpty()) {
 
