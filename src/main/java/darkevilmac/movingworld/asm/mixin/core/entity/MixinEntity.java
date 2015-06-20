@@ -26,12 +26,15 @@ public class MixinEntity {
         if (thisEntity.noClip)
             return;
 
-        AxisAlignedBB boundingBox = new AxisAlignedBB(thisEntity.posX - 3, thisEntity.posY - 5, thisEntity.posZ - 3,
-                thisEntity.posX + 3, thisEntity.posY + 5, thisEntity.posZ + 3);
-        List<Entity> movingWorldsInBox = worldObj.getEntitiesWithinAABB(EntityMovingWorld.class, boundingBox);
+        AxisAlignedBB boundingBox = new AxisAlignedBB(thisEntity.posX - 1, thisEntity.posY - 2, thisEntity.posZ - 1,
+                thisEntity.posX + 1, thisEntity.posY + 2, thisEntity.posZ + 1);
+        List<EntityMovingWorld> movingWorldsInBox = worldObj.getEntitiesWithinAABB(EntityMovingWorld.class, boundingBox);
 
         if (movingWorldsInBox != null && !movingWorldsInBox.isEmpty()) {
+            //ci.cancel();
+            for (EntityMovingWorld movingWorld : movingWorldsInBox) {
 
+            }
         }
     }
 

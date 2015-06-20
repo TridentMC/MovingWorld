@@ -22,8 +22,8 @@ public class MobileChunkServer extends MobileChunk {
     }
 
     @Override
-    public boolean setBlockWithState(BlockPos pos, IBlockState blockState) {
-        if (super.setBlockWithState(pos, blockState)) {
+    public boolean addBlockWithState(BlockPos pos, IBlockState blockState) {
+        if (super.addBlockWithState(pos, blockState)) {
             sendQueue.add(pos);
             return true;
         }

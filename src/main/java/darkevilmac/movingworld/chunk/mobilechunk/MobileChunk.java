@@ -1,14 +1,18 @@
 package darkevilmac.movingworld.chunk.mobilechunk;
 
+import com.google.common.collect.HashBiMap;
 import darkevilmac.movingworld.chunk.mobilechunk.world.FakeWorld;
 import darkevilmac.movingworld.entity.EntityMovingWorld;
 import darkevilmac.movingworld.tile.IMovingWorldTileEntity;
+import darkevilmac.movingworld.util.AABBRotator;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Vec3;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -37,11 +41,14 @@ public class MobileChunk implements IBlockAccess {
     private int blockCount;
     private BiomeGenBase creationSpotBiome;
 
+    private HashBiMap<BlockPos, AxisAlignedBB> boundingBoxes;
+
     public MobileChunk(World world, EntityMovingWorld entitymovingWorld) {
         worldObj = world;
         entityMovingWorld = entitymovingWorld;
         blockStorageMap = new HashMap<BlockPos, ExtendedBlockStorage>(1);
         chunkTileEntityMap = new HashMap<BlockPos, TileEntity>(2);
+        boundingBoxes = HashBiMap.create();
 
         isChunkLoaded = false;
         isModified = false;
@@ -120,7 +127,7 @@ public class MobileChunk implements IBlockAccess {
         creationSpotBiome = biomegenbase;
     }
 
-    public boolean setBlockWithState(BlockPos pos, IBlockState state) {
+    public boolean addBlockWithState(BlockPos pos, IBlockState state) {
         if (state == null) return false;
 
         Block block = state.getBlock();
@@ -182,7 +189,41 @@ public class MobileChunk implements IBlockAccess {
             }
         }
 
+
         return true;
+    }
+
+    public AxisAlignedBB calculateBlockBounds(BlockPos pos) {
+        AxisAlignedBB axisAlignedBB = this.getBlockState(pos).getBlock().getCollisionBoundingBox(this.getFakeWorld(), pos, getBlockState(pos));
+        axisAlignedBB = axisAlignedBB.addCoord(entityMovingWorld.posX, entityMovingWorld.posY, entityMovingWorld.posZ);
+
+        boundingBoxes.put(pos, axisAlignedBB);
+
+        return axisAlignedBB;
+    }
+
+    public void offsetBlockBounds(Vec3 movingWorldPos, float rotationYaw) {
+        for (int i = 0; i < boundingBoxes.size(); i++) {
+            BlockPos pos = (BlockPos) boundingBoxes.keySet().toArray()[i];
+            IBlockState blockState = getBlockState(pos);
+            Block block = blockState.getBlock();
+            AxisAlignedBB blockAxisAlignedBB = this.getBlockState(pos).getBlock().getCollisionBoundingBox(this.getFakeWorld(), pos, getBlockState(pos));
+            AxisAlignedBB axisAlignedBB;
+
+            axisAlignedBB = AABBRotator.rotateAABBAroundY(blockAxisAlignedBB, movingWorldPos.xCoord, movingWorldPos.yCoord, (float) Math.toRadians(rotationYaw));
+
+            double minX = axisAlignedBB.minX + movingWorldPos.xCoord;
+            double minY = axisAlignedBB.minY + movingWorldPos.yCoord;
+            double minZ = axisAlignedBB.minZ + movingWorldPos.zCoord;
+
+            double maxX = axisAlignedBB.maxX + movingWorldPos.xCoord;
+            double maxY = axisAlignedBB.maxY + movingWorldPos.yCoord;
+            double maxZ = axisAlignedBB.maxZ + movingWorldPos.zCoord;
+
+            axisAlignedBB = new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
+
+            boundingBoxes.put(pos, axisAlignedBB);
+        }
     }
 
     public boolean setBlockState(BlockPos pos, IBlockState state) {
@@ -221,8 +262,6 @@ public class MobileChunk implements IBlockAccess {
             return true;
         }
         if (block == null || block.isAir(worldObj, pos)) {
-            // storage.func_150818_a(i, j, k, block); Method gone, use set();
-            //storage.setExtBlockMetadata(i, j, k, meta); Method gone, use set();
             storage.set(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15, Blocks.air.getDefaultState());
             onSetBlockAsFilledAir(pos);
             return true;

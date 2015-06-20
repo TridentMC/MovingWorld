@@ -135,13 +135,17 @@ public class AssembleResult {
             if (tileentity != null || lb.blockState.getBlock().hasTileEntity(lb.blockState) && (tileentity = world.getTileEntity(lb.blockPos)) != null) {
                 tileentity.validate();
             }
-            if (entityMovingWorld.getMovingWorldChunk().setBlockWithState(iPos, lb.blockState)) {
+            if (entityMovingWorld.getMovingWorldChunk().addBlockWithState(iPos, lb.blockState)) {
                 entityMovingWorld.getMovingWorldChunk().setTileEntity(iPos, tileentity);
                 world.setBlockState(lb.blockPos, Blocks.air.getDefaultState(), 2);
             }
         }
-        for (LocatedBlock block : locatedBlocks) {
-            world.setBlockToAir(block.blockPos);
+
+        for (LocatedBlock lb : locatedBlocks) {
+            iPos = new BlockPos(lb.blockPos.getX() - offset.getX(), lb.blockPos.getY() - offset.getY(), lb.blockPos.getZ() - offset.getZ());
+            entityMovingWorld.getMovingWorldChunk().calculateBlockBounds(iPos);
+
+            world.setBlockToAir(lb.blockPos);
         }
     }
 

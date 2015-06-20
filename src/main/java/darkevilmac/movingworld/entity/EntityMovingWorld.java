@@ -331,6 +331,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             motionZ *= horFriction;
         }
         setRotatedBoundingBox();
+        mobileChunk.offsetBlockBounds(new Vec3(posX, posY, posZ), rotationYaw);
     }
 
     @Override
@@ -406,6 +407,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         //motionYaw = MathHelper.clamp_float(motionYaw, -BASE_TURN_SPEED * ShipMod.instance.modConfig.turnSpeed, BASE_TURN_SPEED * ShipMod.instance.modConfig.turnSpeed);
         rotationYaw += motionYaw;
         setRotatedBoundingBox();
+        mobileChunk.offsetBlockBounds(new Vec3(posX, posY, posZ), rotationYaw);
         moveEntity(motionX, motionY, motionZ);
         posY = Math.min(posY, worldObj.getHeight());
         motionX *= horFriction;
