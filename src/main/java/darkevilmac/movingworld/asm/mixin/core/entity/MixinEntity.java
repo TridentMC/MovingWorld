@@ -33,7 +33,9 @@ public class MixinEntity {
         if (movingWorldsInBox != null && !movingWorldsInBox.isEmpty()) {
             //ci.cancel();
             for (EntityMovingWorld movingWorld : movingWorldsInBox) {
+                for (AxisAlignedBB box : movingWorld.getMovingWorldChunk().getBoxes()) {
 
+                }
             }
         }
     }

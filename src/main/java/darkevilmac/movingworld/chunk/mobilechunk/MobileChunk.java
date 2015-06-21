@@ -22,7 +22,9 @@ import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MobileChunk implements IBlockAccess {
@@ -202,12 +204,16 @@ public class MobileChunk implements IBlockAccess {
         return axisAlignedBB;
     }
 
+    public List<AxisAlignedBB> getBoxes() {
+        return Arrays.asList((AxisAlignedBB[]) boundingBoxes.values().toArray());
+    }
+
     public void offsetBlockBounds(Vec3 movingWorldPos, float rotationYaw) {
         for (int i = 0; i < boundingBoxes.size(); i++) {
             BlockPos pos = (BlockPos) boundingBoxes.keySet().toArray()[i];
             IBlockState blockState = getBlockState(pos);
             Block block = blockState.getBlock();
-            AxisAlignedBB blockAxisAlignedBB = this.getBlockState(pos).getBlock().getCollisionBoundingBox(this.getFakeWorld(), pos, getBlockState(pos));
+            AxisAlignedBB blockAxisAlignedBB = block.getCollisionBoundingBox(this.getFakeWorld(), pos, getBlockState(pos));
             AxisAlignedBB axisAlignedBB;
 
             axisAlignedBB = AABBRotator.rotateAABBAroundY(blockAxisAlignedBB, movingWorldPos.xCoord, movingWorldPos.yCoord, (float) Math.toRadians(rotationYaw));

@@ -215,6 +215,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             float hw = width / 2F;
             setEntityBoundingBox(new AxisAlignedBB(posX - hw, posY, posZ - hw, posX + hw, posY + height, posZ + hw));
         } else {
+            mobileChunk.offsetBlockBounds(new Vec3(posX, posY, posZ), rotationYaw);
             setEntityBoundingBox(new AxisAlignedBB(posX - mobileChunk.getCenterX(), posY, posZ - mobileChunk.getCenterZ(), posX + mobileChunk.getCenterX(), posY + height, posZ + mobileChunk.getCenterZ()));
             setEntityBoundingBox(AABBRotator.rotateAABBAroundY(getEntityBoundingBox(), posX, posZ, (float) Math.toRadians(rotationYaw)));
         }
@@ -331,7 +332,6 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             motionZ *= horFriction;
         }
         setRotatedBoundingBox();
-        mobileChunk.offsetBlockBounds(new Vec3(posX, posY, posZ), rotationYaw);
     }
 
     @Override
@@ -407,7 +407,6 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         //motionYaw = MathHelper.clamp_float(motionYaw, -BASE_TURN_SPEED * ShipMod.instance.modConfig.turnSpeed, BASE_TURN_SPEED * ShipMod.instance.modConfig.turnSpeed);
         rotationYaw += motionYaw;
         setRotatedBoundingBox();
-        mobileChunk.offsetBlockBounds(new Vec3(posX, posY, posZ), rotationYaw);
         moveEntity(motionX, motionY, motionZ);
         posY = Math.min(posY, worldObj.getHeight());
         motionX *= horFriction;
@@ -603,7 +602,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     @Override
     public boolean canBeCollidedWith() {
-        return !isDead;
+        return false;
     }
 
     @Override
