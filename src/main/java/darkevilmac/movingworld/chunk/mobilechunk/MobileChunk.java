@@ -1,10 +1,13 @@
 package darkevilmac.movingworld.chunk.mobilechunk;
 
 import com.google.common.collect.HashBiMap;
+import com.google.common.collect.Lists;
 import darkevilmac.movingworld.chunk.mobilechunk.world.FakeWorld;
 import darkevilmac.movingworld.entity.EntityMovingWorld;
 import darkevilmac.movingworld.tile.IMovingWorldTileEntity;
 import darkevilmac.movingworld.util.AABBRotator;
+import darkevilmac.movingworld.util.MathHelperMod;
+import darkevilmac.movingworld.util.Vec3Mod;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -22,10 +25,7 @@ import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class MobileChunk implements IBlockAccess {
     public static final int CHUNK_SIZE = 16;
@@ -206,6 +206,65 @@ public class MobileChunk implements IBlockAccess {
 
     public List<AxisAlignedBB> getBoxes() {
         return Arrays.asList((AxisAlignedBB[]) boundingBoxes.values().toArray());
+    }
+
+    /**
+     * Based off of the implementation in net.minecraft.world.World
+     *
+     * @param entityIn
+     * @param entityBB bounding box with in world coordinates.
+     * @return applicable bounding boxes with world position.
+     */
+    public List getCollidingBoundingBoxes(AxisAlignedBB entityBB) {
+        ArrayList arraylist = Lists.newArrayList();
+        for (AxisAlignedBB axisAlignedBB : boundingBoxes.values()) {
+            if (axisAlignedBB.intersectsWith(entityBB)) arraylist.add(axisAlignedBB);
+        }
+
+        return arraylist;
+    }
+
+    /**
+     * This is terrible code but it's the best I can do for now.
+     *
+     * @param worldPos
+     * @return
+     */
+    public BlockPos getBlockFromWorldPos(BlockPos worldPos) {
+        BlockPos chunkPos = worldPos;
+
+        float yaw = Math.round(entityMovingWorld.rotationYaw / 90F) * 90F;
+        yaw = (float) Math.toRadians(yaw);
+
+        float ox = -getCenterX();
+        float oy = -minY();
+        float oz = -getCenterZ();
+
+        Vec3Mod vec;
+        BlockPos pos;
+        for (int i = minX(); i < maxX(); i++) {
+            for (int j = minY(); j < maxY(); j++) {
+                for (int k = minZ(); k < maxZ(); k++) {
+                    if (isAirBlock(new BlockPos(i, j, k))) continue;
+                    Vec3Mod vecB = new Vec3Mod(i + ox, j + oy, k + oz);
+
+                    vec = vecB;
+                    vec = vec.rotateAroundY(yaw);
+
+                    pos = new BlockPos(MathHelperMod.round_double(vec.xCoord + entityMovingWorld.posX),
+                            MathHelperMod.round_double(vec.yCoord + entityMovingWorld.posY),
+                            MathHelperMod.round_double(vec.zCoord + entityMovingWorld.posZ));
+
+                    if (pos.equals(worldPos)) {
+                        chunkPos = new BlockPos(MathHelperMod.round_double(vec.xCoord),
+                                MathHelperMod.round_double(vec.yCoord),
+                                MathHelperMod.round_double(vec.zCoord));
+                    }
+                }
+            }
+        }
+
+        return chunkPos;
     }
 
     public void offsetBlockBounds(Vec3 movingWorldPos, float rotationYaw) {

@@ -17,7 +17,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.item.EntityBoat;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -29,6 +28,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -213,11 +213,11 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     public void setRotatedBoundingBox() {
         if (mobileChunk == null) {
             float hw = width / 2F;
-            setEntityBoundingBox(new AxisAlignedBB(posX - hw, posY, posZ - hw, posX + hw, posY + height, posZ + hw));
+            setMovingWorldCollBox(new AxisAlignedBB(posX - hw, posY, posZ - hw, posX + hw, posY + height, posZ + hw));
         } else {
             mobileChunk.offsetBlockBounds(new Vec3(posX, posY, posZ), rotationYaw);
-            setEntityBoundingBox(new AxisAlignedBB(posX - mobileChunk.getCenterX(), posY, posZ - mobileChunk.getCenterZ(), posX + mobileChunk.getCenterX(), posY + height, posZ + mobileChunk.getCenterZ()));
-            setEntityBoundingBox(AABBRotator.rotateAABBAroundY(getEntityBoundingBox(), posX, posZ, (float) Math.toRadians(rotationYaw)));
+            setMovingWorldCollBox(new AxisAlignedBB(posX - mobileChunk.getCenterX(), posY, posZ - mobileChunk.getCenterZ(), posX + mobileChunk.getCenterX(), posY + height, posZ + mobileChunk.getCenterZ()));
+            setMovingWorldCollBox(AABBRotator.rotateAABBAroundY(getMovingWorldCollBox(), posX, posZ, (float) Math.toRadians(rotationYaw)));
         }
     }
 
@@ -227,7 +227,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             width = w;
             height = h;
             float hw = w / 2F;
-            setEntityBoundingBox(new AxisAlignedBB(posX - hw, posY, posZ - hw, posX + hw, posY + height, posZ + hw));
+            setMovingWorldCollBox(new AxisAlignedBB(posX - hw, posY, posZ - hw, posX + hw, posY + height, posZ + hw));
         }
     }
 
@@ -340,17 +340,25 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         noControl = flag;
     }
 
+    public AxisAlignedBB getMovingWorldCollBox() {
+        return ReflectionHelper.getPrivateValue(Entity.class, this, "boundingBox");
+    }
+
+    public void setMovingWorldCollBox(AxisAlignedBB axisAlignedBB) {
+        ReflectionHelper.setPrivateValue(Entity.class, this, axisAlignedBB, "boundingBox");
+    }
+
     protected void handleServerUpdate(double horvel) {
         //START outer forces
         byte b0 = 5;
-        int bpermeter = (int) (b0 * (getBoundingBox().maxY - getBoundingBox().minY));
+        int bpermeter = (int) (b0 * (getMovingWorldCollBox().maxY - getMovingWorldCollBox().minY));
         float waterVolume = 0F;
         AxisAlignedBB axisalignedbb = new AxisAlignedBB(0D, 0D, 0D, 0D, 0D, 0D);
         int belowWater = 0;
         for (; belowWater < bpermeter; belowWater++) {
-            double d1 = getBoundingBox().minY + (getBoundingBox().maxY - getBoundingBox().minY) * belowWater / bpermeter;
-            double d2 = getBoundingBox().minY + (getBoundingBox().maxY - getBoundingBox().minY) * (belowWater + 1) / bpermeter;
-            axisalignedbb = new AxisAlignedBB(getBoundingBox().minX, d1, getBoundingBox().minZ, getBoundingBox().maxX, d2, getBoundingBox().maxZ);
+            double d1 = getMovingWorldCollBox().minY + (getMovingWorldCollBox().maxY - getMovingWorldCollBox().minY) * belowWater / bpermeter;
+            double d2 = getMovingWorldCollBox().minY + (getMovingWorldCollBox().maxY - getMovingWorldCollBox().minY) * (belowWater + 1) / bpermeter;
+            axisalignedbb = new AxisAlignedBB(getMovingWorldCollBox().minX, d1, getMovingWorldCollBox().minZ, getMovingWorldCollBox().maxX, d2, getMovingWorldCollBox().maxZ);
 
             if (!isAABBInLiquidNotFall(worldObj, axisalignedbb)) {
                 break;
@@ -487,7 +495,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         boolean didCollide = false;
         if (!worldObj.isRemote) {
             @SuppressWarnings("unchecked")
-            List<Entity> list = worldObj.getEntitiesWithinAABBExcludingEntity(this, getBoundingBox().expand(0.2D, 0.0D, 0.2D));
+            List<Entity> list = worldObj.getEntitiesWithinAABBExcludingEntity(this, getMovingWorldCollBox().expand(0.2D, 0.0D, 0.2D));
             if (list != null && !list.isEmpty()) {
                 didCollide = true;
                 for (Entity entity : list) {
@@ -587,17 +595,17 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     @Override
     public AxisAlignedBB getCollisionBox(Entity entity) {
-        return entity instanceof EntityLiving ? null : entity.getEntityBoundingBox();
+        return null;
     }
 
     @Override
     public AxisAlignedBB getBoundingBox() {
-        return getEntityBoundingBox();
+        return null;
     }
 
     @Override
     public boolean canBePushed() {
-        return onGround && !isInWater() && riddenByEntity == null;
+        return false;
     }
 
     @Override
