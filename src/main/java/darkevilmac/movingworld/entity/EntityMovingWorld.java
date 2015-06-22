@@ -42,6 +42,7 @@ import java.util.UUID;
  */
 public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdditionalSpawnData {
 
+    public static boolean cursorCheck = false;
     public float motionYaw;
     public EnumFacing frontDirection;
     public BlockPos riderDestination;
@@ -494,7 +495,6 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     private boolean handleCollision(double cPosX, double cPosY, double cPosZ) {
         boolean didCollide = false;
         if (!worldObj.isRemote) {
-            @SuppressWarnings("unchecked")
             List<Entity> list = worldObj.getEntitiesWithinAABBExcludingEntity(this, getMovingWorldCollBox().expand(0.2D, 0.0D, 0.2D));
             if (list != null && !list.isEmpty()) {
                 didCollide = true;
@@ -599,11 +599,6 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     }
 
     @Override
-    public AxisAlignedBB getBoundingBox() {
-        return null;
-    }
-
-    @Override
     public boolean canBePushed() {
         return false;
     }
@@ -611,6 +606,15 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     @Override
     public boolean canBeCollidedWith() {
         return false;
+    }
+
+    /**
+     * Overrides a method for entity mixins to allow interact to be called.
+     *
+     * @return true
+     */
+    public boolean canBeSelected() {
+        return true;
     }
 
     @Override
