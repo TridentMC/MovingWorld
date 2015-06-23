@@ -1,18 +1,17 @@
 package darkevilmac.movingworld.asm.mixin.core.entity;
 
+import darkevilmac.movingworld.entity.ISelectableEntity;
 import net.minecraft.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-/**
- * Override Minecraft's move methods so we can tell it how to handle collision.
- */
 @Mixin(Entity.class)
-public abstract class MixinEntity {
+public abstract class MixinEntity implements ISelectableEntity {
 
     @Shadow
     public abstract boolean canBeCollidedWith();
 
+    @Override
     public boolean canBeSelected() {
         return canBeCollidedWith();
     }

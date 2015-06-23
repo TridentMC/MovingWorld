@@ -10,15 +10,11 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 import java.util.List;
 
-/**
- * Needed to prevent minecraft for getting bounding boxes.
- */
-
 @Mixin(World.class)
 public class MixinWorld {
 
     @Redirect(method = "getCollidingBoundingBoxes", at =
-    @At(value = "INVOKE", target = "net.minecraft.world.World.getEntitiesWithinAABBExcludingEntity(Lnet/minecraft/entity/Entity;net/minecraft/util/AxisAlignedBB;)"
+    @At(value = "INVOKE", target = "net.minecraft.world.World.getEntitiesWithinAABBExcludingEntity(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/AxisAlignedBB;)"
             + "Ljava/util/List;"))
     public List onGetEntitiesWithinAABBExcludingEntity(World world, final Entity entityIn, AxisAlignedBB bb, Entity entityMethodParameter, AxisAlignedBB bbMethodParameter) {
         List<Entity> list = world.getEntitiesWithinAABBExcludingEntity(entityIn, bb);
