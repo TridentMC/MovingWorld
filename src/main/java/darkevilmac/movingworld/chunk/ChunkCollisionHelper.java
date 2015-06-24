@@ -18,8 +18,6 @@ public class ChunkCollisionHelper {
     public static boolean onEntityMove(Entity entity, MobileChunk mobileChunk, Vec3 destination) {
         boolean cancel = false;
 
-        AxisAlignedBB entityBoundingBox = entity.getEntityBoundingBox();
-
         double startX = entity.posX;
         double startY = entity.posY;
         double startZ = entity.posZ;
@@ -28,7 +26,7 @@ public class ChunkCollisionHelper {
         double destY = destination.yCoord;
         double destZ = destination.zCoord;
 
-        List<AxisAlignedBB> intersectingBoxes = mobileChunk.getCollidingBoundingBoxes(entityBoundingBox);
+        List<AxisAlignedBB> hits = mobileChunk.getCollidingBoundingBoxes(entity.getEntityBoundingBox().addCoord(destX, destY, destZ));
 
         return cancel;
     }

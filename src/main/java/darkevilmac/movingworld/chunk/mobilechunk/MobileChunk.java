@@ -6,9 +6,8 @@ import darkevilmac.movingworld.chunk.mobilechunk.world.FakeWorld;
 import darkevilmac.movingworld.entity.EntityMovingWorld;
 import darkevilmac.movingworld.tile.IMovingWorldTileEntity;
 import darkevilmac.movingworld.util.AABBRotator;
-import darkevilmac.movingworld.util.MathHelperMod;
-import darkevilmac.movingworld.util.Vec3Mod;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockAir;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
@@ -195,10 +194,33 @@ public class MobileChunk implements IBlockAccess {
         return true;
     }
 
+    public void calculateBounds() {
+        System.out.println("Entity POS " + entityMovingWorld.posX + " " + entityMovingWorld.posY + " " + entityMovingWorld.posZ);
+        for (int i = minX(); i < maxX(); i++) {
+            for (int j = minY(); j < maxY(); j++) {
+                for (int k = minZ(); k < maxZ(); k++) {
+                    BlockPos pos = new BlockPos(i, j, k);
+                    if (getBlock(pos) == null || (getBlock(pos) != null && getBlock(pos) instanceof BlockAir)) continue;
+
+                    calculateBlockBounds(pos);
+                }
+            }
+        }
+    }
+
     public AxisAlignedBB calculateBlockBounds(BlockPos pos) {
         AxisAlignedBB axisAlignedBB = this.getBlockState(pos).getBlock().getCollisionBoundingBox(this.getFakeWorld(), pos, getBlockState(pos));
-        axisAlignedBB = axisAlignedBB.addCoord(entityMovingWorld.posX, entityMovingWorld.posY, entityMovingWorld.posZ);
+        axisAlignedBB = axisAlignedBB.offset(entityMovingWorld.posX, entityMovingWorld.posY, entityMovingWorld.posZ);
 
+        double maxDX = new Double(maxX());
+        double maxDY = new Double(maxY());
+        double maxDZ = new Double(maxZ());
+
+        maxDX = maxDX / 2 * -1;
+        maxDY = maxDY / 2 * -1;
+        maxDZ = maxDZ / 2 * -1;
+
+        axisAlignedBB = axisAlignedBB.offset(maxDX, maxDY, maxDZ);
         boundingBoxes.put(pos, axisAlignedBB);
 
         return axisAlignedBB;
@@ -211,81 +233,28 @@ public class MobileChunk implements IBlockAccess {
     /**
      * Based off of the implementation in net.minecraft.world.World
      *
-     * @param entityIn
      * @param entityBB bounding box with in world coordinates.
      * @return applicable bounding boxes with world position.
      */
     public List getCollidingBoundingBoxes(AxisAlignedBB entityBB) {
         ArrayList arraylist = Lists.newArrayList();
+
         for (AxisAlignedBB axisAlignedBB : boundingBoxes.values()) {
-            if (axisAlignedBB.intersectsWith(entityBB)) arraylist.add(axisAlignedBB);
+            if (axisAlignedBB.intersectsWith(entityBB)) {
+                arraylist.add(axisAlignedBB);
+            }
         }
 
         return arraylist;
     }
 
-    /**
-     * This is terrible code but it's the best I can do for now.
-     *
-     * @param worldPos
-     * @return
-     */
-    public BlockPos getBlockFromWorldPos(BlockPos worldPos) {
-        BlockPos chunkPos = worldPos;
-
-        float yaw = Math.round(entityMovingWorld.rotationYaw / 90F) * 90F;
-        yaw = (float) Math.toRadians(yaw);
-
-        float ox = -getCenterX();
-        float oy = -minY();
-        float oz = -getCenterZ();
-
-        Vec3Mod vec;
-        BlockPos pos;
-        for (int i = minX(); i < maxX(); i++) {
-            for (int j = minY(); j < maxY(); j++) {
-                for (int k = minZ(); k < maxZ(); k++) {
-                    if (isAirBlock(new BlockPos(i, j, k))) continue;
-                    Vec3Mod vecB = new Vec3Mod(i + ox, j + oy, k + oz);
-
-                    vec = vecB;
-                    vec = vec.rotateAroundY(yaw);
-
-                    pos = new BlockPos(MathHelperMod.round_double(vec.xCoord + entityMovingWorld.posX),
-                            MathHelperMod.round_double(vec.yCoord + entityMovingWorld.posY),
-                            MathHelperMod.round_double(vec.zCoord + entityMovingWorld.posZ));
-
-                    if (pos.equals(worldPos)) {
-                        chunkPos = new BlockPos(MathHelperMod.round_double(vec.xCoord),
-                                MathHelperMod.round_double(vec.yCoord),
-                                MathHelperMod.round_double(vec.zCoord));
-                    }
-                }
-            }
-        }
-
-        return chunkPos;
-    }
-
     public void offsetBlockBounds(Vec3 movingWorldPos, float rotationYaw) {
         for (int i = 0; i < boundingBoxes.size(); i++) {
             BlockPos pos = (BlockPos) boundingBoxes.keySet().toArray()[i];
-            IBlockState blockState = getBlockState(pos);
-            Block block = blockState.getBlock();
-            AxisAlignedBB blockAxisAlignedBB = block.getCollisionBoundingBox(this.getFakeWorld(), pos, getBlockState(pos));
+            AxisAlignedBB blockAxisAlignedBB = boundingBoxes.get(pos);
             AxisAlignedBB axisAlignedBB;
 
             axisAlignedBB = AABBRotator.rotateAABBAroundY(blockAxisAlignedBB, movingWorldPos.xCoord, movingWorldPos.yCoord, (float) Math.toRadians(rotationYaw));
-
-            double minX = axisAlignedBB.minX + movingWorldPos.xCoord;
-            double minY = axisAlignedBB.minY + movingWorldPos.yCoord;
-            double minZ = axisAlignedBB.minZ + movingWorldPos.zCoord;
-
-            double maxX = axisAlignedBB.maxX + movingWorldPos.xCoord;
-            double maxY = axisAlignedBB.maxY + movingWorldPos.yCoord;
-            double maxZ = axisAlignedBB.maxZ + movingWorldPos.zCoord;
-
-            axisAlignedBB = new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
 
             boundingBoxes.put(pos, axisAlignedBB);
         }
@@ -420,6 +389,7 @@ public class MobileChunk implements IBlockAccess {
     public void onChunkLoad() {
         isChunkLoaded = true;
         worldObj.addTileEntities(chunkTileEntityMap.values());
+        calculateBounds();
     }
 
     /**
@@ -443,7 +413,7 @@ public class MobileChunk implements IBlockAccess {
     @Override
     public boolean isAirBlock(BlockPos pos) {
         Block block = getBlockState(pos).getBlock();
-        return block == null || block.isAir(worldObj, pos);
+        return block == null || block.isAir(worldObj, pos) || block instanceof BlockAir;
     }
 
     public boolean isBlockTakingWaterVolume(BlockPos pos) {

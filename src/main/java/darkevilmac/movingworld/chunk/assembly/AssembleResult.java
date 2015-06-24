@@ -142,9 +142,6 @@ public class AssembleResult {
         }
 
         for (LocatedBlock lb : locatedBlocks) {
-            iPos = new BlockPos(lb.blockPos.getX() - offset.getX(), lb.blockPos.getY() - offset.getY(), lb.blockPos.getZ() - offset.getZ());
-            entityMovingWorld.getMovingWorldChunk().calculateBlockBounds(iPos);
-
             world.setBlockToAir(lb.blockPos);
         }
     }
