@@ -6,9 +6,11 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraftforge.fml.relauncher.Side;
@@ -39,9 +41,30 @@ public class MobileChunkRenderer {
     public void render(float partialTicks) {
         if (needsUpdate) {
             updateSimpleRender(partialTicks);
+
+            for (AxisAlignedBB axisAlignedBB : chunk.getBoxes()) {
+                GlStateManager.pushMatrix();
+
+                Tessellator t = Tessellator.getInstance();
+                WorldRenderer w = t.getWorldRenderer();
+
+                Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.locationBlocksTexture);
+
+                w.startDrawingQuads();
+                w.setTranslation(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ);
+                w.setColorOpaque_F(1.0F, 1.0F, 1.0F);
+                w.addVertexWithUV(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ ,0.3 ,0.1);
+                w.addVertexWithUV(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.minZ ,0.3 ,0.0);
+                w.addVertexWithUV(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.maxZ ,0.2 ,0.0);
+                w.addVertexWithUV(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.maxZ ,0.2 ,0.1);
+                w.finishDrawing();
+                t.draw();
+
+
+                GlStateManager.popMatrix();
+            }
         }
     }
-
 
     private void updateSimpleRender(float partialTicks) {
         Tessellator tessellator = Tessellator.getInstance();

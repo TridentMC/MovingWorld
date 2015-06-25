@@ -152,6 +152,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     private void initCommon() {
         mobileChunk = new MobileChunkServer(worldObj, this);
         initMovingWorldCommon();
+        mobileChunk.calculateBounds();
     }
 
     @Override
@@ -216,7 +217,6 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             float hw = width / 2F;
             setMovingWorldCollBox(new AxisAlignedBB(posX - hw, posY, posZ - hw, posX + hw, posY + height, posZ + hw));
         } else {
-            mobileChunk.offsetBlockBounds(new Vec3(posX, posY, posZ), rotationYaw);
             setMovingWorldCollBox(new AxisAlignedBB(posX - mobileChunk.getCenterX(), posY, posZ - mobileChunk.getCenterZ(), posX + mobileChunk.getCenterX(), posY + height, posZ + mobileChunk.getCenterZ()));
             setMovingWorldCollBox(AABBRotator.rotateAABBAroundY(getMovingWorldCollBox(), posX, posZ, (float) Math.toRadians(rotationYaw)));
         }
@@ -282,9 +282,15 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         controlVelZ = motionZ = z;
     }
 
+    public boolean posChanged() {
+        return posX != prevPosX || posY != prevPosY || posZ != prevPosZ;
+    }
+
     @Override
     public void onUpdate() {
         onEntityUpdate();
+        mobileChunk.updateBlockBounds(rotationYaw);
+
         prevPosX = posX;
         prevPosY = posY;
         prevPosZ = posZ;
@@ -595,25 +601,16 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     @Override
     public AxisAlignedBB getCollisionBox(Entity entity) {
-        return null;
+        return getBoundingBox();
     }
 
     @Override
     public boolean canBePushed() {
-        return false;
+        return !isDead && riddenByEntity == null;
     }
 
     @Override
     public boolean canBeCollidedWith() {
-        return false;
-    }
-
-    /**
-     * Overrides a method for entity mixins to allow interact to be called.
-     *
-     * @return true
-     */
-    public boolean canBeSelected() {
         return true;
     }
 
@@ -793,6 +790,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         if (compound.hasKey("owner")) {
             info.setOwner(UUID.fromString(compound.getString("owner")));
         }
+        mobileChunk.calculateBounds();
         readMovingWorldNBT(compound);
     }
 

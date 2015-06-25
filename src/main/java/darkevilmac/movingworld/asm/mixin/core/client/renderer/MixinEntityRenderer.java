@@ -1,6 +1,6 @@
 package darkevilmac.movingworld.asm.mixin.core.client.renderer;
 
-import darkevilmac.movingworld.entity.ISelectableEntity;
+import darkevilmac.movingworld.entity.IMixinEntity;
 import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraftforge.fml.relauncher.Side;
@@ -15,7 +15,7 @@ public class MixinEntityRenderer {
 
     @Redirect(method = "getMouseOver", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;canBeCollidedWith()Z"))
     public boolean onCanCollide(Entity entity, float partialTicks) {
-        return ((ISelectableEntity) entity).canBeSelected();
+        return ((IMixinEntity) entity).canBeSelected();
     }
 
 }

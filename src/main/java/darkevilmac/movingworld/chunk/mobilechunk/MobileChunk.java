@@ -1,13 +1,12 @@
 package darkevilmac.movingworld.chunk.mobilechunk;
 
 import com.google.common.collect.HashBiMap;
-import com.google.common.collect.Lists;
 import darkevilmac.movingworld.chunk.mobilechunk.world.FakeWorld;
 import darkevilmac.movingworld.entity.EntityMovingWorld;
 import darkevilmac.movingworld.tile.IMovingWorldTileEntity;
-import darkevilmac.movingworld.util.AABBRotator;
+import darkevilmac.movingworld.util.Vec3Mod;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockAir;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
@@ -24,7 +23,10 @@ import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class MobileChunk implements IBlockAccess {
     public static final int CHUNK_SIZE = 16;
@@ -44,12 +46,15 @@ public class MobileChunk implements IBlockAccess {
 
     private HashBiMap<BlockPos, AxisAlignedBB> boundingBoxes;
 
+    private HashBiMap<BlockPos, AxisAlignedBB> chunkBoundingBoxes;
+
     public MobileChunk(World world, EntityMovingWorld entitymovingWorld) {
         worldObj = world;
         entityMovingWorld = entitymovingWorld;
         blockStorageMap = new HashMap<BlockPos, ExtendedBlockStorage>(1);
         chunkTileEntityMap = new HashMap<BlockPos, TileEntity>(2);
         boundingBoxes = HashBiMap.create();
+        chunkBoundingBoxes = HashBiMap.create();
 
         isChunkLoaded = false;
         isModified = false;
@@ -69,6 +74,53 @@ public class MobileChunk implements IBlockAccess {
 
     public EntityMovingWorld getEntityMovingWorld() {
         return entityMovingWorld;
+    }
+
+    public BlockPos getBlockPosFromBounds(AxisAlignedBB bb) {
+        return boundingBoxes.inverse().get(bb);
+    }
+
+    public Vec3 getWorldPosForChunkPos(BlockPos pos) {
+        Vec3 movingWorldPos = new Vec3(entityMovingWorld.posX, entityMovingWorld.posY, entityMovingWorld.posZ);
+        movingWorldPos = movingWorldPos.subtract(new Double(maxX()) / 2, new Double(maxY()) / 2, new Double(maxZ()) / 2);
+        Vec3 returnPos = new Vec3(pos.getX(), pos.getY(), pos.getZ());
+        returnPos.add(movingWorldPos);
+        return returnPos;
+    }
+
+    public Vec3 getWorldPosForChunkPos(Vec3 vec) {
+        Vec3 movingWorldPos = new Vec3(entityMovingWorld.posX, entityMovingWorld.posY, entityMovingWorld.posZ);
+        movingWorldPos = movingWorldPos.subtract(new Double(maxX()) / 2, new Double(maxY()) / 2, new Double(maxZ()) / 2);
+        Vec3 returnPos = new Vec3(vec.xCoord, vec.yCoord, vec.zCoord);
+        returnPos.add(movingWorldPos);
+        return returnPos;
+    }
+
+
+    public Vec3 getChunkPosForWorldPos(Vec3 pos) {
+        Vec3 movingWorldPos = new Vec3(entityMovingWorld.posX, entityMovingWorld.posY, entityMovingWorld.posZ);
+        movingWorldPos = movingWorldPos.subtract(new Double(maxX()) / 2, new Double(maxY()) / 2, new Double(maxZ()) / 2);
+        Vec3 returnPos = new Vec3(pos.xCoord, pos.yCoord, pos.zCoord);
+        returnPos = returnPos.subtract(movingWorldPos);
+        return returnPos;
+    }
+
+    public AxisAlignedBB offsetWorldBBToChunkBB(AxisAlignedBB axisAlignedBB) {
+        double minX = axisAlignedBB.minX;
+        double minY = axisAlignedBB.minY;
+        double minZ = axisAlignedBB.minZ;
+        double maxX = axisAlignedBB.maxX;
+        double maxY = axisAlignedBB.maxY;
+        double maxZ = axisAlignedBB.maxZ;
+
+        Vec3 minVec = new Vec3(minX, minY, minZ);
+        Vec3 maxVec = new Vec3(maxX, maxY, maxZ);
+        minVec = getChunkPosForWorldPos(minVec);
+        maxVec = getChunkPosForWorldPos(maxVec);
+
+        axisAlignedBB = new AxisAlignedBB(minVec.xCoord, minVec.yCoord, minVec.zCoord, maxVec.xCoord, maxVec.yCoord, maxVec.zCoord);
+
+        return axisAlignedBB;
     }
 
     public ExtendedBlockStorage getBlockStorage(BlockPos pos) {
@@ -195,13 +247,10 @@ public class MobileChunk implements IBlockAccess {
     }
 
     public void calculateBounds() {
-        System.out.println("Entity POS " + entityMovingWorld.posX + " " + entityMovingWorld.posY + " " + entityMovingWorld.posZ);
         for (int i = minX(); i < maxX(); i++) {
             for (int j = minY(); j < maxY(); j++) {
                 for (int k = minZ(); k < maxZ(); k++) {
                     BlockPos pos = new BlockPos(i, j, k);
-                    if (getBlock(pos) == null || (getBlock(pos) != null && getBlock(pos) instanceof BlockAir)) continue;
-
                     calculateBlockBounds(pos);
                 }
             }
@@ -209,8 +258,12 @@ public class MobileChunk implements IBlockAccess {
     }
 
     public AxisAlignedBB calculateBlockBounds(BlockPos pos) {
+        if (this.getBlock(pos) == null || (this.getBlock(pos) != null && this.getBlock(pos).getMaterial() == Material.air)) {
+            return null;
+        }
+
         AxisAlignedBB axisAlignedBB = this.getBlockState(pos).getBlock().getCollisionBoundingBox(this.getFakeWorld(), pos, getBlockState(pos));
-        axisAlignedBB = axisAlignedBB.offset(entityMovingWorld.posX, entityMovingWorld.posY, entityMovingWorld.posZ);
+        chunkBoundingBoxes.put(pos, axisAlignedBB);
 
         double maxDX = new Double(maxX());
         double maxDY = new Double(maxY());
@@ -220,43 +273,91 @@ public class MobileChunk implements IBlockAccess {
         maxDY = maxDY / 2 * -1;
         maxDZ = maxDZ / 2 * -1;
 
-        axisAlignedBB = axisAlignedBB.offset(maxDX, maxDY, maxDZ);
+        axisAlignedBB = axisAlignedBB.offset(entityMovingWorld.posX + maxDX - 0.5, entityMovingWorld.posY + maxDY, entityMovingWorld.posZ + maxDZ - 0.5);
         boundingBoxes.put(pos, axisAlignedBB);
 
         return axisAlignedBB;
     }
 
     public List<AxisAlignedBB> getBoxes() {
-        return Arrays.asList((AxisAlignedBB[]) boundingBoxes.values().toArray());
+        ArrayList<AxisAlignedBB> boxes = new ArrayList<AxisAlignedBB>();
+        boxes.addAll(boundingBoxes.values());
+
+        return boxes;
     }
 
     /**
      * Based off of the implementation in net.minecraft.world.World
      *
-     * @param entityBB bounding box with in world coordinates.
-     * @return applicable bounding boxes with world position.
+     * @return applicable bounding boxes with applicable position.
      */
-    public List getCollidingBoundingBoxes(AxisAlignedBB entityBB) {
-        ArrayList arraylist = Lists.newArrayList();
+    public List getCollidingBoundingBoxes(boolean chunkPos, AxisAlignedBB startBox, AxisAlignedBB endBox) {
+        ArrayList<AxisAlignedBB> axisAlignedBBs = new ArrayList<AxisAlignedBB>();
 
-        for (AxisAlignedBB axisAlignedBB : boundingBoxes.values()) {
-            if (axisAlignedBB.intersectsWith(entityBB)) {
-                arraylist.add(axisAlignedBB);
+        AxisAlignedBB boxUnion = startBox.union(endBox);
+
+        if (!chunkPos) {
+            for (AxisAlignedBB axisAlignedBB : boundingBoxes.values()) {
+                if (axisAlignedBB.intersectsWith(boxUnion)) {
+                    axisAlignedBBs.add(axisAlignedBB);
+                }
+            }
+        } else {
+            for (AxisAlignedBB axisAlignedBB : chunkBoundingBoxes.values()) {
+                if (axisAlignedBB.intersectsWith(boxUnion)) {
+                    axisAlignedBBs.add(axisAlignedBB);
+                }
             }
         }
 
-        return arraylist;
+        return axisAlignedBBs;
     }
 
-    public void offsetBlockBounds(Vec3 movingWorldPos, float rotationYaw) {
-        for (int i = 0; i < boundingBoxes.size(); i++) {
-            BlockPos pos = (BlockPos) boundingBoxes.keySet().toArray()[i];
-            AxisAlignedBB blockAxisAlignedBB = boundingBoxes.get(pos);
-            AxisAlignedBB axisAlignedBB;
+    public List getCollidingBoundingBoxes(boolean chunkPos, AxisAlignedBB box) {
+        ArrayList<AxisAlignedBB> axisAlignedBBs = new ArrayList<AxisAlignedBB>();
 
-            axisAlignedBB = AABBRotator.rotateAABBAroundY(blockAxisAlignedBB, movingWorldPos.xCoord, movingWorldPos.yCoord, (float) Math.toRadians(rotationYaw));
+        if (!chunkPos) {
+            for (AxisAlignedBB axisAlignedBB : boundingBoxes.values()) {
+                if (axisAlignedBB.intersectsWith(box)) {
+                    axisAlignedBBs.add(axisAlignedBB);
+                }
+            }
+        } else {
+            for (AxisAlignedBB axisAlignedBB : chunkBoundingBoxes.values()) {
+                if (axisAlignedBB.intersectsWith(box)) {
+                    axisAlignedBBs.add(axisAlignedBB);
+                }
+            }
+        }
 
-            boundingBoxes.put(pos, axisAlignedBB);
+        return axisAlignedBBs;
+    }
+
+    /**
+     * Offsets all the bounding boxes as needed.
+     *
+     * @param rotationYaw
+     */
+    public void updateBlockBounds(float rotationYaw) {
+        for (AxisAlignedBB bb : chunkBoundingBoxes.values()) {
+            if (bb != null) {
+                BlockPos pos = chunkBoundingBoxes.inverse().get(bb);
+
+                double maxDX = new Double(maxX());
+                double maxDZ = new Double(maxZ());
+
+                maxDX = maxDX / 2;
+                maxDZ = maxDZ / 2;
+
+                float yaw = (float) Math.toRadians(rotationYaw);
+
+                Vec3Mod vec = new Vec3Mod(pos.getX() - maxDX, pos.getY() - minY(), pos.getZ() - maxDZ);
+                vec = vec.rotateAroundY(yaw);
+
+                bb = bb.offset(entityMovingWorld.posX + vec.xCoord, entityMovingWorld.posY + vec.yCoord, entityMovingWorld.posZ + vec.zCoord);
+
+                boundingBoxes.put(pos, bb);
+            }
         }
     }
 
@@ -389,7 +490,6 @@ public class MobileChunk implements IBlockAccess {
     public void onChunkLoad() {
         isChunkLoaded = true;
         worldObj.addTileEntities(chunkTileEntityMap.values());
-        calculateBounds();
     }
 
     /**
@@ -413,7 +513,7 @@ public class MobileChunk implements IBlockAccess {
     @Override
     public boolean isAirBlock(BlockPos pos) {
         Block block = getBlockState(pos).getBlock();
-        return block == null || block.isAir(worldObj, pos) || block instanceof BlockAir;
+        return block == null || block.isAir(worldObj, pos) || block.getMaterial() == Material.air;
     }
 
     public boolean isBlockTakingWaterVolume(BlockPos pos) {
@@ -429,7 +529,7 @@ public class MobileChunk implements IBlockAccess {
         return CHUNK_SIZE;
     }
 
-    protected Block getBlock(BlockPos pos) {
+    public Block getBlock(BlockPos pos) {
         ExtendedBlockStorage storage = getBlockStorage(pos);
         if (storage == null) return Blocks.air;
         return storage.getBlockByExtId(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);
@@ -486,4 +586,32 @@ public class MobileChunk implements IBlockAccess {
         return 2 + blockCount * 9; // (3 bytes + 2 bytes (short) + 4 bytes (int) = 9 bytes per block) + 2 bytes (short)
     }
 
+    public boolean needsCustomCollision(AxisAlignedBB axisAlignedBB) {
+
+        boolean retVal = false;
+
+        for (AxisAlignedBB bb : boundingBoxes.values()) {
+            if (bbContainsBB(axisAlignedBB, bb)) {
+                retVal = true;
+                break;
+            }
+        }
+
+        return retVal;
+    }
+
+    private boolean bbContainsBB(AxisAlignedBB container, AxisAlignedBB axisAlignedBB) {
+        Vec3 minVec = new Vec3(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ);
+        //Vec3 midVec = new Vec3((axisAlignedBB.maxX - axisAlignedBB.minX) / 2, (axisAlignedBB.maxY - axisAlignedBB.minY) / 2, (axisAlignedBB.maxZ - axisAlignedBB.minZ) / 2);
+        //midVec = midVec.add(minVec);
+        Vec3 maxVec = new Vec3(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ);
+
+        if (container.minX < minVec.xCoord || container.minY < minVec.yCoord || container.minZ < minVec.zCoord) {
+            return true;
+        }
+        if (container.maxX > maxVec.xCoord || container.maxY > maxVec.yCoord || container.maxZ > maxVec.zCoord) {
+            return true;
+        }
+        return false;
+    }
 }
