@@ -17,11 +17,12 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 
-@Mod(modid = MovingWorld.MOD_ID, name = MovingWorld.MOD_NAME, version = MovingWorld.MOD_VERSION)
+@Mod(modid = MovingWorld.MOD_ID, name = MovingWorld.MOD_NAME, version = MovingWorld.MOD_VERSION, guiFactory = MovingWorld.MOD_GUIFACTORY)
 public class MovingWorld {
     public static final String MOD_ID = "MovingWorld";
     public static final String MOD_VERSION = "1.8-ALPHA-0";
     public static final String MOD_NAME = "Moving World";
+    public static final String MOD_GUIFACTORY = "darkevilmac.movingworld.gui.MovingWorldGUIFactory";
 
     @Mod.Instance(MOD_ID)
     public static MovingWorld instance;
@@ -36,20 +37,16 @@ public class MovingWorld {
     public NetworkUtil network;
 
     public MovingWorld() {
-        //metaRotations = new MetaRotations();
         network = new NetworkUtil();
     }
-
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent e) {
         logger = e.getModLog();
-        File configFolder =  new File(e.getModConfigurationDirectory(), "MovingWorld");
+        File configFolder = new File(e.getModConfigurationDirectory(), "MovingWorld");
         File mConfigFile = new File(configFolder, "Main.cfg");
         mConfig = new MainConfig(new Configuration(mConfigFile));
         mConfig.loadAndSave();
-
-        //metaRotations.setConfigDirectory(e.getModConfigurationDirectory());
     }
 
     @Mod.EventHandler
@@ -61,7 +58,6 @@ public class MovingWorld {
 
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent e) {
-        //metaRotations.readMetaRotationFiles();
         mConfig.assemblePriorityConfig.loadAndSavePostInit();
     }
 

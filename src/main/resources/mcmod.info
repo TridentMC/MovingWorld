@@ -1,6 +1,6 @@
 [
 {
-  "modid": "movingworld",
+  "modid": "MovingWorld",
   "name": "Moving World",
   "description": "A Library for allowing the movement of tile entities in the world while still enabling interaction.",
   "version": "${version}",

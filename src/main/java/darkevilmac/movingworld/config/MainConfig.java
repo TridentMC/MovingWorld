@@ -1,13 +1,20 @@
 package darkevilmac.movingworld.config;
 
+import darkevilmac.movingworld.MovingWorld;
 import darkevilmac.movingworld.config.priority.AssemblePriorityConfig;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
+import net.minecraftforge.fml.client.event.ConfigChangedEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 public class MainConfig {
 
@@ -28,8 +35,13 @@ public class MainConfig {
         blockBlacklist = new HashSet<String>();
         blockWhitelist = new HashSet<String>();
         overwritableBlocks = new HashSet<String>();
+
+        FMLCommonHandler.instance().bus().register(this); // For in game config reloads.
     }
 
+    public Configuration getConfig() {
+        return this.config;
+    }
 
     /**
      * A private method so I can hide it in my IDE, because it's an eye sore.
@@ -105,11 +117,20 @@ public class MainConfig {
         Property prop = config.get("mobile_chunk", "forbidden_blocks", blockBlackListNames, "A list of blocks that will not be added to a Moving World.");
 
         String[] stringList = prop.getStringList();
-        ArrayList<String> stringArrayList = (ArrayList<String>) Arrays.asList(stringList);
+        ArrayList<String> stringArrayList = new ArrayList<String>();
+        Collections.addAll(stringArrayList, stringList);
+
         if (!stringArrayList.contains(blockName))
             stringArrayList.add(blockName);
 
-        prop.set((String[]) stringArrayList.toArray());
+        String[] setVal = new String[stringArrayList.size()];
+        int i = 0;
+        for (String str : stringArrayList) {
+            setVal[i] = str;
+            i++;
+        }
+
+        prop.set(setVal);
 
         config.save();
     }
@@ -127,11 +148,19 @@ public class MainConfig {
         Property prop = config.get("mobile_chunk", "allowed_blocks", blockWhiteListNames, "A list of blocks that are allowed on a Moving World.");
 
         String[] stringList = prop.getStringList();
-        ArrayList<String> stringArrayList = (ArrayList<String>) Arrays.asList(stringList);
+        ArrayList<String> stringArrayList = new ArrayList<String>();
+        Collections.addAll(stringArrayList, stringList);
         if (!stringArrayList.contains(blockName))
             stringArrayList.add(blockName);
 
-        prop.set((String[]) stringArrayList.toArray());
+        String[] setVal = new String[stringArrayList.size()];
+        int i = 0;
+        for (String str : stringArrayList) {
+            setVal[i] = str;
+            i++;
+        }
+
+        prop.set(setVal);
 
         config.save();
     }
@@ -143,6 +172,15 @@ public class MainConfig {
 
     public boolean canOverwriteBlock(Block block) {
         return overwritableBlocks.contains(Block.blockRegistry.getNameForObject(block));
+    }
+
+    @SubscribeEvent
+    public void onConfigChange(ConfigChangedEvent.OnConfigChangedEvent event) {
+        if (event.modID.equals(MovingWorld.MOD_ID)) {
+            if (config.hasChanged())
+                config.save();
+            loadAndSave();
+        }
     }
 
 }
