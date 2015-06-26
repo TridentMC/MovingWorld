@@ -44,7 +44,7 @@ minecraft {
 // Mixins
 ext {
     mixinSrg = new File(project.buildDir, 'tmp/mixins/mixins.srg')
-    mixinRefMap = new File(project.buildDir, "tmp/mixins/mixins.crystal.refmap.json")
+    mixinRefMap = new File(project.buildDir, "tmp/mixins/mixins.movingworld.refmap.json")
 }
 
 configurations {
