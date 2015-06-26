@@ -6,14 +6,10 @@ import net.minecraftforge.fml.client.IModGuiFactory;
 
 import java.util.Set;
 
-/**
- * Created by DarkEvilMac on 6/25/2015.
- */
 
 public class MovingWorldGUIFactory implements IModGuiFactory {
     @Override
     public void initialize(Minecraft minecraftInstance) {
-
     }
 
     @Override

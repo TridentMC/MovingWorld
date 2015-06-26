@@ -62,7 +62,7 @@ public class MainConfig {
     }
 
     public void loadAndSave() {
-        Block[] defaultOverWritableBlocks = {Blocks.tallgrass, Blocks.waterlily, Blocks.snow_layer, Blocks.vine, Blocks.flowing_water, Blocks.flowing_lava};
+        Block[] defaultOverWritableBlocks = {Blocks.tallgrass, Blocks.waterlily, Blocks.snow_layer};
 
         String[] blockBlackListNames = new String[getDefaultBlockBlackList().length];
         for (int i = 0; i < getDefaultBlockBlackList().length; i++) {

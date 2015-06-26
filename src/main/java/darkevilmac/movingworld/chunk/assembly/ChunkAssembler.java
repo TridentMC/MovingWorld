@@ -1,12 +1,10 @@
 package darkevilmac.movingworld.chunk.assembly;
 
 import darkevilmac.movingworld.MovingWorld;
-import darkevilmac.movingworld.block.BlockMovingWorldMarker;
 import darkevilmac.movingworld.chunk.LocatedBlock;
 import darkevilmac.movingworld.chunk.MovingWorldAssemblyInteractor;
 import darkevilmac.movingworld.chunk.MovingWorldSizeOverflowException;
 import darkevilmac.movingworld.event.AssembleBlockEvent;
-import darkevilmac.movingworld.tile.TileMovingWorldMarkingBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
@@ -60,7 +58,7 @@ public class ChunkAssembler {
 
         LocatedBlock movingWorldMarker = null;
 
-        BlockPos pos = new BlockPos(sPos);
+        BlockPos pos = sPos;
 
         openSet.add(new BlockPos(sPos));
         while (!openSet.isEmpty()) {
@@ -87,7 +85,7 @@ public class ChunkAssembler {
 
                 LocatedBlock lb = new LocatedBlock(blockState, worldObj.getTileEntity(pos), iPos);
                 assemblyInteractor.blockAssembled(lb);
-                if ((lb.blockState != null && lb.blockState.getBlock() != null && lb.blockState.getBlock() instanceof BlockMovingWorldMarker) || (lb.tileEntity != null && lb.tileEntity instanceof TileMovingWorldMarkingBlock)) {
+                if (assemblyInteractor.isTileMovingWorldMarker(lb.tileEntity) || assemblyInteractor.isBlockMovingWorldMarker(lb.blockState.getBlock())) {
                     if (movingWorldMarker == null)
                         movingWorldMarker = lb;
                 }
@@ -139,7 +137,7 @@ public class ChunkAssembler {
 
         LocatedBlock lb = new LocatedBlock(blockState, worldObj.getTileEntity(pos), pos);
         assemblyInteractor.blockAssembled(lb);
-        if ((lb.blockState != null && lb.blockState.getBlock() != null && lb.blockState.getBlock() instanceof BlockMovingWorldMarker) || (lb.tileEntity != null && lb.tileEntity instanceof TileMovingWorldMarkingBlock)) {
+        if (assemblyInteractor.isBlockMovingWorldMarker(block) || assemblyInteractor.isTileMovingWorldMarker(lb.tileEntity)) {
             if (movingWorldMarker == null)
                 movingWorldMarker = lb;
         }

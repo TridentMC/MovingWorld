@@ -790,7 +790,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         if (compound.hasKey("owner")) {
             info.setOwner(UUID.fromString(compound.getString("owner")));
         }
-        mobileChunk.calculateBounds();
+        //mobileChunk.calculateBounds();
         readMovingWorldNBT(compound);
     }
 

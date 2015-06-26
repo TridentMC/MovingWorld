@@ -14,9 +14,8 @@ import darkevilmac.movingworld.util.Vec3Mod;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
-import net.minecraft.server.MinecraftServer;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntitySkull;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
@@ -191,11 +190,18 @@ public class ChunkDisassembler {
                 world.setBlockState(pos, blockState, 2);
             }
             if (tileentity != null) {
+                tileentity.setPos(pos);
                 if (tileentity instanceof IMovingWorldTileEntity) {
                     ((IMovingWorldTileEntity) tileentity).setParentMovingWorld(new BlockPos(i, j, k), null);
                 }
-                tileentity.validate();
+                // Issue occurs here, NBT reading borked.
+                NBTTagCompound tileTag = new NBTTagCompound();
+                tileentity.writeToNBT(tileTag);
+
                 world.setTileEntity(pos, tileentity);
+                world.getTileEntity(pos).readFromNBT(tileTag);
+                tileentity.validate();
+                tileentity = world.getTileEntity(pos);
             }
 
             blockState = world.getBlockState(pos);
@@ -206,6 +212,7 @@ public class ChunkDisassembler {
             DisassembleBlockEvent event = new DisassembleBlockEvent(lb);
             MinecraftForge.EVENT_BUS.post(event);
             result.assembleBlock(lb);
+
         }
 
         return postList;
