@@ -30,7 +30,7 @@ group = "darkevilmac.movingworld" // http://maven.apache.org/guides/mini/guide-n
 archivesBaseName = "movingworld"
 
 minecraft {
-    version = "1.8-11.14.2.1427"
+    version = "1.8-11.14.3.1480"
     runDir = "run"
 
     // the mappings can be changed at any time, and must be in the following format.
