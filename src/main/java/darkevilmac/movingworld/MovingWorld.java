@@ -20,7 +20,7 @@ import java.io.File;
 @Mod(modid = MovingWorld.MOD_ID, name = MovingWorld.MOD_NAME, version = MovingWorld.MOD_VERSION, guiFactory = MovingWorld.MOD_GUIFACTORY)
 public class MovingWorld {
     public static final String MOD_ID = "MovingWorld";
-    public static final String MOD_VERSION = "1.8-ALPHA-1";
+    public static final String MOD_VERSION = "1.8-ALPHA-2";
     public static final String MOD_NAME = "Moving World";
     public static final String MOD_GUIFACTORY = "darkevilmac.movingworld.gui.MovingWorldGUIFactory";
 

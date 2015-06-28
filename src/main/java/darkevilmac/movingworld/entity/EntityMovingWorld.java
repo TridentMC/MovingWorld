@@ -348,11 +348,11 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     }
 
     public AxisAlignedBB getMovingWorldCollBox() {
-        return ReflectionHelper.getPrivateValue(Entity.class, this, "boundingBox");
+        return ReflectionHelper.getPrivateValue(Entity.class, this, "boundingBox", "field_70121_D");
     }
 
     public void setMovingWorldCollBox(AxisAlignedBB axisAlignedBB) {
-        ReflectionHelper.setPrivateValue(Entity.class, this, axisAlignedBB, "boundingBox");
+        ReflectionHelper.setPrivateValue(Entity.class, this, axisAlignedBB, "boundingBox", "field_70121_D");
     }
 
     protected void handleServerUpdate(double horvel) {
