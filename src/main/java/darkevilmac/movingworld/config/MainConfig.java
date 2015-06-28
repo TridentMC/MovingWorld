@@ -69,17 +69,10 @@ public class MainConfig {
             blockBlackListNames[i] = Block.blockRegistry.getNameForObject(getDefaultBlockBlackList()[i]).toString();
         }
 
-        String[] blockWhiteListNames = new String[6 + getDefaultBlockWhiteList().length];
-        for (int i = 0; i < blockWhiteListNames.length - 6; i++) {
+        String[] blockWhiteListNames = new String[getDefaultBlockWhiteList().length];
+        for (int i = 0; i < blockWhiteListNames.length; i++) {
             blockWhiteListNames[i] = Block.blockRegistry.getNameForObject(getDefaultBlockWhiteList()[i]).toString();
         }
-
-        blockWhiteListNames[blockWhiteListNames.length - 6] = "ArchimedesShipsPlus:marker";
-        blockWhiteListNames[blockWhiteListNames.length - 5] = "ArchimedesShipsPlus:floater";
-        blockWhiteListNames[blockWhiteListNames.length - 4] = "ArchimedesShipsPlus:balloon";
-        blockWhiteListNames[blockWhiteListNames.length - 3] = "ArchimedesShipsPlus:gauge";
-        blockWhiteListNames[blockWhiteListNames.length - 2] = "ArchimedesShipsPlus:seat";
-        blockWhiteListNames[blockWhiteListNames.length - 1] = "ArchimedesShipsPlus:engine";
 
         String[] overWritableBlockNames = new String[defaultOverWritableBlocks.length];
         for (int i = 0; i < defaultOverWritableBlocks.length; i++) {
@@ -140,8 +133,8 @@ public class MainConfig {
 
         config.load();
 
-        String[] blockWhiteListNames = new String[6 + getDefaultBlockWhiteList().length];
-        for (int i = 0; i < blockWhiteListNames.length - 6; i++) {
+        String[] blockWhiteListNames = new String[getDefaultBlockWhiteList().length];
+        for (int i = 0; i < blockWhiteListNames.length; i++) {
             blockWhiteListNames[i] = Block.blockRegistry.getNameForObject(getDefaultBlockWhiteList()[i]).toString();
         }
 

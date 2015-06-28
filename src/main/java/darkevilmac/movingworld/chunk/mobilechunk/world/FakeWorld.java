@@ -4,6 +4,7 @@ import darkevilmac.movingworld.chunk.mobilechunk.MobileChunk;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
 
@@ -36,12 +37,12 @@ public class FakeWorld extends World {
 
     @Override
     protected int getRenderDistanceChunks() {
-        return 0;
+        return 0; // Shouldn't really matter.
     }
 
     @Override
     public IBlockState getBlockState(BlockPos pos) {
-        return mobileChunk.getBlockState(pos);
+        return isValidPosition(pos) ? mobileChunk.getBlockState(pos) : null;
     }
 
     @Override
@@ -52,6 +53,22 @@ public class FakeWorld extends World {
     @Override
     public boolean setBlockState(BlockPos pos, IBlockState newState, int flags) {
         return false;
+    }
+
+    private boolean isValidPosition(BlockPos pos) {
+        return pos.getX() >= mobileChunk.minX() && pos.getZ() >= mobileChunk.minZ() && pos.getX() < mobileChunk.maxX() && pos.getZ() < mobileChunk.maxZ() && pos.getY() >= 0 && pos.getY() < mobileChunk.maxY();
+    }
+
+    @Override
+    public boolean isBlockLoaded(BlockPos pos, boolean allowEmpty) {
+        return isValidPosition(pos);
+    }
+
+    @Override
+    public boolean isSideSolid(BlockPos pos, EnumFacing side, boolean _default) {
+        if (getBlockState(pos) == null || isAirBlock(pos)) return _default;
+
+        return getBlockState(pos).getBlock().isSideSolid(this, pos, side);
     }
 
 }
