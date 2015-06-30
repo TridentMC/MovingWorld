@@ -389,7 +389,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         float gravity = 0.05F;
         if (waterVolume > 0F) {
             isFlying = false;
-            float buoyancyforce = 1F * waterVolume * gravity; //F = rho * V * g (Archimedes' law)
+            float buoyancyforce = 1F * waterVolume * gravity; //F = rho * V * g (Archimedes' principle)
             float mass = getCapabilities().getMass();
             motionY += buoyancyforce / mass;
         }

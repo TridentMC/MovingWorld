@@ -159,6 +159,10 @@ public class ChunkDisassembler {
     }
 
     LocatedBlockList processLocatedBlockList(World world, LocatedBlockList locatedBlocks, LocatedBlockList postList, MovingWorldAssemblyInteractor assemblyInteractor, int currentRot) {
+
+        LocatedBlockList retPostList = new LocatedBlockList();
+        retPostList.addAll(postList);
+
         TileEntity tileentity;
         IBlockState blockState;
         BlockPos pos;
@@ -183,7 +187,7 @@ public class ChunkDisassembler {
                 assemblyInteractor.blockOverwritten(owBlock);
 
             if (!world.setBlockState(pos, blockState, 2) || blockState.getBlock() != world.getBlockState(pos).getBlock()) {
-                postList.add(new LocatedBlock(blockState, tileentity, pos));
+                retPostList.add(new LocatedBlock(blockState, tileentity, pos));
                 continue;
             }
             if (blockState != world.getBlockState(pos)) {
@@ -215,7 +219,7 @@ public class ChunkDisassembler {
 
         }
 
-        return postList;
+        return retPostList;
     }
 
     private LocatedBlock rotateBlock(LocatedBlock locatedBlock, int deltaRot) {

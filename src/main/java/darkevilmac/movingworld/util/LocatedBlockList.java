@@ -36,10 +36,12 @@ public class LocatedBlockList extends ArrayList<LocatedBlock> {
     }
 
     public LocatedBlockList getHighPriorityAssemblyBlocks() {
+        LocatedBlockList thisList = new LocatedBlockList();
+        thisList.addAll(this);
         LocatedBlockList lbList = new LocatedBlockList();
 
-        if (!this.isEmpty()) {
-            for (LocatedBlock lb : this) {
+        if (!thisList.isEmpty()) {
+            for (LocatedBlock lb : thisList) {
                 if (MovingWorld.instance.mConfig.assemblePriorityConfig.getHighPriorityAssembly().contains(lb.getBlockName())) {
                     lbList.add(lb);
                 }
@@ -50,10 +52,12 @@ public class LocatedBlockList extends ArrayList<LocatedBlock> {
     }
 
     public LocatedBlockList getHighPriorityDisassemblyBlocks() {
+        LocatedBlockList thisList = new LocatedBlockList();
+        thisList.addAll(this);
         LocatedBlockList lbList = new LocatedBlockList();
 
-        if (!this.isEmpty()) {
-            for (LocatedBlock lb : this) {
+        if (!thisList.isEmpty()) {
+            for (LocatedBlock lb : thisList) {
                 if (MovingWorld.instance.mConfig.assemblePriorityConfig.getHighPriorityDisassembly().contains(lb.getBlockName())) {
                     lbList.add(lb);
                 }
@@ -64,10 +68,12 @@ public class LocatedBlockList extends ArrayList<LocatedBlock> {
     }
 
     public LocatedBlockList getLowPriorityAssemblyBlocks() {
+        LocatedBlockList thisList = new LocatedBlockList();
+        thisList.addAll(this);
         LocatedBlockList lbList = new LocatedBlockList();
 
-        if (!this.isEmpty()) {
-            for (LocatedBlock lb : this) {
+        if (!thisList.isEmpty()) {
+            for (LocatedBlock lb : thisList) {
                 if (MovingWorld.instance.mConfig.assemblePriorityConfig.getLowPriorityAssembly().contains(lb.getBlockName())) {
                     lbList.add(lb);
                 }
@@ -78,10 +84,12 @@ public class LocatedBlockList extends ArrayList<LocatedBlock> {
     }
 
     public LocatedBlockList getLowPriorityDisassemblyBlocks() {
+        LocatedBlockList thisList = new LocatedBlockList();
+        thisList.addAll(this);
         LocatedBlockList lbList = new LocatedBlockList();
 
-        if (!this.isEmpty()) {
-            for (LocatedBlock lb : this) {
+        if (!thisList.isEmpty()) {
+            for (LocatedBlock lb : thisList) {
                 if (MovingWorld.instance.mConfig.assemblePriorityConfig.getLowPriorityDisassembly().contains(lb.getBlockName())) {
                     lbList.add(lb);
                 }
@@ -92,10 +100,12 @@ public class LocatedBlockList extends ArrayList<LocatedBlock> {
     }
 
     public LocatedBlockList getStandardPriorityAssemblyBlocks() {
+        LocatedBlockList thisList = new LocatedBlockList();
+        thisList.addAll(this);
         LocatedBlockList lbList = new LocatedBlockList();
 
-        if (!this.isEmpty()) {
-            for (LocatedBlock lb : this) {
+        if (!thisList.isEmpty()) {
+            for (LocatedBlock lb : thisList) {
                 if (!MovingWorld.instance.mConfig.assemblePriorityConfig.getHighPriorityAssembly().contains(lb.getBlockName())
                         && !MovingWorld.instance.mConfig.assemblePriorityConfig.getLowPriorityAssembly().contains(lb.getBlockName())) {
                     lbList.add(lb);
@@ -107,10 +117,12 @@ public class LocatedBlockList extends ArrayList<LocatedBlock> {
     }
 
     public LocatedBlockList getStandardPriorityDisassemblyBlocks() {
+        LocatedBlockList thisList = new LocatedBlockList();
+        thisList.addAll(this);
         LocatedBlockList lbList = new LocatedBlockList();
 
-        if (!this.isEmpty()) {
-            for (LocatedBlock lb : this) {
+        if (!thisList.isEmpty()) {
+            for (LocatedBlock lb : thisList) {
                 if (!MovingWorld.instance.mConfig.assemblePriorityConfig.getHighPriorityDisassembly().contains(lb.getBlockName())
                         && !MovingWorld.instance.mConfig.assemblePriorityConfig.getLowPriorityDisassembly().contains(lb.getBlockName())) {
                     lbList.add(lb);
