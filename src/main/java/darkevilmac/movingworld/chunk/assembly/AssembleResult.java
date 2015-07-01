@@ -98,7 +98,7 @@ public class AssembleResult {
         entity.setRiderDestination(facing, riderDestination);
         entity.getMovingWorldChunk().setCreationSpotBiomeGen(world.getBiomeGenForCoords(movingWorldMarkingBlock.blockPos));
 
-        boolean flag = world.getGameRules().getGameRuleBooleanValue("doTileDrops");
+        boolean doTileDropsInWorld = world.getGameRules().getGameRuleBooleanValue("doTileDrops");
         world.getGameRules().setOrCreateGameRule("doTileDrops", "false");
 
         ArrayList<LocatedBlockList> separatedLbLists = assembledBlocks.getSortedAssemblyBlocks();
@@ -113,9 +113,9 @@ public class AssembleResult {
             resultCode = RESULT_ERROR_OCCURED;
             e.printStackTrace();
             return null;
-        } finally {
-            world.getGameRules().setOrCreateGameRule("doTileDrops", String.valueOf(flag));
         }
+
+        world.getGameRules().setOrCreateGameRule("doTileDrops", String.valueOf(doTileDropsInWorld));
 
         entity.getMovingWorldChunk().setChunkModified();
         entity.getMovingWorldChunk().onChunkLoad();
