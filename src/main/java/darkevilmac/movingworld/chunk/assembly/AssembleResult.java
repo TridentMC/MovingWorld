@@ -136,8 +136,9 @@ public class AssembleResult {
                 tileentity.validate();
             }
             if (entityMovingWorld.getMovingWorldChunk().addBlockWithState(iPos, lb.blockState)) {
-                entityMovingWorld.getMovingWorldChunk().setTileEntity(iPos, tileentity);
                 world.setBlockState(lb.blockPos, Blocks.air.getDefaultState(), 2);
+                // Kill tiles after blockState, should fix a bug with TheCodeWarrior's Catwalk mod, potentially more.
+                entityMovingWorld.getMovingWorldChunk().setTileEntity(iPos, tileentity);
             }
         }
 
