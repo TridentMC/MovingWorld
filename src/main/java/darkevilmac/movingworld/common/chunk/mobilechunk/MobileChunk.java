@@ -38,14 +38,13 @@ public class MobileChunk implements IBlockAccess {
     public Map<BlockPos, TileEntity> chunkTileEntityMap;
     public boolean isChunkLoaded;
     public boolean isModified;
+    public LocatedBlock marker;
     private Map<BlockPos, ExtendedBlockStorage> blockStorageMap;
     private boolean boundsInit;
     private BlockPos minBounds;
     private BlockPos maxBounds;
     private int blockCount;
     private BiomeGenBase creationSpotBiome;
-    public LocatedBlock marker;
-
     private HashBiMap<BlockPos, AxisAlignedBB> boundingBoxes;
 
     private HashBiMap<BlockPos, AxisAlignedBB> chunkBoundingBoxes;

@@ -1,11 +1,11 @@
 package darkevilmac.movingworld;
 
+import darkevilmac.movingworld.common.CommonProxy;
 import darkevilmac.movingworld.common.config.MainConfig;
 import darkevilmac.movingworld.common.mrot.MetaRotations;
 import darkevilmac.movingworld.common.network.MovingWorldMessageToMessageCodec;
 import darkevilmac.movingworld.common.network.MovingWorldPacketHandler;
 import darkevilmac.movingworld.common.network.NetworkUtil;
-import darkevilmac.movingworld.common.CommonProxy;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
