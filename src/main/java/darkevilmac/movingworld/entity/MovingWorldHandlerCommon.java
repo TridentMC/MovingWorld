@@ -25,7 +25,7 @@ public abstract class MovingWorldHandlerCommon {
     }
 
     public void onChunkUpdate() {
-        MobileChunk chunk = getMovingWorld().getMovingWorldChunk();
+        MobileChunk chunk = getMovingWorld().getMobileChunk();
         getMovingWorld().getCapabilities().clearBlockCount();
         for (int i = chunk.minX(); i < chunk.maxX(); i++) {
             for (int j = chunk.minY(); j < chunk.maxY(); j++) {
@@ -62,5 +62,6 @@ public abstract class MovingWorldHandlerCommon {
             }
         }
         getMovingWorld().isFlying = getMovingWorld().getCapabilities().canFly();
+        getMovingWorld().getCapabilities().postBlockAdding();
     }
 }

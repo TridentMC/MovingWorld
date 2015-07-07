@@ -42,7 +42,7 @@ public class FakeWorld extends World {
 
     @Override
     public IBlockState getBlockState(BlockPos pos) {
-        return isValidPosition(pos) ? mobileChunk.getBlockState(pos) : null;
+        return mobileChunk.getBlockState(pos);
     }
 
     @Override
@@ -71,4 +71,8 @@ public class FakeWorld extends World {
         return getBlockState(pos).getBlock().isSideSolid(this, pos, side);
     }
 
+    @Override
+    public float getLightBrightness(BlockPos pos) {
+        return this.getBlockState(pos).getBlock().getLightValue(mobileChunk, pos);
+    }
 }

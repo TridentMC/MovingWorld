@@ -1,18 +1,37 @@
 package darkevilmac.movingworld.util;
 
+import com.google.common.collect.HashBiMap;
 import darkevilmac.movingworld.MovingWorld;
 import darkevilmac.movingworld.chunk.LocatedBlock;
+import net.minecraft.util.BlockPos;
 
 import java.util.ArrayList;
 
 public class LocatedBlockList extends ArrayList<LocatedBlock> {
 
+    private HashBiMap<BlockPos, LocatedBlock> posMap;
+
     public LocatedBlockList() {
         super();
+        posMap = HashBiMap.create();
     }
 
     public LocatedBlockList(int initialSize) {
         super(initialSize);
+    }
+
+    @Override
+    public boolean add(LocatedBlock locatedBlock) {
+        if (!posMap.containsKey(locatedBlock.blockPos))
+            posMap.put(locatedBlock.blockPos, locatedBlock);
+        return super.add(locatedBlock);
+    }
+
+    @Override
+    public void add(int index, LocatedBlock locatedBlock) {
+        if (!posMap.containsKey(locatedBlock.blockPos))
+            posMap.put(locatedBlock.blockPos, locatedBlock);
+        super.add(index, locatedBlock);
     }
 
     public ArrayList<LocatedBlockList> getSortedAssemblyBlocks() {
@@ -131,6 +150,10 @@ public class LocatedBlockList extends ArrayList<LocatedBlock> {
         }
 
         return lbList;
+    }
+
+    public boolean containsLBOfPos(BlockPos pos) {
+        return posMap.containsKey(pos);
     }
 
 }

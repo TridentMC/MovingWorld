@@ -1,6 +1,7 @@
 package darkevilmac.movingworld.chunk.mobilechunk;
 
 import com.google.common.collect.HashBiMap;
+import darkevilmac.movingworld.chunk.LocatedBlock;
 import darkevilmac.movingworld.chunk.mobilechunk.world.FakeWorld;
 import darkevilmac.movingworld.entity.EntityMovingWorld;
 import darkevilmac.movingworld.tile.IMovingWorldTileEntity;
@@ -43,6 +44,7 @@ public class MobileChunk implements IBlockAccess {
     private BlockPos maxBounds;
     private int blockCount;
     private BiomeGenBase creationSpotBiome;
+    public LocatedBlock marker;
 
     private HashBiMap<BlockPos, AxisAlignedBB> boundingBoxes;
 
@@ -55,6 +57,7 @@ public class MobileChunk implements IBlockAccess {
         chunkTileEntityMap = new HashMap<BlockPos, TileEntity>(2);
         boundingBoxes = HashBiMap.create();
         chunkBoundingBoxes = HashBiMap.create();
+        marker = null;
 
         isChunkLoaded = false;
         isModified = false;

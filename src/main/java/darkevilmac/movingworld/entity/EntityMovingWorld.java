@@ -2,6 +2,7 @@ package darkevilmac.movingworld.entity;
 
 import darkevilmac.movingworld.MovingWorld;
 import darkevilmac.movingworld.chunk.ChunkIO;
+import darkevilmac.movingworld.chunk.LocatedBlock;
 import darkevilmac.movingworld.chunk.MovingWorldAssemblyInteractor;
 import darkevilmac.movingworld.chunk.MovingWorldSizeOverflowException;
 import darkevilmac.movingworld.chunk.assembly.AssembleResult;
@@ -49,7 +50,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     public boolean isFlying;
     public Entity prevRiddenByEntity;
     protected float groundFriction, horFriction, vertFriction;
-    int[] layeredBlockVolumeCount;
+    protected int[] layeredBlockVolumeCount;
     private MobileChunk mobileChunk;
     private MovingWorldInfo info;
     private ChunkDisassembler disassembler;
@@ -167,8 +168,16 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     public abstract void initMovingWorldCommon();
 
-    public MobileChunk getMovingWorldChunk() {
+    public MobileChunk getMobileChunk() {
         return mobileChunk;
+    }
+
+    /**
+     * Called before returning the entity from AssembleResult.getEntity
+     *
+     * @see AssembleResult
+     */
+    public void assembleResultEntity() {
     }
 
     public abstract MovingWorldCapabilities getCapabilities();
@@ -357,42 +366,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     protected void handleServerUpdate(double horvel) {
         //START outer forces
-        byte b0 = 5;
-        int bpermeter = (int) (b0 * (getMovingWorldCollBox().maxY - getMovingWorldCollBox().minY));
-        float waterVolume = 0F;
-        AxisAlignedBB axisalignedbb = new AxisAlignedBB(0D, 0D, 0D, 0D, 0D, 0D);
-        int belowWater = 0;
-        for (; belowWater < bpermeter; belowWater++) {
-            double d1 = getMovingWorldCollBox().minY + (getMovingWorldCollBox().maxY - getMovingWorldCollBox().minY) * belowWater / bpermeter;
-            double d2 = getMovingWorldCollBox().minY + (getMovingWorldCollBox().maxY - getMovingWorldCollBox().minY) * (belowWater + 1) / bpermeter;
-            axisalignedbb = new AxisAlignedBB(getMovingWorldCollBox().minX, d1, getMovingWorldCollBox().minZ, getMovingWorldCollBox().maxX, d2, getMovingWorldCollBox().maxZ);
-
-            if (!isAABBInLiquidNotFall(worldObj, axisalignedbb)) {
-                break;
-            }
-        }
-        if (belowWater > 0 && layeredBlockVolumeCount != null) {
-            int k = belowWater / b0;
-            for (int y = 0; y <= k && y < layeredBlockVolumeCount.length; y++) {
-                if (y == k) {
-                    waterVolume += layeredBlockVolumeCount[y] * (belowWater % b0) * 1F / b0;
-                } else {
-                    waterVolume += layeredBlockVolumeCount[y] * 1F;
-                }
-            }
-        }
-
-        if (onGround) {
-            isFlying = false;
-        }
-
         float gravity = 0.05F;
-        if (waterVolume > 0F) {
-            isFlying = false;
-            float buoyancyforce = 1F * waterVolume * gravity; //F = rho * V * g (Archimedes' principle)
-            float mass = getCapabilities().getMass();
-            motionY += buoyancyforce / mass;
-        }
         if (!isFlying()) {
             motionY -= gravity;
         }
@@ -739,6 +713,14 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             compound.setTag("tileent", tileEntities);
         }
 
+        if (mobileChunk.marker != null) {
+            NBTTagCompound markerComp = new NBTTagCompound();
+            markerComp.setInteger("markerPosX", mobileChunk.marker.blockPos.getX());
+            markerComp.setInteger("markerPosY", mobileChunk.marker.blockPos.getY());
+            markerComp.setInteger("markerPosZ", mobileChunk.marker.blockPos.getZ());
+            compound.setTag("markerInfo", markerComp);
+        }
+
         compound.setString("name", info.getName());
         if (info.getOwner() != null) {
             compound.setString("owner", info.getOwner().toString());
@@ -783,6 +765,15 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
                 TileEntity tileentity = TileEntity.createAndLoadEntity(comp);
                 mobileChunk.setTileEntity(tileentity.getPos(), tileentity);
             }
+        }
+
+        if (compound.hasKey("markerInfo")) {
+            NBTTagCompound markerComp = (NBTTagCompound) compound.getTag("markerInfo");
+            BlockPos markerPos = new BlockPos(markerComp.getInteger("markerPosX"),
+                    markerComp.getInteger("markerPosY"),
+                    markerComp.getInteger("markerPosZ"));
+
+            mobileChunk.marker = new LocatedBlock(mobileChunk.getBlockState(markerPos), mobileChunk.getTileEntity(markerPos), markerPos);
         }
 
         info = new MovingWorldInfo();

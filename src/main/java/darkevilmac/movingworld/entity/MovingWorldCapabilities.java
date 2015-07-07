@@ -9,8 +9,8 @@ import net.minecraft.util.BlockPos;
 public abstract class MovingWorldCapabilities {
 
     private final EntityMovingWorld movingWorld;
+    protected float mass;
     private int blockCount;
-    private float mass;
     private boolean autoCalcMass;
     private float speedLimit;
     private float bankingMultiplier;
@@ -30,9 +30,13 @@ public abstract class MovingWorldCapabilities {
     }
 
     public void onChunkBlockAdded(IBlockState blockState, BlockPos pos) {
+        System.out.println("OnChunkBlockAdded");
         blockCount++;
         if (autoCalcMass)
             mass += MaterialDensity.getDensity(blockState.getBlock());
+    }
+
+    public void postBlockAdding() {
     }
 
     public abstract boolean mountEntity(Entity entity);

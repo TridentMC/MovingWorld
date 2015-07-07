@@ -27,12 +27,12 @@ public class RenderMovingWorld extends Render {
         GlStateManager.rotate(yaw, 0F, 1F, 0F);
         GlStateManager.rotate(pitch, rx, 0f, rz);
 
-        float fx = entity.getMovingWorldChunk().getCenterX();
-        float fz = entity.getMovingWorldChunk().getCenterZ();
-        GlStateManager.translate(-fx, -entity.getMovingWorldChunk().minY(), -fz); //minY is always 0
+        float fx = entity.getMobileChunk().getCenterX();
+        float fz = entity.getMobileChunk().getCenterZ();
+        GlStateManager.translate(-fx, -entity.getMobileChunk().minY(), -fz); //minY is always 0
 
         bindEntityTexture(entity);
-        ((MobileChunkClient) entity.getMovingWorldChunk()).getRenderer().render(0F);
+        ((MobileChunkClient) entity.getMobileChunk()).getRenderer().render(0F);
         GL11.glPopMatrix();
     }
 

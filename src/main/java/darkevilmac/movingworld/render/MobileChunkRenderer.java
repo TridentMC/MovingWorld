@@ -67,7 +67,6 @@ public class MobileChunkRenderer {
                     BlockPos pos = new BlockPos(x, y, z);
                     IBlockState blockState = chunk.getBlockState(pos);
                     Block block = blockState.getBlock();
-                    TileEntity tile = chunk.getTileEntity(pos);
 
                     for (EnumWorldBlockLayer enumWorldBlockLayer : EnumWorldBlockLayer.values()) {
                         if (!block.canRenderInLayer(enumWorldBlockLayer)) continue;

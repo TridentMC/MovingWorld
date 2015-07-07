@@ -62,7 +62,7 @@ public class MovingWorldClientActionMessage extends EntityMovingWorldMessage {
     }
 
     public enum Action {
-        NONE, ALIGN, DISASSEMBLE, DISASSEMBLEOVERWRITE;
+        NONE, ALIGN, DISASSEMBLE, DISASSEMBLEOVERWRITE, CHANGESUBMERSEVAL;
 
         public int toInt(Action action) {
             switch (action) {
@@ -72,6 +72,8 @@ public class MovingWorldClientActionMessage extends EntityMovingWorldMessage {
                     return 2;
                 case DISASSEMBLEOVERWRITE:
                     return 3;
+                case CHANGESUBMERSEVAL:
+                    return 4;
                 default:
                     return 0;
             }
@@ -85,6 +87,8 @@ public class MovingWorldClientActionMessage extends EntityMovingWorldMessage {
                     return DISASSEMBLE;
                 case 3:
                     return DISASSEMBLEOVERWRITE;
+                case 4:
+                    return CHANGESUBMERSEVAL;
                 default:
                     return NONE;
             }

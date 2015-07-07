@@ -38,7 +38,7 @@ public class TileEntitiesMessage extends EntityMovingWorldMessage {
         super.encodeInto(ctx, buf, side);
         tagCompound = new NBTTagCompound();
         NBTTagList list = new NBTTagList();
-        for (TileEntity te : movingWorld.getMovingWorldChunk().chunkTileEntityMap.values()) {
+        for (TileEntity te : movingWorld.getMobileChunk().chunkTileEntityMap.values()) {
             NBTTagCompound nbt = new NBTTagCompound();
             if (te instanceof TileMovingWorldMarkingBlock) {
                 ((TileMovingWorldMarkingBlock) te).writeNBTForSending(nbt);
@@ -103,14 +103,14 @@ public class TileEntitiesMessage extends EntityMovingWorldMessage {
                 int z = nbt.getInteger("z");
                 BlockPos pos = new BlockPos(x, y, z);
                 try {
-                    TileEntity te = movingWorld.getMovingWorldChunk().getTileEntity(pos);
+                    TileEntity te = movingWorld.getMobileChunk().getTileEntity(pos);
                     if (te != null)
                         te.readFromNBT(nbt);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
-            ((MobileChunkClient) movingWorld.getMovingWorldChunk()).getRenderer().markDirty();
+            ((MobileChunkClient) movingWorld.getMobileChunk()).getRenderer().markDirty();
         }
     }
 

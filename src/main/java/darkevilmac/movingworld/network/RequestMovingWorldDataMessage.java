@@ -22,7 +22,7 @@ public class RequestMovingWorldDataMessage extends EntityMovingWorldMessage {
     @Override
     public void handleServerSide(EntityPlayer player) {
         if (movingWorld != null) {
-            if (movingWorld.getMovingWorldChunk().chunkTileEntityMap.isEmpty()) {
+            if (movingWorld.getMobileChunk().chunkTileEntityMap.isEmpty()) {
                 return;
             }
 

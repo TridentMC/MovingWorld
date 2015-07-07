@@ -51,39 +51,39 @@ public class ChunkAssembler {
         return result;
     }
 
-    private void assembleIterative(AssembleResult result, MovingWorldAssemblyInteractor assemblyInteractor, BlockPos pos) throws MovingWorldSizeOverflowException {
+    private void assembleIterative(AssembleResult result, MovingWorldAssemblyInteractor assemblyInteractor, BlockPos worldPos) throws MovingWorldSizeOverflowException {
         HashSet<BlockPos> openSet = new HashSet<BlockPos>();
         HashSet<BlockPos> closedSet = new HashSet<BlockPos>();
         List<BlockPos> iterator = new ArrayList<BlockPos>();
 
         LocatedBlock movingWorldMarker = null;
 
-        openSet.add(new BlockPos(pos));
+        openSet.add(new BlockPos(worldPos));
         while (!openSet.isEmpty()) {
             iterator.addAll(openSet);
-            for (BlockPos iPos : iterator) {
-                openSet.remove(iPos);
+            for (BlockPos mobileChunkPos : iterator) {
+                openSet.remove(mobileChunkPos);
 
-                if (closedSet.contains(iPos)) {
+                if (closedSet.contains(mobileChunkPos)) {
                     continue;
                 }
                 if (result.assembledBlocks.size() > maxBlocks) {
                     throw new MovingWorldSizeOverflowException();
                 }
 
-                pos = new BlockPos(iPos);
+                worldPos = new BlockPos(mobileChunkPos);
 
-                closedSet.add(iPos);
+                closedSet.add(mobileChunkPos);
 
-                IBlockState blockState = worldObj.getBlockState(pos);
+                IBlockState blockState = worldObj.getBlockState(worldPos);
                 Block block = blockState.getBlock();
-                CanAssemble canAssemble = canUseBlockForVehicle(block, assemblyInteractor, pos);
+                CanAssemble canAssemble = canUseBlockForVehicle(block, assemblyInteractor, worldPos);
 
                 if (canAssemble.justCancel) {
                     continue;
                 }
 
-                LocatedBlock lb = new LocatedBlock(blockState, worldObj.getTileEntity(pos), iPos);
+                LocatedBlock lb = new LocatedBlock(blockState, worldObj.getTileEntity(worldPos), mobileChunkPos);
                 assemblyInteractor.blockAssembled(lb);
                 if (assemblyInteractor.isTileMovingWorldMarker(lb.tileEntity) || assemblyInteractor.isBlockMovingWorldMarker(lb.blockState.getBlock())) {
                     if (movingWorldMarker == null)
@@ -94,28 +94,28 @@ public class ChunkAssembler {
                 result.assembleBlock(lb);
 
                 if (!canAssemble.assembleThenCancel) {
-                    openSet.add(pos.add(-1, 0, 0));
-                    openSet.add(pos.add(0, -1, 0));
-                    openSet.add(pos.add(0, 0, -1));
-                    openSet.add(pos.add(1, 0, 0));
-                    openSet.add(pos.add(0, 1, 0));
-                    openSet.add(pos.add(0, 0, 1));
+                    openSet.add(worldPos.add(-1, 0, 0));
+                    openSet.add(worldPos.add(0, -1, 0));
+                    openSet.add(worldPos.add(0, 0, -1));
+                    openSet.add(worldPos.add(1, 0, 0));
+                    openSet.add(worldPos.add(0, 1, 0));
+                    openSet.add(worldPos.add(0, 0, 1));
 
                     if (assemblyInteractor.doDiagonalAssembly()) {
-                        openSet.add(pos.add(-1, -1, +0));
-                        openSet.add(pos.add(+1, -1, +0));
-                        openSet.add(pos.add(+1, +1, +0));
-                        openSet.add(pos.add(-1, +1, +0));
+                        openSet.add(worldPos.add(-1, -1, +0));
+                        openSet.add(worldPos.add(+1, -1, +0));
+                        openSet.add(worldPos.add(+1, +1, +0));
+                        openSet.add(worldPos.add(-1, +1, +0));
 
-                        openSet.add(pos.add(-1, +0, -1));
-                        openSet.add(pos.add(+1, +0, -1));
-                        openSet.add(pos.add(+1, +0, +1));
-                        openSet.add(pos.add(-1, +0, +1));
+                        openSet.add(worldPos.add(-1, +0, -1));
+                        openSet.add(worldPos.add(+1, +0, -1));
+                        openSet.add(worldPos.add(+1, +0, +1));
+                        openSet.add(worldPos.add(-1, +0, +1));
 
-                        openSet.add(pos.add(+0, -1, -1));
-                        openSet.add(pos.add(+0, +1, -1));
-                        openSet.add(pos.add(+0, +1, +1));
-                        openSet.add(pos.add(+0, -1, +1));
+                        openSet.add(worldPos.add(+0, -1, -1));
+                        openSet.add(worldPos.add(+0, +1, -1));
+                        openSet.add(worldPos.add(+0, +1, +1));
+                        openSet.add(worldPos.add(+0, -1, +1));
                     }
                 }
             }

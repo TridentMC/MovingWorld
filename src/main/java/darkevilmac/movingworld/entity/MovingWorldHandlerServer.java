@@ -32,7 +32,7 @@ public abstract class MovingWorldHandlerServer extends MovingWorldHandlerCommon 
     @Override
     public void onChunkUpdate() {
         super.onChunkUpdate();
-        Collection<BlockPos> list = ((MobileChunkServer) getMovingWorld().getMovingWorldChunk()).getSendQueue();
+        Collection<BlockPos> list = ((MobileChunkServer) getMovingWorld().getMobileChunk()).getSendQueue();
         if (!firstChunkUpdate) {
             ChunkBlockUpdateMessage msg = new ChunkBlockUpdateMessage(getMovingWorld(), list);
             MovingWorld.instance.network.sendToAllAround(msg, new NetworkRegistry.TargetPoint(getMovingWorld().worldObj.provider.getDimensionId(), getMovingWorld().posX, getMovingWorld().posY, getMovingWorld().posZ, 64D));

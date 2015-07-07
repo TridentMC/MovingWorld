@@ -26,7 +26,7 @@ public class ChunkBlockUpdateMessage extends EntityMovingWorldMessage {
     public void encodeInto(ChannelHandlerContext ctx, ByteBuf buf, Side side) {
         super.encodeInto(ctx, buf, side);
         try {
-            ChunkIO.writeCompressed(buf, movingWorld.getMovingWorldChunk(), sendQueue);
+            ChunkIO.writeCompressed(buf, movingWorld.getMobileChunk(), sendQueue);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -37,7 +37,7 @@ public class ChunkBlockUpdateMessage extends EntityMovingWorldMessage {
         super.decodeInto(ctx, buf, player, side);
         if (movingWorld != null) {
             try {
-                ChunkIO.readCompressed(buf, movingWorld.getMovingWorldChunk());
+                ChunkIO.readCompressed(buf, movingWorld.getMobileChunk());
             } catch (IOException e) {
                 e.printStackTrace();
             }

@@ -21,8 +21,10 @@ import net.minecraft.world.World;
 import java.util.ArrayList;
 
 public class AssembleResult {
+
     public static final int RESULT_NONE = 0, RESULT_OK = 1, RESULT_BLOCK_OVERFLOW = 2, RESULT_MISSING_MARKER = 3, RESULT_ERROR_OCCURED = 4,
             RESULT_BUSY_COMPILING = 5, RESULT_INCONSISTENT = 6, RESULT_OK_WITH_WARNINGS = 7;
+
     public final LocatedBlockList assembledBlocks = new LocatedBlockList();
     public BlockPos offset;
     public MovingWorldAssemblyInteractor assemblyInteractor;
@@ -96,7 +98,7 @@ public class AssembleResult {
         BlockPos riderDestination = new BlockPos(movingWorldMarkingBlock.blockPos.getX() - offset.getX(), movingWorldMarkingBlock.blockPos.getY() - offset.getY(), movingWorldMarkingBlock.blockPos.getZ() - offset.getZ());
 
         entity.setRiderDestination(facing, riderDestination);
-        entity.getMovingWorldChunk().setCreationSpotBiomeGen(world.getBiomeGenForCoords(movingWorldMarkingBlock.blockPos));
+        entity.getMobileChunk().setCreationSpotBiomeGen(world.getBiomeGenForCoords(movingWorldMarkingBlock.blockPos));
 
         boolean doTileDropsInWorld = world.getGameRules().getGameRuleBooleanValue("doTileDrops");
         world.getGameRules().setOrCreateGameRule("doTileDrops", "false");
@@ -117,10 +119,12 @@ public class AssembleResult {
 
         world.getGameRules().setOrCreateGameRule("doTileDrops", String.valueOf(doTileDropsInWorld));
 
-        entity.getMovingWorldChunk().setChunkModified();
-        entity.getMovingWorldChunk().onChunkLoad();
+        entity.getMobileChunk().setChunkModified();
+        entity.getMobileChunk().onChunkLoad();
 
-        entity.setLocationAndAngles(offset.getX() + entity.getMovingWorldChunk().getCenterX(), offset.getY(), offset.getZ() + entity.getMovingWorldChunk().getCenterZ(), 0F, 0F);
+        entity.setLocationAndAngles(offset.getX() + entity.getMobileChunk().getCenterX(), offset.getY(), offset.getZ() + entity.getMobileChunk().getCenterZ(), 0F, 0F);
+
+        entity.assembleResultEntity();
 
         return entity;
     }
@@ -135,10 +139,13 @@ public class AssembleResult {
             if (tileentity != null || lb.blockState.getBlock().hasTileEntity(lb.blockState) && (tileentity = world.getTileEntity(lb.blockPos)) != null) {
                 tileentity.validate();
             }
-            if (entityMovingWorld.getMovingWorldChunk().addBlockWithState(iPos, lb.blockState)) {
+            if (entityMovingWorld.getMobileChunk().addBlockWithState(iPos, lb.blockState)) {
+                if (lb.tileEntity != null && movingWorldMarkingBlock.tileEntity != null && lb.blockPos.equals(movingWorldMarkingBlock.blockPos)) {
+                    entityMovingWorld.getMobileChunk().marker = lb;
+                }
                 world.setBlockState(lb.blockPos, Blocks.air.getDefaultState(), 2);
                 // Kill tiles after blockState, should fix a bug with TheCodeWarrior's Catwalk mod, potentially more.
-                entityMovingWorld.getMovingWorldChunk().setTileEntity(iPos, tileentity);
+                entityMovingWorld.getMobileChunk().setTileEntity(iPos, tileentity);
             }
         }
 
