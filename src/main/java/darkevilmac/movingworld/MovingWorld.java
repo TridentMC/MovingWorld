@@ -1,11 +1,11 @@
 package darkevilmac.movingworld;
 
-import darkevilmac.movingworld.config.MainConfig;
-import darkevilmac.movingworld.mrot.MetaRotations;
-import darkevilmac.movingworld.network.MovingWorldMessageToMessageCodec;
-import darkevilmac.movingworld.network.MovingWorldPacketHandler;
-import darkevilmac.movingworld.network.NetworkUtil;
-import darkevilmac.movingworld.proxy.CommonProxy;
+import darkevilmac.movingworld.common.config.MainConfig;
+import darkevilmac.movingworld.common.mrot.MetaRotations;
+import darkevilmac.movingworld.common.network.MovingWorldMessageToMessageCodec;
+import darkevilmac.movingworld.common.network.MovingWorldPacketHandler;
+import darkevilmac.movingworld.common.network.NetworkUtil;
+import darkevilmac.movingworld.common.CommonProxy;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -22,12 +22,12 @@ public class MovingWorld {
     public static final String MOD_ID = "MovingWorld";
     public static final String MOD_VERSION = "@MOVINGWORLDVER@";
     public static final String MOD_NAME = "Moving World";
-    public static final String MOD_GUIFACTORY = "darkevilmac.movingworld.gui.MovingWorldGUIFactory";
+    public static final String MOD_GUIFACTORY = "darkevilmac.movingworld.client.gui.MovingWorldGUIFactory";
 
     @Mod.Instance(MOD_ID)
     public static MovingWorld instance;
 
-    @SidedProxy(clientSide = "darkevilmac.movingworld.proxy.ClientProxy", serverSide = "darkevilmac.movingworld.proxy.CommonProxy")
+    @SidedProxy(clientSide = "darkevilmac.movingworld.client.ClientProxy", serverSide = "darkevilmac.movingworld.common.CommonProxy")
     public static CommonProxy proxy;
 
     public static Logger logger;
