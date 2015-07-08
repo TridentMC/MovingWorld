@@ -7,10 +7,7 @@ import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunk;
 import darkevilmac.movingworld.common.entity.EntityMovingWorld;
 import darkevilmac.movingworld.common.event.DisassembleBlockEvent;
 import darkevilmac.movingworld.common.tile.IMovingWorldTileEntity;
-import darkevilmac.movingworld.common.util.LocatedBlockList;
-import darkevilmac.movingworld.common.util.MathHelperMod;
-import darkevilmac.movingworld.common.util.RotationHelper;
-import darkevilmac.movingworld.common.util.Vec3Mod;
+import darkevilmac.movingworld.common.util.*;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -77,6 +74,7 @@ public class ChunkDisassembler {
     public AssembleResult doDisassemble(MovingWorldAssemblyInteractor assemblyInteractor) {
         World world = movingWorld.getEntityWorld();
         MobileChunk chunk = movingWorld.getMobileChunk();
+        LocatedBlockList fillableBlocks = new FloodFiller().floodFillMobileChunk(chunk);
         this.result = new AssembleResult();
         result.offset = new BlockPos(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
 
@@ -125,7 +123,7 @@ public class ChunkDisassembler {
 
         for (LocatedBlockList locatedBlockList : separatedLbLists) {
             if (locatedBlockList != null && !locatedBlockList.isEmpty()) {
-                postList = processLocatedBlockList(world, locatedBlockList, postList, assemblyInteractor, currentRot);
+                postList = processLocatedBlockList(world, locatedBlockList, postList, assemblyInteractor, fillableBlocks, currentRot);
             }
         }
 
@@ -158,8 +156,7 @@ public class ChunkDisassembler {
         return result;
     }
 
-    LocatedBlockList processLocatedBlockList(World world, LocatedBlockList locatedBlocks, LocatedBlockList postList, MovingWorldAssemblyInteractor assemblyInteractor, int currentRot) {
-
+    LocatedBlockList processLocatedBlockList(World world, LocatedBlockList locatedBlocks, LocatedBlockList postList, MovingWorldAssemblyInteractor assemblyInteractor, LocatedBlockList fillList, int currentRot) {
         LocatedBlockList retPostList = new LocatedBlockList();
         retPostList.addAll(postList);
 
@@ -186,12 +183,16 @@ public class ChunkDisassembler {
             if (owBlock != null)
                 assemblyInteractor.blockOverwritten(owBlock);
 
-            if (!world.setBlockState(pos, blockState, 2) || blockState.getBlock() != world.getBlockState(pos).getBlock()) {
-                retPostList.add(new LocatedBlock(blockState, tileentity, pos));
-                continue;
+            if (!fillList.containsLBOfPos(locatedBlock.bPosNoOffset)) {
+                if (!world.setBlockState(pos, blockState, 2) || blockState.getBlock() != world.getBlockState(pos).getBlock()) {
+                    retPostList.add(new LocatedBlock(blockState, tileentity, pos));
+                    continue;
+                }
             }
-            if (blockState != world.getBlockState(pos)) {
-                world.setBlockState(pos, blockState, 2);
+            if (!fillList.containsLBOfPos(locatedBlock.bPosNoOffset)) {
+                if (blockState != world.getBlockState(pos)) {
+                    world.setBlockState(pos, blockState, 2);
+                }
             }
             if (tileentity != null) {
                 tileentity.setPos(pos);
