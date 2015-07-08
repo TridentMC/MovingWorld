@@ -1,6 +1,6 @@
 {
   "required": true,
-  "package": "darkevilmac.movingworld.asm.mixin.core",
+  "package": "darkevilmac.movingworld.common.asm.mixin.core",
   "mixins": [
     "entity.MixinEntity",
     "block.property.MixinPropertyEnum",
