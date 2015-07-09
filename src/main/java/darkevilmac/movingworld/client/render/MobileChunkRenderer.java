@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumWorldBlockLayer;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -83,6 +84,8 @@ public class MobileChunkRenderer {
         tessellator.draw();
 
         GlStateManager.pushMatrix();
+        World tesrDispatchWorld = TileEntityRendererDispatcher.instance.worldObj;
+
         for (int y = chunk.minY(); y < chunk.maxY(); ++y) {
             for (int z = chunk.minZ(); z < chunk.maxZ(); ++z) {
                 for (int x = chunk.minX(); x < chunk.maxX(); ++x) {
@@ -92,6 +95,7 @@ public class MobileChunkRenderer {
                         if (TileEntityRendererDispatcher.instance.hasSpecialRenderer(tile)) {
                             TileEntity tileClone = tile;
                             tileClone.setWorldObj(chunk.getFakeWorld());
+                            TileEntityRendererDispatcher.instance.setWorld(tileClone.getWorld());
                             TileEntityRendererDispatcher.instance.renderTileEntityAt(tileClone, tileClone.getPos().getX(), tileClone.getPos().getY(), tileClone.getPos().getZ(), partialTicks);
                         }
                     }
@@ -99,6 +103,8 @@ public class MobileChunkRenderer {
             }
         }
         RenderHelper.enableStandardItemLighting();
+
+        TileEntityRendererDispatcher.instance.setWorld(tesrDispatchWorld);
 
         GlStateManager.popMatrix();
         GlStateManager.popMatrix();
