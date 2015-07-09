@@ -43,7 +43,6 @@ import java.util.UUID;
  */
 public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdditionalSpawnData {
 
-    public static boolean cursorCheck = false;
     public float motionYaw;
     public EnumFacing frontDirection;
     public BlockPos riderDestination;
@@ -66,7 +65,6 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     private double controlPitch, controlYaw;
     @SideOnly(Side.CLIENT)
     private double controlVelX, controlVelY, controlVelZ;
-
     public EntityMovingWorld(World world) {
         super(world);
         ignoreFrustumCheck = true;
@@ -122,6 +120,18 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         }
 
         return false;
+    }
+
+    public double getControlX() {
+        return controlX;
+    }
+
+    public double getControlY() {
+        return controlY;
+    }
+
+    public double getControlZ() {
+        return controlZ;
     }
 
     @Override
