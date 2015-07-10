@@ -155,22 +155,30 @@ public class AssembleResult {
                     entityMovingWorld.getMobileChunk().marker = lb;
                 }
 
-                if (setFluids && ((TileMovingWorldMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks.containsLBOfPos(lb.blockPos)) {
-                    world.setBlockState(lb.blockPos, ((TileMovingWorldMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks.getLBOfPos(lb.blockPos).blockState, 2);
-                } else {
-                    world.setBlockState(lb.blockPos, Blocks.air.getDefaultState(), 2);
-                }
+                world.setBlockState(lb.blockPos, Blocks.air.getDefaultState(), 2);
                 entityMovingWorld.getMobileChunk().setTileEntity(iPos, tileentity);
             }
         }
 
         for (LocatedBlock lb : locatedBlocks) {
-            if (setFluids && ((TileMovingWorldMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks.containsLBOfPos(lb.blockPos)) {
-                world.setBlockState(lb.blockPos, ((TileMovingWorldMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks.getLBOfPos(lb.blockPos).blockState);
-            } else {
-                world.setBlockToAir(lb.blockPos);
+            world.setBlockToAir(lb.blockPos);
+        }
+
+        if (setFluids) {
+            for (LocatedBlock fluid : ((TileMovingWorldMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks) {
+                if (fluid != null && world.isAirBlock(fluid.blockPos)) {
+                    world.setBlockState(fluid.blockPos, fluid.blockState, 2);
+                }
+            }
+
+            for (LocatedBlock fluid : ((TileMovingWorldMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks) {
+                if (fluid != null && world.isAirBlock(fluid.blockPos)) {
+                    world.setBlockState(fluid.blockPos, fluid.blockState, 3);
+                }
             }
         }
+
+
     }
 
     public int getCode() {
