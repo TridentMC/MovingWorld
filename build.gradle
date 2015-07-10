@@ -25,7 +25,7 @@ apply plugin: 'idea'
 sourceCompatibility = '1.6'
 targetCompatibility = '1.6'
 
-version = "1.8-ALPHA-2"
+version = "1.8-ALPHA-3.0"
 group = "darkevilmac.movingworld" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "movingworld"
 
