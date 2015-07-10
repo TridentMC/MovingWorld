@@ -5,6 +5,7 @@ import darkevilmac.movingworld.MovingWorld;
 import darkevilmac.movingworld.common.chunk.LocatedBlock;
 import darkevilmac.movingworld.common.chunk.MovingWorldAssemblyInteractor;
 import darkevilmac.movingworld.common.entity.EntityMovingWorld;
+import darkevilmac.movingworld.common.tile.TileMovingWorldMarkingBlock;
 import darkevilmac.movingworld.common.util.LocatedBlockList;
 import darkevilmac.movingworld.common.util.MaterialDensity;
 import io.netty.buffer.ByteBuf;
@@ -130,6 +131,16 @@ public class AssembleResult {
     }
 
     public void setWorldBlocksToAir(World world, EntityMovingWorld entityMovingWorld, LocatedBlockList locatedBlocks) {
+
+        boolean setFluids = false;
+
+        if (movingWorldMarkingBlock != null && movingWorldMarkingBlock.tileEntity != null && movingWorldMarkingBlock.tileEntity instanceof TileMovingWorldMarkingBlock
+                && ((TileMovingWorldMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks != null &&
+                !((TileMovingWorldMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks.isEmpty()) {
+
+            setFluids = true;
+        }
+
         TileEntity tileentity;
         BlockPos iPos;
         for (LocatedBlock lb : locatedBlocks) {
@@ -143,14 +154,22 @@ public class AssembleResult {
                 if (lb.tileEntity != null && movingWorldMarkingBlock.tileEntity != null && lb.blockPos.equals(movingWorldMarkingBlock.blockPos)) {
                     entityMovingWorld.getMobileChunk().marker = lb;
                 }
-                world.setBlockState(lb.blockPos, Blocks.air.getDefaultState(), 2);
-                // Kill tiles after blockState, should fix a bug with TheCodeWarrior's Catwalk mod, potentially more.
+
+                if (setFluids && ((TileMovingWorldMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks.containsLBOfPos(lb.blockPos)) {
+                    world.setBlockState(lb.blockPos, ((TileMovingWorldMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks.getLBOfPos(lb.blockPos).blockState, 2);
+                } else {
+                    world.setBlockState(lb.blockPos, Blocks.air.getDefaultState(), 2);
+                }
                 entityMovingWorld.getMobileChunk().setTileEntity(iPos, tileentity);
             }
         }
 
         for (LocatedBlock lb : locatedBlocks) {
-            world.setBlockToAir(lb.blockPos);
+            if (setFluids && ((TileMovingWorldMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks.containsLBOfPos(lb.blockPos)) {
+                world.setBlockState(lb.blockPos, ((TileMovingWorldMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks.getLBOfPos(lb.blockPos).blockState);
+            } else {
+                world.setBlockToAir(lb.blockPos);
+            }
         }
     }
 

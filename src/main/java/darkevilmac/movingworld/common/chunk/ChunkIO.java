@@ -1,5 +1,6 @@
 package darkevilmac.movingworld.common.chunk;
 
+import darkevilmac.movingworld.MovingWorld;
 import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunk;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
@@ -11,6 +12,7 @@ import net.minecraft.util.BlockPos;
 
 import java.io.*;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -34,7 +36,7 @@ public abstract class ChunkIO {
                 }
             }
         }
-        //ArchimedesShipMod.modLog.debug("Writing mobile chunk data: " + count + " blocks");
+        MovingWorld.logger.debug("Writing mobile chunk data: " + count + " blocks");
 
         out.writeShort(count);
         for (int i = chunk.minX(); i < chunk.maxX(); i++) {
@@ -67,7 +69,7 @@ public abstract class ChunkIO {
     public static void read(DataInput in, MobileChunk chunk) throws IOException {
         int count = in.readShort();
 
-        //ArchimedesShipMod.modLog.debug("Reading mobile chunk data: " + count + " blocks");
+        MovingWorld.logger.debug("Reading mobile chunk data: " + count + " blocks");
 
         int x, y, z;
         int id;
@@ -106,7 +108,7 @@ public abstract class ChunkIO {
 
         int byteswritten = data.writerIndex();
         float f = (float) byteswritten / (count * 9);
-        // ArchimedesShipMod.modLog.debug(String.format(Locale.ENGLISH, "%d blocks written. Efficiency: %d/%d = %.2f", count, byteswritten, count * 9, f));
+        MovingWorld.logger.debug(String.format(Locale.ENGLISH, "%d blocks written. Efficiency: %d/%d = %.2f", count, byteswritten, count * 9, f));
 
         if (byteswritten > 32000) {
             //  ArchimedesShipMod.modLog.warn("Ship probably contains too many blocks");

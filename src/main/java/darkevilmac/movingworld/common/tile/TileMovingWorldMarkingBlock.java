@@ -1,10 +1,12 @@
 package darkevilmac.movingworld.common.tile;
 
+import darkevilmac.movingworld.common.chunk.LocatedBlock;
 import darkevilmac.movingworld.common.chunk.MovingWorldAssemblyInteractor;
 import darkevilmac.movingworld.common.chunk.assembly.AssembleResult;
 import darkevilmac.movingworld.common.chunk.assembly.ChunkAssembler;
 import darkevilmac.movingworld.common.entity.EntityMovingWorld;
 import darkevilmac.movingworld.common.entity.MovingWorldInfo;
+import darkevilmac.movingworld.common.util.LocatedBlockList;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -20,6 +22,7 @@ import java.util.UUID;
 
 public abstract class TileMovingWorldMarkingBlock extends TileEntity implements IMovingWorldTileEntity {
 
+    public LocatedBlockList removedFluidBlocks; // A list of fluid blocks that were destroyed last disassemble, used to fill back in when we reassemble.
     private AssembleResult assembleResult, prevResult;
 
     public TileMovingWorldMarkingBlock() {
@@ -189,6 +192,20 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
             assembleResult = new AssembleResult(compound.getCompoundTag("res"), worldObj);
             assembleResult.assemblyInteractor = getNewAssemblyInteractor().fromNBT(compound.getCompoundTag("res"), worldObj);
         }
+        if (compound.hasKey("removedFluidCompounds")) {
+            removedFluidBlocks = new LocatedBlockList();
+            NBTTagCompound removedFluidCompound = compound.getCompoundTag("removedFluidCompounds");
+            int tagIndex = 0;
+
+            while (removedFluidCompound.hasKey("block#" + tagIndex)) {
+                NBTTagCompound lbTag = removedFluidCompound.getCompoundTag("block#" + tagIndex);
+                LocatedBlock locatedBlock = new LocatedBlock(lbTag, worldObj);
+
+                removedFluidBlocks.add(locatedBlock);
+                tagIndex++;
+            }
+            compound.setTag("removedFluidCompounds", new NBTTagCompound());
+        }
     }
 
     @Override
@@ -210,6 +227,17 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
             assembleResult.writeNBTFully(comp);
             assembleResult.assemblyInteractor.writeNBTFully(comp);
             compound.setTag("res", comp);
+        }
+        if (removedFluidBlocks != null && !removedFluidBlocks.isEmpty()) {
+            NBTTagCompound removedFluidCompound = new NBTTagCompound();
+            for (int i = 0; i < removedFluidBlocks.size(); i++) {
+                LocatedBlock locatedBlock = removedFluidBlocks.get(i);
+                NBTTagCompound lbTag = new NBTTagCompound();
+                locatedBlock.writeToNBT(lbTag);
+
+                removedFluidCompound.setTag("block#" + i, lbTag);
+            }
+            compound.setTag("removedFluidCompounds", removedFluidCompound);
         }
     }
 

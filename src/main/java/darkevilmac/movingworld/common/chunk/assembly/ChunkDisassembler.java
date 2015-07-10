@@ -7,6 +7,7 @@ import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunk;
 import darkevilmac.movingworld.common.entity.EntityMovingWorld;
 import darkevilmac.movingworld.common.event.DisassembleBlockEvent;
 import darkevilmac.movingworld.common.tile.IMovingWorldTileEntity;
+import darkevilmac.movingworld.common.tile.TileMovingWorldMarkingBlock;
 import darkevilmac.movingworld.common.util.*;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -22,7 +23,10 @@ import java.util.ArrayList;
 public class ChunkDisassembler {
     public boolean overwrite;
     private EntityMovingWorld movingWorld;
+
     private AssembleResult result;
+    private LocatedBlockList removedFluidBlocks;
+    private TileMovingWorldMarkingBlock tileMarker;
 
     public ChunkDisassembler(EntityMovingWorld EntityMovingWorld) {
         movingWorld = EntityMovingWorld;
@@ -72,6 +76,11 @@ public class ChunkDisassembler {
     }
 
     public AssembleResult doDisassemble(MovingWorldAssemblyInteractor assemblyInteractor) {
+        tileMarker = null;
+        if (movingWorld.getMobileChunk().marker != null && movingWorld.getMobileChunk().marker.tileEntity != null && movingWorld.getMobileChunk().marker.tileEntity instanceof TileMovingWorldMarkingBlock)
+            tileMarker = (TileMovingWorldMarkingBlock) movingWorld.getMobileChunk().marker.tileEntity;
+
+        removedFluidBlocks = new LocatedBlockList();
         World world = movingWorld.getEntityWorld();
         MobileChunk chunk = movingWorld.getMobileChunk();
         LocatedBlockList fillableBlocks = new FloodFiller().floodFillMobileChunk(chunk);
@@ -144,6 +153,10 @@ public class ChunkDisassembler {
                 }
         }
 
+        if (tileMarker != null) {
+            tileMarker.removedFluidBlocks = removedFluidBlocks;
+        }
+
         movingWorld.setDead();
 
         if (this.result.movingWorldMarkingBlock == null || !assemblyInteractor.isTileMovingWorldMarker(this.result.movingWorldMarkingBlock.tileEntity)) {
@@ -153,6 +166,7 @@ public class ChunkDisassembler {
         }
         assemblyInteractor.chunkDissasembled(this.result);
         this.result.assemblyInteractor = assemblyInteractor;
+
         return result;
     }
 
@@ -184,12 +198,20 @@ public class ChunkDisassembler {
                 assemblyInteractor.blockOverwritten(owBlock);
 
             if (!fillList.containsLBOfPos(locatedBlock.bPosNoOffset)) {
+                if (world.getBlockState(pos).getBlock().getMaterial().isLiquid()) {
+                    if (!removedFluidBlocks.containsLBOfPos(pos))
+                        removedFluidBlocks.add(new LocatedBlock(owBlockState, pos));
+                }
                 if (!world.setBlockState(pos, blockState, 2) || blockState.getBlock() != world.getBlockState(pos).getBlock()) {
                     retPostList.add(new LocatedBlock(blockState, tileentity, pos));
                     continue;
                 }
             }
             if (!fillList.containsLBOfPos(locatedBlock.bPosNoOffset)) {
+                if (world.getBlockState(pos).getBlock().getMaterial().isLiquid()) {
+                    if (!removedFluidBlocks.containsLBOfPos(pos))
+                        removedFluidBlocks.add(new LocatedBlock(owBlockState, pos));
+                }
                 if (blockState != world.getBlockState(pos)) {
                     world.setBlockState(pos, blockState, 2);
                 }
@@ -207,6 +229,10 @@ public class ChunkDisassembler {
                 world.getTileEntity(pos).readFromNBT(tileTag);
                 tileentity.validate();
                 tileentity = world.getTileEntity(pos);
+
+                if (tileMarker != null && tileMarker.getPos().equals(tileentity.getPos())) {
+                    tileMarker = (TileMovingWorldMarkingBlock) tileentity;
+                }
             }
 
             blockState = world.getBlockState(pos);

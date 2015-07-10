@@ -152,6 +152,10 @@ public class LocatedBlockList extends ArrayList<LocatedBlock> {
         return lbList;
     }
 
+    public LocatedBlock getLBOfPos(BlockPos pos) {
+        return posMap.get(pos);
+    }
+
     public boolean containsLBOfPos(BlockPos pos) {
         return posMap.containsKey(pos);
     }

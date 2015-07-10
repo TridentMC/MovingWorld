@@ -65,6 +65,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     private double controlPitch, controlYaw;
     @SideOnly(Side.CLIENT)
     private double controlVelX, controlVelY, controlVelZ;
+
     public EntityMovingWorld(World world) {
         super(world);
         ignoreFrustumCheck = true;
