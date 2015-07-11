@@ -9,7 +9,7 @@ import net.minecraft.util.BlockPos;
 public abstract class MovingWorldCapabilities {
 
     private final EntityMovingWorld movingWorld;
-    protected float mass;
+    private float mass;
     private int blockCount;
     private boolean autoCalcMass;
     private float speedLimit;
