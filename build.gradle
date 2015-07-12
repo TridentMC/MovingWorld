@@ -25,15 +25,15 @@ apply plugin: 'idea'
 sourceCompatibility = '1.6'
 targetCompatibility = '1.6'
 
-version = "1.8-ALPHA-3.0"
+version = "1.8-ALPHA-3.1"
 group = "darkevilmac.movingworld" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "movingworld"
 
 minecraft {
     version = "1.8-11.14.3.1486"
     runDir = "run"
-	
-	replace '@MOVINGWORLDVER@', project.version
+
+    replace '@MOVINGWORLDVER@', project.version
 
     // the mappings can be changed at any time, and must be in the following format.
     // snapshot_YYYYMMDD   snapshot are built nightly.

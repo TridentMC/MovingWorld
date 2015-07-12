@@ -134,6 +134,8 @@ public class AssembleResult {
 
         boolean setFluids = false;
 
+        LocatedBlockList setAirState2 = new LocatedBlockList();
+
         if (movingWorldMarkingBlock != null && movingWorldMarkingBlock.tileEntity != null && movingWorldMarkingBlock.tileEntity instanceof TileMovingWorldMarkingBlock
                 && ((TileMovingWorldMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks != null &&
                 !((TileMovingWorldMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks.isEmpty()) {
@@ -154,13 +156,18 @@ public class AssembleResult {
                 if (lb.tileEntity != null && movingWorldMarkingBlock.tileEntity != null && lb.blockPos.equals(movingWorldMarkingBlock.blockPos)) {
                     entityMovingWorld.getMobileChunk().marker = lb;
                 }
+                setAirState2.add(lb);
 
-                world.setBlockState(lb.blockPos, Blocks.air.getDefaultState(), 2);
-                entityMovingWorld.getMobileChunk().setTileEntity(iPos, tileentity);
+                TileEntity tileClone = tileentity;
+                world.removeTileEntity(lb.blockPos);
+                entityMovingWorld.getMobileChunk().setTileEntity(iPos, tileClone);
             }
         }
 
         for (LocatedBlock lb : locatedBlocks) {
+            if (!setAirState2.isEmpty() && setAirState2.contains(lb))
+                world.setBlockState(lb.blockPos, Blocks.air.getDefaultState(), 2);
+
             world.setBlockToAir(lb.blockPos);
         }
 
