@@ -159,15 +159,16 @@ public class AssembleResult {
                 setAirState2.add(lb);
 
                 TileEntity tileClone = tileentity;
-                world.removeTileEntity(lb.blockPos);
                 entityMovingWorld.getMobileChunk().setTileEntity(iPos, tileClone);
             }
         }
 
-        for (LocatedBlock lb : locatedBlocks) {
-            if (!setAirState2.isEmpty() && setAirState2.contains(lb))
-                world.setBlockState(lb.blockPos, Blocks.air.getDefaultState(), 2);
+        for(LocatedBlock lb : setAirState2){
+            world.setBlockState(lb.blockPos, Blocks.air.getDefaultState(), 2);
+            world.removeTileEntity(lb.blockPos);
+        }
 
+        for (LocatedBlock lb : locatedBlocks) {
             world.setBlockToAir(lb.blockPos);
         }
 
