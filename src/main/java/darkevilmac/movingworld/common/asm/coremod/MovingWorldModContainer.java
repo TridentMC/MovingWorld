@@ -6,9 +6,9 @@ import net.minecraftforge.fml.common.DummyModContainer;
 import net.minecraftforge.fml.common.LoadController;
 import net.minecraftforge.fml.common.ModMetadata;
 
-public class ModContainer extends DummyModContainer {
+public class MovingWorldModContainer extends DummyModContainer {
 
-    public ModContainer() {
+    public MovingWorldModContainer() {
         super(new ModMetadata());
 
         ModMetadata meta = getMetadata();

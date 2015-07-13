@@ -6,6 +6,7 @@ import org.spongepowered.asm.mixin.MixinEnvironment;
 
 import java.util.Map;
 
+@IFMLLoadingPlugin.MCVersion(value = "1.8")
 public class MovingWorldCoreMod implements IFMLLoadingPlugin {
     public MovingWorldCoreMod() {
         MixinBootstrap.init();
@@ -20,7 +21,7 @@ public class MovingWorldCoreMod implements IFMLLoadingPlugin {
 
     @Override
     public String getModContainerClass() {
-        return ModContainer.class.getName();
+        return MovingWorldModContainer.class.getName();
     }
 
     @Override
@@ -36,4 +37,5 @@ public class MovingWorldCoreMod implements IFMLLoadingPlugin {
     public String getAccessTransformerClass() {
         return MovingWorldAccessTransformer.class.getName();
     }
+
 }
