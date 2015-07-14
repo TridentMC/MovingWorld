@@ -206,12 +206,6 @@ public class ChunkDisassembler {
                     retPostList.add(new LocatedBlock(blockState, tileentity, pos));
                     continue;
                 }
-            }
-            if (!fillList.containsLBOfPos(locatedBlock.bPosNoOffset)) {
-                if (world.getBlockState(pos).getBlock().getMaterial().isLiquid()) {
-                    if (!removedFluidBlocks.containsLBOfPos(pos))
-                        removedFluidBlocks.add(new LocatedBlock(owBlockState, pos));
-                }
                 if (blockState != world.getBlockState(pos)) {
                     world.setBlockState(pos, blockState, 2);
                 }
@@ -221,7 +215,6 @@ public class ChunkDisassembler {
                 if (tileentity instanceof IMovingWorldTileEntity) {
                     ((IMovingWorldTileEntity) tileentity).setParentMovingWorld(new BlockPos(i, j, k), null);
                 }
-                // Issue occurs here, NBT reading borked.
                 NBTTagCompound tileTag = new NBTTagCompound();
                 tileentity.writeToNBT(tileTag);
 
