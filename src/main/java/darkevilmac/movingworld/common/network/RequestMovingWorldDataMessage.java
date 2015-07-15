@@ -16,6 +16,11 @@ public class RequestMovingWorldDataMessage extends EntityMovingWorldMessage {
     }
 
     @Override
+    public boolean onMainThread() {
+        return false;
+    }
+
+    @Override
     public void handleClientSide(EntityPlayer player) {
     }
 

@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.INetHandler;
 import net.minecraft.network.NetHandlerPlayServer;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
@@ -15,17 +16,40 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @ChannelHandler.Sharable
 public class MovingWorldPacketHandler extends SimpleChannelInboundHandler<MovingWorldMessage> {
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, MovingWorldMessage msg) throws Exception {
-        EntityPlayer player;
+    protected void channelRead0(final ChannelHandlerContext ctx, final MovingWorldMessage msg) throws Exception {
+        final EntityPlayer player;
         switch (FMLCommonHandler.instance().getEffectiveSide()) {
-            case CLIENT:
+            case CLIENT: {
                 player = this.getClientPlayer();
-                msg.handleClientSide(player);
+                if (!msg.onMainThread()) {
+                    msg.handleClientSide(player);
+                } else {
+                    Minecraft.getMinecraft().addScheduledTask(new Runnable() {
+                        @Override
+                        public void run() {
+                            msg.handleClientSide(player);
+                        }
+                    });
+                }
                 break;
-            case SERVER:
+            }
+            case SERVER: {
                 player = getServerPlayer(ctx);
-                msg.handleServerSide(player);
+                if (!msg.onMainThread()) {
+                    msg.handleServerSide(player);
+                } else {
+                    if (player != null && player.worldObj != null && !player.worldObj.isRemote) {
+                        final WorldServer worldServer = (WorldServer) player.worldObj;
+                        worldServer.addScheduledTask(new Runnable() {
+                            @Override
+                            public void run() {
+                                msg.handleServerSide(player);
+                            }
+                        });
+                    }
+                }
                 break;
+            }
         }
     }
 

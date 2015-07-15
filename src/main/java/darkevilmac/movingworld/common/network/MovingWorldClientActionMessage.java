@@ -21,6 +21,11 @@ public class MovingWorldClientActionMessage extends EntityMovingWorldMessage {
     }
 
     @Override
+    public boolean onMainThread() {
+        return true;
+    }
+
+    @Override
     public void encodeInto(ChannelHandlerContext ctx, ByteBuf buf, Side side) {
         super.encodeInto(ctx, buf, side);
         buf.writeByte(actionID.toInt(actionID));

@@ -16,6 +16,11 @@ public class FarInteractMessage extends EntityMovingWorldMessage {
     }
 
     @Override
+    public boolean onMainThread() {
+        return false;
+    }
+
+    @Override
     public void encodeInto(ChannelHandlerContext ctx, ByteBuf buf, Side side) {
         super.encodeInto(ctx, buf, side);
     }

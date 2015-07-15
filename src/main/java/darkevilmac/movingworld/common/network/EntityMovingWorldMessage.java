@@ -20,7 +20,6 @@ public abstract class EntityMovingWorldMessage extends MovingWorldMessage {
         this.movingWorld = movingWorld;
     }
 
-
     @Override
     public void encodeInto(ChannelHandlerContext ctx, ByteBuf buf, Side side) {
         buf.writeInt(movingWorld.getEntityId());
