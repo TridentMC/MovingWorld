@@ -24,7 +24,7 @@ public class ChunkBlockUpdateMessage extends EntityMovingWorldMessage {
 
     @Override
     public boolean onMainThread() {
-        return true;
+        return false;
     }
 
     @Override
