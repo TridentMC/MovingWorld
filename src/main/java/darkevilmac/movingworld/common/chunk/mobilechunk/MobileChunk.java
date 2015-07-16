@@ -39,6 +39,7 @@ public class MobileChunk implements IBlockAccess {
     public boolean isChunkLoaded;
     public boolean isModified;
     public LocatedBlock marker;
+    public ArrayList<IMovingWorldTileEntity> movingWorldTileEntities;
     private Map<BlockPos, ExtendedBlockStorage> blockStorageMap;
     private boolean boundsInit;
     private BlockPos minBounds;
@@ -46,7 +47,6 @@ public class MobileChunk implements IBlockAccess {
     private int blockCount;
     private BiomeGenBase creationSpotBiome;
     private HashBiMap<BlockPos, AxisAlignedBB> boundingBoxes;
-
     private HashBiMap<BlockPos, AxisAlignedBB> chunkBoundingBoxes;
 
     public MobileChunk(World world, EntityMovingWorld entitymovingWorld) {
@@ -56,6 +56,7 @@ public class MobileChunk implements IBlockAccess {
         chunkTileEntityMap = new HashMap<BlockPos, TileEntity>(2);
         boundingBoxes = HashBiMap.create();
         chunkBoundingBoxes = HashBiMap.create();
+        movingWorldTileEntities = new ArrayList<IMovingWorldTileEntity>();
         marker = null;
 
         isChunkLoaded = false;
@@ -458,6 +459,8 @@ public class MobileChunk implements IBlockAccess {
             chunkTileEntityMap.put(chunkPosition, tileentity);
 
             if (tileentity instanceof IMovingWorldTileEntity) {
+                if (!movingWorldTileEntities.contains(tileentity))
+                    movingWorldTileEntities.add((IMovingWorldTileEntity) tileentity);
                 ((IMovingWorldTileEntity) tileentity).setParentMovingWorld(oPos, entityMovingWorld);
             }
         }
@@ -479,6 +482,8 @@ public class MobileChunk implements IBlockAccess {
             TileEntity tileentity = chunkTileEntityMap.remove(chunkPosition);
             if (tileentity != null) {
                 if (tileentity instanceof IMovingWorldTileEntity) {
+                    if (!movingWorldTileEntities.contains(tileentity))
+                        movingWorldTileEntities.add((IMovingWorldTileEntity) tileentity);
                     ((IMovingWorldTileEntity) tileentity).setParentMovingWorld(pos, null);
                 }
                 tileentity.invalidate();

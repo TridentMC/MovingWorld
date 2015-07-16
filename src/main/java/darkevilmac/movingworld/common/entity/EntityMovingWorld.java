@@ -10,6 +10,7 @@ import darkevilmac.movingworld.common.chunk.assembly.ChunkDisassembler;
 import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunk;
 import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunkClient;
 import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunkServer;
+import darkevilmac.movingworld.common.tile.IMovingWorldTileEntity;
 import darkevilmac.movingworld.common.util.AABBRotator;
 import darkevilmac.movingworld.common.util.MathHelperMod;
 import darkevilmac.movingworld.common.util.Vec3Mod;
@@ -376,6 +377,12 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     }
 
     protected void handleServerUpdate(double horvel) {
+        if (getMobileChunk() != null && !getMobileChunk().movingWorldTileEntities.isEmpty()) {
+            for (IMovingWorldTileEntity movingWorldTileEntity : getMobileChunk().movingWorldTileEntities) {
+                movingWorldTileEntity.tick(getMobileChunk());
+            }
+        }
+
         //START outer forces
         float gravity = 0.05F;
         if (!isFlying()) {
