@@ -60,7 +60,11 @@ public class FloodFiller {
             if (lbList.containsLBOfPos(pos))
                 return;
 
-            lbList.add(new LocatedBlock(mobileChunk.getBlockState(pos), pos));
+            try {
+                lbList.add(new LocatedBlock(mobileChunk.getBlockState(pos), pos));
+            } catch (StackOverflowError e) {
+                //Keep going, just keep going.
+            }
 
             fillCoord(mobileChunk, x + 1, y, z);
             fillCoord(mobileChunk, x - 1, y, z);
