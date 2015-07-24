@@ -3,8 +3,11 @@ package darkevilmac.movingworld.common.util;
 import darkevilmac.movingworld.common.chunk.LocatedBlock;
 import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunk;
 import net.minecraft.block.BlockAir;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.BlockPos;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
@@ -14,6 +17,7 @@ import java.util.Iterator;
 public class FloodFiller {
 
     private LocatedBlockList lbList = new LocatedBlockList();
+    private ArrayList<BlockPos> posStack;
 
     /**
      * @return amount of blocks that were filled in.
@@ -45,33 +49,41 @@ public class FloodFiller {
         }
     }
 
-    private void fillCoord(MobileChunk mobileChunk, int x, int y, int z) {
-        BlockPos pos = new BlockPos(x, y, z);
+    private void fillCoord(MobileChunk mobileChunk, int startX, int startY, int startZ) {
+        posStack = new ArrayList<BlockPos>();
+        posStack.add(new BlockPos(startX, startY, startZ));
 
-        if (x > mobileChunk.maxX() || x < mobileChunk.minX() - 1 ||
-                y > mobileChunk.maxY() + 1 || y < mobileChunk.minY() - 1 ||
-                z > mobileChunk.maxZ() || z < mobileChunk.minZ() - 1
-                ) {
-            return;
-        }
+        while (!posStack.isEmpty()) {
+            BlockPos pos = posStack.get(posStack.size() - 1);
+            posStack.remove(posStack.size() - 1);
+            IBlockState state = mobileChunk.getBlockState(pos);
+            int x = pos.getX();
+            int y = pos.getY();
+            int z = pos.getZ();
 
-        if (mobileChunk.getBlock(pos) == null || mobileChunk.getBlock(pos) instanceof BlockAir) {
-            // Consider this a block that's fill able.
-            if (lbList.containsLBOfPos(pos))
-                return;
+            if (state == null || state.getBlock() instanceof BlockAir) {
 
-            try {
+                if (x > mobileChunk.maxX() || x < mobileChunk.minX() - 1 ||
+                        y > mobileChunk.maxY() + 1 || y < mobileChunk.minY() - 1 ||
+                        z > mobileChunk.maxZ() || z < mobileChunk.minZ() - 1
+                        ) {
+                    continue;
+                }
+
+                if (lbList.containsLBOfPos(pos))
+                    continue;
+
                 lbList.add(new LocatedBlock(mobileChunk.getBlockState(pos), pos));
-            } catch (StackOverflowError e) {
-                //Keep going, just keep going.
-            }
 
-            fillCoord(mobileChunk, x + 1, y, z);
-            fillCoord(mobileChunk, x - 1, y, z);
-            fillCoord(mobileChunk, x, y + 1, z);
-            fillCoord(mobileChunk, x, y - 1, z);
-            fillCoord(mobileChunk, x, y, z + 1);
-            fillCoord(mobileChunk, x, y, z - 1);
+                posStack.add(pos.add(1, 0, 0));
+                posStack.add(pos.add(0, 1, 0));
+                posStack.add(pos.add(0, 0, 1));
+                posStack.add(pos.add(-1, 0, 0));
+                posStack.add(pos.add(0, -1, 0));
+                posStack.add(pos.add(0, 0, -1));
+            } else {
+                continue;
+            }
         }
     }
 
