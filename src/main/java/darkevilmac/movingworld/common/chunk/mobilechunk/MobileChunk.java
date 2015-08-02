@@ -5,6 +5,7 @@ import darkevilmac.movingworld.common.chunk.LocatedBlock;
 import darkevilmac.movingworld.common.chunk.mobilechunk.world.FakeWorld;
 import darkevilmac.movingworld.common.entity.EntityMovingWorld;
 import darkevilmac.movingworld.common.tile.IMovingWorldTileEntity;
+import darkevilmac.movingworld.common.util.AABBRotator;
 import darkevilmac.movingworld.common.util.Vec3Mod;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -342,26 +343,34 @@ public class MobileChunk implements IBlockAccess {
      * @param rotationYaw
      */
     public void updateBlockBounds(float rotationYaw) {
+        HashBiMap<BlockPos, AxisAlignedBB> newBoundingBoxes = HashBiMap.create();
+
         for (AxisAlignedBB bb : chunkBoundingBoxes.values()) {
             if (bb != null) {
+                BlockPos offset = chunkBoundingBoxes.inverse().get(bb);
+                float rotationRadians = (float) Math.toRadians(rotationYaw);
+
+                AxisAlignedBB axisAlignedBB = bb;
                 BlockPos pos = chunkBoundingBoxes.inverse().get(bb);
 
                 double maxDX = new Double(maxX());
+                double maxDY = new Double(maxY());
                 double maxDZ = new Double(maxZ());
 
-                maxDX = maxDX / 2;
-                maxDZ = maxDZ / 2;
+                maxDX = maxDX / 2 * -1;
+                maxDY = maxDY / 2 * -1 + 1;
+                maxDZ = maxDZ / 2 * -1;
 
-                float yaw = (float) Math.toRadians(rotationYaw);
 
-                Vec3Mod vec = new Vec3Mod(pos.getX() - maxDX, pos.getY() - minY(), pos.getZ() - maxDZ);
-                vec = vec.rotateAroundY(yaw);
+                axisAlignedBB = AABBRotator.rotateAABBAroundY(axisAlignedBB, offset.getX(), offset.getZ(), rotationRadians);
+                Vec3Mod vec3 = new Vec3Mod(maxDX, maxDY, maxDZ).rotateAroundY(rotationRadians);
+                axisAlignedBB = axisAlignedBB.offset(entityMovingWorld.posX + vec3.xCoord, entityMovingWorld.posY +  vec3.yCoord, entityMovingWorld.posZ +  vec3.zCoord);
 
-                bb = bb.offset(entityMovingWorld.posX + vec.xCoord, entityMovingWorld.posY + vec.yCoord, entityMovingWorld.posZ + vec.zCoord);
-
-                boundingBoxes.put(pos, bb);
+                newBoundingBoxes.put(pos, axisAlignedBB);
             }
         }
+
+        this.boundingBoxes = newBoundingBoxes;
     }
 
     public boolean setBlockState(BlockPos pos, IBlockState state) {
