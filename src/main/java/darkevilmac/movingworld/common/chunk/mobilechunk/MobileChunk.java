@@ -266,6 +266,10 @@ public class MobileChunk implements IBlockAccess {
             return null;
         }
 
+        if (!this.getBlockState(pos).getBlock().isCollidable() ||
+                (this.getBlockState(pos).getBlock().isCollidable() && this.getBlockState(pos).getBlock().getCollisionBoundingBox(this.getFakeWorld(), pos, getBlockState(pos)) == null))
+            return null;
+
         AxisAlignedBB axisAlignedBB = this.getBlockState(pos).getBlock().getCollisionBoundingBox(this.getFakeWorld(), pos, getBlockState(pos));
         chunkBoundingBoxes.put(pos, axisAlignedBB);
 
@@ -364,7 +368,7 @@ public class MobileChunk implements IBlockAccess {
 
                 axisAlignedBB = AABBRotator.rotateAABBAroundY(axisAlignedBB, offset.getX(), offset.getZ(), rotationRadians);
                 Vec3Mod vec3 = new Vec3Mod(maxDX, maxDY, maxDZ).rotateAroundY(rotationRadians);
-                axisAlignedBB = axisAlignedBB.offset(entityMovingWorld.posX + vec3.xCoord, entityMovingWorld.posY +  vec3.yCoord, entityMovingWorld.posZ +  vec3.zCoord);
+                axisAlignedBB = axisAlignedBB.offset(entityMovingWorld.posX + vec3.xCoord, entityMovingWorld.posY + vec3.yCoord, entityMovingWorld.posZ + vec3.zCoord);
 
                 newBoundingBoxes.put(pos, axisAlignedBB);
             }
