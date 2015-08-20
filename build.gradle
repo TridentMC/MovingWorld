@@ -17,13 +17,15 @@ buildscript {
 
 apply plugin: 'forge'
 
-version = "1.7.10-1.7.12B"
+version = "1.7.10-1.8"
 group = "darkevilmac.movingworld" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "movingworld"
 
 minecraft {
-    version = "1.7.10-10.13.3.1403-1.7.10"
+	version = "1.7.10-10.13.4.1490-1.7.10"
     runDir = "run"
+	
+	replace '@MOVINGWORLDVER@', project.version
 }
 
 dependencies {
