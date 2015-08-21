@@ -2,7 +2,7 @@ package darkevilmac.movingworld.common.entity;
 
 import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
 import darkevilmac.movingworld.MovingWorld;
-import darkevilmac.movingworld.common.chunk.MobileChunkServer;
+import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunkServer;
 import darkevilmac.movingworld.common.network.ChunkBlockUpdateMessage;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.ChunkPosition;

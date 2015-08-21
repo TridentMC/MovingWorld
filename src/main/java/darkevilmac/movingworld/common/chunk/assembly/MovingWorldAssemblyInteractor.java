@@ -1,7 +1,8 @@
-package darkevilmac.movingworld.common.chunk;
+package darkevilmac.movingworld.common.chunk.assembly;
 
 import darkevilmac.movingworld.MovingWorld;
 import darkevilmac.movingworld.common.block.BlockMovingWorldMarker;
+import darkevilmac.movingworld.common.chunk.LocatedBlock;
 import darkevilmac.movingworld.common.tile.TileMovingWorldMarkingBlock;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
@@ -74,8 +75,12 @@ public class MovingWorldAssemblyInteractor {
     public void chunkDissasembled(AssembleResult assembleResult) {
     }
 
-    public boolean isBlockAllowed(World world, Block block, int x, int y, int z) {
-        return !block.isAir(world, x, y, z) && !block.getMaterial().isLiquid() && MovingWorld.instance.mConfig.isBlockAllowed(block);
+    public CanAssemble isBlockAllowed(World world, Block block, int x, int y, int z) {
+        CanAssemble canAssemble = new CanAssemble(false, false);
+
+        canAssemble.justCancel = !(!block.isAir(world, x, y, z) && !block.getMaterial().isLiquid() && MovingWorld.instance.mConfig.isBlockAllowed(block));
+
+        return canAssemble;
     }
 
     public boolean isBlockMovingWorldMarker(Block block) {

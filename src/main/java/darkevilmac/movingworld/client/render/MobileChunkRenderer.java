@@ -3,7 +3,7 @@ package darkevilmac.movingworld.client.render;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import darkevilmac.movingworld.MovingWorld;
-import darkevilmac.movingworld.common.chunk.MobileChunk;
+import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunk;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.*;

@@ -1,7 +1,7 @@
 package darkevilmac.movingworld.common.entity;
 
 import darkevilmac.movingworld.MovingWorld;
-import darkevilmac.movingworld.common.chunk.MobileChunk;
+import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunk;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;

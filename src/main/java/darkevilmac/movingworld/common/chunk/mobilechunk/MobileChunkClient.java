@@ -1,4 +1,4 @@
-package darkevilmac.movingworld.common.chunk;
+package darkevilmac.movingworld.common.chunk.mobilechunk;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;

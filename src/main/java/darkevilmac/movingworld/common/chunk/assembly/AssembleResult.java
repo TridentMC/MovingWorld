@@ -1,8 +1,9 @@
-package darkevilmac.movingworld.common.chunk;
+package darkevilmac.movingworld.common.chunk.assembly;
 
 
 import darkevilmac.movingworld.common.MaterialDensity;
 import darkevilmac.movingworld.MovingWorld;
+import darkevilmac.movingworld.common.chunk.LocatedBlock;
 import darkevilmac.movingworld.common.entity.EntityMovingWorld;
 import darkevilmac.movingworld.common.event.AssembleBlockEvent;
 import io.netty.buffer.ByteBuf;

@@ -1,7 +1,9 @@
-package darkevilmac.movingworld.common.chunk;
+package darkevilmac.movingworld.common.chunk.assembly;
 
 import darkevilmac.movingworld.MovingWorld;
 import darkevilmac.movingworld.common.block.BlockMovingWorldMarker;
+import darkevilmac.movingworld.common.chunk.LocatedBlock;
+import darkevilmac.movingworld.common.chunk.MovingWorldSizeOverflowException;
 import darkevilmac.movingworld.common.tile.TileMovingWorldMarkingBlock;
 import net.minecraft.block.Block;
 import net.minecraft.world.ChunkPosition;
@@ -81,7 +83,9 @@ public class ChunkAssembler {
                 closedSet.add(pos);
 
                 Block block = worldObj.getBlock(x, y, z);
-                if (!canUseBlockForVehicle(block, assemblyInteractor, x, y, z)) {
+                CanAssemble canAssemble = canUseBlockForVehicle(block, assemblyInteractor, x, y, z);
+
+                if (canAssemble.justCancel) {
                     continue;
                 }
 
@@ -93,28 +97,30 @@ public class ChunkAssembler {
                 }
                 result.assembleBlock(lb);
 
-                openSet.add(new ChunkPosition(x - 1, y, z));
-                openSet.add(new ChunkPosition(x, y - 1, z));
-                openSet.add(new ChunkPosition(x, y, z - 1));
-                openSet.add(new ChunkPosition(x + 1, y, z));
-                openSet.add(new ChunkPosition(x, y + 1, z));
-                openSet.add(new ChunkPosition(x, y, z + 1));
+                if (!canAssemble.assembleThenCancel) {
+                    openSet.add(new ChunkPosition(x - 1, y, z));
+                    openSet.add(new ChunkPosition(x, y - 1, z));
+                    openSet.add(new ChunkPosition(x, y, z - 1));
+                    openSet.add(new ChunkPosition(x + 1, y, z));
+                    openSet.add(new ChunkPosition(x, y + 1, z));
+                    openSet.add(new ChunkPosition(x, y, z + 1));
 
-                if (assemblyInteractor.doDiagonalAssembly()) {
-                    openSet.add(new ChunkPosition(x - 1, y - 1, z));
-                    openSet.add(new ChunkPosition(x + 1, y - 1, z));
-                    openSet.add(new ChunkPosition(x + 1, y + 1, z));
-                    openSet.add(new ChunkPosition(x - 1, y + 1, z));
+                    if (assemblyInteractor.doDiagonalAssembly()) {
+                        openSet.add(new ChunkPosition(x - 1, y - 1, z));
+                        openSet.add(new ChunkPosition(x + 1, y - 1, z));
+                        openSet.add(new ChunkPosition(x + 1, y + 1, z));
+                        openSet.add(new ChunkPosition(x - 1, y + 1, z));
 
-                    openSet.add(new ChunkPosition(x - 1, y, z - 1));
-                    openSet.add(new ChunkPosition(x + 1, y, z - 1));
-                    openSet.add(new ChunkPosition(x + 1, y, z + 1));
-                    openSet.add(new ChunkPosition(x - 1, y, z + 1));
+                        openSet.add(new ChunkPosition(x - 1, y, z - 1));
+                        openSet.add(new ChunkPosition(x + 1, y, z - 1));
+                        openSet.add(new ChunkPosition(x + 1, y, z + 1));
+                        openSet.add(new ChunkPosition(x - 1, y, z + 1));
 
-                    openSet.add(new ChunkPosition(x, y - 1, z - 1));
-                    openSet.add(new ChunkPosition(x, y + 1, z - 1));
-                    openSet.add(new ChunkPosition(x, y + 1, z + 1));
-                    openSet.add(new ChunkPosition(x, y - 1, z + 1));
+                        openSet.add(new ChunkPosition(x, y - 1, z - 1));
+                        openSet.add(new ChunkPosition(x, y + 1, z - 1));
+                        openSet.add(new ChunkPosition(x, y + 1, z + 1));
+                        openSet.add(new ChunkPosition(x, y - 1, z + 1));
+                    }
                 }
             }
         }
@@ -133,8 +139,12 @@ public class ChunkAssembler {
 
         set.add(pos);
         Block block = worldObj.getBlock(x, y, z);
-        if (!canUseBlockForVehicle(block, assemblyInteractor, x, y, z)) return;
 
+        CanAssemble canAssemble = canUseBlockForVehicle(block, assemblyInteractor, x, y, z);
+
+        if (canAssemble.justCancel) {
+            return;
+        }
         LocatedBlock lb = new LocatedBlock(block, worldObj.getBlockMetadata(x, y, z), worldObj.getTileEntity(x, y, z), pos);
         assemblyInteractor.blockAssembled(lb);
         if ((lb.block != null && lb.block instanceof BlockMovingWorldMarker) || (lb.tileEntity != null && lb.tileEntity instanceof TileMovingWorldMarkingBlock)) {
@@ -143,33 +153,35 @@ public class ChunkAssembler {
         }
         result.assembleBlock(lb);
 
-        assembleRecursive(result, set, assemblyInteractor, x - 1, y, z);
-        assembleRecursive(result, set, assemblyInteractor, x, y - 1, z);
-        assembleRecursive(result, set, assemblyInteractor, x, y, z - 1);
-        assembleRecursive(result, set, assemblyInteractor, x + 1, y, z);
-        assembleRecursive(result, set, assemblyInteractor, x, y + 1, z);
-        assembleRecursive(result, set, assemblyInteractor, x, y, z + 1);
+        if (!canAssemble.assembleThenCancel) {
+            assembleRecursive(result, set, assemblyInteractor, x - 1, y, z);
+            assembleRecursive(result, set, assemblyInteractor, x, y - 1, z);
+            assembleRecursive(result, set, assemblyInteractor, x, y, z - 1);
+            assembleRecursive(result, set, assemblyInteractor, x + 1, y, z);
+            assembleRecursive(result, set, assemblyInteractor, x, y + 1, z);
+            assembleRecursive(result, set, assemblyInteractor, x, y, z + 1);
 
-        if (assemblyInteractor.doDiagonalAssembly()) {
-            assembleRecursive(result, set, assemblyInteractor, x - 1, y - 1, z);
-            assembleRecursive(result, set, assemblyInteractor, x + 1, y - 1, z);
-            assembleRecursive(result, set, assemblyInteractor, x + 1, y + 1, z);
-            assembleRecursive(result, set, assemblyInteractor, x - 1, y + 1, z);
+            if (assemblyInteractor.doDiagonalAssembly()) {
+                assembleRecursive(result, set, assemblyInteractor, x - 1, y - 1, z);
+                assembleRecursive(result, set, assemblyInteractor, x + 1, y - 1, z);
+                assembleRecursive(result, set, assemblyInteractor, x + 1, y + 1, z);
+                assembleRecursive(result, set, assemblyInteractor, x - 1, y + 1, z);
 
-            assembleRecursive(result, set, assemblyInteractor, x - 1, y, z - 1);
-            assembleRecursive(result, set, assemblyInteractor, x + 1, y, z - 1);
-            assembleRecursive(result, set, assemblyInteractor, x + 1, y, z + 1);
-            assembleRecursive(result, set, assemblyInteractor, x - 1, y, z + 1);
+                assembleRecursive(result, set, assemblyInteractor, x - 1, y, z - 1);
+                assembleRecursive(result, set, assemblyInteractor, x + 1, y, z - 1);
+                assembleRecursive(result, set, assemblyInteractor, x + 1, y, z + 1);
+                assembleRecursive(result, set, assemblyInteractor, x - 1, y, z + 1);
 
-            assembleRecursive(result, set, assemblyInteractor, x, y - 1, z - 1);
-            assembleRecursive(result, set, assemblyInteractor, x, y + 1, z - 1);
-            assembleRecursive(result, set, assemblyInteractor, x, y + 1, z + 1);
-            assembleRecursive(result, set, assemblyInteractor, x, y - 1, z + 1);
+                assembleRecursive(result, set, assemblyInteractor, x, y - 1, z - 1);
+                assembleRecursive(result, set, assemblyInteractor, x, y + 1, z - 1);
+                assembleRecursive(result, set, assemblyInteractor, x, y + 1, z + 1);
+                assembleRecursive(result, set, assemblyInteractor, x, y - 1, z + 1);
+            }
         }
         result.movingWorldMarkingBlock = movingWorldMarker;
     }
 
-    public boolean canUseBlockForVehicle(Block block, MovingWorldAssemblyInteractor assemblyInteractor, int x, int y, int z) {
+    public CanAssemble canUseBlockForVehicle(Block block, MovingWorldAssemblyInteractor assemblyInteractor, int x, int y, int z) {
         return assemblyInteractor.isBlockAllowed(worldObj, block, x, y, z);
     }
 }

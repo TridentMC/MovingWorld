@@ -2,7 +2,7 @@ package darkevilmac.movingworld.common.util;
 
 
 import darkevilmac.movingworld.common.chunk.LocatedBlock;
-import darkevilmac.movingworld.common.chunk.MobileChunk;
+import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunk;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.world.ChunkPosition;

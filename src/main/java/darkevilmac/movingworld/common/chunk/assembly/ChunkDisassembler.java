@@ -1,6 +1,8 @@
-package darkevilmac.movingworld.common.chunk;
+package darkevilmac.movingworld.common.chunk.assembly;
 
 import darkevilmac.movingworld.MovingWorld;
+import darkevilmac.movingworld.common.chunk.LocatedBlock;
+import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunk;
 import darkevilmac.movingworld.common.entity.EntityMovingWorld;
 import darkevilmac.movingworld.common.tile.IMovingWorldTileEntity;
 import darkevilmac.movingworld.common.util.MathHelperMod;

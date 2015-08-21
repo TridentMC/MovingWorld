@@ -1,6 +1,6 @@
 package darkevilmac.movingworld.client.render;
 
-import darkevilmac.movingworld.common.chunk.MobileChunkClient;
+import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunkClient;
 import darkevilmac.movingworld.common.entity.EntityMovingWorld;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.Render;

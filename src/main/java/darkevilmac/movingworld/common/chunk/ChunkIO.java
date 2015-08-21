@@ -1,5 +1,6 @@
 package darkevilmac.movingworld.common.chunk;
 
+import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunk;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
