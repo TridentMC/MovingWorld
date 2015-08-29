@@ -1,5 +1,6 @@
 package darkevilmac.movingworld.common.chunk.mobilechunk;
 
+import darkevilmac.movingworld.common.chunk.LocatedBlock;
 import darkevilmac.movingworld.common.entity.EntityMovingWorld;
 import darkevilmac.movingworld.common.tile.IMovingWorldTileEntity;
 import net.minecraft.block.Block;
@@ -31,12 +32,14 @@ public class MobileChunk implements IBlockAccess {
     private int minX, minY, minZ, maxX, maxY, maxZ;
     private int blockCount;
     private BiomeGenBase creationSpotBiome;
+    public LocatedBlock marker;
 
     public MobileChunk(World world, EntityMovingWorld entitymovingWorld) {
         worldObj = world;
         entityMovingWorld = entitymovingWorld;
         blockStorageMap = new HashMap<ChunkPosition, ExtendedBlockStorage>(1);
         chunkTileEntityMap = new HashMap<ChunkPosition, TileEntity>(2);
+        marker = null;
 
         isChunkLoaded = false;
         isModified = false;

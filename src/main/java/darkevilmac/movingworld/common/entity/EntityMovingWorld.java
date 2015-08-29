@@ -4,7 +4,8 @@ import cpw.mods.fml.common.registry.IEntityAdditionalSpawnData;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import darkevilmac.movingworld.MovingWorld;
-import darkevilmac.movingworld.common.chunk.*;
+import darkevilmac.movingworld.common.chunk.ChunkIO;
+import darkevilmac.movingworld.common.chunk.MovingWorldSizeOverflowException;
 import darkevilmac.movingworld.common.chunk.assembly.AssembleResult;
 import darkevilmac.movingworld.common.chunk.assembly.ChunkDisassembler;
 import darkevilmac.movingworld.common.chunk.assembly.MovingWorldAssemblyInteractor;
@@ -49,10 +50,11 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     public boolean isFlying;
     public Entity prevRiddenByEntity;
     protected float groundFriction, horFriction, vertFriction;
-    int[] layeredBlockVolumeCount;
+    protected int[] layeredBlockVolumeCount;
     private MobileChunk mobileChunk;
     private MovingWorldInfo info;
     private ChunkDisassembler disassembler;
+
     // Related to actual movement. We don't ever really change this variables, they're changed by classes derived from EntityMovingWorld
     private boolean noControl;
     private boolean syncPosWithServer;
@@ -337,42 +339,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     protected void handleServerUpdate(double horvel) {
         //START outer forces
-        byte b0 = 5;
-        int bpermeter = (int) (b0 * (boundingBox.maxY - boundingBox.minY));
-        float waterVolume = 0F;
-        AxisAlignedBB axisalignedbb = AxisAlignedBB.getBoundingBox(0D, 0D, 0D, 0D, 0D, 0D);
-        int belowWater = 0;
-        for (; belowWater < bpermeter; belowWater++) {
-            double d1 = boundingBox.minY + (boundingBox.maxY - boundingBox.minY) * belowWater / bpermeter;
-            double d2 = boundingBox.minY + (boundingBox.maxY - boundingBox.minY) * (belowWater + 1) / bpermeter;
-            axisalignedbb.setBounds(boundingBox.minX, d1, boundingBox.minZ, boundingBox.maxX, d2, boundingBox.maxZ);
-
-            if (!isAABBInLiquidNotFall(worldObj, axisalignedbb)) {
-                break;
-            }
-        }
-        if (belowWater > 0 && layeredBlockVolumeCount != null) {
-            int k = belowWater / b0;
-            for (int y = 0; y <= k && y < layeredBlockVolumeCount.length; y++) {
-                if (y == k) {
-                    waterVolume += layeredBlockVolumeCount[y] * (belowWater % b0) * 1F / b0;
-                } else {
-                    waterVolume += layeredBlockVolumeCount[y] * 1F;
-                }
-            }
-        }
-
-        if (onGround) {
-            isFlying = false;
-        }
-
         float gravity = 0.05F;
-        if (waterVolume > 0F) {
-            isFlying = false;
-            float buoyancyforce = 1F * waterVolume * gravity; //F = rho * V * g (Archimedes' law)
-            float mass = getCapabilities().getMass();
-            motionY += buoyancyforce / mass;
-        }
         if (!isFlying()) {
             motionY -= gravity;
         }
@@ -845,4 +812,8 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     public abstract MovingWorldAssemblyInteractor getAssemblyInteractor();
 
     public abstract void setAssemblyInteractor(MovingWorldAssemblyInteractor interactor);
+
+    public MobileChunk getMobileChunk() {
+        return mobileChunk;
+    }
 }

@@ -1,11 +1,13 @@
 package darkevilmac.movingworld.common.chunk.assembly;
 
 
-import darkevilmac.movingworld.common.MaterialDensity;
 import darkevilmac.movingworld.MovingWorld;
+import darkevilmac.movingworld.common.util.MaterialDensity;
 import darkevilmac.movingworld.common.chunk.LocatedBlock;
 import darkevilmac.movingworld.common.entity.EntityMovingWorld;
 import darkevilmac.movingworld.common.event.AssembleBlockEvent;
+import darkevilmac.movingworld.common.tile.TileMovingWorldMarkingBlock;
+import darkevilmac.movingworld.common.util.LocatedBlockList;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
@@ -97,6 +99,16 @@ public class AssembleResult {
         world.getGameRules().setOrCreateGameRule("doTileDrops", "false");
 
         try {
+            boolean setFluids = false;
+            LocatedBlockList setAirState2 = new LocatedBlockList();
+
+            if (movingWorldMarkingBlock != null && movingWorldMarkingBlock.tileEntity != null && movingWorldMarkingBlock.tileEntity instanceof TileMovingWorldMarkingBlock
+                    && ((TileMovingWorldMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks != null &&
+                    !((TileMovingWorldMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks.isEmpty()) {
+
+                setFluids = true;
+            }
+
             TileEntity tileentity;
             int ix, iy, iz;
             for (LocatedBlock lb : assembledBlocks) {
@@ -114,16 +126,37 @@ public class AssembleResult {
                     world.setBlock(lb.coords.chunkPosX, lb.coords.chunkPosY, lb.coords.chunkPosZ, Blocks.air, 1, 2);
                 }
             }
+
+            for (LocatedBlock lb : setAirState2) {
+                world.setBlock(lb.coords.chunkPosX, lb.coords.chunkPosY, lb.coords.chunkPosZ, Blocks.air, 0, 2);
+                world.removeTileEntity(lb.coords.chunkPosX, lb.coords.chunkPosY, lb.coords.chunkPosZ);
+            }
+
             for (LocatedBlock block : assembledBlocks) {
                 world.setBlockToAir(block.coords.chunkPosX, block.coords.chunkPosY, block.coords.chunkPosZ);
             }
+
+            if (setFluids) {
+                for (LocatedBlock fluid : ((TileMovingWorldMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks) {
+                    if (fluid != null && world.isAirBlock(fluid.coords.chunkPosX, fluid.coords.chunkPosZ, fluid.coords.chunkPosZ)) {
+                        world.setBlock(fluid.coords.chunkPosX, fluid.coords.chunkPosY, fluid.coords.chunkPosZ, fluid.block, fluid.blockMeta, 2);
+                    }
+                }
+
+                for (LocatedBlock fluid : ((TileMovingWorldMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks) {
+                    if (fluid != null && world.isAirBlock(fluid.coords.chunkPosX, fluid.coords.chunkPosZ, fluid.coords.chunkPosZ)) {
+                        world.setBlock(fluid.coords.chunkPosX, fluid.coords.chunkPosY, fluid.coords.chunkPosZ, fluid.block, fluid.blockMeta, 3);
+                    }
+                }
+            }
+
         } catch (Exception e) {
             resultCode = RESULT_ERROR_OCCURED;
             e.printStackTrace();
             return null;
-        } finally {
-            world.getGameRules().setOrCreateGameRule("doTileDrops", String.valueOf(flag));
         }
+
+        world.getGameRules().setOrCreateGameRule("doTileDrops", String.valueOf(flag));
 
         entity.getMovingWorldChunk().setChunkModified();
         entity.getMovingWorldChunk().onChunkLoad();

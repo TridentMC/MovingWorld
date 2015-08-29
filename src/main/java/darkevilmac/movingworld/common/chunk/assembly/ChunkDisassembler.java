@@ -5,6 +5,9 @@ import darkevilmac.movingworld.common.chunk.LocatedBlock;
 import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunk;
 import darkevilmac.movingworld.common.entity.EntityMovingWorld;
 import darkevilmac.movingworld.common.tile.IMovingWorldTileEntity;
+import darkevilmac.movingworld.common.tile.TileMovingWorldMarkingBlock;
+import darkevilmac.movingworld.common.util.FloodFiller;
+import darkevilmac.movingworld.common.util.LocatedBlockList;
 import darkevilmac.movingworld.common.util.MathHelperMod;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
@@ -20,6 +23,10 @@ import java.util.List;
 public class ChunkDisassembler {
     public boolean overwrite;
     private EntityMovingWorld movingWorld;
+
+    private AssembleResult result;
+    private LocatedBlockList removedFluidBlocks;
+    private TileMovingWorldMarkingBlock tileMarker;
 
     public ChunkDisassembler(EntityMovingWorld EntityMovingWorld) {
         movingWorld = EntityMovingWorld;
@@ -66,9 +73,15 @@ public class ChunkDisassembler {
     }
 
     public AssembleResult doDisassemble(MovingWorldAssemblyInteractor assemblyInteractor) {
+        tileMarker = null;
+        if (movingWorld.getMobileChunk().marker != null && movingWorld.getMobileChunk().marker.tileEntity != null && movingWorld.getMobileChunk().marker.tileEntity instanceof TileMovingWorldMarkingBlock)
+            tileMarker = (TileMovingWorldMarkingBlock) movingWorld.getMobileChunk().marker.tileEntity;
+
+        removedFluidBlocks = new LocatedBlockList();
         World world = movingWorld.worldObj;
         MobileChunk chunk = movingWorld.getMovingWorldChunk();
-        AssembleResult result = new AssembleResult();
+        LocatedBlockList fillableBlocks = new FloodFiller().floodFillMobileChunk(chunk);
+        this.result = new AssembleResult();
         result.xOffset = Integer.MAX_VALUE;
         result.yOffset = Integer.MAX_VALUE;
         result.zOffset = Integer.MAX_VALUE;
@@ -126,6 +139,19 @@ public class ChunkDisassembler {
                     if (meta != world.getBlockMetadata(ix, iy, iz)) {
                         world.setBlockMetadataWithNotify(ix, iy, iz, meta, 2);
                     }
+                    if (!fillableBlocks.containsLBOfPos(new ChunkPosition(i, j, k))) {
+                        if (world.getBlock(ix, iy, iz).getMaterial().isLiquid()) {
+                            if (!removedFluidBlocks.containsLBOfPos(new ChunkPosition(ix, iy, iz)))
+                                removedFluidBlocks.add(new LocatedBlock(block, meta, new ChunkPosition(ix, iy, iz)));
+                        }
+                        if (!world.setBlock(ix, iy, iz, block, meta, 2) || block != world.getBlock(ix, iy, iz)) {
+                            postlist.add(new LocatedBlock(block, meta, tileentity, new ChunkPosition(ix, iy, iz)));
+                            continue;
+                        }
+                        if (block != world.getBlock(ix, iy, iz)) {
+                            world.setBlock(ix, iy, iz, block, meta, 2);
+                        }
+                    }
                     if (tileentity != null) {
                         if (tileentity instanceof IMovingWorldTileEntity) {
                             ((IMovingWorldTileEntity) tileentity).setParentMovingWorld(null, i, j, k);
@@ -144,7 +170,7 @@ public class ChunkDisassembler {
 
                     LocatedBlock lb = new LocatedBlock(block, meta, tileentity, new ChunkPosition(ix, iy, iz));
                     assemblyInteractor.blockDisassembled(lb);
-                    result.assembleBlock(lb);
+                    this.result.assembleBlock(lb);
                 }
             }
         }
@@ -158,18 +184,22 @@ public class ChunkDisassembler {
             MovingWorld.logger.debug("Post-rejoining block: " + ilb.toString());
             world.setBlock(ix, iy, iz, ilb.block, ilb.blockMeta, 0);
             assemblyInteractor.blockDisassembled(ilb);
-            result.assembleBlock(ilb);
+            this.result.assembleBlock(ilb);
+        }
+
+        if (tileMarker != null) {
+            tileMarker.removedFluidBlocks = removedFluidBlocks;
         }
 
         movingWorld.setDead();
 
-        if (result.movingWorldMarkingBlock == null || !assemblyInteractor.isTileMovingWorldMarker(result.movingWorldMarkingBlock.tileEntity)) {
-            result.resultCode = AssembleResult.RESULT_MISSING_MARKER;
+        if (this.result.movingWorldMarkingBlock == null || !assemblyInteractor.isTileMovingWorldMarker(result.movingWorldMarkingBlock.tileEntity)) {
+            this.result.resultCode = AssembleResult.RESULT_MISSING_MARKER;
         } else {
-            result.checkConsistent(world);
+            this.result.checkConsistent(world);
         }
-        assemblyInteractor.chunkDissasembled(result);
-        result.assemblyInteractor = assemblyInteractor;
+        assemblyInteractor.chunkDissasembled(this.result);
+        this.result.assemblyInteractor = assemblyInteractor;
         return result;
     }
 

@@ -1,4 +1,4 @@
-package darkevilmac.movingworld.common;
+package darkevilmac.movingworld.common.util;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;

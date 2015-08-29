@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import org.lwjgl.opengl.GL11;
 
@@ -114,6 +115,13 @@ public class MobileChunkRenderer {
         int k = i / 65536;
         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, j / 1.0F, k / 1.0F);
         GL11.glColor4f(1F, 1F, 1F, 1F);
+        World tesrDispatchWorld = TileEntityRendererDispatcher.instance.field_147550_f;
+        TileEntity tileClone = tileentity;
+        //tileClone.setWorldObj();
+        //TileEntityRendererDispatcher.instance.func_147543_a();
+
+        // TODO: Fakeworld
+
         TileEntityRendererDispatcher.instance.renderTileEntityAt(tileentity, tileentity.xCoord, tileentity.yCoord, tileentity.zCoord, partialticks);
     }
 

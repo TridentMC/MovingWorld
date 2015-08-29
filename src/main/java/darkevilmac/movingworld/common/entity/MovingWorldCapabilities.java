@@ -1,6 +1,6 @@
 package darkevilmac.movingworld.common.entity;
 
-import darkevilmac.movingworld.common.MaterialDensity;
+import darkevilmac.movingworld.common.util.MaterialDensity;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
@@ -32,6 +32,9 @@ public abstract class MovingWorldCapabilities {
         blockCount++;
         if (autoCalcMass)
             mass += MaterialDensity.getDensity(block);
+    }
+
+    public void postBlockAdding() {
     }
 
     public abstract boolean mountEntity(Entity entity);
