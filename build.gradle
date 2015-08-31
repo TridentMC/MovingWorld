@@ -25,7 +25,7 @@ apply plugin: 'idea'
 sourceCompatibility = '1.6'
 targetCompatibility = '1.6'
 
-version = "MC1.8-V1.8"
+version = "MC1.8-V1.8.1"
 group = "darkevilmac.movingworld" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "movingworld"
 
@@ -68,7 +68,7 @@ repositories {
 }
 
 dependencies {
-    shade 'org.spongepowered:mixin:0.4.4-SNAPSHOT'
+    shade 'org.spongepowered:mixin:0.4.5-SNAPSHOT'
 }
 
 // Jar shading and packaging configuration
