@@ -60,5 +60,6 @@ public abstract class MovingWorldHandlerCommon {
             }
         }
         getMovingWorld().isFlying = getMovingWorld().getCapabilities().canFly();
+        getMovingWorld().getCapabilities().postBlockAdding();
     }
 }

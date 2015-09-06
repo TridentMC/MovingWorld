@@ -5,8 +5,8 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import darkevilmac.movingworld.MovingWorld;
 import darkevilmac.movingworld.common.chunk.ChunkIO;
+import darkevilmac.movingworld.common.chunk.LocatedBlock;
 import darkevilmac.movingworld.common.chunk.MovingWorldSizeOverflowException;
-import darkevilmac.movingworld.common.chunk.assembly.AssembleResult;
 import darkevilmac.movingworld.common.chunk.assembly.ChunkDisassembler;
 import darkevilmac.movingworld.common.chunk.assembly.MovingWorldAssemblyInteractor;
 import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunk;
@@ -610,9 +610,9 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
         if (!disassembler.canDisassemble(getAssemblyInteractor())) {
             return false;
+        } else {
+            disassembler.doDisassemble(getAssemblyInteractor());
         }
-
-        AssembleResult result = disassembler.doDisassemble(getNewAssemblyInteractor());
 
         return true;
     }
@@ -698,6 +698,14 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             compound.setTag("tileent", tileEntities);
         }
 
+        if (mobileChunk.marker != null) {
+            NBTTagCompound markerComp = new NBTTagCompound();
+            markerComp.setInteger("markerPosX", mobileChunk.marker.coords.chunkPosX);
+            markerComp.setInteger("markerPosY", mobileChunk.marker.coords.chunkPosY);
+            markerComp.setInteger("markerPosZ", mobileChunk.marker.coords.chunkPosZ);
+            compound.setTag("markerInfo", markerComp);
+        }
+
         compound.setString("name", info.getName());
         if (info.getOwner() != null) {
             compound.setString("owner", info.getOwner().toString());
@@ -740,6 +748,15 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
                 TileEntity tileentity = TileEntity.createAndLoadEntity(comp);
                 mobileChunk.setTileEntity(tileentity.xCoord, tileentity.yCoord, tileentity.zCoord, tileentity);
             }
+        }
+
+        if (compound.hasKey("markerInfo")) {
+            NBTTagCompound markerComp = (NBTTagCompound) compound.getTag("markerInfo");
+            int x = markerComp.getInteger("markerPosX");
+            int y = markerComp.getInteger("markerPosY");
+            int z = markerComp.getInteger("markerPosZ");
+
+            mobileChunk.marker = new LocatedBlock(mobileChunk.getBlock(x, y, z), mobileChunk.getBlockMetadata(x, y, z), mobileChunk.getTileEntity(x, y, z), new ChunkPosition(x, y, z), null);
         }
 
         info = new MovingWorldInfo();

@@ -41,4 +41,35 @@ public class LocatedBlockList extends ArrayList<LocatedBlock> {
         return posMap.containsKey(pos);
     }
 
+    /**
+     * Returns this LBList as an arraylist of it split into smaller chunks to process over time.
+     *
+     * @param segments desired amount of chunks.
+     * @return
+     */
+    public ArrayList<LocatedBlockList> getSplitList(int segments) {
+        int chunkLength = (int) Math.ceil(this.size() / segments);
+        ArrayList<LocatedBlockList> result = new ArrayList<LocatedBlockList>(segments);
+
+        if (chunkLength != 1) {
+            LocatedBlockList thisClone = (LocatedBlockList) this.clone();
+            LocatedBlockList currentIndex = new LocatedBlockList();
+            for (LocatedBlock lb : thisClone) {
+                currentIndex.add(lb);
+
+                if (currentIndex.size() == chunkLength) {
+                    result.add(currentIndex);
+                    currentIndex = new LocatedBlockList();
+                }
+            }
+            if (currentIndex.size() > 0) {
+                result.add(currentIndex);
+            }
+        } else {
+            result.add(this);
+        }
+
+        return result;
+    }
+
 }

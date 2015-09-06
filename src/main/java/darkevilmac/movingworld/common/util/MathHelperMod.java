@@ -1,8 +1,6 @@
 package darkevilmac.movingworld.common.util;
 
-import net.minecraft.util.MathHelper;
-
-public class MathHelperMod extends MathHelper {
+public class MathHelperMod {
 
     public static final float PI_HALF = (float) (Math.PI / 2D);
 

@@ -11,22 +11,25 @@ public class LocatedBlock {
     public final int blockMeta;
     public final TileEntity tileEntity;
     public final ChunkPosition coords;
+    public final ChunkPosition coordsNoOffset;
 
     public LocatedBlock(Block block, int meta, ChunkPosition coords) {
-        this(block, meta, null, coords);
+        this(block, meta, null, coords, null);
     }
 
-    public LocatedBlock(Block block, int meta, TileEntity tileentity, ChunkPosition coords) {
+    public LocatedBlock(Block block, int meta, TileEntity tileentity, ChunkPosition coords, ChunkPosition coordsNoOffset) {
         this.block = block;
         blockMeta = meta;
         tileEntity = tileentity;
         this.coords = coords;
+        this.coordsNoOffset = coordsNoOffset;
     }
 
     public LocatedBlock(NBTTagCompound comp, World world) {
         block = Block.getBlockById(comp.getInteger("block"));
         blockMeta = comp.getInteger("meta");
         coords = new ChunkPosition(comp.getInteger("x"), comp.getInteger("y"), comp.getInteger("z"));
+        coordsNoOffset = null;
         tileEntity = world == null ? null : world.getTileEntity(coords.chunkPosX, coords.chunkPosY, coords.chunkPosZ);
     }
 

@@ -22,10 +22,10 @@ group = "darkevilmac.movingworld" // http://maven.apache.org/guides/mini/guide-n
 archivesBaseName = "movingworld"
 
 minecraft {
-	version = "1.7.10-10.13.4.1490-1.7.10"
+    version = "1.7.10-10.13.4.1492-1.7.10"
     runDir = "run"
-	
-	replace '@MOVINGWORLDVER@', project.version
+
+    replace '@MOVINGWORLDVER@', project.version
 }
 
 dependencies {

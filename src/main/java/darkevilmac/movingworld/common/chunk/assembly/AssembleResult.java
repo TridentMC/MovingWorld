@@ -2,12 +2,12 @@ package darkevilmac.movingworld.common.chunk.assembly;
 
 
 import darkevilmac.movingworld.MovingWorld;
-import darkevilmac.movingworld.common.util.MaterialDensity;
 import darkevilmac.movingworld.common.chunk.LocatedBlock;
 import darkevilmac.movingworld.common.entity.EntityMovingWorld;
 import darkevilmac.movingworld.common.event.AssembleBlockEvent;
 import darkevilmac.movingworld.common.tile.TileMovingWorldMarkingBlock;
 import darkevilmac.movingworld.common.util.LocatedBlockList;
+import darkevilmac.movingworld.common.util.MaterialDensity;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
@@ -107,8 +107,12 @@ public class AssembleResult {
                     !((TileMovingWorldMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks.isEmpty()) {
 
                 setFluids = true;
+
             }
 
+            if (movingWorldMarkingBlock != null && movingWorldMarkingBlock.tileEntity != null && movingWorldMarkingBlock.tileEntity instanceof TileMovingWorldMarkingBlock) {
+                entity.getMobileChunk().marker = movingWorldMarkingBlock;
+            }
             TileEntity tileentity;
             int ix, iy, iz;
             for (LocatedBlock lb : assembledBlocks) {
@@ -122,6 +126,8 @@ public class AssembleResult {
                     tileentity.validate();
                 }
                 if (entity.getMovingWorldChunk().setBlockIDWithMetadata(ix, iy, iz, lb.block, lb.blockMeta)) {
+                    setAirState2.add(lb);
+
                     entity.getMovingWorldChunk().setTileEntity(ix, iy, iz, tileentity);
                     world.setBlock(lb.coords.chunkPosX, lb.coords.chunkPosY, lb.coords.chunkPosZ, Blocks.air, 1, 2);
                 }

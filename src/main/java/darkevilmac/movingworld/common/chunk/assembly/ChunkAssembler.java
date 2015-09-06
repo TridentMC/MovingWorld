@@ -54,16 +54,16 @@ public class ChunkAssembler {
         return result;
     }
 
-    private void assembleIterative(AssembleResult result, MovingWorldAssemblyInteractor assemblyInteractor, int sx, int sy, int sz) throws MovingWorldSizeOverflowException {
+    private void assembleIterative(AssembleResult result, MovingWorldAssemblyInteractor assemblyInteractor, int sX, int sY, int sZ) throws MovingWorldSizeOverflowException {
         HashSet<ChunkPosition> openSet = new HashSet<ChunkPosition>();
         HashSet<ChunkPosition> closedSet = new HashSet<ChunkPosition>();
         List<ChunkPosition> iterator = new ArrayList<ChunkPosition>();
 
         LocatedBlock movingWorldMarker = null;
 
-        int x = sx, y = sy, z = sz;
+        int x = sX, y = sY, z = sZ;
 
-        openSet.add(new ChunkPosition(sx, sy, sz));
+        openSet.add(new ChunkPosition(sX, sY, sZ));
         while (!openSet.isEmpty()) {
             iterator.addAll(openSet);
             for (ChunkPosition pos : iterator) {
@@ -89,7 +89,7 @@ public class ChunkAssembler {
                     continue;
                 }
 
-                LocatedBlock lb = new LocatedBlock(block, worldObj.getBlockMetadata(x, y, z), worldObj.getTileEntity(x, y, z), pos);
+                LocatedBlock lb = new LocatedBlock(block, worldObj.getBlockMetadata(x, y, z), worldObj.getTileEntity(x, y, z), pos, null);
                 assemblyInteractor.blockAssembled(lb);
                 if ((lb.block != null && lb.block instanceof BlockMovingWorldMarker) || (lb.tileEntity != null && lb.tileEntity instanceof TileMovingWorldMarkingBlock)) {
                     if (movingWorldMarker == null)
@@ -145,7 +145,8 @@ public class ChunkAssembler {
         if (canAssemble.justCancel) {
             return;
         }
-        LocatedBlock lb = new LocatedBlock(block, worldObj.getBlockMetadata(x, y, z), worldObj.getTileEntity(x, y, z), pos);
+
+        LocatedBlock lb = new LocatedBlock(block, worldObj.getBlockMetadata(x, y, z), worldObj.getTileEntity(x, y, z), pos, null);
         assemblyInteractor.blockAssembled(lb);
         if ((lb.block != null && lb.block instanceof BlockMovingWorldMarker) || (lb.tileEntity != null && lb.tileEntity instanceof TileMovingWorldMarkingBlock)) {
             if (movingWorldMarker == null)
@@ -184,4 +185,5 @@ public class ChunkAssembler {
     public CanAssemble canUseBlockForVehicle(Block block, MovingWorldAssemblyInteractor assemblyInteractor, int x, int y, int z) {
         return assemblyInteractor.isBlockAllowed(worldObj, block, x, y, z);
     }
+
 }
