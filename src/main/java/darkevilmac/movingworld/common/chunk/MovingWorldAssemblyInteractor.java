@@ -43,7 +43,7 @@ public class MovingWorldAssemblyInteractor {
     }
 
     /**
-     * Called when a block is disassembled to your moving world.
+     * Called when a block is disassembled from your moving world.
      */
     public void blockDisassembled(LocatedBlock locatedBlock) {
     }
