@@ -30,7 +30,7 @@ group = "darkevilmac.movingworld" // http://maven.apache.org/guides/mini/guide-n
 archivesBaseName = "movingworld"
 
 minecraft {
-    version = "1.8-11.14.3.1486"
+    version = "1.8-11.14.3.1502"
     runDir = "run"
 
     replace '@MOVINGWORLDVER@', project.version
