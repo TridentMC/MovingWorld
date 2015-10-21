@@ -34,3 +34,4 @@ MovingWorld.iws
 .project
 ui/
 gradle-app.setting
+build/

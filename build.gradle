@@ -12,12 +12,12 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.0-SNAPSHOT'
     }
 }
 
 // Apply plugin
-apply plugin: 'forge'
+apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
@@ -30,7 +30,7 @@ group = "darkevilmac.movingworld" // http://maven.apache.org/guides/mini/guide-n
 archivesBaseName = "movingworld"
 
 minecraft {
-    version = "1.8-11.14.3.1502"
+    version = "1.8-11.14.3.1520"
     runDir = "run"
 
     replace '@MOVINGWORLDVER@', project.version
@@ -126,7 +126,7 @@ compileJava {
 
 // Copy the current srgs to the build dir so the user doesn't have to go hunting for them
 task copySrgs(type: Copy, dependsOn: 'genSrgs') {
-    from plugins.getPlugin("forge").delayedFile("{SRG_DIR}")
+    from plugins.getPlugin("net.minecraftforge.gradle.forge").delayedFile( net.minecraftforge.gradle.common.Constants.DIR_MCP_MAPPINGS + '/srgs')
 
     include '**/*.srg'
     into 'build/srgs'
@@ -137,9 +137,9 @@ setupDevWorkspace.dependsOn copySrgs
 compileJava.dependsOn copySrgs
 
 // Configure reobfuscation for mixins
-reobf.doFirst {
+reobfJar.doFirst {
     if (project.mixinSrg.exists()) {
-        addExtraSrgFile project.mixinSrg
+        addSecondarySrgFile project.mixinSrg
     }
 }
 
