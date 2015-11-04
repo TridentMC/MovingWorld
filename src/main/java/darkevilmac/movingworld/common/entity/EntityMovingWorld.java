@@ -308,7 +308,6 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     @Override
     public void onUpdate() {
-
         if (firstUpdate)
             mobileChunk.calculateBounds();
         else
@@ -832,6 +831,16 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             MovingWorld.logger.warn("Ship is too large to be sent");
         }
         writeMovingWorldSpawnData(data);
+    }
+
+    /**
+     * Same as the code from the Entity Class but it doesn't spawn particles, as with larger ships it can cause a lot of lag.
+     */
+    @Override
+    protected void resetHeight() {
+        float sqrtMotion = MathHelper.sqrt_double(this.motionX * this.motionX * 0.20000000298023224D + this.motionY * this.motionY + this.motionZ * this.motionZ * 0.20000000298023224D) * 0.2F;
+        sqrtMotion = sqrtMotion > 1.0F ? 1.0F : sqrtMotion;
+        this.playSound(this.getSplashSound(), sqrtMotion, 1.0F + (this.rand.nextFloat() - this.rand.nextFloat()) * 0.4F);
     }
 
     public abstract void writeMovingWorldSpawnData(ByteBuf data);

@@ -126,7 +126,7 @@ compileJava {
 
 // Copy the current srgs to the build dir so the user doesn't have to go hunting for them
 task copySrgs(type: Copy, dependsOn: 'genSrgs') {
-    from plugins.getPlugin("net.minecraftforge.gradle.forge").delayedFile( net.minecraftforge.gradle.common.Constants.DIR_MCP_MAPPINGS + '/srgs')
+    from plugins.getPlugin("net.minecraftforge.gradle.forge").delayedFile(net.minecraftforge.gradle.common.Constants.DIR_MCP_MAPPINGS + '/srgs')
 
     include '**/*.srg'
     into 'build/srgs'

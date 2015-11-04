@@ -16,8 +16,8 @@ public class RenderMovingWorld extends Render {
         shadowSize = 1F;
     }
 
-    public void renderVehicle(EntityMovingWorld entity, double x, double y, double z, float yaw, float renderTime) {
-        float pitch = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * renderTime;
+    public void renderVehicle(EntityMovingWorld entity, double x, double y, double z, float yaw, float partialTicks) {
+        float pitch = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * partialTicks;
 
         float rx = entity.frontDirection.getHorizontalIndex() == 1 ? -1f : entity.frontDirection.getHorizontalIndex() == 3 ? 1f : 0f;
         float rz = entity.frontDirection.getHorizontalIndex() == 0 ? 1f : entity.frontDirection.getHorizontalIndex() == 2 ? -1f : 0f;
@@ -32,13 +32,14 @@ public class RenderMovingWorld extends Render {
         GlStateManager.translate(-fx, -entity.getMobileChunk().minY(), -fz); //minY is always 0
 
         bindEntityTexture(entity);
-        ((MobileChunkClient) entity.getMobileChunk()).getRenderer().render(0F);
+        ((MobileChunkClient) entity.getMobileChunk()).getRenderer().render(partialTicks);
         GL11.glPopMatrix();
     }
 
     @Override
-    public void doRender(Entity entity, double x, double y, double z, float yaw, float pitch) {
-        renderVehicle((EntityMovingWorld) entity, x, y, z, yaw, pitch);
+    public void doRender(Entity entity, double x, double y, double z, float yaw, float partialTicks) {
+        renderVehicle((EntityMovingWorld) entity, x, y, z, yaw, partialTicks);
+        super.doRender(entity, x, y, z, yaw, partialTicks);
     }
 
     @Override
