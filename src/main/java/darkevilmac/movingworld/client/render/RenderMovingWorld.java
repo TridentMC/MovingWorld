@@ -46,8 +46,6 @@ public class RenderMovingWorld extends Render {
 
     @Override
     public boolean shouldRender(Entity entity, ICamera camera, double camX, double camY, double camZ) {
-        System.out.println(entity.isInRangeToRender3d(camX, camY, camZ));
-
         return entity.isInRangeToRender3d(camX, camY, camZ);
     }
 
