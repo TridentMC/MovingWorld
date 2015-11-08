@@ -69,7 +69,6 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     public EntityMovingWorld(World world) {
         super(world);
-        ignoreFrustumCheck = true;
         info = new MovingWorldInfo();
         if (world.isRemote) {
             initClient();
@@ -89,6 +88,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         prevRiddenByEntity = null;
 
         isFlying = false;
+        ignoreFrustumCheck = true;
     }
 
     public static boolean isAABBInLiquidNotFall(World world, AxisAlignedBB aabb) {

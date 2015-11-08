@@ -25,6 +25,7 @@ public class MainConfig {
     public Set<String> blockWhitelist;
     public Set<String> overwritableBlocks;
     public AssemblePriorityConfig assemblePriorityConfig;
+    private boolean allowListInsertion;
     private Configuration config;
 
     public MainConfig(Configuration config) {
@@ -83,6 +84,7 @@ public class MainConfig {
         iterativeAlgorithm = config.get(Configuration.CATEGORY_GENERAL, "Use Iterative Algorithm", false).getBoolean();
         diagonalAssembly = config.get(Configuration.CATEGORY_GENERAL, "Assemble Diagonal Blocks NOTE: Can be overridden by mods!", false).getBoolean();
         useWhitelist = config.get("mobile_chunk", "use_whitelist", false, "Switch this property to select the block restriction list to use. 'true' for the 'allowed_blocks' whitelist, 'false' for the 'forbidden_blocks' blacklist.").getBoolean(false);
+        allowListInsertion = config.get(Configuration.CATEGORY_GENERAL, "Allow other mods to add to the whitelist/blacklist? NOTE: Turn off if you want to remove the default blacklist/whitelist", true).getBoolean();
 
         String[] forbiddenBlocks = config.get("mobile_chunk", "forbidden_blocks", blockBlackListNames, "A list of blocks that will not be added to a Moving World.").getStringList();
         String[] allowedBlocks = config.get("mobile_chunk", "allowed_blocks", blockWhiteListNames, "A list of blocks that are allowed on a Moving World.").getStringList();
@@ -98,6 +100,8 @@ public class MainConfig {
     }
 
     public void addBlacklistedBlock(Block block) {
+        if (!allowListInsertion) return;
+
         String blockName = Block.blockRegistry.getNameForObject(block).toString();
 
         config.load();
@@ -129,6 +133,8 @@ public class MainConfig {
     }
 
     public void addWhitelistedBlock(Block block) {
+        if (!allowListInsertion) return;
+
         String blockName = Block.blockRegistry.getNameForObject(block).toString();
 
         config.load();
