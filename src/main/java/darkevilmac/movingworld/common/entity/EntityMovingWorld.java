@@ -780,6 +780,16 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             frontDirection = EnumFacing.getHorizontal(compound.getInteger("front"));
         }
 
+        if (mobileChunk == null) {
+            if (worldObj != null) {
+                if (worldObj.isRemote) {
+                    initClient();
+                } else {
+                    initCommon();
+                }
+            }
+        }
+
         NBTTagList tileentities = compound.getTagList("tileent", 10);
         if (tileentities != null) {
             for (int i = 0; i < tileentities.tagCount(); i++) {
