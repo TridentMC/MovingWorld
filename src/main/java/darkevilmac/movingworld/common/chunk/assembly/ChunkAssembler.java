@@ -46,6 +46,7 @@ public class ChunkAssembler {
             result.resultCode = AssembleResult.RESULT_BLOCK_OVERFLOW;
         } catch (Error e) {
             result.resultCode = AssembleResult.RESULT_ERROR_OCCURED;
+            MovingWorld.logger.error(e.toString());
         }
         result.assemblyInteractor.chunkAssembled(result);
         return result;
