@@ -46,6 +46,8 @@ public class MovingWorldAssemblyInteractor {
      * Called when a block is disassembled from your moving world.
      */
     public void blockDisassembled(LocatedBlock locatedBlock) {
+        if (locatedBlock.tileEntity != null)
+            locatedBlock.tileEntity.getWorld().getTileEntity(locatedBlock.blockPos).markDirty();
     }
 
     /**

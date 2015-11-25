@@ -236,7 +236,6 @@ public class ChunkDisassembler {
             DisassembleBlockEvent event = new DisassembleBlockEvent(lb);
             MinecraftForge.EVENT_BUS.post(event);
             result.assembleBlock(lb);
-
         }
 
         return retPostList;
