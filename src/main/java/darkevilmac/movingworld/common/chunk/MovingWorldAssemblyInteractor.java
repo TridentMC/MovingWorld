@@ -30,7 +30,7 @@ public class MovingWorldAssemblyInteractor {
     }
 
     public boolean doDiagonalAssembly() {
-        return MovingWorld.instance.mConfig.diagonalAssembly;
+        return MovingWorld.instance.getNetworkConfig().diagonalAssembly;
     }
 
     public void toByteBuf(ByteBuf byteBuf) {
@@ -54,7 +54,7 @@ public class MovingWorldAssemblyInteractor {
      * @return returns if it is an over writable block in the config.
      */
     public boolean canOverwriteBlock(Block block) {
-        return MovingWorld.instance.mConfig.canOverwriteBlock(block);
+        return MovingWorld.instance.getNetworkConfig().canOverwriteBlock(block);
     }
 
     /**
@@ -85,7 +85,7 @@ public class MovingWorldAssemblyInteractor {
     public CanAssemble isBlockAllowed(World world, Block block, BlockPos pos) {
         CanAssemble canAssemble = new CanAssemble(false, false);
 
-        canAssemble.justCancel = !(!block.isAir(world, pos) && !block.getMaterial().isLiquid() && MovingWorld.instance.mConfig.isBlockAllowed(block));
+        canAssemble.justCancel = !(!block.isAir(world, pos) && !block.getMaterial().isLiquid() && MovingWorld.instance.getNetworkConfig().isBlockAllowed(block));
 
         return canAssemble;
     }

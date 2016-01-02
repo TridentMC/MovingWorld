@@ -1,5 +1,6 @@
 package darkevilmac.movingworld;
 
+import darkevilmac.movingworld.client.ClientProxy;
 import darkevilmac.movingworld.common.CommonProxy;
 import darkevilmac.movingworld.common.config.MainConfig;
 import darkevilmac.movingworld.common.mrot.MetaRotations;
@@ -7,6 +8,7 @@ import darkevilmac.movingworld.common.network.MovingWorldMessageToMessageCodec;
 import darkevilmac.movingworld.common.network.MovingWorldPacketHandler;
 import darkevilmac.movingworld.common.network.NetworkUtil;
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -33,7 +35,7 @@ public class MovingWorld {
     public static Logger logger;
 
     public MetaRotations metaRotations;
-    public MainConfig mConfig;
+    private MainConfig localConfig;
     public NetworkUtil network;
 
     public MovingWorld() {
@@ -45,20 +47,28 @@ public class MovingWorld {
         logger = e.getModLog();
         File configFolder = new File(e.getModConfigurationDirectory(), "MovingWorld");
         File mConfigFile = new File(configFolder, "Main.cfg");
-        mConfig = new MainConfig(new Configuration(mConfigFile));
-        mConfig.loadAndSave();
+        localConfig = new MainConfig(new Configuration(mConfigFile));
+        localConfig.loadAndSave();
     }
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent e) {
         network.channels = NetworkRegistry.INSTANCE.newChannel(MOD_ID, new MovingWorldMessageToMessageCodec(), new MovingWorldPacketHandler());
         proxy.registerRenderers();
-        mConfig.assemblePriorityConfig.loadAndSaveInit();
+        localConfig.assemblePriorityConfig.loadAndSaveInit();
     }
 
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent e) {
-        mConfig.assemblePriorityConfig.loadAndSavePostInit();
+        localConfig.assemblePriorityConfig.loadAndSavePostInit();
+    }
+
+    public MainConfig getNetworkConfig() {
+        if (FMLCommonHandler.instance().getSide().isClient()) {
+            if (((ClientProxy) proxy).syncedConfig != null)
+                return ((ClientProxy) proxy).syncedConfig;
+        }
+        return localConfig;
     }
 
 }

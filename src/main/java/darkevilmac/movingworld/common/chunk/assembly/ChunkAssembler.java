@@ -32,7 +32,7 @@ public class ChunkAssembler {
         result.offset = start;
         result.assemblyInteractor = interactor;
         try {
-            if (MovingWorld.instance.mConfig.iterativeAlgorithm) {
+            if (MovingWorld.instance.getNetworkConfig().iterativeAlgorithm) {
                 assembleIterative(result, result.assemblyInteractor, start);
             } else {
                 assembleRecursive(result, new HashSet<BlockPos>(), result.assemblyInteractor, start);

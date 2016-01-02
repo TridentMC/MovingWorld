@@ -111,7 +111,7 @@ public abstract class ChunkIO {
         MovingWorld.logger.debug(String.format(Locale.ENGLISH, "%d blocks written. Efficiency: %d/%d = %.2f", count, byteswritten, count * 9, f));
 
         if (byteswritten > 32000) {
-            //  ArchimedesShipMod.modLog.warn("Ship probably contains too many blocks");
+             MovingWorld.logger.warn("Ship probably contains too many blocks");
         }
     }
 

@@ -12,7 +12,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.0-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.0-20151205.212842-160'
     }
 }
 
@@ -30,7 +30,7 @@ group = "darkevilmac.movingworld" // http://maven.apache.org/guides/mini/guide-n
 archivesBaseName = "movingworld"
 
 minecraft {
-    version = "1.8-11.14.3.1520"
+    version = "1.8-11.14.4.1577"
     runDir = "run"
 
     replace '@MOVINGWORLDVER@', project.version
@@ -89,6 +89,7 @@ jar {
     configurations.shade.each { dep ->
         from(project.zipTree(dep)) {
             include "org/spongepowered/asm/**"
+			include "com/google/api/services/analytics/**"
         }
     }
 }

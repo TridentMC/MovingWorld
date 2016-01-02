@@ -14,15 +14,15 @@ public class MovingWorldConfigGUI extends GuiConfig {
 
     public MovingWorldConfigGUI(GuiScreen parentScreen) {
         super(parentScreen, generateConfigList(), "MovingWorld",
-                false, false, GuiConfig.getAbridgedConfigPath(MovingWorld.instance.mConfig.getConfig().toString()));
+                false, false, GuiConfig.getAbridgedConfigPath(MovingWorld.instance.getNetworkConfig().getConfig().toString()));
     }
 
     public static List<IConfigElement> generateConfigList() {
 
         ArrayList<IConfigElement> elements = new ArrayList<IConfigElement>();
 
-        for (String name : MovingWorld.instance.mConfig.getConfig().getCategoryNames())
-            elements.add(new ConfigElement(MovingWorld.instance.mConfig.getConfig().getCategory(name)));
+        for (String name : MovingWorld.instance.getNetworkConfig().getConfig().getCategoryNames())
+            elements.add(new ConfigElement(MovingWorld.instance.getNetworkConfig().getConfig().getCategory(name)));
 
         return elements;
     }
