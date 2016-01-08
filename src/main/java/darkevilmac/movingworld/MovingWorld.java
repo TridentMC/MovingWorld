@@ -55,12 +55,12 @@ public class MovingWorld {
     public void init(FMLInitializationEvent e) {
         network.channels = NetworkRegistry.INSTANCE.newChannel(MOD_ID, new MovingWorldMessageToMessageCodec(), new MovingWorldPacketHandler());
         proxy.registerRenderers();
-        localConfig.assemblePriorityConfig.loadAndSaveInit();
+        localConfig.getShared().assemblePriorityConfig.loadAndSaveInit();
     }
 
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent e) {
-        localConfig.assemblePriorityConfig.loadAndSavePostInit();
+        localConfig.getShared().assemblePriorityConfig.loadAndSavePostInit();
     }
 
     public MainConfig getNetworkConfig() {
@@ -71,4 +71,7 @@ public class MovingWorld {
         return localConfig;
     }
 
+    public MainConfig getLocalConfig() {
+        return localConfig;
+    }
 }

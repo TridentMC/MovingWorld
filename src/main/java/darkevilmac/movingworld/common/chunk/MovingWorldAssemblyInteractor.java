@@ -30,7 +30,7 @@ public class MovingWorldAssemblyInteractor {
     }
 
     public boolean doDiagonalAssembly() {
-        return MovingWorld.instance.getNetworkConfig().diagonalAssembly;
+        return MovingWorld.instance.getNetworkConfig().getShared().diagonalAssembly;
     }
 
     public void toByteBuf(ByteBuf byteBuf) {

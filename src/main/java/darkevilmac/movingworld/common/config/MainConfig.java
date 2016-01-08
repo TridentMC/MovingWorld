@@ -18,26 +18,29 @@ import java.util.Set;
 
 public class MainConfig {
 
-    public boolean iterativeAlgorithm;
-    public boolean diagonalAssembly;
-    public boolean useWhitelist;
-    public Set<String> blockBlacklist;
-    public Set<String> blockWhitelist;
-    public Set<String> overwritableBlocks;
-    public AssemblePriorityConfig assemblePriorityConfig;
-    private boolean allowListInsertion;
     private Configuration config;
+    private SharedConfig shared;
+    private boolean allowListInsertion;
 
     public MainConfig(Configuration config) {
         this.config = config;
-        this.assemblePriorityConfig = new AssemblePriorityConfig(
+        this.shared = new SharedConfig();
+        this.shared.assemblePriorityConfig = new AssemblePriorityConfig(
                 new Configuration(new File(config.getConfigFile().getParentFile(), "AssemblePriority.cfg")));
 
-        blockBlacklist = new HashSet<String>();
-        blockWhitelist = new HashSet<String>();
-        overwritableBlocks = new HashSet<String>();
+        shared.blockBlacklist = new HashSet<String>();
+        shared.blockWhitelist = new HashSet<String>();
+        shared.overwritableBlocks = new HashSet<String>();
 
         FMLCommonHandler.instance().bus().register(this); // For in game config reloads.
+    }
+
+    public SharedConfig getShared() {
+        return shared;
+    }
+
+    public void setShared(SharedConfig shared) {
+        this.shared = shared;
     }
 
     public Configuration getConfig() {
@@ -81,22 +84,22 @@ public class MainConfig {
         }
         config.load();
 
-        iterativeAlgorithm = config.get(Configuration.CATEGORY_GENERAL, "Use Iterative Algorithm", false).getBoolean();
-        diagonalAssembly = config.get(Configuration.CATEGORY_GENERAL, "Assemble Diagonal Blocks NOTE: Can be overridden by mods!", false).getBoolean();
-        useWhitelist = config.get("mobile_chunk", "use_whitelist", false, "Switch this property to select the block restriction list to use. 'true' for the 'allowed_blocks' whitelist, 'false' for the 'forbidden_blocks' blacklist.").getBoolean(false);
+        shared.iterativeAlgorithm = config.get(Configuration.CATEGORY_GENERAL, "Use Iterative Algorithm", false).getBoolean();
+        shared.diagonalAssembly = config.get(Configuration.CATEGORY_GENERAL, "Assemble Diagonal Blocks NOTE: Can be overridden by mods!", false).getBoolean();
+        shared.useWhitelist = config.get("mobile_chunk", "use_whitelist", false, "Switch this property to select the block restriction list to use. 'true' for the 'allowed_blocks' whitelist, 'false' for the 'forbidden_blocks' blacklist.").getBoolean(false);
         allowListInsertion = config.get(Configuration.CATEGORY_GENERAL, "Allow other mods to add to the whitelist/blacklist? NOTE: Turn off if you want to remove the default blacklist/whitelist", true).getBoolean();
 
         String[] forbiddenBlocks = config.get("mobile_chunk", "forbidden_blocks", blockBlackListNames, "A list of blocks that will not be added to a Moving World.").getStringList();
         String[] allowedBlocks = config.get("mobile_chunk", "allowed_blocks", blockWhiteListNames, "A list of blocks that are allowed on a Moving World.").getStringList();
         String[] overwritableBlocks = config.get("mobile_chunk", "overwritable_blocks", overWritableBlockNames, "A list of blocks that may be overwritten when decompiling a Moving World.").getStringList();
 
-        Collections.addAll(blockBlacklist, forbiddenBlocks);
-        Collections.addAll(blockWhitelist, allowedBlocks);
-        Collections.addAll(this.overwritableBlocks, overwritableBlocks);
+        Collections.addAll(this.shared.blockBlacklist, forbiddenBlocks);
+        Collections.addAll(this.shared.blockWhitelist, allowedBlocks);
+        Collections.addAll(this.shared.overwritableBlocks, overwritableBlocks);
 
         config.save();
 
-        this.assemblePriorityConfig.loadAndSavePreInit();
+        this.shared.assemblePriorityConfig.loadAndSavePreInit();
     }
 
     public void addBlacklistedBlock(Block block) {
@@ -166,11 +169,11 @@ public class MainConfig {
 
     public boolean isBlockAllowed(Block block) {
         String id = Block.blockRegistry.getNameForObject(block).toString();
-        return useWhitelist ? blockWhitelist.contains(id) : !blockBlacklist.contains(id);
+        return shared.useWhitelist ? shared.blockWhitelist.contains(id) : !shared.blockBlacklist.contains(id);
     }
 
     public boolean canOverwriteBlock(Block block) {
-        return overwritableBlocks.contains(Block.blockRegistry.getNameForObject(block));
+        return shared.overwritableBlocks.contains(Block.blockRegistry.getNameForObject(block));
     }
 
     @SubscribeEvent
@@ -181,5 +184,16 @@ public class MainConfig {
             loadAndSave();
         }
     }
+
+    public class SharedConfig {
+        public boolean iterativeAlgorithm;
+        public boolean diagonalAssembly;
+        public boolean useWhitelist;
+        public Set<String> blockBlacklist;
+        public Set<String> blockWhitelist;
+        public Set<String> overwritableBlocks;
+        public AssemblePriorityConfig assemblePriorityConfig;
+    }
+
 
 }

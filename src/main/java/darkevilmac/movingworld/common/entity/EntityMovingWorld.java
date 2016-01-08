@@ -747,6 +747,9 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         if (info.getOwner() != null) {
             compound.setString("owner", info.getOwner().toString());
         }
+
+        System.out.println(compound.toString());
+
         writeMovingWorldNBT(compound);
     }
 
@@ -755,6 +758,17 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     @Override
     protected void readEntityFromNBT(NBTTagCompound compound) {
         super.readEntityFromNBT(compound);
+
+        if (mobileChunk == null) {
+            if (worldObj != null) {
+                if (worldObj.isRemote) {
+                    initClient();
+                } else {
+                    initCommon();
+                }
+            }
+        }
+
         byte[] ab = compound.getByteArray("chunk");
         ByteArrayInputStream bais = new ByteArrayInputStream(ab);
         DataInputStream in = new DataInputStream(bais);
@@ -780,22 +794,16 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             frontDirection = EnumFacing.getHorizontal(compound.getInteger("front"));
         }
 
-        if (mobileChunk == null) {
-            if (worldObj != null) {
-                if (worldObj.isRemote) {
-                    initClient();
-                } else {
-                    initCommon();
+        NBTTagList tiles = compound.getTagList("tileent", 10);
+        if (tiles != null) {
+            for (int i = 0; i < tiles.tagCount(); i++) {
+                try {
+                    NBTTagCompound comp = tiles.getCompoundTagAt(i);
+                    TileEntity tileentity = TileEntity.createAndLoadEntity(comp);
+                    mobileChunk.setTileEntity(tileentity.getPos(), tileentity);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            }
-        }
-
-        NBTTagList tileentities = compound.getTagList("tileent", 10);
-        if (tileentities != null) {
-            for (int i = 0; i < tileentities.tagCount(); i++) {
-                NBTTagCompound comp = tileentities.getCompoundTagAt(i);
-                TileEntity tileentity = TileEntity.createAndLoadEntity(comp);
-                mobileChunk.setTileEntity(tileentity.getPos(), tileentity);
             }
         }
 
@@ -813,6 +821,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         if (compound.hasKey("owner")) {
             info.setOwner(UUID.fromString(compound.getString("owner")));
         }
+        System.out.println(compound.toString());
         readMovingWorldNBT(compound);
     }
 

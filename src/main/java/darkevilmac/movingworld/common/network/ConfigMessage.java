@@ -13,13 +13,14 @@ import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.relauncher.Side;
 
 public class ConfigMessage extends MovingWorldMessage {
-    public MainConfig config;
+
+    public MainConfig.SharedConfig config;
 
     public ConfigMessage() {
         config = null;
     }
 
-    public ConfigMessage(MainConfig cfg) {
+    public ConfigMessage(MainConfig.SharedConfig cfg) {
         this.config = cfg;
     }
 
@@ -33,7 +34,7 @@ public class ConfigMessage extends MovingWorldMessage {
         if (FMLCommonHandler.instance().getSide().isServer()) {
             if (config != null) {
                 GsonBuilder builder = new GsonBuilder();
-                String jsonCfg = builder.create().toJson(MovingWorld.instance.getNetworkConfig(), MainConfig.class);
+                String jsonCfg = builder.create().toJson(MovingWorld.instance.getNetworkConfig().getShared(), MainConfig.SharedConfig.class);
                 ByteBufUtils.writeUTF8String(buf, jsonCfg);
             } else {
                 ByteBufUtils.writeUTF8String(buf, "N");
@@ -46,14 +47,17 @@ public class ConfigMessage extends MovingWorldMessage {
         if (FMLCommonHandler.instance().getSide().isClient() && !buf.toString().contains("Empty")) {
             String msg = ByteBufUtils.readUTF8String(buf);
             if (!msg.equals("N")) {
-                config = new Gson().fromJson(msg, MainConfig.class);
+                config = new Gson().fromJson(msg, MainConfig.SharedConfig.class);
             } else config = null;
         }
     }
 
     @Override
     public void handleClientSide(EntityPlayer player) {
-        ((ClientProxy) MovingWorld.proxy).syncedConfig = this.config;
+        if (config != null) {
+            ((ClientProxy) MovingWorld.proxy).syncedConfig = MovingWorld.instance.getLocalConfig();
+            ((ClientProxy) MovingWorld.proxy).syncedConfig.setShared(config);
+        }
     }
 
     @Override
