@@ -14,6 +14,7 @@ import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.opengl.GL11;
 
 @SideOnly(Side.CLIENT)
 public class MobileChunkRenderer {
@@ -60,8 +61,7 @@ public class MobileChunkRenderer {
             GlStateManager.shadeModel(7424);
         }
 
-        worldrenderer.startDrawingQuads();
-        worldrenderer.setVertexFormat(DefaultVertexFormats.BLOCK);
+        worldrenderer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
         for (int y = chunk.minY(); y < chunk.maxY(); ++y) {
             for (int z = chunk.minZ(); z < chunk.maxZ(); ++z) {
                 for (int x = chunk.minX(); x < chunk.maxX(); ++x) {
@@ -92,7 +92,7 @@ public class MobileChunkRenderer {
                     BlockPos pos = new BlockPos(x, y, z);
                     TileEntity tile = chunk.getTileEntity(pos);
                     if (tile != null) {
-                        if (TileEntityRendererDispatcher.instance.hasSpecialRenderer(tile)) {
+                        if (TileEntityRendererDispatcher.instance.mapSpecialRenderers.containsKey(tile)) {
                             TileEntity tileClone = tile;
                             tileClone.setWorldObj(chunk.getFakeWorld());
                             TileEntityRendererDispatcher.instance.setWorld(tileClone.getWorld());
@@ -111,7 +111,7 @@ public class MobileChunkRenderer {
     }
 
     public void dispatchBlockRender(IBlockState blockState, BlockPos blockPos, WorldRenderer worldRenderer) {
-        worldRenderer.setColorOpaque_F(1.0F, 1.0F, 1.0F);
+        worldRenderer.color(1.0F, 1.0F, 1.0F, 1.0F);
         BlockRendererDispatcher blockRendererDispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
         blockRendererDispatcher.renderBlock(blockState, blockPos, chunk, worldRenderer);
     }

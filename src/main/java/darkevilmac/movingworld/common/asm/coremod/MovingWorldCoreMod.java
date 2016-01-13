@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.MixinEnvironment;
 
 import java.util.Map;
 
-@IFMLLoadingPlugin.MCVersion(value = "1.8")
+@IFMLLoadingPlugin.MCVersion(value = "1.8.9")
 public class MovingWorldCoreMod implements IFMLLoadingPlugin {
     public MovingWorldCoreMod() {
         MixinBootstrap.init();

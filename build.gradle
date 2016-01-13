@@ -10,14 +10,20 @@ buildscript {
             name = 'sonatype-snapshots'
             url = 'https://oss.sonatype.org/content/repositories/snapshots'
         }
+        maven {
+            name = 'sponge'
+            url = 'http://repo.spongepowered.org/maven'
+        }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.0-20151205.212842-160'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT'
+        classpath 'org.spongepowered:mixingradle:0.2-SNAPSHOT'
     }
 }
 
 // Apply plugin
 apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
@@ -30,7 +36,7 @@ group = "darkevilmac.movingworld" // http://maven.apache.org/guides/mini/guide-n
 archivesBaseName = "movingworld"
 
 minecraft {
-    version = "1.8-11.14.4.1577"
+    version = "1.8.9-11.15.0.1695"
     runDir = "run"
 
     replace '@MOVINGWORLDVER@', project.version
@@ -40,13 +46,13 @@ minecraft {
     // stable_#            stables are built at the discretion of the MCP team.
     // Use non-default mappings at your own risk. they may not always work.
     // simply re-run your setup task after changing the mappings to update your workspace.
-    mappings = "snapshot_20150602"
+    mappings = 'snapshot_20160112'
 }
 
-// Mixins
-ext {
-    mixinSrg = new File(project.buildDir, 'tmp/mixins/mixins.srg')
-    mixinRefMap = new File(project.buildDir, "tmp/mixins/mixins.movingworld.refmap.json")
+
+mixin {
+    add sourceSets.main, "mixins.movingworld.refmap.json"
+    defaultObfuscationEnv searge
 }
 
 configurations {
@@ -68,13 +74,11 @@ repositories {
 }
 
 dependencies {
-    shade 'org.spongepowered:mixin:0.4.5-SNAPSHOT'
+    shade 'org.spongepowered:mixin:0.4.10-SNAPSHOT'
 }
 
 // Jar shading and packaging configuration
 jar {
-    from project.mixinRefMap
-
     manifest {
         attributes(
                 'MixinConfigs': 'mixins.movingworld.json',
@@ -89,7 +93,6 @@ jar {
     configurations.shade.each { dep ->
         from(project.zipTree(dep)) {
             include "org/spongepowered/asm/**"
-			include "com/google/api/services/analytics/**"
         }
     }
 }
@@ -115,32 +118,9 @@ processResources {
     }
 }
 
-// Compile options
-compileJava {
-    options.compilerArgs += [
-            '-Xlint:-processing',
-            "-AoutSrgFile=${project.mixinSrg.canonicalPath}",
-            "-AoutRefMapFile=${project.mixinRefMap.canonicalPath}",
-            "-AreobfSrgFile=${project.file('build/srgs/mcp-srg.srg').canonicalPath}"
-    ]
-}
-
-// Copy the current srgs to the build dir so the user doesn't have to go hunting for them
-task copySrgs(type: Copy, dependsOn: 'genSrgs') {
-    from plugins.getPlugin("net.minecraftforge.gradle.forge").delayedFile(net.minecraftforge.gradle.common.Constants.DIR_MCP_MAPPINGS + '/srgs')
-
-    include '**/*.srg'
-    into 'build/srgs'
-}
-
-setupDecompWorkspace.dependsOn copySrgs
-setupDevWorkspace.dependsOn copySrgs
-compileJava.dependsOn copySrgs
-
-// Configure reobfuscation for mixins
-reobfJar.doFirst {
-    if (project.mixinSrg.exists()) {
-        addSecondarySrgFile project.mixinSrg
+reobf {
+    jar {
+        extraFiles 'extraSrg.srg'
     }
 }
 

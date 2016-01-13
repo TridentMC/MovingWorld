@@ -4,10 +4,10 @@ import darkevilmac.movingworld.MovingWorld;
 import darkevilmac.movingworld.common.config.priority.AssemblePriorityConfig;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.io.File;
@@ -32,7 +32,7 @@ public class MainConfig {
         shared.blockWhitelist = new HashSet<String>();
         shared.overwritableBlocks = new HashSet<String>();
 
-        FMLCommonHandler.instance().bus().register(this); // For in game config reloads.
+        MinecraftForge.EVENT_BUS.register(this); // For in game config reloads.
     }
 
     public SharedConfig getShared() {

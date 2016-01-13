@@ -92,7 +92,7 @@ public class ChunkDisassembler {
         movingWorld.rotationPitch = 0F;
         float yaw = currentRot * MathHelperMod.PI_HALF;
 
-        boolean flag = world.getGameRules().getGameRuleBooleanValue("doTileDrops");
+        boolean flag = world.getGameRules().getBoolean("doTileDrops");
         world.getGameRules().setOrCreateGameRule("doTileDrops", "false");
 
         LocatedBlockList postList = new LocatedBlockList(4);

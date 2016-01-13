@@ -597,7 +597,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     @Override
     public AxisAlignedBB getCollisionBox(Entity entity) {
-        return getBoundingBox();
+        return getEntityBoundingBox();
     }
 
     @Override

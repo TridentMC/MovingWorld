@@ -101,7 +101,7 @@ public class AssembleResult {
         entity.setRiderDestination(facing, riderDestination);
         entity.getMobileChunk().setCreationSpotBiomeGen(world.getBiomeGenForCoords(movingWorldMarkingBlock.blockPos));
 
-        boolean doTileDropsInWorld = world.getGameRules().getGameRuleBooleanValue("doTileDrops");
+        boolean doTileDropsInWorld = world.getGameRules().getBoolean("doTileDrops");
         world.getGameRules().setOrCreateGameRule("doTileDrops", "false");
 
         ArrayList<LocatedBlockList> separatedLbLists = assembledBlocks.getSortedAssemblyBlocks();
