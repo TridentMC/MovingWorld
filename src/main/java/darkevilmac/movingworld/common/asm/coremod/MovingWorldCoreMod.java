@@ -8,8 +8,10 @@ import java.util.Map;
 
 @IFMLLoadingPlugin.MCVersion(value = "1.8.9")
 public class MovingWorldCoreMod implements IFMLLoadingPlugin {
+
     public MovingWorldCoreMod() {
         MixinBootstrap.init();
+        MixinEnvironment.setCompatibilityLevel(MixinEnvironment.CompatibilityLevel.JAVA_7);
         MixinEnvironment env = MixinEnvironment.getDefaultEnvironment();
         env.addConfiguration("mixins.movingworld.json");
     }
