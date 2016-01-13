@@ -75,4 +75,14 @@ public class FakeWorld extends World {
     public float getLightBrightness(BlockPos pos) {
         return this.getBlockState(pos).getBlock().getLightValue(mobileChunk, pos);
     }
+
+    @Override
+    public long getTotalWorldTime(){
+        return mobileChunk.worldObj.getTotalWorldTime();
+    }
+
+    @Override
+    public long getWorldTime(){
+        return mobileChunk.worldObj.getWorldTime();
+    }
 }

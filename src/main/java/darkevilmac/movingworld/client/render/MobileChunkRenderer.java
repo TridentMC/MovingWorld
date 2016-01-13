@@ -7,11 +7,13 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.world.World;
+import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
@@ -92,11 +94,14 @@ public class MobileChunkRenderer {
                     BlockPos pos = new BlockPos(x, y, z);
                     TileEntity tile = chunk.getTileEntity(pos);
                     if (tile != null) {
-                        if (TileEntityRendererDispatcher.instance.mapSpecialRenderers.containsKey(tile)) {
+                        TileEntitySpecialRenderer renderer = TileEntityRendererDispatcher.instance.getSpecialRenderer(tile);
+
+                        if (renderer != null && tile.shouldRenderInPass(MinecraftForgeClient.getRenderPass())) {
                             TileEntity tileClone = tile;
                             tileClone.setWorldObj(chunk.getFakeWorld());
-                            TileEntityRendererDispatcher.instance.setWorld(tileClone.getWorld());
+                            TileEntityRendererDispatcher.instance.setWorld(chunk.getFakeWorld());
                             TileEntityRendererDispatcher.instance.renderTileEntityAt(tileClone, tileClone.getPos().getX(), tileClone.getPos().getY(), tileClone.getPos().getZ(), partialTicks);
+                            TileEntityRendererDispatcher.instance.setWorld(tile.getWorld());
                         }
                     }
                 }
