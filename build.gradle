@@ -16,8 +16,11 @@ buildscript {
         classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.2'
 	}
 }
+
+apply plugin: 'java'
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'org.spongepowered.mixin'
+apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'idea'
 
 version = "MC1.8-V1.8.1"
@@ -38,12 +41,27 @@ mixin {
 	defaultObfuscationEnv searge
 }
 
-dependencies {
-	compile('org.spongepowered:mixin:0.4.10-SNAPSHOT') {
-        exclude module: 'launchwrapper'
-        exclude module: 'guava'
+repositories {
+    maven {
+        name 'spongepowered'
+        url 'https://repo.spongepowered.org/maven/'
     }
 }
+
+dependencies {
+	compile('org.spongepowered:mixin:0.4.10-SNAPSHOT') {
+		exclude module: 'launchwrapper'
+		exclude module: 'guava'
+	}
+}
+
+shadowJar {
+	dependencies {
+		include(dependency('org.spongepowered:mixin:0.4.10-SNAPSHOT'))
+	}
+}
+
+build.dependsOn(shadowJar)
 
 jar {
     manifest {
@@ -56,12 +74,6 @@ jar {
                 'ForceLoadAsMod': 'true',
                 'FMLAT': 'MovingWorld_at.cfg'
         )
-    }
-}
-
-reobf {
-    jar {
-        extraFiles 'extraSrg.srg'
     }
 }
 
