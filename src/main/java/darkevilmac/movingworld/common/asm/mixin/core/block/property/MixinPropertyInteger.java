@@ -11,7 +11,7 @@ public class MixinPropertyInteger implements IRotationProperty {
     @Override
     public IBlockState rotate(IBlockState blockState, boolean ccw) {
         PropertyInteger intProp = (PropertyInteger) (Object) this;
-        int propVal = ((Integer) blockState.getValue(intProp)).intValue();
+        int propVal = blockState.getValue(intProp).intValue();
 
         if (intProp.getName() == "rotation" && isValidRotationProperty()) {
             for (int i = 0; i <= 3; i++) {
@@ -26,10 +26,8 @@ public class MixinPropertyInteger implements IRotationProperty {
     boolean isValidRotationProperty() {
         PropertyInteger intProp = (PropertyInteger) (Object) this;
 
-        if (intProp.getAllowedValues().contains(0) && intProp.getAllowedValues().contains(15)
-                && (!intProp.getAllowedValues().contains(-1) && !intProp.getAllowedValues().contains(16)))
-            return true;
+        return intProp.getAllowedValues().contains(0) && intProp.getAllowedValues().contains(15)
+                && (!intProp.getAllowedValues().contains(-1) && !intProp.getAllowedValues().contains(16));
 
-        return false;
     }
 }

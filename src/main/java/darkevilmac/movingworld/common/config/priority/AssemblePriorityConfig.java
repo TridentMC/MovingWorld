@@ -149,7 +149,7 @@ public class AssemblePriorityConfig {
 
             for (Block checkBlock : allBlocks) {
                 IBlockState state = checkBlock.getDefaultState();
-                for (IProperty prop : (java.util.Set<IProperty>) state.getProperties().keySet()) {
+                for (IProperty prop : state.getProperties().keySet()) {
                     if (prop.getName().equals("powered")) {
                         String poweredBlockName = Block.blockRegistry.getNameForObject(checkBlock).toString();
                         poweredBlockNames.add(poweredBlockName);

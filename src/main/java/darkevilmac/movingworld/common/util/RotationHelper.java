@@ -20,7 +20,7 @@ public class RotationHelper {
                     return locatedBlock;
             }
 
-            for (IProperty prop : (java.util.Set<IProperty>) blockState.getProperties().keySet()) {
+            for (IProperty prop : blockState.getProperties().keySet()) {
                 if (prop instanceof IRotationProperty) {
                     // Custom rotation property found.
                     IRotationProperty rotationProperty = (IRotationProperty) prop;

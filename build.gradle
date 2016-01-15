@@ -37,8 +37,7 @@ minecraft {
 }
 
 mixin {
-    add sourceSets.main, "mixins.movingworld.json"
-	defaultObfuscationEnv searge
+    add sourceSets.main, "mixins.movingworld.refmap.json"
 }
 
 repositories {
@@ -49,16 +48,27 @@ repositories {
 }
 
 dependencies {
-	compile('org.spongepowered:mixin:0.4.10-SNAPSHOT') {
+	compile('org.spongepowered:mixin:0.4.11-SNAPSHOT') {
 		exclude module: 'launchwrapper'
 		exclude module: 'guava'
 	}
 }
 
 shadowJar {
+	exclude 'dummyThing'
+
 	dependencies {
-		include(dependency('org.spongepowered:mixin:0.4.10-SNAPSHOT'))
+		include(dependency('org.spongepowered:mixin'))
 	}
+	
+	classifier = 'full'
+}
+
+reobf {
+    shadowJar {
+        mappingType = 'NOTCH'
+        classpath = sourceSets.main.compileClasspath
+    }
 }
 
 build.dependsOn(shadowJar)

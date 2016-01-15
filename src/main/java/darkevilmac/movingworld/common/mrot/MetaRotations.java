@@ -54,9 +54,9 @@ public class MetaRotations {
             IOUtils.copy(iStream, oStream);
             iStream.close();
             oStream.close();
-            MovingWorld.instance.logger.debug("Created " + fileName + " meta rotation");
+            MovingWorld.logger.debug("Created " + fileName + " meta rotation");
         }
-        MovingWorld.instance.logger.debug(fileName + " ready to load");
+        MovingWorld.logger.debug(fileName + " ready to load");
     }
 
     public boolean parseMetaRotations(BufferedReader reader) throws IOException, OutdatedMrotException {
@@ -199,7 +199,7 @@ public class MetaRotations {
         try {
             registerMetaRotationFile("vanilla.mrot", getClass().getResourceAsStream("/mrot/vanilla.mrot"));
         } catch (IOException e) {
-            MovingWorld.instance.logger.error("UNABLE TO LOAD VANILLA.MROT");
+            MovingWorld.logger.error("UNABLE TO LOAD VANILLA.MROT");
         }
     }
 }

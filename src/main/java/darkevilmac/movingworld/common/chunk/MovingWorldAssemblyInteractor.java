@@ -99,7 +99,7 @@ public class MovingWorldAssemblyInteractor {
     }
 
     public EnumFacing getFrontDirection(LocatedBlock marker) {
-        return ((EnumFacing) marker.blockState.getValue(BlockMovingWorldMarker.FACING)).getOpposite();
+        return marker.blockState.getValue(BlockMovingWorldMarker.FACING).getOpposite();
     }
 
     /**
