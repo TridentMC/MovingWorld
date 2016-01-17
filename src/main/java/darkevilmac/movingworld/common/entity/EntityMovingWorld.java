@@ -748,8 +748,6 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             compound.setString("owner", info.getOwner().toString());
         }
 
-        System.out.println(compound.toString());
-
         writeMovingWorldNBT(compound);
     }
 
@@ -883,6 +881,15 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
         mobileChunk.onChunkLoad();
         readMovingWorldSpawnData(data);
+    }
+
+    @Override
+    public boolean isInRangeToRender3d(double camX, double camY, double camZ) {
+        double d0 = this.posX - camX;
+        double d1 = this.posY - camY;
+        double d2 = this.posZ - camZ;
+        double d3 = d0 * d0 + d1 * d1 + d2 * d2;
+        return this.isInRangeToRenderDist(d3);
     }
 
     public abstract void handleControl(double horvel);

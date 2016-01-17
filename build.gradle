@@ -5,16 +5,16 @@ buildscript {
             name = "forge"
             url = "http://files.minecraftforge.net/maven"
         }
-		maven {
+        maven {
             name = 'sponge'
             url = 'http://repo.spongepowered.org/maven'
         }
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT'
-		classpath 'org.spongepowered:mixingradle:0.2-SNAPSHOT'
+        classpath 'org.spongepowered:mixingradle:0.2-SNAPSHOT'
         classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.2'
-	}
+    }
 }
 
 apply plugin: 'java'
@@ -23,16 +23,16 @@ apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'idea'
 
-version = "MC1.8-V1.8.1"
+version = 'MC1.8.9-INDEV'
 group = "darkevilmac.movingworld"
 archivesBaseName = "movingworld"
 
 minecraft {
     version = "1.8.9-11.15.0.1695"
     runDir = "run"
-    
-	replace '@MOVINGWORLDVER@', project.version
-	
+
+    replace '@MOVINGWORLDVER@', project.version
+
     mappings = 'snapshot_20160112'
 }
 
@@ -48,20 +48,20 @@ repositories {
 }
 
 dependencies {
-	compile('org.spongepowered:mixin:0.4.11-SNAPSHOT') {
-		exclude module: 'launchwrapper'
-		exclude module: 'guava'
-	}
+    compile('org.spongepowered:mixin:0.4.12-SNAPSHOT') {
+        exclude module: 'launchwrapper'
+        exclude module: 'guava'
+    }
 }
 
 shadowJar {
-	exclude 'dummyThing'
+    exclude 'dummyThing'
 
-	dependencies {
-		include(dependency('org.spongepowered:mixin'))
-	}
-	
-	classifier = 'full'
+    dependencies {
+        include(dependency('org.spongepowered:mixin'))
+    }
+
+    classifier = 'full'
 }
 
 reobf {
@@ -88,20 +88,20 @@ jar {
 }
 
 processResources
-{
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
+        {
+            inputs.property "version", project.version
+            inputs.property "mcversion", project.minecraft.version
 
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-                
-        expand 'version':project.version, 'mcversion':project.minecraft.version
-    }
-        
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
-    }
-}
+            from(sourceSets.main.resources.srcDirs) {
+                include 'mcmod.info'
+
+                expand 'version': project.version, 'mcversion': project.minecraft.version
+            }
+
+            from(sourceSets.main.resources.srcDirs) {
+                exclude 'mcmod.info'
+            }
+        }
 
 
 idea {
