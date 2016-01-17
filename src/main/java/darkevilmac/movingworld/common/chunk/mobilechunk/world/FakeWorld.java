@@ -7,6 +7,8 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
  * A wrapper for MobileChunks, used to give blocks accurate information about it's neighbors.
@@ -77,12 +79,18 @@ public class FakeWorld extends World {
     }
 
     @Override
-    public long getTotalWorldTime(){
+    public long getTotalWorldTime() {
         return mobileChunk.worldObj.getTotalWorldTime();
     }
 
     @Override
-    public long getWorldTime(){
+    public long getWorldTime() {
         return mobileChunk.worldObj.getWorldTime();
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public int getCombinedLight(BlockPos pos, int lightValue) {
+        return mobileChunk.getCombinedLight(pos, lightValue);
     }
 }
