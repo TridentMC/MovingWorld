@@ -1,0 +1,1 @@
+DimensionManger.setWorld(int id, WorldServer world) // Adds a world to be managed by the server from what I can tell, will be required for making Minecraft properly tick entities.
