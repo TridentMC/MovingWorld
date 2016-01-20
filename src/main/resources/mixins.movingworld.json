@@ -1,11 +1,8 @@
 {
   "required": true,
-  "package": "darkevilmac.movingworld.common.asm.mixin.core",
+  "package": "darkevilmac.movingworld.common.asm.mixin",
   "mixins": [
-    "entity.MixinEntity",
-    "block.property.MixinPropertyEnum",
-    "block.property.MixinPropertyInteger",
-    "block.MixinBlockSkull"
+    "world.MixinWorld"
   ],
   "refmap": "movingworld.mixin.refmap.json"
 }

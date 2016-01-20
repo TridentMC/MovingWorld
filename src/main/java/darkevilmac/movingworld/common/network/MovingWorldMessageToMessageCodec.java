@@ -18,12 +18,6 @@ public class MovingWorldMessageToMessageCodec extends FMLIndexedMessageToMessage
 
     public MovingWorldMessageToMessageCodec() {
         index = 1;
-        addDiscriminator(ChunkBlockUpdateMessage.class);
-        addDiscriminator(FarInteractMessage.class);
-        addDiscriminator(MovingWorldClientActionMessage.class);
-        addDiscriminator(RequestMovingWorldDataMessage.class);
-        addDiscriminator(TileEntitiesMessage.class);
-        addDiscriminator(ConfigMessage.class);
     }
 
     public FMLIndexedMessageToMessageCodec<MovingWorldMessage> addDiscriminator(Class<? extends MovingWorldMessage> type) {
