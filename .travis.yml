@@ -1,11 +1,18 @@
 sudo: required
+dist: trusty
 
 language: java
+jdk:
+  - openjdk8
+  - oraclejdk8
+
+git:
+  submodules: false
+before_install: git submodule update --init --recursive
+
+env: GRADLE_OPTS="-Xms1g -Xmx3g"
+install: ./gradlew setupCIWorkspace
+script: ./gradlew build
+
 notifications:
   email: true
-install: true
-matrix:
-  include:
-  - jdk: openjdk7
-    install: ./gradlew setupCIWorkspace
-    script: ./gradlew build
