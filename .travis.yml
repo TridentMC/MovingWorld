@@ -5,4 +5,4 @@ install: true
 matrix:
   include:
   - jdk: openjdk7
-    script: ./gradlew setupCIWorkspace build
+    script: gradle setupCIWorkspace build
