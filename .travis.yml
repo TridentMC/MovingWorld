@@ -1,3 +1,5 @@
+sudo: required
+
 language: java
 notifications:
   email: true
@@ -5,4 +7,5 @@ install: true
 matrix:
   include:
   - jdk: openjdk7
-    script: gradle setupCIWorkspace build
+    install: ./gradlew setupCIWorkspace
+    script: ./gradlew build
