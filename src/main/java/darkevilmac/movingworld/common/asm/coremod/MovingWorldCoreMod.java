@@ -23,7 +23,7 @@ public class MovingWorldCoreMod implements IFMLLoadingPlugin {
 
     @Override
     public String getModContainerClass() {
-        return MovingWorldModContainer.class.getName();
+        return "darkevilmac.movingworld.common.asm.coremod.MovingWorldModContainer";
     }
 
     @Override
