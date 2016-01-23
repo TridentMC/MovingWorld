@@ -4,9 +4,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 
-public class EntityMovingWorld extends Entity{
+public class EntityMovingWorld extends Entity {
 
-    public SubWorld subWorld;
+    public MovingWorld subWorld;
 
     public EntityMovingWorld(World worldIn) {
         super(worldIn);

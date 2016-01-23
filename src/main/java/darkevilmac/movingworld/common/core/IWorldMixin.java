@@ -11,6 +11,7 @@ public interface IWorldMixin {
     List<TileEntity> getTileEntitiesToBeRemoved();
 
     boolean isProcessingLoadedTiles();
+
     void setProcessingLoadedTiles(boolean flag);
 
     /**
@@ -18,14 +19,14 @@ public interface IWorldMixin {
      *
      * @return
      */
-    List<SubWorld> getSubWorlds();
+    List<MovingWorld> getSubWorlds();
 
     /**
      * Get a subworld via it's unique ID, often the same as the Entity ID.
      *
      * @return SubWorld associated with id
      */
-    SubWorld getSubWorldById(String id);
+    MovingWorld getSubWorldById(String id);
 
 
 }

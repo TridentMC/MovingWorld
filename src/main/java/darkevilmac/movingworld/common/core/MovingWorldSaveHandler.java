@@ -11,7 +11,7 @@ import net.minecraft.world.storage.WorldInfo;
 
 import java.io.File;
 
-public class SubWorldSaveHandler implements ISaveHandler {
+public class MovingWorldSaveHandler implements ISaveHandler {
 
     public SaveHandler parentSaveHandler;
 

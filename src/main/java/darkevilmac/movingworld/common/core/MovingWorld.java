@@ -1,6 +1,6 @@
 package darkevilmac.movingworld.common.core;
 
-import darkevilmac.movingworld.MovingWorld;
+import darkevilmac.movingworld.MovingWorldMod;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.profiler.Profiler;
@@ -17,7 +17,7 @@ import net.minecraft.world.storage.WorldInfo;
 
 import java.util.Iterator;
 
-public class SubWorld extends World {
+public class MovingWorld extends World {
 
     public EntityMovingWorld parentEntity;
     public World parentWorld;
@@ -28,7 +28,7 @@ public class SubWorld extends World {
     public Vec3 min;
     public Vec3 max;
 
-    protected SubWorld(ISaveHandler saveHandlerIn, WorldInfo info, WorldProvider providerIn, Profiler profilerIn, boolean client) {
+    protected MovingWorld(ISaveHandler saveHandlerIn, WorldInfo info, WorldProvider providerIn, Profiler profilerIn, boolean client) {
         super(saveHandlerIn, info, providerIn, profilerIn, client);
     }
 
@@ -67,7 +67,7 @@ public class SubWorld extends World {
                         CrashReportCategory tickCrashReportCategory = tickCrashReport.makeCategory("Block entity being ticked");
                         tickableTile.addInfoToCrashReport(tickCrashReportCategory);
                         if (net.minecraftforge.common.ForgeModContainer.removeErroringTileEntities) {
-                            MovingWorld.logger.error(tickCrashReport.getCompleteReport());
+                            MovingWorldMod.logger.error(tickCrashReport.getCompleteReport());
                             tickableTile.invalidate();
                             this.removeTileEntity(tickableTile.getPos());
                         } else {

@@ -3,7 +3,7 @@ package darkevilmac.movingworld.common.asm.mixin.world;
 
 import com.google.common.collect.Lists;
 import darkevilmac.movingworld.common.core.IWorldMixin;
-import darkevilmac.movingworld.common.core.SubWorld;
+import darkevilmac.movingworld.common.core.MovingWorld;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
@@ -19,19 +19,17 @@ import java.util.List;
 public class MixinWorld implements IWorldMixin {
 
     @Shadow
-    private final List<TileEntity> addedTileEntityList = Lists.<TileEntity>newArrayList();
+    private final List<TileEntity> addedTileEntityList = Lists.newArrayList();
     @Shadow
-    private final List<TileEntity> tileEntitiesToBeRemoved = Lists.<TileEntity>newArrayList();
+    private final List<TileEntity> tileEntitiesToBeRemoved = Lists.newArrayList();
+    public HashMap<String /*ID*/, MovingWorld> subworlds;
     @Shadow
     private boolean processingLoadedTiles;
-
-    public HashMap<String /*ID*/, SubWorld> subworlds;
 
     @Override
     public List<TileEntity> getAddedTileEntityList() {
         return addedTileEntityList;
     }
-
 
     @Override
     public List<TileEntity> getTileEntitiesToBeRemoved() {
@@ -50,20 +48,21 @@ public class MixinWorld implements IWorldMixin {
 
 
     @Override
-    public List<SubWorld> getSubWorlds() {
+    public List<MovingWorld> getSubWorlds() {
         return Lists.newArrayList(subworlds.values());
     }
 
     @Override
-    public SubWorld getSubWorldById(String id) {
+    public MovingWorld getSubWorldById(String id) {
         return subworlds.get(id);
     }
 
     @Inject(method = "updateEntities", at = @At("RETURN"))
     public void onUpdateEntities(CallbackInfo cbi) {
-        for (SubWorld sub : subworlds.values()) {
-            sub.updateEntities();
-        }
+        if (subworlds != null)
+            for (MovingWorld sub : subworlds.values()) {
+                sub.updateEntities();
+            }
     }
 
 }
