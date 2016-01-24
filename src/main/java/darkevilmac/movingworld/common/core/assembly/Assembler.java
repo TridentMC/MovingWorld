@@ -1,5 +1,6 @@
 package darkevilmac.movingworld.common.core.assembly;
 
+import darkevilmac.movingworld.MovingWorldMod;
 import darkevilmac.movingworld.common.core.util.ITickBasedIterable;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.state.IBlockState;
@@ -24,15 +25,18 @@ public class Assembler implements ITickBasedIterable {
     BlockMap out;
     private ArrayList<BlockPos> posStack;
 
-    public Assembler(AssemblyInteractor interactor, World world, BlockPos startAt) {
+    public Assembler(AssemblyInteractor interactor, World world, BlockPos startAt, boolean init) {
         this.interactor = interactor;
         this.world = world;
         this.posStack = new ArrayList<BlockPos>();
         this.posStack.add(startAt);
+
+        if (init)
+            initAndRegister();
     }
 
     public void initAndRegister() {
-        //TODO: Tick handler.
+        MovingWorldMod.proxy.registerTickable(this);
     }
 
     @Override
