@@ -4,6 +4,7 @@ package darkevilmac.movingworld.common.core.assembly;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
+import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
@@ -27,12 +28,28 @@ public class BlockMap implements Iterable<Pair<IBlockState, TileEntity>> {
         return new BlockMapIterator();
     }
 
+    public void addToMap(BlockPos pos, IBlockState state, TileEntity tileEntity) {
+        internalMap.put(pos, new MutablePair<IBlockState, TileEntity>(state, tileEntity));
+    }
+
+    public void addToMap(BlockPos pos, IBlockState state) {
+        addToMap(pos, state, null);
+    }
+
     public IBlockState getBlockState(BlockPos key) {
         return internalMap.get(key).getLeft();
     }
 
     public TileEntity getTile(BlockPos key) {
         return internalMap.get(key).getRight();
+    }
+
+    public int size() {
+        return internalMap.size();
+    }
+
+    public boolean containsBlockAtPosition(BlockPos pos) {
+        return internalMap.containsKey(pos);
     }
 
     protected class BlockMapIterator implements Iterator<Pair<IBlockState, TileEntity>> {
