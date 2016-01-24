@@ -4,22 +4,15 @@ import darkevilmac.movingworld.common.CommonProxy;
 import darkevilmac.movingworld.common.network.MovingWorldMessageToMessageCodec;
 import darkevilmac.movingworld.common.network.MovingWorldPacketHandler;
 import darkevilmac.movingworld.common.network.NetworkUtil;
-import net.minecraft.util.ChatComponentText;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 @Mod(modid = MovingWorldMod.MOD_ID, name = MovingWorldMod.MOD_NAME, version = MovingWorldMod.MOD_VERSION, guiFactory = MovingWorldMod.MOD_GUIFACTORY)
 public class MovingWorldMod {
@@ -47,7 +40,7 @@ public class MovingWorldMod {
         logger = e.getModLog();
         File configFolder = new File(e.getModConfigurationDirectory(), "MovingWorld");
         File mConfigFile = new File(configFolder, "Main.cfg");
-        MinecraftForge.EVENT_BUS.register(this);
+        proxy.registerHandlers();
     }
 
     @Mod.EventHandler
@@ -58,21 +51,5 @@ public class MovingWorldMod {
 
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent e) {
-    }
-
-    @SubscribeEvent
-    public void onAsieChat(ServerChatEvent event) {
-        if (event.username.contains("asie")) {
-            List<Character> message = new ArrayList<Character>();
-            for (char c : event.message.toCharArray()) {
-                message.add(c);
-            }
-            Collections.shuffle(message);
-            String newMessage = "";
-            for (char c : message) {
-                newMessage += c;
-            }
-            event.setComponent(new ChatComponentText(event.username + ": " + newMessage));
-        }
     }
 }
