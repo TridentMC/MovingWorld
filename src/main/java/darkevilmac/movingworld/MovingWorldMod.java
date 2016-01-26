@@ -14,6 +14,9 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 
+/**
+ * MovingWorld's Mod container. Nothing to see here, move along.
+ */
 @Mod(modid = MovingWorldMod.MOD_ID, name = MovingWorldMod.MOD_NAME, version = MovingWorldMod.MOD_VERSION, guiFactory = MovingWorldMod.MOD_GUIFACTORY)
 public class MovingWorldMod {
     public static final String MOD_ID = "MovingWorld";

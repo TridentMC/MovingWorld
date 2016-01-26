@@ -1,0 +1,1 @@
+cmd /k "set GRADLE_USER_HOME=%CD%/project_libraries"

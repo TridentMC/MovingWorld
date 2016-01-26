@@ -36,7 +36,8 @@ public class Assembler implements ITickBasedIterable {
     }
 
     public void initAndRegister() {
-        MovingWorldMod.proxy.registerTickable(this);
+        if (interactor.useInteraction() && !interactor.selfIterate())
+            MovingWorldMod.proxy.registerTickable(this);
     }
 
     @Override

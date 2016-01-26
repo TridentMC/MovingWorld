@@ -6,8 +6,6 @@ import net.minecraft.world.World;
 
 public class EntityMovingWorld extends Entity {
 
-    public MovingWorld subWorld;
-
     public EntityMovingWorld(World worldIn) {
         super(worldIn);
     }

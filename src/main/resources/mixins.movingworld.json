@@ -2,7 +2,9 @@
   "required": true,
   "package": "darkevilmac.movingworld.common.asm.mixin",
   "mixins": [
-    "world.MixinWorld"
+    "world.MixinWorld",
+    "entity.MixinEntity",
+    "util.MixinAxisAlignedBB"
   ],
   "refmap": "movingworld.mixin.refmap.json"
 }
