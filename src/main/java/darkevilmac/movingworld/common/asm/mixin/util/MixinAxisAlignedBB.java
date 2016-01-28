@@ -2,6 +2,7 @@ package darkevilmac.movingworld.common.asm.mixin.util;
 
 
 import darkevilmac.movingworld.common.asm.mixin.baseclasses.util.IAxisAlignedBBMixin;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.EnumFacing.Axis;
 import org.spongepowered.asm.mixin.Mixin;
@@ -67,4 +68,32 @@ public class MixinAxisAlignedBB implements IAxisAlignedBBMixin {
 
         return aabb;
     }
+
+    public AxisAlignedBB readFromNBT(NBTTagCompound tagCompound, String key) {
+        NBTTagCompound bbCompound = (NBTTagCompound) tagCompound.getTag(key + "AxisAlignedBB");
+
+        double minX = bbCompound.getDouble("minX");
+        double minY = bbCompound.getDouble("minY");
+        double minZ = bbCompound.getDouble("minZ");
+        double maxX = bbCompound.getDouble("maxX");
+        double maxY = bbCompound.getDouble("maxY");
+        double maxZ = bbCompound.getDouble("maxZ");
+
+        return AxisAlignedBB.fromBounds(minX, minY, minZ, maxX, maxY, maxZ);
+    }
+
+    public void writeToNBT(NBTTagCompound tagCompound, String key) {
+        NBTTagCompound bbCompound = new NBTTagCompound();
+
+        bbCompound.setDouble("minX", thisAABB().minX);
+        bbCompound.setDouble("minY", thisAABB().minY);
+        bbCompound.setDouble("minZ", thisAABB().minZ);
+
+        bbCompound.setDouble("maxX", thisAABB().maxX);
+        bbCompound.setDouble("maxY", thisAABB().maxY);
+        bbCompound.setDouble("maxZ", thisAABB().maxZ);
+
+        tagCompound.setTag(key + "AxisAlignedBB", bbCompound);
+    }
+
 }

@@ -17,17 +17,16 @@ import java.io.File;
 /**
  * MovingWorld's Mod container. Nothing to see here, move along.
  */
-@Mod(modid = MovingWorldMod.MOD_ID, name = MovingWorldMod.MOD_NAME, version = MovingWorldMod.MOD_VERSION, guiFactory = MovingWorldMod.MOD_GUIFACTORY)
+@Mod(modid = MovingWorldMod.MOD_ID, name = MovingWorldMod.MOD_NAME, version = MovingWorldMod.MOD_VERSION)
 public class MovingWorldMod {
     public static final String MOD_ID = "MovingWorld";
     public static final String MOD_VERSION = "@MOVINGWORLDVER@";
     public static final String MOD_NAME = "Moving World";
-    public static final String MOD_GUIFACTORY = "darkevilmac.movingworld.client.gui.MovingWorldGUIFactory";
 
     @Mod.Instance(MOD_ID)
     public static MovingWorldMod instance;
 
-    @SidedProxy(clientSide = "darkevilmac.movingworld.client.ClientProxy", serverSide = "darkevilmac.movingworld.common.CommonProxy")
+    @SidedProxy(modId = MOD_ID, clientSide = "darkevilmac.movingworld.client.ClientProxy", serverSide = "darkevilmac.movingworld.common.CommonProxy")
     public static CommonProxy proxy;
 
     public static Logger logger;

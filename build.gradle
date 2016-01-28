@@ -28,7 +28,7 @@ group = "darkevilmac.movingworld"
 archivesBaseName = "movingworld"
 
 minecraft {
-    version = "1.8.9-11.15.0.1695"
+	version = "1.8.9-11.15.1.1726"
     runDir = "run"
     
 	replace '@MOVINGWORLDVER@', project.version
@@ -48,7 +48,7 @@ repositories {
 }
 
 dependencies {
-	compile('org.spongepowered:mixin:0.4.11-SNAPSHOT') {
+	compile('org.spongepowered:mixin:0.4.17-SNAPSHOT') {
 		exclude module: 'launchwrapper'
 		exclude module: 'guava'
 	}
