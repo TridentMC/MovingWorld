@@ -77,5 +77,4 @@ public interface IMovingWorld {
      */
     boolean move(Vec3 move, boolean teleport);
 
-
 }

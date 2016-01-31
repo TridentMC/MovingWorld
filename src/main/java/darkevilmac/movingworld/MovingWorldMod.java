@@ -1,15 +1,19 @@
 package darkevilmac.movingworld;
 
 import darkevilmac.movingworld.common.CommonProxy;
+import darkevilmac.movingworld.common.core.factory.CommonMovingWorldFactory;
 import darkevilmac.movingworld.common.network.MovingWorldMessageToMessageCodec;
 import darkevilmac.movingworld.common.network.MovingWorldPacketHandler;
 import darkevilmac.movingworld.common.network.NetworkUtil;
+import darkevilmac.movingworld.common.test.BlockMovingWorldCreator;
+import net.minecraft.block.material.Material;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
@@ -31,6 +35,8 @@ public class MovingWorldMod {
 
     public static Logger logger;
 
+    public static CommonMovingWorldFactory movingWorldFactory;
+
     public NetworkUtil network;
 
     public MovingWorldMod() {
@@ -43,15 +49,25 @@ public class MovingWorldMod {
         File configFolder = new File(e.getModConfigurationDirectory(), "MovingWorld");
         File mConfigFile = new File(configFolder, "Main.cfg");
         proxy.registerHandlers();
+
+        if (MOD_VERSION.equals("@MOVINGWORLDVER@")) {
+            // In dev environment initialize some test stuffs.
+
+            GameRegistry.registerBlock(new BlockMovingWorldCreator(Material.cake), "movingWorldCreator");
+        }
     }
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent e) {
+        proxy.initEvent(e.getModState());
         network.channels = NetworkRegistry.INSTANCE.newChannel(MOD_ID, new MovingWorldMessageToMessageCodec(), new MovingWorldPacketHandler());
         proxy.registerRenderers();
+
+        proxy.setupFactory();
     }
 
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent e) {
+        proxy.initEvent(e.getModState());
     }
 }

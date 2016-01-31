@@ -13,3 +13,8 @@
 - Worlds will by default function but this can be turned off.
 - Functioning is defined as the following features: **Blocks are not static and can be changed, this includes adding and removing blocks as well as fully working tiles.**
 - A goal but not yet decided feature is a sort of world "bridge", allowing blocks to interact outside of their subworld, what is confirmed as a feature that I expect to have implemented is parking, parking would essentially lock a subworld onto the grid until the player allows it to move again, when a subworld is parked it will act as part of the parent world with no limitations.
+
+### Methods of interest
+- DimensionManger.getWorld DONE
+- MinecraftServer updateLightAndEntities IN PROGRESS
+- AnvilChunkLoader, quite a bit in there we need to look at.

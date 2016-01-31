@@ -3,8 +3,10 @@
   "package": "darkevilmac.movingworld.common.asm.mixin",
   "mixins": [
     "world.MixinWorld",
+    "world.MixinWorldServer",
     "entity.MixinEntity",
-    "util.MixinAxisAlignedBB"
+    "util.MixinAxisAlignedBB",
+    "server.MixinMinecraftServer"
   ],
   "refmap": "movingworld.mixin.refmap.json"
 }

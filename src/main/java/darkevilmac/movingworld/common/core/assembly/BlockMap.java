@@ -15,17 +15,17 @@ import java.util.List;
 /**
  * Get a blockstate and a tile (if applicable) from a position. Contains some nice utility methods.
  */
-public class BlockMap implements Iterable<Pair<IBlockState, TileEntity>> {
+public class BlockMap implements Iterable<Pair<BlockPos, Pair<IBlockState, TileEntity>>> {
 
-    private HashMap<BlockPos, Pair<IBlockState, TileEntity>> internalMap;
+    protected HashMap<BlockPos, Pair<IBlockState, TileEntity>> internalMap;
 
     public BlockMap() {
         internalMap = new HashMap<BlockPos, Pair<IBlockState, TileEntity>>();
     }
 
     @Override
-    public Iterator<Pair<IBlockState, TileEntity>> iterator() {
-        return new BlockMapIterator();
+    public Iterator<Pair<BlockPos, Pair<IBlockState, TileEntity>>> iterator() {
+        return new BlockMapIterator(this);
     }
 
     public void addToMap(BlockPos pos, IBlockState state, TileEntity tileEntity) {
@@ -52,30 +52,35 @@ public class BlockMap implements Iterable<Pair<IBlockState, TileEntity>> {
         return internalMap.containsKey(pos);
     }
 
-    protected class BlockMapIterator implements Iterator<Pair<IBlockState, TileEntity>> {
+    protected class BlockMapIterator implements Iterator<Pair<BlockPos, Pair<IBlockState, TileEntity>>> {
         int index;
         List<BlockPos> keySet = new ArrayList<BlockPos>();
+        BlockMap parent;
 
-        public BlockMapIterator() {
+        public BlockMapIterator(BlockMap parent) {
             index = 0;
-            keySet.addAll(internalMap.keySet());
+            this.parent = parent;
         }
 
         @Override
         public boolean hasNext() {
-            return index <= internalMap.size();
+            return index <= parent.internalMap.size();
         }
 
         @Override
-        public Pair<IBlockState, TileEntity> next() {
-            Pair<IBlockState, TileEntity> pair = internalMap.get(keySet.get(index));
+        public Pair<BlockPos, Pair<IBlockState, TileEntity>> next() {
+            if (keySet.isEmpty())
+                keySet.addAll(parent.internalMap.keySet());
+
+            Pair<BlockPos, Pair<IBlockState, TileEntity>> pair =
+                    new MutablePair<BlockPos, Pair<IBlockState, TileEntity>>(keySet.get(index), parent.internalMap.get(keySet.get(index)));
             index++;
             return pair;
         }
 
         @Override
         public void remove() {
-            internalMap.remove(keySet.get(index));
+            parent.internalMap.remove(keySet.get(index));
             keySet.remove(index);
             index--;
         }

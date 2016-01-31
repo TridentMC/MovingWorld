@@ -19,10 +19,12 @@ import java.util.ArrayList;
 public class Assembler implements ITickBasedIterable {
 
     private AssemblyInteractor interactor;
+    private BlockPos ORIGIN;
 
     boolean foundAll;
     World world;
     BlockMap out;
+    IAssemblyListener assemblyListener;
     private ArrayList<BlockPos> posStack;
 
     public Assembler(AssemblyInteractor interactor, World world, BlockPos startAt, boolean init) {
@@ -30,6 +32,7 @@ public class Assembler implements ITickBasedIterable {
         this.world = world;
         this.posStack = new ArrayList<BlockPos>();
         this.posStack.add(startAt);
+        this.ORIGIN = startAt;
 
         if (init)
             initAndRegister();
@@ -38,6 +41,10 @@ public class Assembler implements ITickBasedIterable {
     public void initAndRegister() {
         if (interactor.useInteraction() && !interactor.selfIterate())
             MovingWorldMod.proxy.registerTickable(this);
+    }
+
+    public void setAssemblyListener(IAssemblyListener assemblyListener) {
+        this.assemblyListener = assemblyListener;
     }
 
     @Override
@@ -58,7 +65,7 @@ public class Assembler implements ITickBasedIterable {
 
         while (!posStack.isEmpty()) {
             if (currentIteration >= iterationsPerTick()) {
-                return;
+                break;
             }
 
             BlockPos pos = posStack.get(posStack.size() - 1);
@@ -85,11 +92,18 @@ public class Assembler implements ITickBasedIterable {
             currentIteration++;
             continue;
         }
+
+        if (posStack.isEmpty()) {
+            foundAll = true;
+        }
     }
 
     @Override
     public boolean complete(Side side) {
-        return out.size() >= interactor.maxSize() || foundAll;
+        boolean isDone = out.size() >= interactor.maxSize() || foundAll;
+        if (isDone)
+            assemblyListener.onComplete(world, ORIGIN, out);
+        return isDone;
     }
 
     @Override
@@ -97,34 +111,8 @@ public class Assembler implements ITickBasedIterable {
         return interactor.useInteraction() ? interactor.iterationsPerTick() : 30;
     }
 
-    public abstract class AssemblyInteractor {
-        /**
-         * Should the flood fill go diagonal, or just to it's direct NSWE neighbors?
-         * <p/>
-         * If you're confused please see here: https://en.wikipedia.org/wiki/Flood_fill
-         * <p/>
-         * 4 directions is most similar to false, 8 directions is most similar to true.
-         */
-        public abstract boolean doDiagonal();
-
-        /**
-         * Should we even bother listening to this interactor or is it a stub?
-         */
-        public abstract boolean useInteraction();
-
-        /**
-         * @return How many times can we try to find new blocks on a single minecraft tick?
-         */
-        public abstract int iterationsPerTick();
-
-        /**
-         * Should the assembler register itself to be ticked automatically or are you going to call tick every tick?
-         */
-        public abstract boolean selfIterate();
-
-        /**
-         * Once we reach this many blocks found, or we're unable to find any more we stop iterating and set complete to true.
-         */
-        public abstract int maxSize();
+    public interface IAssemblyListener {
+        void onComplete(World world, BlockPos origin, BlockMap map);
     }
+
 }

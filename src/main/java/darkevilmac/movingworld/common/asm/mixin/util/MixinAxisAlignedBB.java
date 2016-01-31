@@ -1,7 +1,7 @@
 package darkevilmac.movingworld.common.asm.mixin.util;
 
 
-import darkevilmac.movingworld.common.asm.mixin.baseclasses.util.IAxisAlignedBBMixin;
+import darkevilmac.movingworld.common.baseclasses.util.IAxisAlignedBBMixin;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.EnumFacing.Axis;
