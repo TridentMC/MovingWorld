@@ -55,8 +55,6 @@ public interface IMovingWorld {
 
     /**
      * The parent world.
-     *
-     * @return
      */
     World parent();
 
@@ -76,5 +74,9 @@ public interface IMovingWorld {
      * @return whether or not we hit something on the way.
      */
     boolean move(Vec3 move, boolean teleport);
+
+    IMovingWorld setParent(World world);
+
+    IMovingWorld setIdentifier(UUID id);
 
 }

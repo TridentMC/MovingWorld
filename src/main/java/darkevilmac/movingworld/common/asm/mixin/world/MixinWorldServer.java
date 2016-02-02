@@ -18,6 +18,7 @@ import net.minecraft.world.MinecraftException;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.WorldInfo;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -70,6 +71,10 @@ public class MixinWorldServer implements IWorldMixin {
     }
 
     @Override
+    public void onConstruct() {
+    }
+
+    @Override
     public boolean isMovingWorld() {
         return this instanceof IMovingWorld;
     }
@@ -81,28 +86,34 @@ public class MixinWorldServer implements IWorldMixin {
      * @param contents the contents of the blocks you want to create a movingworld out of.
      */
     @Override
-    public void createMovingWorld(UUID uuid, BlockMap contents) {
+    public IMovingWorld createMovingWorld(UUID uuid, BlockMap contents) {
         if (isMovingWorld())
-            return;
+            return null;
+
+        MovingWorldMod.movingWorldFactory.setFactoryVariables(uuid, getThisWorld());
 
         MovingWorldServer movingWorldServer = new MovingWorldServer(
-                mcServer, new MovingWorldSaveHandler(), new MovingWorldInfo(),
-                getThisWorld().provider.getDimensionId(), getThisWorld().theProfiler, uuid);
+                mcServer, new MovingWorldSaveHandler(getThisWorld().getSaveHandler()), new MovingWorldInfo(),
+                getThisWorld().provider.getDimensionId(), getThisWorld().theProfiler, uuid, getThisWorld());
+        ((MovingWorldSaveHandler) movingWorldServer.getSaveHandler()).movingWorld = movingWorldServer;
 
         for (Pair<BlockPos, Pair<IBlockState, TileEntity>> entry : contents) {
             movingWorldServer.setBlockState(entry.getKey(), entry.getValue().getKey());
             movingWorldServer.setTileEntity(entry.getKey(), entry.getValue().getValue());
         }
-
+        movingWorldServer.init();
         movingWorlds.put(uuid, movingWorldServer);
+        return movingWorldServer;
     }
 
     @Override
-    public void createMovingWorld(BlockMap contents) {
+    public Pair<IMovingWorld, UUID> createMovingWorld(BlockMap contents) {
         if (isMovingWorld())
-            return;
+            return null;
 
-        createMovingWorld(UUID.randomUUID(), contents);
+        UUID uuid = UUID.randomUUID();
+
+        return new ImmutablePair<IMovingWorld, UUID>(createMovingWorld(uuid, contents), uuid);
     }
 
     /**

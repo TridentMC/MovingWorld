@@ -61,39 +61,44 @@ public class Assembler implements ITickBasedIterable {
 
     @Override
     public void doTick(Side side) {
+        if (side.isClient())
+            return;
+
         int currentIteration = 0;
 
-        while (!posStack.isEmpty()) {
-            if (currentIteration >= iterationsPerTick()) {
-                break;
-            }
-
-            BlockPos pos = posStack.get(posStack.size() - 1);
-            posStack.remove(posStack.size() - 1);
-            IBlockState blockState = world.getBlockState(pos);
-            TileEntity tile = world.getTileEntity(pos);
-
-            if (blockState == null || blockState.getBlock() instanceof BlockAir) {
-                if (out.containsBlockAtPosition(pos)) {
-                    currentIteration++;
-                    continue;
+        if (!posStack.isEmpty()) {
+            while (!posStack.isEmpty()) {
+                if (currentIteration >= iterationsPerTick()) {
+                    break;
                 }
 
-                out.addToMap(pos, blockState, tile);
+                BlockPos pos = posStack.get(posStack.size() - 1);
+                posStack.remove(posStack.size() - 1);
+                IBlockState blockState = world.getBlockState(pos);
+                TileEntity tile = world.getTileEntity(pos);
 
-                posStack.add(pos.add(1, 0, 0));
-                posStack.add(pos.add(0, 1, 0));
-                posStack.add(pos.add(0, 0, 1));
-                posStack.add(pos.add(-1, 0, 0));
-                posStack.add(pos.add(0, -1, 0));
-                posStack.add(pos.add(0, 0, -1));
+                System.out.println(blockState == null);
+
+                if (blockState != null && !(blockState.getBlock() instanceof BlockAir)) {
+                    if (out.containsBlockAtPosition(pos)) {
+                        currentIteration++;
+                        continue;
+                    }
+
+                    out.addToMap(pos, blockState, tile);
+
+                    posStack.add(pos.add(1, 0, 0));
+                    posStack.add(pos.add(0, 1, 0));
+                    posStack.add(pos.add(0, 0, 1));
+                    posStack.add(pos.add(-1, 0, 0));
+                    posStack.add(pos.add(0, -1, 0));
+                    posStack.add(pos.add(0, 0, -1));
+                }
+
+                currentIteration++;
+                continue;
             }
-
-            currentIteration++;
-            continue;
-        }
-
-        if (posStack.isEmpty()) {
+        } else {
             foundAll = true;
         }
     }

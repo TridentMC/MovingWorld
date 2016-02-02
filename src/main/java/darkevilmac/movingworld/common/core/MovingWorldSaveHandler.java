@@ -6,14 +6,19 @@ import net.minecraft.world.WorldProvider;
 import net.minecraft.world.chunk.storage.IChunkLoader;
 import net.minecraft.world.storage.IPlayerFileData;
 import net.minecraft.world.storage.ISaveHandler;
-import net.minecraft.world.storage.SaveHandler;
 import net.minecraft.world.storage.WorldInfo;
 
 import java.io.File;
 
 public class MovingWorldSaveHandler implements ISaveHandler {
 
-    public SaveHandler parentSaveHandler;
+    public ISaveHandler parentSaveHandler;
+    public IMovingWorld movingWorld;
+
+    public MovingWorldSaveHandler(ISaveHandler parentSaveHandler) {
+        super();
+        this.parentSaveHandler = parentSaveHandler;
+    }
 
     @Override
     public WorldInfo loadWorldInfo() {
@@ -56,8 +61,17 @@ public class MovingWorldSaveHandler implements ISaveHandler {
     }
 
     @Override
-    public File getMapFileFromName(String mapName) {
-        return null;
+    public File getMapFileFromName(String datFile) {
+        File dataDir = parentSaveHandler.getMapFileFromName("substring");
+        if (dataDir != null)
+            dataDir = dataDir.getParentFile();
+
+        if (dataDir == null) {
+            dataDir = new File(new File(new File(movingWorld.parent().getSaveHandler().getWorldDirectory(), "MovingWorld"), movingWorld.identifier().toString()), "data");
+            dataDir.mkdirs();
+        }
+        File file = new File(dataDir, datFile + ".dat");
+        return file;
     }
 
     @Override

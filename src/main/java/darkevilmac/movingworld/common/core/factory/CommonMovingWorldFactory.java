@@ -6,19 +6,30 @@ import darkevilmac.movingworld.common.core.assembly.BlockMap;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 
+import java.util.UUID;
+
 /**
  * Used to easily create a MovingWorld without a bunch of casting crap to hook into all the mixins.
  */
 public class CommonMovingWorldFactory {
+
+    // Some hacky way of getting these variables into a MovingWorld before construction is complete, they can be here because they constantly get overwritten.
+    public UUID currentUUID = null;
+    public World currentParent = null;
 
     public void createMovingWorld(BlockMap blockMap, World within) {
         if (within != null && within instanceof WorldServer) {
             WorldServer worldServer = (WorldServer) within;
             IWorldMixin mixedWorldServer = (IWorldMixin) worldServer;
 
-            mixedWorldServer.createMovingWorld(blockMap);
+            mixedWorldServer.createMovingWorld(blockMap).getKey().setParent(within);
             //TODO: Send packet to client to notify that there's a new MovingWorld that's been created.
         }
+    }
+
+    public void setFactoryVariables(UUID currentUUID, World currentParent) {
+        this.currentUUID = currentUUID;
+        this.currentParent = currentParent;
     }
 
 }

@@ -2,17 +2,20 @@ package darkevilmac.movingworld.common.baseclasses.world;
 
 import darkevilmac.movingworld.common.core.IMovingWorld;
 import darkevilmac.movingworld.common.core.assembly.BlockMap;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface IWorldMixin {
 
+    void onConstruct();
+
     boolean isMovingWorld();
 
-    void createMovingWorld(UUID uuid, BlockMap contents);
+    IMovingWorld createMovingWorld(UUID uuid, BlockMap contents);
 
-    void createMovingWorld(BlockMap contents);
+    Pair<IMovingWorld, UUID> createMovingWorld(BlockMap contents);
 
     /**
      * Uses the uuid provided to get NBT data of a blockmap.

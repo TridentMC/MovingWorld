@@ -1,5 +1,6 @@
 package darkevilmac.movingworld.common.core;
 
+import darkevilmac.movingworld.MovingWorldMod;
 import net.minecraft.profiler.Profiler;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.BlockPos;
@@ -9,6 +10,7 @@ import net.minecraft.world.WorldServer;
 import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.WorldInfo;
 
+import java.io.File;
 import java.util.UUID;
 
 public class MovingWorldServer extends WorldServer implements IMovingWorld {
@@ -17,13 +19,10 @@ public class MovingWorldServer extends WorldServer implements IMovingWorld {
      * The world we reside in, we forward a lot of boring methods over to it. Like getWorldTime.
      */
     public WorldServer parentWorld;
-
     public Vec3 worldPosition;
-
     private UUID id;
 
-
-    public MovingWorldServer(MinecraftServer server, ISaveHandler saveHandlerIn, WorldInfo info, int dimensionId, Profiler profilerIn, UUID id) {
+    public MovingWorldServer(MinecraftServer server, ISaveHandler saveHandlerIn, WorldInfo info, int dimensionId, Profiler profilerIn, UUID id, WorldServer parent) {
         super(server, saveHandlerIn, info, dimensionId, profilerIn);
     }
 
@@ -75,16 +74,42 @@ public class MovingWorldServer extends WorldServer implements IMovingWorld {
 
     @Override
     public World parent() {
-        return null;
+        return parentWorld;
     }
 
     @Override
     public UUID identifier() {
-        return null;
+        return id;
     }
 
     @Override
     public boolean move(Vec3 move, boolean teleport) {
         return false;
+    }
+
+    @Override
+    public IMovingWorld setParent(World world) {
+        if (world == null || !(world instanceof WorldServer))
+            return this;
+
+        this.parentWorld = (WorldServer) world;
+        return this;
+    }
+
+    @Override
+    public IMovingWorld setIdentifier(UUID id) {
+        this.id = id;
+
+        return this;
+    }
+
+    @Override
+    public java.io.File getChunkSaveLocation() {
+        return new File(new File(parentWorld.getChunkSaveLocation(), "MovingWorld"), identifier().toString());
+    }
+
+    public void onConstruct() {
+        this.id = MovingWorldMod.movingWorldFactory.currentUUID;
+        this.parentWorld = (WorldServer) MovingWorldMod.movingWorldFactory.currentParent;
     }
 }

@@ -64,7 +64,7 @@ public class BlockMap implements Iterable<Pair<BlockPos, Pair<IBlockState, TileE
 
         @Override
         public boolean hasNext() {
-            return index <= parent.internalMap.size();
+            return index < parent.internalMap.size();
         }
 
         @Override
