@@ -93,8 +93,8 @@ public class MixinWorldServer implements IWorldMixin {
         MovingWorldMod.movingWorldFactory.setFactoryVariables(uuid, getThisWorld());
 
         MovingWorldServer movingWorldServer = new MovingWorldServer(
-                mcServer, new MovingWorldSaveHandler(getThisWorld().getSaveHandler()), new MovingWorldInfo(),
-                getThisWorld().provider.getDimensionId(), getThisWorld().theProfiler, uuid, getThisWorld());
+                mcServer, new MovingWorldSaveHandler(getThisWorld().getSaveHandler(), uuid), new MovingWorldInfo(),
+                Byte.MAX_VALUE, getThisWorld().theProfiler, uuid, getThisWorld());
         ((MovingWorldSaveHandler) movingWorldServer.getSaveHandler()).movingWorld = movingWorldServer;
 
         for (Pair<BlockPos, Pair<IBlockState, TileEntity>> entry : contents) {

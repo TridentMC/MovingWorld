@@ -1,12 +1,14 @@
 package darkevilmac.movingworld;
 
 import darkevilmac.movingworld.common.CommonProxy;
+import darkevilmac.movingworld.common.core.MovingWorldProvider;
 import darkevilmac.movingworld.common.core.factory.CommonMovingWorldFactory;
 import darkevilmac.movingworld.common.network.MovingWorldMessageToMessageCodec;
 import darkevilmac.movingworld.common.network.MovingWorldPacketHandler;
 import darkevilmac.movingworld.common.network.NetworkUtil;
 import darkevilmac.movingworld.common.test.BlockMovingWorldCreator;
 import net.minecraft.block.material.Material;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -49,6 +51,8 @@ public class MovingWorldMod {
         File configFolder = new File(e.getModConfigurationDirectory(), "MovingWorld");
         File mConfigFile = new File(configFolder, "Main.cfg");
         proxy.registerHandlers();
+
+        DimensionManager.registerProviderType(Byte.MAX_VALUE, MovingWorldProvider.class, true);
 
         if (MOD_VERSION.equals("@MOVINGWORLDVER@")) {
             // In dev environment initialize some test stuffs.

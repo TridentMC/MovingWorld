@@ -1,63 +1,19 @@
 package darkevilmac.movingworld.common.core;
 
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.MinecraftException;
-import net.minecraft.world.WorldProvider;
-import net.minecraft.world.chunk.storage.IChunkLoader;
-import net.minecraft.world.storage.IPlayerFileData;
+import net.minecraft.world.chunk.storage.AnvilSaveHandler;
 import net.minecraft.world.storage.ISaveHandler;
-import net.minecraft.world.storage.WorldInfo;
 
 import java.io.File;
+import java.util.UUID;
 
-public class MovingWorldSaveHandler implements ISaveHandler {
+public class MovingWorldSaveHandler extends AnvilSaveHandler {
 
     public ISaveHandler parentSaveHandler;
     public IMovingWorld movingWorld;
 
-    public MovingWorldSaveHandler(ISaveHandler parentSaveHandler) {
-        super();
+    public MovingWorldSaveHandler(ISaveHandler parentSaveHandler, UUID uuid) {
+        super(new File(parentSaveHandler.getWorldDirectory(), "MovingWorld"), uuid.toString(), false);
         this.parentSaveHandler = parentSaveHandler;
-    }
-
-    @Override
-    public WorldInfo loadWorldInfo() {
-        return null;
-    }
-
-    @Override
-    public void checkSessionLock() throws MinecraftException {
-
-    }
-
-    @Override
-    public IChunkLoader getChunkLoader(WorldProvider provider) {
-        return null;
-    }
-
-    @Override
-    public void saveWorldInfoWithPlayer(WorldInfo worldInformation, NBTTagCompound tagCompound) {
-
-    }
-
-    @Override
-    public void saveWorldInfo(WorldInfo worldInformation) {
-
-    }
-
-    @Override
-    public IPlayerFileData getPlayerNBTManager() {
-        return null;
-    }
-
-    @Override
-    public void flush() {
-
-    }
-
-    @Override
-    public File getWorldDirectory() {
-        return null;
     }
 
     @Override
@@ -72,10 +28,5 @@ public class MovingWorldSaveHandler implements ISaveHandler {
         }
         File file = new File(dataDir, datFile + ".dat");
         return file;
-    }
-
-    @Override
-    public String getWorldDirectoryName() {
-        return null;
     }
 }
