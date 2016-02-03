@@ -5,8 +5,6 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
-import java.util.UUID;
-
 public interface IMovingWorld {
 
     /**
@@ -61,11 +59,11 @@ public interface IMovingWorld {
     /**
      * Unique identifier for this moving world, corresponds to the directory inside the parent world's folder.
      * <p/>
-     * For example: New World/SubWorlds/UUID
+     * For example: New World/SubWorlds/id
      *
      * @return the id.
      */
-    UUID identifier();
+    Integer id();
 
     /**
      * Move a set amount of distance.
@@ -77,6 +75,6 @@ public interface IMovingWorld {
 
     IMovingWorld setParent(World world);
 
-    IMovingWorld setIdentifier(UUID id);
+    IMovingWorld setId(Integer id);
 
 }

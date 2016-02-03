@@ -11,7 +11,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 import java.util.List;
 import java.util.Random;
-import java.util.UUID;
 
 @Mixin(World.class)
 public class MixinWorld implements IWorldMixin {
@@ -37,17 +36,17 @@ public class MixinWorld implements IWorldMixin {
     }
 
     @Override
-    public IMovingWorld createMovingWorld(UUID uuid, BlockMap contents) {
+    public IMovingWorld createMovingWorld(Integer id, BlockMap contents) {
         return null;
     }
 
     @Override
-    public Pair<IMovingWorld, UUID> createMovingWorld(BlockMap contents) {
+    public Pair<IMovingWorld, Integer> createMovingWorld(BlockMap contents) {
         return null;
     }
 
     @Override
-    public boolean createMovingWorldFromUUID(UUID uuid) {
+    public boolean createMovingWorldFromID(Integer id) {
         return false;
     }
 

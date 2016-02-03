@@ -11,7 +11,6 @@ import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.WorldInfo;
 
 import java.io.File;
-import java.util.UUID;
 
 public class MovingWorldServer extends WorldServer implements IMovingWorld {
 
@@ -20,9 +19,9 @@ public class MovingWorldServer extends WorldServer implements IMovingWorld {
      */
     public WorldServer parentWorld;
     public Vec3 worldPosition;
-    private UUID id;
+    private Integer id;
 
-    public MovingWorldServer(MinecraftServer server, ISaveHandler saveHandlerIn, WorldInfo info, int dimensionId, Profiler profilerIn, UUID id, WorldServer parent) {
+    public MovingWorldServer(MinecraftServer server, ISaveHandler saveHandlerIn, WorldInfo info, int dimensionId, Profiler profilerIn, Integer id, WorldServer parent) {
         super(server, saveHandlerIn, info, dimensionId, profilerIn);
     }
 
@@ -78,9 +77,10 @@ public class MovingWorldServer extends WorldServer implements IMovingWorld {
     }
 
     @Override
-    public UUID identifier() {
+    public Integer id() {
         return id;
     }
+
 
     @Override
     public boolean move(Vec3 move, boolean teleport) {
@@ -97,19 +97,19 @@ public class MovingWorldServer extends WorldServer implements IMovingWorld {
     }
 
     @Override
-    public IMovingWorld setIdentifier(UUID id) {
+    public IMovingWorld setId(Integer id) {
         this.id = id;
-
         return this;
     }
 
+
     @Override
     public java.io.File getChunkSaveLocation() {
-        return new File(new File(parentWorld.getChunkSaveLocation(), "MovingWorld"), identifier().toString());
+        return new File(new File(parentWorld.getChunkSaveLocation(), "MovingWorld"), id().toString());
     }
 
     public void onConstruct() {
-        this.id = MovingWorldMod.movingWorldFactory.currentUUID;
+        this.id = MovingWorldMod.movingWorldFactory.currentID;
         this.parentWorld = (WorldServer) MovingWorldMod.movingWorldFactory.currentParent;
     }
 }

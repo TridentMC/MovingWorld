@@ -3,10 +3,7 @@ package darkevilmac.movingworld.common.asm.mixin.world;
 import com.google.common.collect.HashBiMap;
 import darkevilmac.movingworld.MovingWorldMod;
 import darkevilmac.movingworld.common.baseclasses.world.IWorldMixin;
-import darkevilmac.movingworld.common.core.IMovingWorld;
-import darkevilmac.movingworld.common.core.MovingWorldInfo;
-import darkevilmac.movingworld.common.core.MovingWorldSaveHandler;
-import darkevilmac.movingworld.common.core.MovingWorldServer;
+import darkevilmac.movingworld.common.core.*;
 import darkevilmac.movingworld.common.core.assembly.BlockMap;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.profiler.Profiler;
@@ -14,10 +11,10 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.IProgressUpdate;
-import net.minecraft.world.MinecraftException;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.WorldInfo;
+import net.minecraftforge.common.DimensionManager;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.spongepowered.asm.mixin.Mixin;
@@ -27,7 +24,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
-import java.util.UUID;
 
 @Mixin(WorldServer.class)
 public class MixinWorldServer implements IWorldMixin {
@@ -35,7 +31,7 @@ public class MixinWorldServer implements IWorldMixin {
     @Shadow
     private MinecraftServer mcServer;
 
-    public HashBiMap<UUID, MovingWorldServer> movingWorlds;
+    public HashBiMap<Integer, MovingWorldServer> movingWorlds;
 
     @Inject(method = "<init>", at = @At(value = "RETURN"))
     public void onConstructed(MinecraftServer server, ISaveHandler saveHandlerIn, WorldInfo info, int dimensionId, Profiler profilerIn, CallbackInfo cbi) {
@@ -53,21 +49,20 @@ public class MixinWorldServer implements IWorldMixin {
         if (isMovingWorld())
             return;
 
-        WorldServer thisWorldServer = (WorldServer) (Object) this;
-        IWorldMixin worldMixed = (IWorldMixin) thisWorldServer;
-
-        if (worldMixed != null && worldMixed.getMovingWorlds() != null && !worldMixed.getMovingWorlds().isEmpty()) {
-            for (IMovingWorld movingWorld : worldMixed.getMovingWorlds()) {
-                if (movingWorld instanceof MovingWorldServer) {
-                    try {
-                        ((MovingWorldServer) movingWorld).saveAllChunks(log, progress);
-                    } catch (MinecraftException e) {
-                        MovingWorldMod.logger.error(e);
-                    }
-                }
-            }
-        }
-
+        //WorldServer thisWorldServer = (WorldServer) (Object) this;
+        //IWorldMixin worldMixed = (IWorldMixin) thisWorldServer;
+//
+        //if (worldMixed != null && worldMixed.getMovingWorlds() != null && !worldMixed.getMovingWorlds().isEmpty()) {
+        //    for (IMovingWorld movingWorld : worldMixed.getMovingWorlds()) {
+        //        if (movingWorld instanceof MovingWorldServer) {
+        //            try {
+        //                ((MovingWorldServer) movingWorld).saveAllChunks(log, progress);
+        //            } catch (MinecraftException e) {
+        //                MovingWorldMod.logger.error(e);
+        //            }
+        //        }
+        //    }
+        //}
     }
 
     @Override
@@ -82,48 +77,52 @@ public class MixinWorldServer implements IWorldMixin {
     /**
      * Create a movingworld that doesn't currently exist out of a blockmap.
      *
-     * @param uuid     a unique identification for this world.
      * @param contents the contents of the blocks you want to create a movingworld out of.
      */
     @Override
-    public IMovingWorld createMovingWorld(UUID uuid, BlockMap contents) {
+    public IMovingWorld createMovingWorld(Integer id, BlockMap contents) {
         if (isMovingWorld())
             return null;
 
-        MovingWorldMod.movingWorldFactory.setFactoryVariables(uuid, getThisWorld());
+        MovingWorldMod.movingWorldFactory.setFactoryVariables(id, getThisWorld());
+
+        DimensionManager.registerDimension(id, MovingWorldProvider.PROVIDERID);
 
         MovingWorldServer movingWorldServer = new MovingWorldServer(
-                mcServer, new MovingWorldSaveHandler(getThisWorld().getSaveHandler(), uuid), new MovingWorldInfo(),
-                Byte.MAX_VALUE, getThisWorld().theProfiler, uuid, getThisWorld());
+                mcServer, new MovingWorldSaveHandler(getThisWorld().getSaveHandler(), id), new MovingWorldInfo(getThisWorld().getWorldInfo()),
+                id, getThisWorld().theProfiler, id, getThisWorld());
+
         ((MovingWorldSaveHandler) movingWorldServer.getSaveHandler()).movingWorld = movingWorldServer;
+
+        movingWorldServer.init();
 
         for (Pair<BlockPos, Pair<IBlockState, TileEntity>> entry : contents) {
             movingWorldServer.setBlockState(entry.getKey(), entry.getValue().getKey());
             movingWorldServer.setTileEntity(entry.getKey(), entry.getValue().getValue());
         }
-        movingWorldServer.init();
-        movingWorlds.put(uuid, movingWorldServer);
+
+        movingWorlds.put(id, movingWorldServer);
+
         return movingWorldServer;
     }
 
     @Override
-    public Pair<IMovingWorld, UUID> createMovingWorld(BlockMap contents) {
+    public Pair<IMovingWorld, Integer> createMovingWorld(BlockMap contents) {
         if (isMovingWorld())
             return null;
 
-        UUID uuid = UUID.randomUUID();
+        int id = DimensionManager.getNextFreeDimId();
 
-        return new ImmutablePair<IMovingWorld, UUID>(createMovingWorld(uuid, contents), uuid);
+        return new ImmutablePair<IMovingWorld, Integer>(createMovingWorld(id, contents), id);
     }
 
     /**
      * A method called to load previously existing movingworlds into this parent world.
      *
-     * @param uuid
      * @return if key existed and world was loaded
      */
     @Override
-    public boolean createMovingWorldFromUUID(UUID uuid) {
+    public boolean createMovingWorldFromID(Integer id) {
         if (isMovingWorld())
             return false;
 

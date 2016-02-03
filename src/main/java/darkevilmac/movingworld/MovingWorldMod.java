@@ -52,7 +52,8 @@ public class MovingWorldMod {
         File mConfigFile = new File(configFolder, "Main.cfg");
         proxy.registerHandlers();
 
-        DimensionManager.registerProviderType(Byte.MAX_VALUE, MovingWorldProvider.class, true);
+        MovingWorldProvider.PROVIDERID = 64;
+        DimensionManager.registerProviderType(64, MovingWorldProvider.class, true);
 
         if (MOD_VERSION.equals("@MOVINGWORLDVER@")) {
             // In dev environment initialize some test stuffs.

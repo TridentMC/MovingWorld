@@ -4,15 +4,14 @@ import net.minecraft.world.chunk.storage.AnvilSaveHandler;
 import net.minecraft.world.storage.ISaveHandler;
 
 import java.io.File;
-import java.util.UUID;
 
 public class MovingWorldSaveHandler extends AnvilSaveHandler {
 
     public ISaveHandler parentSaveHandler;
     public IMovingWorld movingWorld;
 
-    public MovingWorldSaveHandler(ISaveHandler parentSaveHandler, UUID uuid) {
-        super(new File(parentSaveHandler.getWorldDirectory(), "MovingWorld"), uuid.toString(), false);
+    public MovingWorldSaveHandler(ISaveHandler parentSaveHandler, Integer id) {
+        super(new File(parentSaveHandler.getWorldDirectory(), "MovingWorld"), id.toString(), false);
         this.parentSaveHandler = parentSaveHandler;
     }
 
@@ -23,7 +22,7 @@ public class MovingWorldSaveHandler extends AnvilSaveHandler {
             dataDir = dataDir.getParentFile();
 
         if (dataDir == null) {
-            dataDir = new File(new File(new File(movingWorld.parent().getSaveHandler().getWorldDirectory(), "MovingWorld"), movingWorld.identifier().toString()), "data");
+            dataDir = new File(new File(new File(movingWorld.parent().getSaveHandler().getWorldDirectory(), "MovingWorld"), movingWorld.id().toString()), "data");
             dataDir.mkdirs();
         }
         File file = new File(dataDir, datFile + ".dat");
