@@ -77,8 +77,6 @@ public class Assembler implements ITickBasedIterable {
                 IBlockState blockState = world.getBlockState(pos);
                 TileEntity tile = world.getTileEntity(pos);
 
-                System.out.println(blockState == null);
-
                 if (blockState != null && !(blockState.getBlock() instanceof BlockAir)) {
                     if (out.containsBlockAtPosition(pos)) {
                         currentIteration++;

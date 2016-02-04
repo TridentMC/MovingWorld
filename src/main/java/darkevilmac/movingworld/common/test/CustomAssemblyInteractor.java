@@ -26,6 +26,6 @@ public class CustomAssemblyInteractor extends AssemblyInteractor {
 
     @Override
     public int maxSize() {
-        return 64;
+        return 2048;
     }
 }

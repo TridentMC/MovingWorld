@@ -13,7 +13,7 @@ public class MovingWorldInfo extends WorldInfo {
     }
 
     @Override
-    protected void updateTagCompound(NBTTagCompound nbt, NBTTagCompound playerNbt) {
+    public void updateTagCompound(NBTTagCompound nbt, NBTTagCompound playerNbt) {
         nbt.setLong("RandomSeed", this.parentWorldInfo.getSeed());
         nbt.setString("generatorName", this.parentWorldInfo.getTerrainType().getWorldTypeName());
         nbt.setInteger("generatorVersion", this.parentWorldInfo.getTerrainType().getGeneratorVersion());

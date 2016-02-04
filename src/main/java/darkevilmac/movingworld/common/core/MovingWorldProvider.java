@@ -1,6 +1,7 @@
 package darkevilmac.movingworld.common.core;
 
 import net.minecraft.world.WorldProvider;
+import net.minecraft.world.chunk.IChunkProvider;
 
 public class MovingWorldProvider extends WorldProvider {
 
@@ -20,6 +21,11 @@ public class MovingWorldProvider extends WorldProvider {
     public String getSaveFolder() {
         return parentProvider().getSaveFolder();
     }
+
+    public IChunkProvider createChunkGenerator() {
+        return new ChunkProviderMovingWorld(this.worldObj);
+    }
+
 
     public WorldProvider parentProvider() {
         return movingWorld().parent().provider;

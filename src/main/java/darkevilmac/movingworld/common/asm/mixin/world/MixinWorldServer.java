@@ -96,7 +96,16 @@ public class MixinWorldServer implements IWorldMixin {
 
         movingWorldServer.init();
 
+        BlockMap failed = new BlockMap();
+
         for (Pair<BlockPos, Pair<IBlockState, TileEntity>> entry : contents) {
+            if (!movingWorldServer.setBlockState(entry.getKey(), entry.getValue().getKey())) {
+                failed.addToMap(entry.getLeft(), entry.getRight().getLeft(), entry.getRight().getRight());
+            }
+            movingWorldServer.setTileEntity(entry.getKey(), entry.getValue().getValue());
+        }
+
+        for (Pair<BlockPos, Pair<IBlockState, TileEntity>> entry : failed) {
             movingWorldServer.setBlockState(entry.getKey(), entry.getValue().getKey());
             movingWorldServer.setTileEntity(entry.getKey(), entry.getValue().getValue());
         }
