@@ -28,7 +28,7 @@ group = "darkevilmac.movingworld"
 archivesBaseName = "movingworld"
 
 minecraft {
-	version = "1.8.9-11.15.1.1726"
+	version = "1.8.9-11.15.1.1732"
     runDir = "run"
     
 	replace '@MOVINGWORLDVER@', project.version

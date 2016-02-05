@@ -17,6 +17,7 @@ import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.common.DimensionManager;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -29,6 +30,7 @@ import java.util.List;
 public class MixinWorldServer implements IWorldMixin {
 
     @Shadow
+    @Final
     private MinecraftServer mcServer;
 
     public HashBiMap<Integer, MovingWorldServer> movingWorlds;
@@ -111,6 +113,7 @@ public class MixinWorldServer implements IWorldMixin {
         }
 
         movingWorlds.put(id, movingWorldServer);
+        MovingWorldManager.registerMovingWorld(getThisWorld(), movingWorldServer);
 
         return movingWorldServer;
     }

@@ -1,6 +1,7 @@
 package darkevilmac.movingworld;
 
 import darkevilmac.movingworld.common.CommonProxy;
+import darkevilmac.movingworld.common.MovingWorldDimensionConfig;
 import darkevilmac.movingworld.common.core.MovingWorldProvider;
 import darkevilmac.movingworld.common.core.factory.CommonMovingWorldFactory;
 import darkevilmac.movingworld.common.network.MovingWorldMessageToMessageCodec;
@@ -11,9 +12,7 @@ import net.minecraft.block.material.Material;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.*;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import org.apache.logging.log4j.Logger;
@@ -41,6 +40,10 @@ public class MovingWorldMod {
 
     public NetworkUtil network;
 
+    public static MovingWorldDimensionConfig dimensionConfig;
+
+    private File confFolder;
+
     public MovingWorldMod() {
         network = new NetworkUtil();
     }
@@ -48,8 +51,8 @@ public class MovingWorldMod {
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent e) {
         logger = e.getModLog();
-        File configFolder = new File(e.getModConfigurationDirectory(), "MovingWorld");
-        File mConfigFile = new File(configFolder, "Main.cfg");
+        this.confFolder = new File(e.getModConfigurationDirectory(), "MovingWorld");
+
         proxy.registerHandlers();
 
         MovingWorldProvider.PROVIDERID = 64;
@@ -74,5 +77,17 @@ public class MovingWorldMod {
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent e) {
         proxy.initEvent(e.getModState());
+    }
+
+    @Mod.EventHandler
+    public void onServerAboutToStart(FMLServerAboutToStartEvent e) {
+        dimensionConfig = new MovingWorldDimensionConfig(new File(confFolder, ".dim" + File.separator + e.getServer().getWorldName()));
+
+        dimensionConfig.loadDimensionManager();
+    }
+
+    @Mod.EventHandler
+    public void onServerStopEvent(FMLServerStoppedEvent e) {
+        dimensionConfig.saveDimensionManager();
     }
 }
