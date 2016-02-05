@@ -72,7 +72,13 @@ public class MovingWorldDimensionConfig {
             dimensionConfigs.get(entry.getKey()).get("val", Configuration.CATEGORY_GENERAL, "", "Converted from an actual class to and from json, leave it alone.").set(dimensionEntryJSON);
             dimensionConfigs.get(entry.getKey()).save();
         }
-        dims.get("dimFiles", Configuration.CATEGORY_GENERAL, new String[0], "DON'T TOUCH MANAGES DIMENSION FILES").set((String[]) dimEntries.toArray());
+
+        String[] dimEntriesArray = new String[dimEntries.size()];
+        for (int i = 0; i < dimEntries.size(); i++) {
+            dimEntriesArray[i] = dimEntries.get(i);
+        }
+
+        dims.get("dimFiles", Configuration.CATEGORY_GENERAL, new String[0], "DON'T TOUCH MANAGES DIMENSION FILES").set(dimEntriesArray);
         dims.save();
     }
 
