@@ -16,7 +16,7 @@ public class CustomAssemblyInteractor extends AssemblyInteractor {
 
     @Override
     public int iterationsPerTick() {
-        return 25;
+        return 32;
     }
 
     @Override

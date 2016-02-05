@@ -21,6 +21,7 @@ public class CommonMovingWorldFactory {
             IWorldMixin mixedWorldServer = (IWorldMixin) worldServer;
 
             mixedWorldServer.createMovingWorld(blockMap).getKey().setParent(within);
+
             //TODO: Send packet to client to notify that there's a new MovingWorld that's been created.
         }
     }
