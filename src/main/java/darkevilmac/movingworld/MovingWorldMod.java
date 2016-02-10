@@ -2,6 +2,7 @@ package darkevilmac.movingworld;
 
 import darkevilmac.movingworld.common.CommonProxy;
 import darkevilmac.movingworld.common.MovingWorldDimensionConfig;
+import darkevilmac.movingworld.common.core.MovingWorldManager;
 import darkevilmac.movingworld.common.core.MovingWorldProvider;
 import darkevilmac.movingworld.common.core.factory.CommonMovingWorldFactory;
 import darkevilmac.movingworld.common.network.MovingWorldMessageToMessageCodec;
@@ -9,6 +10,7 @@ import darkevilmac.movingworld.common.network.MovingWorldPacketHandler;
 import darkevilmac.movingworld.common.network.NetworkUtil;
 import darkevilmac.movingworld.common.test.BlockMovingWorldCreator;
 import net.minecraft.block.material.Material;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -37,11 +39,8 @@ public class MovingWorldMod {
     public static Logger logger;
 
     public static CommonMovingWorldFactory movingWorldFactory;
-
-    public NetworkUtil network;
-
     public static MovingWorldDimensionConfig dimensionConfig;
-
+    public NetworkUtil network;
     private File confFolder;
 
     public MovingWorldMod() {
@@ -84,6 +83,19 @@ public class MovingWorldMod {
         dimensionConfig = new MovingWorldDimensionConfig(new File(confFolder, ".dim" + File.separator + e.getServer().getWorldName()));
 
         dimensionConfig.loadDimensionManager();
+    }
+
+    @Mod.EventHandler
+    public void onServerStarted(FMLServerStartedEvent e) {
+        for (int dim : net.minecraftforge.common.DimensionManager.getStaticDimensionIDs()) {
+            WorldServer parent = DimensionManager.getWorld(dim);
+            if (parent == null) {
+                DimensionManager.initDimension(dim); // Make sure this world is loaded before we try and inject our worlds.
+                parent = DimensionManager.getWorld(dim);
+            }
+
+            MovingWorldManager.initDims(parent);
+        }
     }
 
     @Mod.EventHandler

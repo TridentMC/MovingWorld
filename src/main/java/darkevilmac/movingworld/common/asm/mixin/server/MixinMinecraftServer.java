@@ -15,19 +15,15 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(MinecraftServer.class)
 public class MixinMinecraftServer {
 
+    public java.util.Hashtable<Integer, long[]> movingWorldTickTimes = new java.util.Hashtable<Integer, long[]>();
     @Shadow
     @Final
     Profiler theProfiler;
-
     @Shadow
     int tickCounter;
-
     @Shadow
     ServerConfigurationManager serverConfigManager;
-
     private long lastNanoTime;
-
-    public java.util.Hashtable<Integer, long[]> movingWorldTickTimes = new java.util.Hashtable<Integer, long[]>();
 
     @Redirect(method = "updateTimeLightAndEntities", at = @At(value = "INVOKE", target =
             "Ljava/lang/System;nanoTime" + "()" + "J"))

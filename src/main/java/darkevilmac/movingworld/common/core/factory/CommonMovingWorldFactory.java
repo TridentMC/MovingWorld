@@ -15,12 +15,12 @@ public class CommonMovingWorldFactory {
     public Integer currentID = null;
     public World currentParent = null;
 
-    public void createMovingWorld(BlockMap blockMap, World within) {
-        if (within != null && within instanceof WorldServer) {
-            WorldServer worldServer = (WorldServer) within;
+    public void createMovingWorld(BlockMap blockMap, World parent) {
+        if (parent != null && parent instanceof WorldServer) {
+            WorldServer worldServer = (WorldServer) parent;
             IWorldMixin mixedWorldServer = (IWorldMixin) worldServer;
 
-            mixedWorldServer.createMovingWorld(blockMap).getKey().setParent(within);
+            mixedWorldServer.createMovingWorld(blockMap).getKey().setParent(parent);
 
             //TODO: Send packet to client to notify that there's a new MovingWorld that's been created.
         }
@@ -31,4 +31,20 @@ public class CommonMovingWorldFactory {
         this.currentParent = currentParent;
     }
 
+    /**
+     * Loads an existing movingworld into the parent from file.
+     *
+     * @param parent
+     * @param child
+     */
+    public void loadMovingWorld(World parent, Integer child) {
+        if (parent != null && parent instanceof WorldServer) {
+            WorldServer worldServer = (WorldServer) parent;
+            IWorldMixin mixedWorldServer = (IWorldMixin) worldServer;
+
+            mixedWorldServer.createMovingWorldFromID(parent, child);
+
+            //TODO: Send packet to client to notify that there's a new MovingWorld that's been created.
+        }
+    }
 }

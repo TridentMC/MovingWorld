@@ -18,13 +18,12 @@ import java.util.ArrayList;
  */
 public class Assembler implements ITickBasedIterable {
 
-    private AssemblyInteractor interactor;
-    private BlockPos ORIGIN;
-
     boolean foundAll;
     World world;
     BlockMap out;
     IAssemblyListener assemblyListener;
+    private AssemblyInteractor interactor;
+    private BlockPos ORIGIN;
     private ArrayList<BlockPos> posStack;
 
     public Assembler(AssemblyInteractor interactor, World world, BlockPos startAt, boolean init) {
@@ -54,7 +53,7 @@ public class Assembler implements ITickBasedIterable {
 
     @Override
     public boolean begin(Side side) {
-        out = new BlockMap();
+        out = new BlockMap(ORIGIN);
 
         return true;
     }
@@ -104,9 +103,19 @@ public class Assembler implements ITickBasedIterable {
     @Override
     public boolean complete(Side side) {
         boolean isDone = out.size() >= interactor.maxSize() || foundAll;
-        if (isDone)
-            assemblyListener.onComplete(world, ORIGIN, out);
-        return isDone;
+
+        if (!isDone)
+            return false;
+
+        BlockPos shift = new BlockPos(ORIGIN.getX(), 0, ORIGIN.getZ());
+        out.toString();
+
+        out.shiftPosition(shift, false);
+        out.shiftPosition(new BlockPos(out.getMin().getX(), 0, out.getMin().getZ()), false);
+
+        assemblyListener.onComplete(world, ORIGIN, out);
+
+        return true;
     }
 
     @Override

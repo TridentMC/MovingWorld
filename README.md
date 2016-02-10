@@ -9,4 +9,4 @@ Here are MovingWorld Redux's goals:
 * Fully functioning worlds, tiles, pistons, etc.
 * Be more friendly to the open source community
 
-[Floobits] (https://floobits.com/Maple/MovingWorld-REDUX/file/README.md:1)
+[Floobits] (https://floobits.com/Maple/MovingWorld-REDUX)

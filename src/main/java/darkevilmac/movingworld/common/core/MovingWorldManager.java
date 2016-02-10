@@ -1,5 +1,6 @@
 package darkevilmac.movingworld.common.core;
 
+import darkevilmac.movingworld.MovingWorldMod;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
@@ -57,4 +58,12 @@ public class MovingWorldManager {
         return false;
     }
 
+    /**
+     * Initializes all MovingWorlds sourced from the config file, on world load.
+     */
+    public static void initDims(World parent) {
+        for (Integer child : movingWorldIDS.get(parent.provider.getDimensionId())) {
+            MovingWorldMod.movingWorldFactory.loadMovingWorld(parent, child);
+        }
+    }
 }

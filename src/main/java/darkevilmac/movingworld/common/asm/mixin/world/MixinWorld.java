@@ -46,7 +46,7 @@ public class MixinWorld implements IWorldMixin {
     }
 
     @Override
-    public boolean createMovingWorldFromID(Integer id) {
+    public boolean createMovingWorldFromID(World parent, Integer id) {
         return false;
     }
 

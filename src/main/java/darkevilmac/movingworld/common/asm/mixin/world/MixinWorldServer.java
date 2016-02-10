@@ -10,7 +10,8 @@ import net.minecraft.profiler.Profiler;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
-import net.minecraft.util.IProgressUpdate;
+import net.minecraft.util.Vec3i;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.WorldInfo;
@@ -29,11 +30,10 @@ import java.util.List;
 @Mixin(WorldServer.class)
 public class MixinWorldServer implements IWorldMixin {
 
+    public HashBiMap<Integer, MovingWorldServer> movingWorlds;
     @Shadow
     @Final
     private MinecraftServer mcServer;
-
-    public HashBiMap<Integer, MovingWorldServer> movingWorlds;
 
     @Inject(method = "<init>", at = @At(value = "RETURN"))
     public void onConstructed(MinecraftServer server, ISaveHandler saveHandlerIn, WorldInfo info, int dimensionId, Profiler profilerIn, CallbackInfo cbi) {
@@ -41,30 +41,6 @@ public class MixinWorldServer implements IWorldMixin {
             return;
 
         movingWorlds = HashBiMap.create();
-    }
-
-    @Inject(method = "saveAllChunks(ZLnet/minecraft/util/IProgressUpdate;)V", at = @At(value = "INVOKE"))
-    /**
-     * Just before we save all chunks let's save our MovingWorld chunks.
-     */
-    public void onSaveAllChunks(boolean log, IProgressUpdate progress, CallbackInfo cbi) {
-        if (isMovingWorld())
-            return;
-
-        //WorldServer thisWorldServer = (WorldServer) (Object) this;
-        //IWorldMixin worldMixed = (IWorldMixin) thisWorldServer;
-//
-        //if (worldMixed != null && worldMixed.getMovingWorlds() != null && !worldMixed.getMovingWorlds().isEmpty()) {
-        //    for (IMovingWorld movingWorld : worldMixed.getMovingWorlds()) {
-        //        if (movingWorld instanceof MovingWorldServer) {
-        //            try {
-        //                ((MovingWorldServer) movingWorld).saveAllChunks(log, progress);
-        //            } catch (MinecraftException e) {
-        //                MovingWorldMod.logger.error(e);
-        //            }
-        //        }
-        //    }
-        //}
     }
 
     @Override
@@ -98,9 +74,10 @@ public class MixinWorldServer implements IWorldMixin {
 
         movingWorldServer.init();
 
-        BlockMap failed = new BlockMap();
+        BlockMap failed = new BlockMap(new Vec3i(0, 0, 0));
 
         for (Pair<BlockPos, Pair<IBlockState, TileEntity>> entry : contents) {
+            System.out.println("Setting a block to movingworld with the following info: " + entry.getLeft() + " " + entry.getRight().getLeft().toString());
             if (!movingWorldServer.setBlockState(entry.getKey(), entry.getValue().getKey())) {
                 failed.addToMap(entry.getLeft(), entry.getRight().getLeft(), entry.getRight().getRight());
             }
@@ -108,6 +85,7 @@ public class MixinWorldServer implements IWorldMixin {
         }
 
         for (Pair<BlockPos, Pair<IBlockState, TileEntity>> entry : failed) {
+            System.out.println("Setting a failed block to movingworld with the following info: " + entry.getLeft() + " " + entry.getRight().getLeft().toString());
             movingWorldServer.setBlockState(entry.getKey(), entry.getValue().getKey());
             movingWorldServer.setTileEntity(entry.getKey(), entry.getValue().getValue());
         }
@@ -134,7 +112,7 @@ public class MixinWorldServer implements IWorldMixin {
      * @return if key existed and world was loaded
      */
     @Override
-    public boolean createMovingWorldFromID(Integer id) {
+    public boolean createMovingWorldFromID(World parent, Integer id) {
         if (isMovingWorld())
             return false;
 

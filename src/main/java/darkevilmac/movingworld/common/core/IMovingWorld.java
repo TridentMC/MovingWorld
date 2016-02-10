@@ -21,12 +21,14 @@ public interface IMovingWorld {
     Vec3 translateToWorldSpace(BlockPos blockSpace);
 
     /**
-     * Always 0, 0, 0
+     * The minimum coordinate of the world.
+     * <p/>
+     * Y is always 0.
      */
     BlockPos min();
 
     /**
-     * The max coordinate of the world, the minimum starts at 0, 0, 0 so the max could be something like 12, 32, 16
+     * The max coordinate of the world, the minimum starts at X, 0, Z so the max could be something like 12, 32, 16
      */
     BlockPos max();
 
