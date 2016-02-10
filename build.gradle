@@ -5,16 +5,16 @@ buildscript {
             name = "forge"
             url = "http://files.minecraftforge.net/maven"
         }
-		maven {
+        maven {
             name = 'sponge'
             url = 'http://repo.spongepowered.org/maven'
         }
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT'
-		classpath 'org.spongepowered:mixingradle:0.4-SNAPSHOT'
+        classpath 'org.spongepowered:mixingradle:0.4-SNAPSHOT'
         classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.2'
-	}
+    }
 }
 
 apply plugin: 'java'
@@ -28,11 +28,11 @@ group = "darkevilmac.movingworld"
 archivesBaseName = "movingworld"
 
 minecraft {
-	version = "1.8.9-11.15.1.1732"
+    version = "1.8.9-11.15.1.1732"
     runDir = "run"
-    
-	replace '@MOVINGWORLDVER@', project.version
-	
+
+    replace '@MOVINGWORLDVER@', project.version
+
     mappings = 'snapshot_20160112'
 }
 
@@ -48,20 +48,20 @@ repositories {
 }
 
 dependencies {
-	compile('org.spongepowered:mixin:0.5.2-SNAPSHOT') {
-		exclude module: 'launchwrapper'
-		exclude module: 'guava'
-	}
+    compile('org.spongepowered:mixin:0.5.2-SNAPSHOT') {
+        exclude module: 'launchwrapper'
+        exclude module: 'guava'
+    }
 }
 
 shadowJar {
-	exclude 'dummyThing'
+    exclude 'dummyThing'
 
-	dependencies {
-		include(dependency('org.spongepowered:mixin'))
-	}
-	
-	classifier = 'full'
+    dependencies {
+        include(dependency('org.spongepowered:mixin'))
+    }
+
+    classifier = 'full'
 }
 
 reobf {
@@ -88,47 +88,45 @@ jar {
 }
 
 processResources
-{
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
+        {
+            inputs.property "version", project.version
+            inputs.property "mcversion", project.minecraft.version
 
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-                
-        expand 'version':project.version, 'mcversion':project.minecraft.version
-    }
-        
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
-    }
-}
+            from(sourceSets.main.resources.srcDirs) {
+                include 'mcmod.info'
 
+                expand 'version': project.version, 'mcversion': project.minecraft.version
+            }
 
-idea {
-    workspace {
-        if (iws != null) {
-            iws.withXml { xmlFile ->
-                //Please don't kill me for my shitty groovy usage ;-;
-                def runManager = xmlFile.asNode().component.find { it.@name == 'RunManager' }
-
-                def minecraftClientDefaults = runManager.configuration.find {
-                    it.@name == 'Minecraft Client' && it.@type == 'Application'
-                }
-
-                def minecraftServerDefaults = runManager.configuration.find {
-                    it.@name == 'Minecraft Server' && it.@type == 'Application'
-                }
-
-                def minecraftClientVMArgs = '-Xincgc -Xmx1024M -Xms1024M -Dfml.coreMods.load=darkevilmac.movingworld.common.asm.coremod.MovingWorldCoreMod -Dmixin.debug=true'
-                minecraftClientDefaults.option.find { it.@name == 'VM_PARAMETERS' }.replaceNode {
-                    option(name: 'VM_PARAMETERS', value: minecraftClientVMArgs)
-                }
-
-                def minecraftServerVMArgs = '-Xincgc -Dfml.ignoreInvalidMinecraftCertificates=true -Dfml.coreMods.load=darkevilmac.movingworld.common.asm.coremod.MovingWorldCoreMod -Dmixin.debug=true'
-                minecraftServerDefaults.option.find { it.@name == 'VM_PARAMETERS' }.replaceNode {
-                    option(name: 'VM_PARAMETERS', value: minecraftServerVMArgs)
-                }
+            from(sourceSets.main.resources.srcDirs) {
+                exclude 'mcmod.info'
             }
         }
+
+
+idea.workspace.iws {
+    withXml { xmlFile ->
+        //Please don't kill me for my shitty groovy usage ;-;
+        print(":Tweaking iws file... ")
+        def runManager = xmlFile.asNode().component.find { it.@name == 'RunManager' }
+
+        def minecraftClientDefaults = runManager.configuration.find {
+            it.@name == 'Minecraft Client' && it.@type == 'Application'
+        }
+
+        def minecraftServerDefaults = runManager.configuration.find {
+            it.@name == 'Minecraft Server' && it.@type == 'Application'
+        }
+
+        def minecraftClientVMArgs = '-Xincgc -Xmx1024M -Xms1024M -Dfml.coreMods.load=darkevilmac.movingworld.common.asm.coremod.MovingWorldCoreMod -Dmixin.debug=true'
+        minecraftClientDefaults.option.find { it.@name == 'VM_PARAMETERS' }.replaceNode {
+            option(name: 'VM_PARAMETERS', value: minecraftClientVMArgs)
+        }
+
+        def minecraftServerVMArgs = '-Xincgc -Dfml.ignoreInvalidMinecraftCertificates=true -Dfml.coreMods.load=darkevilmac.movingworld.common.asm.coremod.MovingWorldCoreMod -Dmixin.debug=true'
+        minecraftServerDefaults.option.find { it.@name == 'VM_PARAMETERS' }.replaceNode {
+            option(name: 'VM_PARAMETERS', value: minecraftServerVMArgs)
+        }
+        println("Done!");
     }
 }
