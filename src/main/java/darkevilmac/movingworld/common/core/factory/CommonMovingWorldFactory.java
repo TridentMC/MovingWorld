@@ -44,7 +44,7 @@ public class CommonMovingWorldFactory {
 
             mixedWorldServer.createMovingWorldFromID(parent, child);
 
-            //TODO: Send packet to client to notify that there's a new MovingWorld that's been created.
+            //TODO: Send packet to client to notify that there's a new MovingWorld that's been loaded.
         }
     }
 }

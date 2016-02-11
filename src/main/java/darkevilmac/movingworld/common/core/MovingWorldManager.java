@@ -62,6 +62,9 @@ public class MovingWorldManager {
      * Initializes all MovingWorlds sourced from the config file, on world load.
      */
     public static void initDims(World parent) {
+        if (!movingWorldIDS.containsKey(parent.provider.getDimensionId()))
+            return;
+
         for (Integer child : movingWorldIDS.get(parent.provider.getDimensionId())) {
             MovingWorldMod.movingWorldFactory.loadMovingWorld(parent, child);
         }

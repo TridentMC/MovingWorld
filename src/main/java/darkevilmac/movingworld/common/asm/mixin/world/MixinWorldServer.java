@@ -25,6 +25,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Mixin(WorldServer.class)
@@ -116,7 +117,22 @@ public class MixinWorldServer implements IWorldMixin {
         if (isMovingWorld())
             return false;
 
-        return false;
+        MovingWorldMod.movingWorldFactory.setFactoryVariables(id, getThisWorld());
+        DimensionManager.registerDimension(id, MovingWorldProvider.PROVIDERID);
+
+        MovingWorldServer movingWorldServer = new MovingWorldServer(
+                mcServer, new MovingWorldSaveHandler(getThisWorld().getSaveHandler(), id), new MovingWorldInfo(getThisWorld().getWorldInfo()),
+                id, getThisWorld().theProfiler, id, getThisWorld());
+
+        ((MovingWorldSaveHandler) movingWorldServer.getSaveHandler()).movingWorld = movingWorldServer;
+
+        movingWorldServer.init();
+
+        movingWorlds.put(id, movingWorldServer);
+
+        // No need to register the movingworld if we're loading it.
+
+        return true;
     }
 
 
@@ -124,7 +140,10 @@ public class MixinWorldServer implements IWorldMixin {
     public List<IMovingWorld> getMovingWorlds() {
         if (isMovingWorld())
             return null;
-        return null;
+        List<IMovingWorld> movingWorlds = new ArrayList<IMovingWorld>();
+        movingWorlds.addAll(this.movingWorlds.values());
+
+        return movingWorlds;
     }
 
     public WorldServer getThisWorld() {

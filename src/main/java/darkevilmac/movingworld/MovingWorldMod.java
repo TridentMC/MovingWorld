@@ -87,6 +87,11 @@ public class MovingWorldMod {
 
     @Mod.EventHandler
     public void onServerStarted(FMLServerStartedEvent e) {
+        if (DimensionManager.getWorld(0) == null) {
+            //No overworld loaded. Fun.
+            DimensionManager.initDimension(0);
+        }
+
         for (int dim : net.minecraftforge.common.DimensionManager.getStaticDimensionIDs()) {
             WorldServer parent = DimensionManager.getWorld(dim);
             if (parent == null) {

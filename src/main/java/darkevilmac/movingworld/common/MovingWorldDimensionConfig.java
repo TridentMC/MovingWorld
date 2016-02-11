@@ -1,11 +1,12 @@
 package darkevilmac.movingworld.common;
 
-import com.google.gson.Gson;
+import com.google.common.collect.Maps;
+import com.google.gson.InstanceCreator;
 import darkevilmac.movingworld.common.core.MovingWorldManager;
 import net.minecraftforge.common.config.Configuration;
-import org.apache.commons.lang3.tuple.MutablePair;
 
 import java.io.File;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -42,16 +43,34 @@ public class MovingWorldDimensionConfig {
     }
 
     public void loadDimensionManager() {
+        InstanceCreator<Map.Entry<Integer, ArrayList<Integer>>> mapEntryCreator = new InstanceCreator<Map.Entry<Integer, ArrayList<Integer>>>() {
+            @Override
+            public Map.Entry<Integer, ArrayList<Integer>> createInstance(Type type) {
+                return Maps.immutableEntry(new Integer(0), new ArrayList<Integer>());
+            }
+        };
+
         dims.load();
         for (Configuration dimFile : dimensionConfigs.values()) {
             dimFile.load();
-            String dimensionEntryJSON = dimFile.get("val", Configuration.CATEGORY_GENERAL, "", "Converted from an actual class to and from json, leave it alone.").getString();
 
-            MutablePair<Integer, ArrayList<Integer>> dimensionEntry = new Gson().fromJson(dimensionEntryJSON, MutablePair.class);
-            MovingWorldManager.movingWorldIDS.put(dimensionEntry.getKey(), dimensionEntry.getValue());
+            Integer parentDim = new Integer(dimFile.get(Configuration.CATEGORY_GENERAL, "parent", 0, "The parent dimension").getInt());
+            int[] children = dimFile.get(Configuration.CATEGORY_GENERAL, "children", 0, "The children for this dimension").getIntList();
+
+            ArrayList<Integer> childrenList = new ArrayList<Integer>();
+            for (int child : children) {
+                childrenList.add(new Integer(child));
+            }
+
+            MovingWorldManager.movingWorldIDS.put(parentDim, childrenList);
             dimFile.save();
         }
         dims.save();
+
+        for (Map.Entry<Integer, ArrayList<Integer>> entry : MovingWorldManager.movingWorldIDS.entrySet()) {
+            System.out.println(entry.toString());
+        }
+
     }
 
     public void saveDimensionManager() {
@@ -64,12 +83,19 @@ public class MovingWorldDimensionConfig {
                 dimEntries.add(String.valueOf(entry.getKey()));
             }
 
-            String dimensionEntryJSON = new Gson().toJson(new MutablePair<Integer, ArrayList<Integer>>(entry.getKey(), entry.getValue()), MutablePair.class);
             if (!dimensionConfigs.containsKey(entry.getKey())) {
                 dimensionConfigs.put(entry.getKey(), new Configuration(new File(movingWorldDim, entry.getKey() + ".cfg")));
             }
+
+            int[] childrenIntArray = new int[entry.getValue().size()];
+
+            for (int index = 0; index < entry.getValue().size(); index++) {
+                childrenIntArray[index] = entry.getValue().get(index).intValue();
+            }
+
             dimensionConfigs.get(entry.getKey()).load();
-            dimensionConfigs.get(entry.getKey()).get("val", Configuration.CATEGORY_GENERAL, "", "Converted from an actual class to and from json, leave it alone.").set(dimensionEntryJSON);
+            dimensionConfigs.get(entry.getKey()).get(Configuration.CATEGORY_GENERAL, "parent", entry.getKey(), "The parent dimension").set(entry.getKey().intValue());
+            dimensionConfigs.get(entry.getKey()).get(Configuration.CATEGORY_GENERAL, "children", childrenIntArray, "The children for this dimension").set(childrenIntArray);
             dimensionConfigs.get(entry.getKey()).save();
         }
 
