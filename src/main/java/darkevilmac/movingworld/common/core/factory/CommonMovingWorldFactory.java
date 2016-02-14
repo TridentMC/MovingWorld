@@ -2,6 +2,7 @@ package darkevilmac.movingworld.common.core.factory;
 
 
 import darkevilmac.movingworld.common.baseclasses.world.IWorldMixin;
+import darkevilmac.movingworld.common.core.IMovingWorld;
 import darkevilmac.movingworld.common.core.assembly.BlockMap;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -15,15 +16,16 @@ public class CommonMovingWorldFactory {
     public Integer currentID = null;
     public World currentParent = null;
 
-    public void createMovingWorld(BlockMap blockMap, World parent) {
+    public IMovingWorld createMovingWorld(BlockMap blockMap, World parent) {
         if (parent != null && parent instanceof WorldServer) {
             WorldServer worldServer = (WorldServer) parent;
             IWorldMixin mixedWorldServer = (IWorldMixin) worldServer;
 
-            mixedWorldServer.createMovingWorld(blockMap).getKey().setParent(parent);
+            return mixedWorldServer.createMovingWorld(blockMap).getKey().setParent(parent);
 
             //TODO: Send packet to client to notify that there's a new MovingWorld that's been created.
         }
+        return null;
     }
 
     public void setFactoryVariables(Integer currentID, World currentParent) {

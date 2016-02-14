@@ -1,6 +1,7 @@
 package darkevilmac.movingworld.common.test;
 
 import darkevilmac.movingworld.MovingWorldMod;
+import darkevilmac.movingworld.common.core.IMovingWorld;
 import darkevilmac.movingworld.common.core.assembly.Assembler;
 import darkevilmac.movingworld.common.core.assembly.BlockMap;
 import net.minecraft.block.Block;
@@ -13,6 +14,7 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
 /**
@@ -33,12 +35,17 @@ public class BlockMovingWorldCreator extends Block {
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ) {
         if (worldIn != null && !worldIn.isRemote) {
             System.out.println("Initializing an assembler.");
-            Assembler assembler = new Assembler(new CustomAssemblyInteractor(), worldIn, pos, !player.isSneaking());
+            final Assembler assembler = new Assembler(new CustomAssemblyInteractor(), worldIn, pos, !player.isSneaking());
             assembler.setAssemblyListener(new Assembler.IAssemblyListener() {
                 @Override
                 public void onComplete(World world, BlockPos origin, BlockMap map) {
-                    if (MovingWorldMod.movingWorldFactory != null)
-                        MovingWorldMod.movingWorldFactory.createMovingWorld(map, world);
+                    if (MovingWorldMod.movingWorldFactory != null) {
+                        IMovingWorld movingWorld = MovingWorldMod.movingWorldFactory.createMovingWorld(map, world);
+                        if (movingWorld != null) {
+                            movingWorld.move(new Vec3(origin.getX() - assembler.initialOffset.getX(), map.getMin().getY(), origin.getZ() - assembler.initialOffset.getZ()), true);
+                        }
+                    }
+
                 }
             });
             worldIn.setBlockState(pos, state.withProperty(ASSEMBLING, true));

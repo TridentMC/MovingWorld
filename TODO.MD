@@ -1,8 +1,8 @@
 # TODO
 
 ### Loading & Saving Worlds
-- World saving hasn't yet been started, odds are we'll need to mixin to a savehandler or something along those lines to inject a subfolder into a dimension folder.
-- Some possible areas to look into: AnvilChunkLoader, ISaveHandler.
+- ~~World saving hasn't yet been started, odds are we'll need to mixin to a savehandler or something along those lines to inject a subfolder into a dimension folder.~~ **DONE!**
+- ~~Some possible areas to look into: AnvilChunkLoader, ISaveHandler.~~ **DONE!**
 
 ### Creating Worlds
 - We'll be using a different approach than ChunkAssembler and ChunkDisassembler this time, currently the plan is to use a Factory based approach, e.g. SubWorldFactory.create(World parent, Vec3 instantiateAt, Entity associateWith, BlockMap blocks);
@@ -15,6 +15,11 @@
 - A goal but not yet decided feature is a sort of world "bridge", allowing blocks to interact outside of their subworld, what is confirmed as a feature that I expect to have implemented is parking, parking would essentially lock a subworld onto the grid until the player allows it to move again, when a subworld is parked it will act as part of the parent world with no limitations.
 
 ### Methods of interest
-- DimensionManger.getWorld DONE
-- MinecraftServer updateLightAndEntities IN PROGRESS
-- AnvilChunkLoader, quite a bit in there we need to look at.
+- ~~DimensionManger.getWorld~~ **DONE!**
+- ~~MinecraftServer updateLightAndEntities~~ IRRELEVANT
+- ~~AnvilChunkLoader, quite a bit in there we need to look at.~~ WORLD SAVING AND LOADING IS **DONE!**
+
+### Networking
+- Networking is currently the main area of interest, WorldClient is not implemented at all and needs to be implemented so we can get info to render things with.
+- Packets for sending chunks if in the correct area needs to be done as well.
+- Packets to handle updates needs to be done.

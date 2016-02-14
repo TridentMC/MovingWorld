@@ -69,7 +69,7 @@ public class MixinWorldServer implements IWorldMixin {
 
         MovingWorldServer movingWorldServer = new MovingWorldServer(
                 mcServer, new MovingWorldSaveHandler(getThisWorld().getSaveHandler(), id), new MovingWorldInfo(getThisWorld().getWorldInfo()),
-                id, getThisWorld().theProfiler, id, getThisWorld());
+                id, getThisWorld().theProfiler);
 
         ((MovingWorldSaveHandler) movingWorldServer.getSaveHandler()).movingWorld = movingWorldServer;
 
@@ -78,7 +78,7 @@ public class MixinWorldServer implements IWorldMixin {
         BlockMap failed = new BlockMap(new Vec3i(0, 0, 0));
 
         for (Pair<BlockPos, Pair<IBlockState, TileEntity>> entry : contents) {
-            System.out.println("Setting a block to movingworld with the following info: " + entry.getLeft() + " " + entry.getRight().getLeft().toString());
+            MovingWorldMod.logger.debug("Setting a block to movingworld with the following info: " + entry.getLeft() + " " + entry.getRight().getLeft().toString());
             if (!movingWorldServer.setBlockState(entry.getKey(), entry.getValue().getKey())) {
                 failed.addToMap(entry.getLeft(), entry.getRight().getLeft(), entry.getRight().getRight());
             }
@@ -86,10 +86,12 @@ public class MixinWorldServer implements IWorldMixin {
         }
 
         for (Pair<BlockPos, Pair<IBlockState, TileEntity>> entry : failed) {
-            System.out.println("Setting a failed block to movingworld with the following info: " + entry.getLeft() + " " + entry.getRight().getLeft().toString());
+            MovingWorldMod.logger.debug("Setting a failed block to movingworld with the following info: " + entry.getLeft() + " " + entry.getRight().getLeft().toString());
             movingWorldServer.setBlockState(entry.getKey(), entry.getValue().getKey());
             movingWorldServer.setTileEntity(entry.getKey(), entry.getValue().getValue());
         }
+
+        movingWorldServer.setCoreBlock(movingWorldServer.min());
 
         movingWorlds.put(id, movingWorldServer);
         MovingWorldManager.registerMovingWorld(getThisWorld(), movingWorldServer);
@@ -122,7 +124,7 @@ public class MixinWorldServer implements IWorldMixin {
 
         MovingWorldServer movingWorldServer = new MovingWorldServer(
                 mcServer, new MovingWorldSaveHandler(getThisWorld().getSaveHandler(), id), new MovingWorldInfo(getThisWorld().getWorldInfo()),
-                id, getThisWorld().theProfiler, id, getThisWorld());
+                id, getThisWorld().theProfiler);
 
         ((MovingWorldSaveHandler) movingWorldServer.getSaveHandler()).movingWorld = movingWorldServer;
 

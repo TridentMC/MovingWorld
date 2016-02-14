@@ -5,7 +5,30 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
+import javax.vecmath.Vector3f;
+
 public interface IMovingWorld {
+
+    /**
+     * If the movingworld isn't parked park it.
+     * <p/>
+     * For information about what parking does see isParked.
+     */
+    void doPark();
+
+    /**
+     * If the MovingWorld is parked let it move again.
+     * <p/>
+     * For information about what parking does see isParked.
+     */
+    void unPark();
+
+    /**
+     * Parking causes the MovingWorld to cease all movement and align to the grid, once this is done the parent world
+     * will return info about the child world allowing for things like hoppers in the parent
+     * world to insert into inventories in the movingworld.
+     */
+    boolean isParked();
 
     /**
      * The same as translateToWorldSpace but backwards.
@@ -51,7 +74,7 @@ public interface IMovingWorld {
      *
      * @return
      */
-    Vec3 rotation();
+    Vector3f rotation();
 
     /**
      * The parent world.
@@ -68,12 +91,30 @@ public interface IMovingWorld {
     Integer id();
 
     /**
+     * Sets the block position that corresponds to our in parent world position.
+     *
+     * @return
+     */
+    BlockPos coreBlock();
+
+    /**
+     * Sets coreblock.
+     *
+     * @see IMovingWorld coreBlock() method
+     */
+    IMovingWorld setCoreBlock(BlockPos pos);
+
+    /**
      * Move a set amount of distance.
      *
      * @param teleport are we moving from our position a set amount of blocks or are we just teleporting to the position in space?
      * @return whether or not we hit something on the way.
      */
     boolean move(Vec3 move, boolean teleport);
+
+    Vec3 motion();
+
+    IMovingWorld setMotion(Vec3 newMotion);
 
     IMovingWorld setParent(World world);
 

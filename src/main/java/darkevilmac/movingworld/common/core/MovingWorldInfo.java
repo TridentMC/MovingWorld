@@ -6,6 +6,7 @@ import net.minecraft.world.storage.WorldInfo;
 
 public class MovingWorldInfo extends WorldInfo {
 
+    public IMovingWorld movingWorld;
     public WorldInfo parentWorldInfo;
 
     public MovingWorldInfo(WorldInfo parentWorldInfo) {
@@ -47,6 +48,21 @@ public class MovingWorldInfo extends WorldInfo {
         nbt.setDouble("BorderWarningBlocks", (double) this.parentWorldInfo.getBorderWarningDistance());
         nbt.setDouble("BorderWarningTime", (double) this.parentWorldInfo.getBorderWarningTime());
 
+        if (movingWorld != null) {
+            //Save MovingWorld stuff.
+            nbt.setIntArray("CoreBlockPos", new int[]{movingWorld.coreBlock().getX(), movingWorld.coreBlock().getY(), movingWorld.coreBlock().getZ()});
+            nbt.setIntArray("MinBlockPos", new int[]{movingWorld.min().getX(), movingWorld.min().getY(), movingWorld.min().getZ()});
+            nbt.setIntArray("MaxBlockPos", new int[]{movingWorld.max().getX(), movingWorld.max().getY(), movingWorld.max().getZ()});
+            nbt.setDouble("PosX", movingWorld.worldTranslation().xCoord);
+            nbt.setDouble("PosY", movingWorld.worldTranslation().yCoord);
+            nbt.setDouble("PosZ", movingWorld.worldTranslation().zCoord);
+            nbt.setDouble("MotionX", movingWorld.motion().xCoord);
+            nbt.setDouble("MotionY", movingWorld.motion().yCoord);
+            nbt.setDouble("MotionZ", movingWorld.motion().zCoord);
+            nbt.setFloat("RotationX", movingWorld.rotation().x);
+            nbt.setFloat("RotationY", movingWorld.rotation().y);
+            nbt.setFloat("RotationZ", movingWorld.rotation().z);
+        }
         if (this.parentWorldInfo.getDifficulty() != null) {
             nbt.setByte("Difficulty", (byte) this.parentWorldInfo.getDifficulty().getDifficultyId());
         }

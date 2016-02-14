@@ -1,6 +1,7 @@
 package darkevilmac.movingworld.common.core;
 
 import darkevilmac.movingworld.MovingWorldMod;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.profiler.Profiler;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.BlockPos;
@@ -10,6 +11,7 @@ import net.minecraft.world.WorldServer;
 import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.WorldInfo;
 
+import javax.vecmath.Vector3f;
 import java.io.File;
 
 public class MovingWorldServer extends WorldServer implements IMovingWorld {
@@ -21,8 +23,20 @@ public class MovingWorldServer extends WorldServer implements IMovingWorld {
     public Vec3 worldPosition;
     private Integer id;
 
-    public MovingWorldServer(MinecraftServer server, ISaveHandler saveHandlerIn, WorldInfo info, int dimensionId, Profiler profilerIn, Integer id, WorldServer parent) {
+    private BlockPos min;
+    private BlockPos max;
+    private BlockPos coreBlock;
+
+    public MovingWorldServer(MinecraftServer server, ISaveHandler saveHandlerIn, WorldInfo info, int dimensionId, Profiler profilerIn) {
         super(server, saveHandlerIn, info, dimensionId, profilerIn);
+
+        if (info instanceof MovingWorldInfo) {
+            ((MovingWorldInfo) info).movingWorld = this;
+        }
+
+        min = new BlockPos(0, 0, 0);
+        max = new BlockPos(0, 0, 0);
+        coreBlock = new BlockPos(0, 0, 0);
     }
 
     @Override
@@ -35,6 +49,35 @@ public class MovingWorldServer extends WorldServer implements IMovingWorld {
         return parentWorld.getWorldTime();
     }
 
+    @Override
+    public boolean setBlockState(BlockPos pos, IBlockState newState, int flags) {
+        if (setBlockState(pos, newState, flags)) {
+            this.min = new BlockPos(pos.getX() < min.getX() ? pos.getX() : min.getX(),
+                    pos.getY() < min.getY() ? pos.getY() : min.getY(),
+                    pos.getZ() < min.getZ() ? pos.getZ() : min.getZ());
+            this.max = new BlockPos(pos.getX() > max.getX() ? pos.getX() : max.getX(),
+                    pos.getY() > max.getY() ? pos.getY() : max.getY(),
+                    pos.getZ() > max.getZ() ? pos.getZ() : max.getZ());
+
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void doPark() {
+
+    }
+
+    @Override
+    public void unPark() {
+
+    }
+
+    @Override
+    public boolean isParked() {
+        return false;
+    }
 
     @Override
     public BlockPos translateToBlockSpace(Vec3 worldSpace) {
@@ -67,7 +110,7 @@ public class MovingWorldServer extends WorldServer implements IMovingWorld {
     }
 
     @Override
-    public Vec3 rotation() {
+    public Vector3f rotation() {
         return null;
     }
 
@@ -81,10 +124,38 @@ public class MovingWorldServer extends WorldServer implements IMovingWorld {
         return id;
     }
 
+    @Override
+    public BlockPos coreBlock() {
+        return coreBlock;
+    }
+
+    @Override
+    public IMovingWorld setCoreBlock(BlockPos pos) {
+        this.coreBlock = pos;
+        return this;
+    }
 
     @Override
     public boolean move(Vec3 move, boolean teleport) {
+        if (teleport) {
+            // A teleport won't fail ever, it ignores collision.
+
+            worldPosition = move;
+
+            return true;
+        }
+
         return false;
+    }
+
+    @Override
+    public Vec3 motion() {
+        return null;
+    }
+
+    @Override
+    public IMovingWorld setMotion(Vec3 newMotion) {
+        return this;
     }
 
     @Override
@@ -101,7 +172,6 @@ public class MovingWorldServer extends WorldServer implements IMovingWorld {
         this.id = id;
         return this;
     }
-
 
     @Override
     public java.io.File getChunkSaveLocation() {

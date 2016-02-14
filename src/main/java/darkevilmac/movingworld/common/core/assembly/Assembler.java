@@ -22,6 +22,7 @@ public class Assembler implements ITickBasedIterable {
     World world;
     BlockMap out;
     IAssemblyListener assemblyListener;
+    public BlockPos initialOffset;
     private AssemblyInteractor interactor;
     private BlockPos ORIGIN;
     private ArrayList<BlockPos> posStack;
@@ -111,6 +112,7 @@ public class Assembler implements ITickBasedIterable {
         out.toString();
 
         out.shiftPosition(shift, false);
+        initialOffset = new BlockPos(out.getMin().getX(), 0, out.getMin().getZ());
         out.shiftPosition(new BlockPos(out.getMin().getX(), 0, out.getMin().getZ()), false);
 
         assemblyListener.onComplete(world, ORIGIN, out);
