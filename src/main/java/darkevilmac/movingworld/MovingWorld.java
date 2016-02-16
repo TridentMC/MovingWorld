@@ -49,6 +49,7 @@ public class MovingWorld {
         mConfig = new MainConfig(new Configuration(mConfigFile));
         mConfig.loadAndSave();
 
+        mConfig.postLoad();
         metaRotations.setConfigDirectory(e.getModConfigurationDirectory());
     }
 
