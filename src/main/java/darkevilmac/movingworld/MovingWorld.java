@@ -53,6 +53,7 @@ public class MovingWorld {
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent e) {
+        localConfig.postLoad();
         network.channels = NetworkRegistry.INSTANCE.newChannel(MOD_ID, new MovingWorldMessageToMessageCodec(), new MovingWorldPacketHandler());
         proxy.registerRenderers();
         localConfig.getShared().assemblePriorityConfig.loadAndSaveInit();

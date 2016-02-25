@@ -2,6 +2,7 @@ package darkevilmac.movingworld.common.config;
 
 import darkevilmac.movingworld.MovingWorld;
 import darkevilmac.movingworld.common.config.priority.AssemblePriorityConfig;
+import darkevilmac.movingworld.common.util.MaterialDensity;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraftforge.common.MinecraftForge;
@@ -15,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 public class MainConfig {
 
@@ -66,6 +68,9 @@ public class MainConfig {
     }
 
     public void loadAndSave() {
+        String[] defaultMaterialDensities = {"\"minecraft:air=0.0\"", "\"minecraft:wool=0.1\""};
+        String[] defaultBlockDensities = {"\"ArchimedesShips:floater=0.04\"", "\"ArchimedesShips:balloon=0.02\""};
+
         Block[] defaultOverWritableBlocks = {Blocks.tallgrass, Blocks.waterlily, Blocks.snow_layer};
 
         String[] blockBlackListNames = new String[getDefaultBlockBlackList().length];
@@ -87,6 +92,9 @@ public class MainConfig {
         shared.iterativeAlgorithm = config.get(Configuration.CATEGORY_GENERAL, "Use Iterative Algorithm", false).getBoolean();
         shared.diagonalAssembly = config.get(Configuration.CATEGORY_GENERAL, "Assemble Diagonal Blocks NOTE: Can be overridden by mods!", false).getBoolean();
         shared.useWhitelist = config.get("mobile_chunk", "use_whitelist", false, "Switch this property to select the block restriction list to use. 'true' for the 'allowed_blocks' whitelist, 'false' for the 'forbidden_blocks' blacklist.").getBoolean(false);
+        shared.loadedBlockDensities = config.get("mobile_chunk", "block_densities", defaultBlockDensities, "A list of pairs of a block with a density value. This list overrides the 'material_densities' list.").getStringList();
+        shared.loadedMaterialDensities = config.get("mobile_chunk", "material_densities", defaultMaterialDensities, "A list of pairs of a material with a density value. The first value is the name of a block. All objects with the same material will get this density value, unless overridden.").getStringList();
+
         allowListInsertion = config.get(Configuration.CATEGORY_GENERAL, "Allow other mods to add to the whitelist/blacklist? NOTE: Turn off if you want to remove the default blacklist/whitelist", true).getBoolean();
 
         String[] forbiddenBlocks = config.get("mobile_chunk", "forbidden_blocks", blockBlackListNames, "A list of blocks that will not be added to a Moving World.").getStringList();
@@ -100,6 +108,59 @@ public class MainConfig {
         config.save();
 
         this.shared.assemblePriorityConfig.loadAndSavePreInit();
+    }
+
+    public void postLoad() {
+        Pattern splitpattern = Pattern.compile("=");
+        for (int i = 0; i < shared.loadedBlockDensities.length; i++) {
+            String s = shared.loadedBlockDensities[i];
+            s = s.replace("\"", "");
+            String[] pair = splitpattern.split(s);
+            if (pair.length != 2) {
+                MovingWorld.logger.warn("Invalid key-value pair at block_densities[" + i + "]");
+                continue;
+            }
+            String key = pair[0];
+            float density;
+            try {
+                density = Float.parseFloat(pair[1]);
+            } catch (NumberFormatException e) {
+                MovingWorld.logger.warn("Cannot parse value " + pair[1] + " to floating point at block_densities[" + i + "]");
+                continue;
+            }
+            Block block = Block.getBlockFromName(key);
+            if (block == null) {
+                MovingWorld.logger.warn("No block found for " + key + " at block_densities[" + i + "]");
+                continue;
+            }
+
+            MaterialDensity.addDensity(block, density);
+        }
+
+        for (int i = 0; i < shared.loadedMaterialDensities.length; i++) {
+            String s = shared.loadedMaterialDensities[i];
+            s = s.replace("\"", "");
+            String[] pair = splitpattern.split(s);
+            if (pair.length != 2) {
+                MovingWorld.logger.warn("Invalid key-value pair at material_densities[" + i + "]");
+                continue;
+            }
+            String key = pair[0];
+            float density;
+            try {
+                density = Float.parseFloat(pair[1]);
+            } catch (NumberFormatException e) {
+                MovingWorld.logger.warn("Cannot parse value " + pair[1] + " to floating point at material_densities[" + i + "]");
+                continue;
+            }
+            Block block = Block.getBlockFromName(key);
+            if (block == null) {
+                MovingWorld.logger.warn("No block found for " + key + " at material_densities[" + i + "]");
+                continue;
+            }
+
+            MaterialDensity.addDensity(block.getMaterial(), density);
+        }
     }
 
     public void addBlacklistedBlock(Block block) {
@@ -193,6 +254,9 @@ public class MainConfig {
         public Set<String> blockWhitelist;
         public Set<String> overwritableBlocks;
         public AssemblePriorityConfig assemblePriorityConfig;
+
+        private String[] loadedBlockDensities;
+        private String[] loadedMaterialDensities;
     }
 
 

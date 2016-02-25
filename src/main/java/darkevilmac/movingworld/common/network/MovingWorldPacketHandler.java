@@ -18,7 +18,7 @@ public class MovingWorldPacketHandler extends SimpleChannelInboundHandler<Moving
     @Override
     protected void channelRead0(final ChannelHandlerContext ctx, final MovingWorldMessage msg) throws Exception {
         final EntityPlayer player;
-        switch (FMLCommonHandler.instance().getEffectiveSide()) {
+        switch (FMLCommonHandler.instance().getSide()) {
             case CLIENT: {
                 player = this.getClientPlayer();
                 if (!msg.onMainThread()) {
