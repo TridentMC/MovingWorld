@@ -1,4 +1,4 @@
-package darkevilmac.movingworld.common.asm.coremod;
+package darkevilmac.movingworld.asm.coremod;
 
 import com.google.common.collect.Lists;
 import com.google.common.eventbus.EventBus;
@@ -12,7 +12,7 @@ public class MovingWorldModContainer extends DummyModContainer {
         super(new ModMetadata());
 
         ModMetadata meta = getMetadata();
-        meta.modId = "darkevilmac.movingworld.common.asm.coremod";
+        meta.modId = "darkevilmac.movingworld.asm.coremod";
         meta.name = "MovingWorld CORE";
         meta.authorList = Lists.newArrayList("Darkevilmac");
     }

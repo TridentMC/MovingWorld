@@ -4,6 +4,7 @@ import darkevilmac.movingworld.MovingWorldMod;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.profiler.Profiler;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
@@ -171,6 +172,37 @@ public class MovingWorldServer extends WorldServer implements IMovingWorld {
     public IMovingWorld setId(Integer id) {
         this.id = id;
         return this;
+    }
+
+    @Override
+    public boolean isInRangeToLoad(Vec3 pos) {
+        boolean inRange;
+
+        AxisAlignedBB area = area(false);
+        area = area.expand(64, 64, 64);
+        inRange = area.isVecInside(pos);
+
+        return inRange;
+    }
+
+    @Override
+    public AxisAlignedBB area(boolean internal) {
+        if (internal)
+            return new AxisAlignedBB(min.getX(), min.getY(), min.getZ(), max.getX(), max.getY(), max.getZ());
+        else {
+            Vec3 adjust = new Vec3((worldPosition.xCoord + coreBlock.getX()),
+                    (worldPosition.yCoord + coreBlock.getX()),
+                    (worldPosition.zCoord + coreBlock.getZ()));
+
+            Vec3 min = new Vec3(adjust.xCoord + min().getX(),
+                    adjust.yCoord + min().getY(),
+                    adjust.zCoord + min().getZ());
+            Vec3 max = new Vec3(adjust.xCoord + max().getX(),
+                    adjust.yCoord + max().getY(),
+                    adjust.zCoord + max().getZ());
+
+            return new AxisAlignedBB(min.xCoord, min.yCoord, min.zCoord, max.xCoord, max.yCoord, max.zCoord);
+        }
     }
 
     @Override

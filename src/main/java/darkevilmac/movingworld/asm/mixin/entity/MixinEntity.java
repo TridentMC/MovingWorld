@@ -1,4 +1,4 @@
-package darkevilmac.movingworld.common.asm.mixin.entity;
+package darkevilmac.movingworld.asm.mixin.entity;
 
 
 import darkevilmac.movingworld.common.mixin.IMixinEntity;

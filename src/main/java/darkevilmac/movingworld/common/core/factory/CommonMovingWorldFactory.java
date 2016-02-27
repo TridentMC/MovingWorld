@@ -3,9 +3,12 @@ package darkevilmac.movingworld.common.core.factory;
 
 import darkevilmac.movingworld.common.baseclasses.world.IWorldMixin;
 import darkevilmac.movingworld.common.core.IMovingWorld;
+import darkevilmac.movingworld.common.core.MovingWorldManager;
+import darkevilmac.movingworld.common.core.MovingWorldProvider;
 import darkevilmac.movingworld.common.core.assembly.BlockMap;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.DimensionManager;
 
 /**
  * Used to easily create a MovingWorld without a bunch of casting crap to hook into all the mixins.
@@ -44,9 +47,14 @@ public class CommonMovingWorldFactory {
             WorldServer worldServer = (WorldServer) parent;
             IWorldMixin mixedWorldServer = (IWorldMixin) worldServer;
 
-            mixedWorldServer.createMovingWorldFromID(parent, child);
+            if (!DimensionManager.isDimensionRegistered(child)) {
+                DimensionManager.registerDimension(child, MovingWorldProvider.PROVIDERID);
+            } else {
+                MovingWorldManager.movingWorldIDS.get(parent.provider.getDimensionId()).remove(new Integer(child));
+                MovingWorldManager.registerMovingWorld(parent.provider.getDimensionId(), DimensionManager.getNextFreeDimId());
+            }
 
-            //TODO: Send packet to client to notify that there's a new MovingWorld that's been loaded.
+            mixedWorldServer.loadMovingWorld(parent, child);
         }
     }
 }

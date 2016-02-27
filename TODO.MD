@@ -23,3 +23,8 @@
 - Networking is currently the main area of interest, WorldClient is not implemented at all and needs to be implemented so we can get info to render things with.
 - Packets for sending chunks if in the correct area needs to be done as well.
 - Packets to handle updates needs to be done.
+
+### Player Proxy
+- EntityPlayerSP: Our local player, it sends packets to the server whether that be internal, dedicated, or whatever. Just a dummy that tells the server what the client is up to. Not what we want.
+- EntityOtherPlayerMP: Displays info to clients about their companions on multiplayer, what they're holding, what they're wearing, what they're breaking, etc. More for visuals so we don't care.
+- EntityPlayerMP: The one we need to mess with, this is what the server considers a player, it handles all the important logic based on packets from the client. Pretty important.

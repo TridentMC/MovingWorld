@@ -2,9 +2,11 @@ package darkevilmac.movingworld.common.core;
 
 import darkevilmac.movingworld.MovingWorldMod;
 import net.minecraft.world.World;
+import net.minecraftforge.common.DimensionManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Stores what dimensions are MovingWorlds so that we know how to load them.
@@ -67,6 +69,17 @@ public class MovingWorldManager {
 
         for (Integer child : movingWorldIDS.get(parent.provider.getDimensionId())) {
             MovingWorldMod.movingWorldFactory.loadMovingWorld(parent, child);
+        }
+    }
+
+    public static void reload(HashMap<Integer, ArrayList<Integer>> newMovingWorldIDS) {
+        movingWorldIDS = new HashMap<Integer, ArrayList<Integer>>();
+
+        for (Map.Entry<Integer, ArrayList<Integer>> entry : newMovingWorldIDS.entrySet()) {
+            for (Integer childID : entry.getValue()) {
+                DimensionManager.registerDimension(childID, MovingWorldProvider.PROVIDERID);
+                registerMovingWorld(entry.getKey(), childID);
+            }
         }
     }
 }

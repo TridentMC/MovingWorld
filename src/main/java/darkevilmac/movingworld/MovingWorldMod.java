@@ -26,6 +26,7 @@ import java.io.File;
  */
 @Mod(modid = MovingWorldMod.MOD_ID, name = MovingWorldMod.MOD_NAME, version = MovingWorldMod.MOD_VERSION)
 public class MovingWorldMod {
+
     public static final String MOD_ID = "MovingWorld";
     public static final String MOD_VERSION = "@MOVINGWORLDVER@";
     public static final String MOD_NAME = "Moving World";
@@ -41,6 +42,7 @@ public class MovingWorldMod {
     public static CommonMovingWorldFactory movingWorldFactory;
     public static MovingWorldDimensionConfig dimensionConfig;
     public NetworkUtil network;
+
     private File confFolder;
 
     public MovingWorldMod() {
@@ -80,7 +82,11 @@ public class MovingWorldMod {
 
     @Mod.EventHandler
     public void onServerAboutToStart(FMLServerAboutToStartEvent e) {
-        dimensionConfig = new MovingWorldDimensionConfig(new File(confFolder, ".dim" + File.separator + e.getServer().getWorldName()));
+        String worldName = "DEDICATEDSERVER";
+        if(!e.getServer().isDedicatedServer())
+            worldName = e.getServer().getWorldName();
+
+        dimensionConfig = new MovingWorldDimensionConfig(new File(confFolder, ".dim" + File.separator + worldName));
 
         dimensionConfig.loadDimensionManager();
     }

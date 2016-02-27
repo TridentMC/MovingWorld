@@ -1,4 +1,4 @@
-package darkevilmac.movingworld.common.asm.mixin.world;
+package darkevilmac.movingworld.asm.mixin.world;
 
 import com.google.common.collect.HashBiMap;
 import darkevilmac.movingworld.MovingWorldMod;
@@ -32,6 +32,7 @@ import java.util.List;
 public class MixinWorldServer implements IWorldMixin {
 
     public HashBiMap<Integer, MovingWorldServer> movingWorlds;
+
     @Shadow
     @Final
     private MinecraftServer mcServer;
@@ -42,10 +43,6 @@ public class MixinWorldServer implements IWorldMixin {
             return;
 
         movingWorlds = HashBiMap.create();
-    }
-
-    @Override
-    public void onConstruct() {
     }
 
     @Override
@@ -115,12 +112,11 @@ public class MixinWorldServer implements IWorldMixin {
      * @return if key existed and world was loaded
      */
     @Override
-    public boolean createMovingWorldFromID(World parent, Integer id) {
+    public boolean loadMovingWorld(World parent, Integer id) {
         if (isMovingWorld())
             return false;
 
         MovingWorldMod.movingWorldFactory.setFactoryVariables(id, getThisWorld());
-        DimensionManager.registerDimension(id, MovingWorldProvider.PROVIDERID);
 
         MovingWorldServer movingWorldServer = new MovingWorldServer(
                 mcServer, new MovingWorldSaveHandler(getThisWorld().getSaveHandler(), id), new MovingWorldInfo(getThisWorld().getWorldInfo()),
@@ -129,7 +125,6 @@ public class MixinWorldServer implements IWorldMixin {
         ((MovingWorldSaveHandler) movingWorldServer.getSaveHandler()).movingWorld = movingWorldServer;
 
         movingWorldServer.init();
-
         movingWorlds.put(id, movingWorldServer);
 
         // No need to register the movingworld if we're loading it.

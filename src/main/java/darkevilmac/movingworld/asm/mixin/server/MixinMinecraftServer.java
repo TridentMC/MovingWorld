@@ -1,4 +1,4 @@
-package darkevilmac.movingworld.common.asm.mixin.server;
+package darkevilmac.movingworld.asm.mixin.server;
 
 import darkevilmac.movingworld.common.baseclasses.world.IWorldMixin;
 import net.minecraft.profiler.Profiler;

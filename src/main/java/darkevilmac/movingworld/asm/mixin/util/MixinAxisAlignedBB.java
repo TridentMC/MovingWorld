@@ -1,4 +1,4 @@
-package darkevilmac.movingworld.common.asm.mixin.util;
+package darkevilmac.movingworld.asm.mixin.util;
 
 
 import darkevilmac.movingworld.common.baseclasses.util.IAxisAlignedBBMixin;

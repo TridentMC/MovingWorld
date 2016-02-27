@@ -26,7 +26,6 @@ public class MovingWorldProvider extends WorldProvider {
         return new ChunkProviderMovingWorld(this.worldObj);
     }
 
-
     public WorldProvider parentProvider() {
         return movingWorld().parent().provider;
     }

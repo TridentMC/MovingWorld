@@ -1,6 +1,7 @@
 package darkevilmac.movingworld.common.core;
 
 
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
@@ -119,5 +120,12 @@ public interface IMovingWorld {
     IMovingWorld setParent(World world);
 
     IMovingWorld setId(Integer id);
+
+    boolean isInRangeToLoad(Vec3 pos);
+
+    /**
+     * A bounding box not used for collision just represents the actual size of the ship.
+     */
+    AxisAlignedBB area(boolean internal);
 
 }
