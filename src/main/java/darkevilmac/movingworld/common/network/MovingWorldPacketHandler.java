@@ -10,6 +10,7 @@ import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.relauncher.FMLLaunchHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -18,7 +19,7 @@ public class MovingWorldPacketHandler extends SimpleChannelInboundHandler<Moving
     @Override
     protected void channelRead0(final ChannelHandlerContext ctx, final MovingWorldMessage msg) throws Exception {
         final EntityPlayer player;
-        switch (FMLCommonHandler.instance().getSide()) {
+        switch (FMLCommonHandler.instance().getEffectiveSide()) {
             case CLIENT: {
                 player = this.getClientPlayer();
                 if (!msg.onMainThread()) {
@@ -54,9 +55,17 @@ public class MovingWorldPacketHandler extends SimpleChannelInboundHandler<Moving
     }
 
     @SideOnly(Side.CLIENT)
-    private EntityPlayer getClientPlayer() {
+    private EntityPlayer getRealClientPlayer() {
         return Minecraft.getMinecraft().thePlayer;
     }
+
+    private EntityPlayer getClientPlayer() {
+        if (FMLLaunchHandler.side().isClient())
+            return getRealClientPlayer();
+        else
+            return null;
+    }
+
 
     private EntityPlayer getServerPlayer(ChannelHandlerContext ctx) {
         INetHandler netHandler = ctx.channel().attr(NetworkRegistry.NET_HANDLER).get();

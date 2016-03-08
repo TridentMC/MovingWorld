@@ -5,7 +5,8 @@ import darkevilmac.movingworld.common.entity.EntityMovingWorld;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.World;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.relauncher.Side;
 
 public abstract class EntityMovingWorldMessage extends MovingWorldMessage {
@@ -23,12 +24,20 @@ public abstract class EntityMovingWorldMessage extends MovingWorldMessage {
     @Override
     public void encodeInto(ChannelHandlerContext ctx, ByteBuf buf, Side side) {
         buf.writeInt(movingWorld.getEntityId());
+        buf.writeInt(movingWorld.worldObj.provider.getDimensionId());
     }
 
     @Override
-    public void decodeInto(ChannelHandlerContext ctx, ByteBuf buf, EntityPlayer player, Side side) {
+    public void decodeInto(ChannelHandlerContext ctx, ByteBuf buf, Side side) {
         int entityID = buf.readInt();
-        Entity entity = player.worldObj.getEntityByID(entityID);
+        int dimID = buf.readInt();
+        World theWorld = DimensionManager.getWorld(dimID);
+        if (theWorld == null) {
+            MovingWorld.logger.warn("Unable to find dimension with ID " + dimID);
+            return;
+        }
+
+        Entity entity = theWorld.getEntityByID(entityID);
         if (entity instanceof EntityMovingWorld) {
             movingWorld = (EntityMovingWorld) entity;
         } else {

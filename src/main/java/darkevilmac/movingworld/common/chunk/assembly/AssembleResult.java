@@ -114,6 +114,8 @@ public class AssembleResult {
             }
         } catch (Exception e) {
             resultCode = RESULT_ERROR_OCCURED;
+            MovingWorld.logger.error("Result code: RESULT ERROR OCCURED was reached when attempting to getEntity from assembly result. Printing stacktrace...");
+            MovingWorld.logger.error(e);
             e.printStackTrace();
             return null;
         }
@@ -122,9 +124,7 @@ public class AssembleResult {
 
         entity.getMobileChunk().setChunkModified();
         entity.getMobileChunk().onChunkLoad();
-
         entity.setLocationAndAngles(offset.getX() + entity.getMobileChunk().getCenterX(), offset.getY(), offset.getZ() + entity.getMobileChunk().getCenterZ(), 0F, 0F);
-
         entity.assembleResultEntity();
 
         return entity;

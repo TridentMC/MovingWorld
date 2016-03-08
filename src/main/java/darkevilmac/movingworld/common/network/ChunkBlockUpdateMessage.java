@@ -38,8 +38,8 @@ public class ChunkBlockUpdateMessage extends EntityMovingWorldMessage {
     }
 
     @Override
-    public void decodeInto(ChannelHandlerContext ctx, ByteBuf buf, EntityPlayer player, Side side) {
-        super.decodeInto(ctx, buf, player, side);
+    public void decodeInto(ChannelHandlerContext ctx, ByteBuf buf, Side side) {
+        super.decodeInto(ctx, buf, side);
         if (movingWorld != null) {
             try {
                 ChunkIO.readCompressed(buf, movingWorld.getMobileChunk());

@@ -30,7 +30,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -235,10 +234,10 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     public void setRotatedBoundingBox() {
         if (mobileChunk == null) {
             float hw = width / 2F;
-            setMovingWorldCollBox(new AxisAlignedBB(posX - hw, posY, posZ - hw, posX + hw, posY + height, posZ + hw));
+            setEntityBoundingBox(new AxisAlignedBB(posX - hw, posY, posZ - hw, posX + hw, posY + height, posZ + hw));
         } else {
-            setMovingWorldCollBox(new AxisAlignedBB(posX - mobileChunk.getCenterX(), posY, posZ - mobileChunk.getCenterZ(), posX + mobileChunk.getCenterX(), posY + height, posZ + mobileChunk.getCenterZ()));
-            setMovingWorldCollBox(AABBRotator.rotateAABBAroundY(getMovingWorldCollBox(), posX, posZ, (float) Math.toRadians(rotationYaw)));
+            setEntityBoundingBox(new AxisAlignedBB(posX - mobileChunk.getCenterX(), posY, posZ - mobileChunk.getCenterZ(), posX + mobileChunk.getCenterX(), posY + height, posZ + mobileChunk.getCenterZ()));
+            setEntityBoundingBox(AABBRotator.rotateAABBAroundY(getEntityBoundingBox(), posX, posZ, (float) Math.toRadians(rotationYaw)));
         }
     }
 
@@ -248,7 +247,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             width = w;
             height = h;
             float hw = w / 2F;
-            setMovingWorldCollBox(new AxisAlignedBB(posX - hw, posY, posZ - hw, posX + hw, posY + height, posZ + hw));
+            setEntityBoundingBox(new AxisAlignedBB(posX - hw, posY, posZ - hw, posX + hw, posY + height, posZ + hw));
         }
     }
 
@@ -372,14 +371,6 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         noControl = flag;
     }
 
-    public AxisAlignedBB getMovingWorldCollBox() {
-        return ReflectionHelper.getPrivateValue(Entity.class, this, "boundingBox", "field_70121_D");
-    }
-
-    public void setMovingWorldCollBox(AxisAlignedBB axisAlignedBB) {
-        ReflectionHelper.setPrivateValue(Entity.class, this, axisAlignedBB, "boundingBox", "field_70121_D");
-    }
-
     protected void handleServerUpdate(double horvel) {
         if (getMobileChunk() != null && !getMobileChunk().movingWorldTileEntities.isEmpty()) {
             for (IMovingWorldTileEntity movingWorldTileEntity : getMobileChunk().movingWorldTileEntities) {
@@ -415,7 +406,6 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         }
         rotationPitch = rotationPitch + (motionYaw * getCapabilities().getBankingMultiplier() - rotationPitch) * 0.15f;
         motionYaw *= 0.7F;
-        //motionYaw = MathHelper.clamp_float(motionYaw, -BASE_TURN_SPEED * ShipMod.instance.modConfig.turnSpeed, BASE_TURN_SPEED * ShipMod.instance.modConfig.turnSpeed);
         rotationYaw += motionYaw;
         setRotatedBoundingBox();
         moveEntity(motionX, motionY, motionZ);
@@ -497,7 +487,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     private boolean handleCollision(double cPosX, double cPosY, double cPosZ) {
         boolean didCollide = false;
         if (!worldObj.isRemote) {
-            List<Entity> list = worldObj.getEntitiesWithinAABBExcludingEntity(this, getMovingWorldCollBox().expand(0.2D, 0.0D, 0.2D));
+            List<Entity> list = worldObj.getEntitiesWithinAABBExcludingEntity(this, getEntityBoundingBox().expand(0.2D, 0.0D, 0.2D));
             if (list != null && !list.isEmpty()) {
                 didCollide = true;
                 for (Entity entity : list) {
