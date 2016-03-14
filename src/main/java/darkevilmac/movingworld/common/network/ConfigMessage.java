@@ -43,7 +43,7 @@ public class ConfigMessage extends MovingWorldMessage {
     }
 
     @Override
-    public void decodeInto(ChannelHandlerContext ctx, ByteBuf buf,  Side side) {
+    public void decodeInto(ChannelHandlerContext ctx, ByteBuf buf, Side side) {
         if (FMLCommonHandler.instance().getSide().isClient() && !buf.toString().contains("Empty")) {
             String msg = ByteBufUtils.readUTF8String(buf);
             if (!msg.equals("N")) {
@@ -54,7 +54,7 @@ public class ConfigMessage extends MovingWorldMessage {
 
     @Override
     public void handleClientSide(EntityPlayer player) {
-        if (config != null) {
+        if (config != null && MovingWorld.proxy != null && MovingWorld.proxy instanceof ClientProxy) {
             ((ClientProxy) MovingWorld.proxy).syncedConfig = MovingWorld.instance.getLocalConfig();
             ((ClientProxy) MovingWorld.proxy).syncedConfig.setShared(config);
         }

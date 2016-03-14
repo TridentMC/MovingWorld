@@ -14,7 +14,6 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -96,9 +95,9 @@ public class TileEntitiesMessage extends EntityMovingWorldMessage {
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
     public void handleClientSide(EntityPlayer player) {
-        if (movingWorld != null && tagCompound != null) {
+        if (movingWorld != null && tagCompound != null && movingWorld.getMobileChunk() != null &&
+                movingWorld.getMobileChunk() instanceof MobileChunkClient) {
             NBTTagList list = tagCompound.getTagList("list", 10);
             for (int i = 0; i < list.tagCount(); i++) {
                 NBTTagCompound nbt = list.getCompoundTagAt(i);
