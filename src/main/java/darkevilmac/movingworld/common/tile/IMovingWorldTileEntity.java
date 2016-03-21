@@ -2,7 +2,7 @@ package darkevilmac.movingworld.common.tile;
 
 import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunk;
 import darkevilmac.movingworld.common.entity.EntityMovingWorld;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 
 public interface IMovingWorldTileEntity {
 

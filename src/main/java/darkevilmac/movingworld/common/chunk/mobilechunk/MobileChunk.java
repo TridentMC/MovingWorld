@@ -6,16 +6,15 @@ import darkevilmac.movingworld.common.chunk.mobilechunk.world.FakeWorld;
 import darkevilmac.movingworld.common.entity.EntityMovingWorld;
 import darkevilmac.movingworld.common.tile.IMovingWorldTileEntity;
 import darkevilmac.movingworld.common.util.AABBRotator;
-import darkevilmac.movingworld.common.util.Vec3Mod;
+import darkevilmac.movingworld.common.util.Vec3dMod;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -367,7 +366,7 @@ public class MobileChunk implements IBlockAccess {
 
 
                 axisAlignedBB = AABBRotator.rotateAABBAroundY(axisAlignedBB, offset.getX(), offset.getZ(), rotationRadians);
-                Vec3Mod vec3 = new Vec3Mod(maxDX, maxDY, maxDZ).rotateAroundY(rotationRadians);
+                Vec3dMod vec3 = new Vec3dMod(maxDX, maxDY, maxDZ).rotateAroundY(rotationRadians);
                 axisAlignedBB = axisAlignedBB.offset(entityMovingWorld.posX + vec3.xCoord, entityMovingWorld.posY + vec3.yCoord, entityMovingWorld.posZ + vec3.zCoord);
 
                 newBoundingBoxes.put(pos, axisAlignedBB);
@@ -621,7 +620,7 @@ public class MobileChunk implements IBlockAccess {
     }
 
     private boolean bbContainsBB(AxisAlignedBB container, AxisAlignedBB axisAlignedBB) {
-        Vec3 minVec = new Vec3(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ);
+        Vec3dMod minVec = new Vec3(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ);
         //Vec3 midVec = new Vec3((axisAlignedBB.maxX - axisAlignedBB.minX) / 2, (axisAlignedBB.maxY - axisAlignedBB.minY) / 2, (axisAlignedBB.maxZ - axisAlignedBB.minZ) / 2);
         //midVec = midVec.add(minVec);
         Vec3 maxVec = new Vec3(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ);

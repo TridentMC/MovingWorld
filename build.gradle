@@ -23,17 +23,16 @@ apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'idea'
 
-version = 'MC1.8.9-INDEV-H'
+version = 'MC1.9-INDEV'
 group = "darkevilmac.movingworld"
 archivesBaseName = "movingworld"
 
 minecraft {
-    version = "1.8.9-11.15.0.1695"
+    version = "1.9-12.16.0.1780-1.9"
     runDir = "run"
+    mappings = "snapshot_20160312"
 
     replace '@MOVINGWORLDVER@', project.version
-
-    mappings = 'snapshot_20160112'
 }
 
 mixin {

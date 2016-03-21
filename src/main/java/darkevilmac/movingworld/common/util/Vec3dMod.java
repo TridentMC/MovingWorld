@@ -1,45 +1,45 @@
 package darkevilmac.movingworld.common.util;
 
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.MathHelper;
-import net.minecraft.util.Vec3;
+
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 
 /**
  * Adds rotateRoll.
  */
 
-public class Vec3Mod extends Vec3 {
+public class Vec3dMod {
 
-    public Vec3Mod(Vec3 vec3) {
+    public Vec3dMod(Vec3 vec3) {
         super(vec3.xCoord, vec3.yCoord, vec3.zCoord);
     }
 
-    public Vec3Mod(BlockPos pos) {
+    public Vec3dMod(BlockPos pos) {
         super(pos.getX(), pos.getY(), pos.getZ());
     }
 
-    public Vec3Mod(double x, double y, double z) {
+    public Vec3dMod(double x, double y, double z) {
         super(x, y, z);
     }
 
-    public static Vec3Mod getOrigin() {
-        return new Vec3Mod(0, 0, 0);
+    public static Vec3dMod getOrigin() {
+        return new Vec3dMod(0, 0, 0);
     }
 
-    public Vec3Mod setX(double x) {
-        return new Vec3Mod(x, this.yCoord, this.zCoord);
+    public Vec3dMod setX(double x) {
+        return new Vec3dMod(x, this.yCoord, this.zCoord);
     }
 
-    public Vec3Mod setY(double y) {
-        return new Vec3Mod(this.xCoord, y, this.zCoord);
+    public Vec3dMod setY(double y) {
+        return new Vec3dMod(this.xCoord, y, this.zCoord);
     }
 
-    public Vec3Mod setZ(double z) {
-        return new Vec3Mod(this.xCoord, this.yCoord, z);
+    public Vec3dMod setZ(double z) {
+        return new Vec3dMod(this.xCoord, this.yCoord, z);
     }
 
-    public Vec3Mod makeNewVec(double x, double y, double z) {
-        return new Vec3Mod(x, y, z);
+    public Vec3dMod makeNewVec(double x, double y, double z) {
+        return new Vec3dMod(x, y, z);
     }
 
     /**
@@ -49,8 +49,8 @@ public class Vec3Mod extends Vec3 {
      * @return
      */
     @Deprecated
-    public Vec3Mod rotatePitch(float pitch) {
-        return new Vec3Mod(super.rotatePitch(pitch));
+    public Vec3dMod rotatePitch(float pitch) {
+        return new Vec3dMod(super.rotatePitch(pitch));
     }
 
     /**
@@ -60,8 +60,8 @@ public class Vec3Mod extends Vec3 {
      * @return
      */
     @Deprecated
-    public Vec3Mod rotateYaw(float yaw) {
-        return new Vec3Mod(super.rotateYaw(yaw));
+    public Vec3dMod rotateYaw(float yaw) {
+        return new Vec3dMod(super.rotateYaw(yaw));
     }
 
     /**
@@ -71,13 +71,13 @@ public class Vec3Mod extends Vec3 {
      * @return
      */
     @Deprecated
-    public Vec3Mod rotateRoll(float roll) {
+    public Vec3dMod rotateRoll(float roll) {
         float var2 = MathHelper.cos(roll);
         float var3 = MathHelper.sin(roll);
         double var4 = this.xCoord * (double) var2 + this.yCoord * (double) var3;
         double var6 = this.yCoord * (double) var2 - this.xCoord * (double) var3;
         double var8 = this.zCoord;
-        return new Vec3Mod(var4, var6, var8);
+        return new Vec3dMod(var4, var6, var8);
     }
 
     // Reimplemented from 1.7 for my sanity.
@@ -85,7 +85,7 @@ public class Vec3Mod extends Vec3 {
     /**
      * Rotates the vector around the x axis by the specified angle.
      */
-    public Vec3Mod rotateAroundX(float p_72440_1_) {
+    public Vec3dMod rotateAroundX(float p_72440_1_) {
         float f1 = MathHelper.cos(p_72440_1_);
         float f2 = MathHelper.sin(p_72440_1_);
         double d0 = this.xCoord;
@@ -97,7 +97,7 @@ public class Vec3Mod extends Vec3 {
     /**
      * Rotates the vector around the y axis by the specified angle.
      */
-    public Vec3Mod rotateAroundY(float p_72442_1_) {
+    public Vec3dMod rotateAroundY(float p_72442_1_) {
         float f1 = MathHelper.cos(p_72442_1_);
         float f2 = MathHelper.sin(p_72442_1_);
         double d0 = this.xCoord * (double) f1 + this.zCoord * (double) f2;
@@ -109,7 +109,7 @@ public class Vec3Mod extends Vec3 {
     /**
      * Rotates the vector around the z axis by the specified angle.
      */
-    public Vec3Mod rotateAroundZ(float p_72446_1_) {
+    public Vec3dMod rotateAroundZ(float p_72446_1_) {
         float f1 = MathHelper.cos(p_72446_1_);
         float f2 = MathHelper.sin(p_72446_1_);
         double d0 = this.xCoord * (double) f1 + this.yCoord * (double) f2;

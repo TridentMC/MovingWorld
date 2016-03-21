@@ -46,7 +46,7 @@ public class ChunkDisassembler {
         float oy = -chunk.minY(); //Created the normal way, through a VehicleFiller, this value will always be 0.
         float oz = -chunk.getCenterZ();
 
-        Vec3Mod vec;
+        Vec3dMod vec;
         IBlockState state;
         Block block;
         BlockPos pos;
@@ -54,7 +54,7 @@ public class ChunkDisassembler {
             for (int j = chunk.minY(); j < chunk.maxY(); j++) {
                 for (int k = chunk.minZ(); k < chunk.maxZ(); k++) {
                     if (chunk.isAirBlock(new BlockPos(i, j, k))) continue;
-                    Vec3Mod vecB = new Vec3Mod(i + ox, j + oy, k + oz);
+                    Vec3dMod vecB = new Vec3dMod(i + ox, j + oy, k + oz);
 
                     vec = vecB;
                     vec = vec.rotateAroundY(yaw);
@@ -103,7 +103,7 @@ public class ChunkDisassembler {
 
         LocatedBlockList lbList = new LocatedBlockList();
 
-        Vec3Mod vec;
+        Vec3dMod vec;
         TileEntity tileentity;
         IBlockState blockState;
         BlockPos pos;
@@ -116,7 +116,7 @@ public class ChunkDisassembler {
                     } else if (blockState.getBlock().isAir(world, new BlockPos(i, j, k))) continue;
                     tileentity = chunk.getTileEntity(new BlockPos(i, j, k));
 
-                    vec = new Vec3Mod(i + ox, j + oy, k + oz);
+                    vec = new Vec3dMod(i + ox, j + oy, k + oz);
                     vec = vec.rotateAroundY(yaw);
 
                     pos = new BlockPos(MathHelperMod.round_double(vec.xCoord + movingWorld.posX),

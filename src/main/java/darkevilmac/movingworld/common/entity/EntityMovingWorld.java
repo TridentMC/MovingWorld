@@ -13,7 +13,7 @@ import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunkServer;
 import darkevilmac.movingworld.common.tile.IMovingWorldTileEntity;
 import darkevilmac.movingworld.common.util.AABBRotator;
 import darkevilmac.movingworld.common.util.MathHelperMod;
-import darkevilmac.movingworld.common.util.Vec3Mod;
+import darkevilmac.movingworld.common.util.Vec3dMod;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -27,7 +27,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.*;
+import net.minecraft.util.DamageSource;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.relauncher.Side;
@@ -321,7 +325,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
         double horvel = Math.sqrt(motionX * motionX + motionZ * motionZ);
         if (worldObj.isRemote) {
-            if (riddenByEntity == null) {
+            if (!this.isBeingRidden()) {
                 setIsBoatEmpty(true);
             }
             spawnParticles(horvel);
@@ -460,7 +464,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             }
 
             double yOff = (flags & 2) == 2 ? 0d : getMountedYOffset();
-            Vec3Mod vec = new Vec3Mod(x1 - mobileChunk.getCenterX() + 0.5d, y1 - mobileChunk.minY() + yOff, z1 - mobileChunk.getCenterZ() + 0.5d);
+            Vec3dMod vec = new Vec3dMod(x1 - mobileChunk.getCenterX() + 0.5d, y1 - mobileChunk.minY() + yOff, z1 - mobileChunk.getCenterZ() + 0.5d);
             switch (frontDir) {
                 case 0:
                     vec = vec.rotateAroundZ(-pitch);
@@ -787,7 +791,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             for (int i = 0; i < tiles.tagCount(); i++) {
                 try {
                     NBTTagCompound comp = tiles.getCompoundTagAt(i);
-                    TileEntity tileentity = TileEntity.createAndLoadEntity(comp);
+                    TileEntity tileentity = TileEntity.createTileEntity(null,comp);
                     mobileChunk.setTileEntity(tileentity.getPos(), tileentity);
                 } catch (Exception e) {
                     e.printStackTrace();
