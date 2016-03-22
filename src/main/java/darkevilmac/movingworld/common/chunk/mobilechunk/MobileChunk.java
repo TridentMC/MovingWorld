@@ -15,6 +15,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -83,27 +84,27 @@ public class MobileChunk implements IBlockAccess {
         return boundingBoxes.inverse().get(bb);
     }
 
-    public Vec3 getWorldPosForChunkPos(BlockPos pos) {
-        Vec3 movingWorldPos = new Vec3(entityMovingWorld.posX, entityMovingWorld.posY, entityMovingWorld.posZ);
+    public Vec3d getWorldPosForChunkPos(BlockPos pos) {
+        Vec3d movingWorldPos = new Vec3d(entityMovingWorld.posX, entityMovingWorld.posY, entityMovingWorld.posZ);
         movingWorldPos = movingWorldPos.subtract(new Double(maxX()) / 2, new Double(maxY()) / 2, new Double(maxZ()) / 2);
-        Vec3 returnPos = new Vec3(pos.getX(), pos.getY(), pos.getZ());
+        Vec3d returnPos = new Vec3d(pos.getX(), pos.getY(), pos.getZ());
         returnPos.add(movingWorldPos);
         return returnPos;
     }
 
-    public Vec3 getWorldPosForChunkPos(Vec3 vec) {
-        Vec3 movingWorldPos = new Vec3(entityMovingWorld.posX, entityMovingWorld.posY, entityMovingWorld.posZ);
+    public Vec3d getWorldPosForChunkPos(Vec3d vec) {
+        Vec3d movingWorldPos = new Vec3d(entityMovingWorld.posX, entityMovingWorld.posY, entityMovingWorld.posZ);
         movingWorldPos = movingWorldPos.subtract(new Double(maxX()) / 2, new Double(maxY()) / 2, new Double(maxZ()) / 2);
-        Vec3 returnPos = new Vec3(vec.xCoord, vec.yCoord, vec.zCoord);
+        Vec3d returnPos = new Vec3d(vec.xCoord, vec.yCoord, vec.zCoord);
         returnPos.add(movingWorldPos);
         return returnPos;
     }
 
 
-    public Vec3 getChunkPosForWorldPos(Vec3 pos) {
-        Vec3 movingWorldPos = new Vec3(entityMovingWorld.posX, entityMovingWorld.posY, entityMovingWorld.posZ);
+    public Vec3d getChunkPosForWorldPos(Vec3d pos) {
+        Vec3d movingWorldPos = new Vec3d(entityMovingWorld.posX, entityMovingWorld.posY, entityMovingWorld.posZ);
         movingWorldPos = movingWorldPos.subtract(new Double(maxX()) / 2, new Double(maxY()) / 2, new Double(maxZ()) / 2);
-        Vec3 returnPos = new Vec3(pos.xCoord, pos.yCoord, pos.zCoord);
+        Vec3d returnPos = new Vec3d(pos.xCoord, pos.yCoord, pos.zCoord);
         returnPos = returnPos.subtract(movingWorldPos);
         return returnPos;
     }
@@ -116,8 +117,8 @@ public class MobileChunk implements IBlockAccess {
         double maxY = axisAlignedBB.maxY;
         double maxZ = axisAlignedBB.maxZ;
 
-        Vec3 minVec = new Vec3(minX, minY, minZ);
-        Vec3 maxVec = new Vec3(maxX, maxY, maxZ);
+        Vec3d minVec = new Vec3d(minX, minY, minZ);
+        Vec3d maxVec = new Vec3d(maxX, maxY, maxZ);
         minVec = getChunkPosForWorldPos(minVec);
         maxVec = getChunkPosForWorldPos(maxVec);
 
@@ -621,9 +622,9 @@ public class MobileChunk implements IBlockAccess {
 
     private boolean bbContainsBB(AxisAlignedBB container, AxisAlignedBB axisAlignedBB) {
         Vec3dMod minVec = new Vec3(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ);
-        //Vec3 midVec = new Vec3((axisAlignedBB.maxX - axisAlignedBB.minX) / 2, (axisAlignedBB.maxY - axisAlignedBB.minY) / 2, (axisAlignedBB.maxZ - axisAlignedBB.minZ) / 2);
+        //Vec3d midVec = new Vec3((axisAlignedBB.maxX - axisAlignedBB.minX) / 2, (axisAlignedBB.maxY - axisAlignedBB.minY) / 2, (axisAlignedBB.maxZ - axisAlignedBB.minZ) / 2);
         //midVec = midVec.add(minVec);
-        Vec3 maxVec = new Vec3(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ);
+        Vec3d maxVec = new Vec3(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ);
 
         if (container.minX < minVec.xCoord || container.minY < minVec.yCoord || container.minZ < minVec.zCoord) {
             return true;

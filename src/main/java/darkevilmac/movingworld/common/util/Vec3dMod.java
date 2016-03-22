@@ -3,14 +3,15 @@ package darkevilmac.movingworld.common.util;
 
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 
 /**
  * Adds rotateRoll.
  */
 
-public class Vec3dMod {
+public class Vec3dMod extends Vec3d {
 
-    public Vec3dMod(Vec3 vec3) {
+    public Vec3dMod(Vec3d vec3) {
         super(vec3.xCoord, vec3.yCoord, vec3.zCoord);
     }
 

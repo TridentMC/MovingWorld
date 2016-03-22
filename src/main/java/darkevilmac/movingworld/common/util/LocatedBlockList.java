@@ -3,7 +3,7 @@ package darkevilmac.movingworld.common.util;
 import com.google.common.collect.HashBiMap;
 import darkevilmac.movingworld.MovingWorld;
 import darkevilmac.movingworld.common.chunk.LocatedBlock;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 
 import java.util.ArrayList;
 

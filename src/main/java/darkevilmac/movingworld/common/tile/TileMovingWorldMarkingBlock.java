@@ -12,10 +12,10 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
-import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.IChatComponent;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 
 import java.util.UUID;
@@ -76,28 +76,28 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
             assembledMovingWorld(player, returnVal);
 
             setInteractor(interactor);
-            ChatComponentText c;
+            TextComponentString c;
             switch (assembleResult.getCode()) {
                 case AssembleResult.RESULT_OK:
-                    c = new ChatComponentText("Assembled " + getInfo().getName() + "!");
+                    c = new TextComponentString("Assembled " + getInfo().getName() + "!");
                     player.addChatMessage(c);
                     break;
                 case AssembleResult.RESULT_OK_WITH_WARNINGS:
                     returnVal = true;
                 case AssembleResult.RESULT_BLOCK_OVERFLOW:
-                    c = new ChatComponentText("Cannot create moving world with more than " + getMaxBlocks() + " blocks");
+                    c = new TextComponentString("Cannot create moving world with more than " + getMaxBlocks() + " blocks");
                     player.addChatMessage(c);
                     break;
                 case AssembleResult.RESULT_MISSING_MARKER:
-                    c = new ChatComponentText("Cannot create moving world with no moving world marker");
+                    c = new TextComponentString("Cannot create moving world with no moving world marker");
                     player.addChatMessage(c);
                     break;
                 case AssembleResult.RESULT_ERROR_OCCURED:
-                    c = new ChatComponentText("An error occured while assembling moving world. See console log for details.");
+                    c = new TextComponentString("An error occured while assembling moving world. See console log for details.");
                     player.addChatMessage(c);
                     break;
                 case AssembleResult.RESULT_NONE:
-                    c = new ChatComponentText("Nothing was assembled");
+                    c = new TextComponentString("Nothing was assembled");
                     player.addChatMessage(c);
                     break;
                 default:
@@ -119,7 +119,7 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
                     return false;
                 }
                 if (assembleResult.getCode() == AssembleResult.RESULT_OK_WITH_WARNINGS) {
-                    IChatComponent c = new ChatComponentText("Moving world contains changes");
+                    ITextComponent c = new TextComponentString("Moving world contains changes");
                     player.addChatMessage(c);
                 }
 
@@ -129,7 +129,7 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
                 if (entity != null) {
                     entity.setInfo(getInfo());
                     if (worldObj.spawnEntityInWorld(entity)) {
-                        player.mountEntity(entity);
+                        player.startRiding(entity);
                         assembleResult = null;
                         return true;
                     }
@@ -150,11 +150,11 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
     public Packet getDescriptionPacket() {
         NBTTagCompound compound = new NBTTagCompound();
         writeNBTForSending(compound);
-        return new S35PacketUpdateTileEntity(pos, 0, compound);
+        return new SPacketUpdateTileEntity(pos, 0, compound);
     }
 
     @Override
-    public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity packet) {
+    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity packet) {
         readFromNBT(packet.getNbtCompound());
     }
 

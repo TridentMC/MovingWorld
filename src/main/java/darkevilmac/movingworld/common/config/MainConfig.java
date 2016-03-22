@@ -4,6 +4,7 @@ import darkevilmac.movingworld.MovingWorld;
 import darkevilmac.movingworld.common.config.priority.AssemblePriorityConfig;
 import darkevilmac.movingworld.common.util.MaterialDensity;
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
@@ -228,13 +229,13 @@ public class MainConfig {
         config.save();
     }
 
-    public boolean isBlockAllowed(Block block) {
-        String id = Block.blockRegistry.getNameForObject(block).toString();
+    public boolean isBlockAllowed(IBlockState state) {
+        String id = Block.blockRegistry.getNameForObject(state.getBlock()).toString();
         return shared.useWhitelist ? shared.blockWhitelist.contains(id) : !shared.blockBlacklist.contains(id);
     }
 
-    public boolean canOverwriteBlock(Block block) {
-        return shared.overwritableBlocks.contains(Block.blockRegistry.getNameForObject(block));
+    public boolean canOverwriteBlock(IBlockState state) {
+        return shared.overwritableBlocks.contains(Block.blockRegistry.getNameForObject(state.getBlock()));
     }
 
     @SubscribeEvent

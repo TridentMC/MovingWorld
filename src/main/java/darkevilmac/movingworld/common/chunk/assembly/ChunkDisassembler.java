@@ -14,7 +14,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 
@@ -65,7 +65,7 @@ public class ChunkDisassembler {
 
                     state = world.getBlockState(pos);
                     block = state.getBlock();
-                    if ((block != null && !block.isAir(world, pos) && !block.getMaterial().isLiquid() && !assemblyInteractor.canOverwriteBlock(block))
+                    if ((block != null && !block.isAir(state, world, pos) && !block.getMaterial(state).isLiquid() && !assemblyInteractor.canOverwriteBlock(block))
                             || (j > world.getActualHeight())) {
                         return false;
                     }
@@ -113,7 +113,7 @@ public class ChunkDisassembler {
                     blockState = chunk.getBlockState(new BlockPos(i, j, k));
                     if (blockState.getBlock() == Blocks.air) {
                         if (blockState.getBlock().getMetaFromState(blockState) == 1) continue;
-                    } else if (blockState.getBlock().isAir(world, new BlockPos(i, j, k))) continue;
+                    } else if (blockState.getBlock().isAir(blockState, world, new BlockPos(i, j, k))) continue;
                     tileentity = chunk.getTileEntity(new BlockPos(i, j, k));
 
                     vec = new Vec3dMod(i + ox, j + oy, k + oz);
@@ -198,7 +198,7 @@ public class ChunkDisassembler {
                 assemblyInteractor.blockOverwritten(owBlock);
 
             if (!fillList.containsLBOfPos(locatedBlock.bPosNoOffset)) {
-                if (world.getBlockState(pos).getBlock().getMaterial().isLiquid()) {
+                if (world.getBlockState(pos).getMaterial().isLiquid()) {
                     if (!removedFluidBlocks.containsLBOfPos(pos))
                         removedFluidBlocks.add(new LocatedBlock(owBlockState, pos));
                 }

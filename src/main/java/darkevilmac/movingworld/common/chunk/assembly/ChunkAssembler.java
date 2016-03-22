@@ -7,7 +7,7 @@ import darkevilmac.movingworld.common.chunk.MovingWorldSizeOverflowException;
 import darkevilmac.movingworld.common.event.AssembleBlockEvent;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 
@@ -77,8 +77,7 @@ public class ChunkAssembler {
                 closedSet.add(mobileChunkPos);
 
                 IBlockState blockState = worldObj.getBlockState(worldPos);
-                Block block = blockState.getBlock();
-                CanAssemble canAssemble = canUseBlockForVehicle(block, assemblyInteractor, worldPos);
+                CanAssemble canAssemble = canUseBlockForVehicle(blockState, assemblyInteractor, worldPos);
 
                 if (canAssemble.justCancel) {
                     continue;
@@ -137,7 +136,7 @@ public class ChunkAssembler {
         IBlockState blockState = worldObj.getBlockState(pos);
         Block block = blockState.getBlock();
 
-        CanAssemble canAssemble = canUseBlockForVehicle(block, assemblyInteractor, pos);
+        CanAssemble canAssemble = canUseBlockForVehicle(blockState, assemblyInteractor, pos);
 
         if (canAssemble.justCancel) {
             return;
@@ -181,7 +180,7 @@ public class ChunkAssembler {
         result.movingWorldMarkingBlock = movingWorldMarker;
     }
 
-    public CanAssemble canUseBlockForVehicle(Block block, MovingWorldAssemblyInteractor assemblyInteractor, BlockPos pos) {
-        return assemblyInteractor.isBlockAllowed(worldObj, block, pos);
+    public CanAssemble canUseBlockForVehicle(IBlockState state, MovingWorldAssemblyInteractor assemblyInteractor, BlockPos pos) {
+        return assemblyInteractor.isBlockAllowed(worldObj, state, pos);
     }
 }

@@ -7,11 +7,12 @@ import darkevilmac.movingworld.common.chunk.assembly.CanAssemble;
 import darkevilmac.movingworld.common.tile.TileMovingWorldMarkingBlock;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 /**
@@ -82,10 +83,10 @@ public class MovingWorldAssemblyInteractor {
     public void chunkDissasembled(AssembleResult assembleResult) {
     }
 
-    public CanAssemble isBlockAllowed(World world, Block block, BlockPos pos) {
+    public CanAssemble isBlockAllowed(World world, IBlockState state, BlockPos pos) {
         CanAssemble canAssemble = new CanAssemble(false, false);
 
-        canAssemble.justCancel = !(!block.isAir(world, pos) && !block.getMaterial().isLiquid() && MovingWorld.instance.getNetworkConfig().isBlockAllowed(block));
+        canAssemble.justCancel = !(!state.getMaterial().equals(Material.air) && !state.getMaterial().isLiquid() && MovingWorld.instance.getNetworkConfig().isBlockAllowed(block));
 
         return canAssemble;
     }
