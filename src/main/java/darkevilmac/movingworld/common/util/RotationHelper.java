@@ -6,7 +6,7 @@ import darkevilmac.movingworld.common.util.rotation.IRotationProperty;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.Vec3i;
+import net.minecraft.util.math.Vec3i;
 
 public class RotationHelper {
 

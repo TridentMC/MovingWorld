@@ -160,7 +160,7 @@ public class MainConfig {
                 continue;
             }
 
-            MaterialDensity.addDensity(block.getMaterial(), density);
+            MaterialDensity.addDensity(block.getDefaultState().getMaterial(), density);
         }
     }
 
@@ -229,12 +229,12 @@ public class MainConfig {
         config.save();
     }
 
-    public boolean isBlockAllowed(IBlockState state) {
+    public boolean isStateAllowed(IBlockState state) {
         String id = Block.blockRegistry.getNameForObject(state.getBlock()).toString();
         return shared.useWhitelist ? shared.blockWhitelist.contains(id) : !shared.blockBlacklist.contains(id);
     }
 
-    public boolean canOverwriteBlock(IBlockState state) {
+    public boolean canOverwriteState(IBlockState state) {
         return shared.overwritableBlocks.contains(Block.blockRegistry.getNameForObject(state.getBlock()));
     }
 

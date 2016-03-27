@@ -37,10 +37,6 @@ public class FakeWorld extends World {
         return null;
     }
 
-    @Override
-    protected int getRenderDistanceChunks() {
-        return 0; // Shouldn't really matter.
-    }
 
     @Override
     public IBlockState getBlockState(BlockPos pos) {
@@ -67,15 +63,20 @@ public class FakeWorld extends World {
     }
 
     @Override
+    protected boolean isChunkLoaded(int x, int z, boolean allowEmpty) {
+        return true;
+    }
+
+    @Override
     public boolean isSideSolid(BlockPos pos, EnumFacing side, boolean _default) {
         if (getBlockState(pos) == null || isAirBlock(pos)) return _default;
 
-        return getBlockState(pos).getBlock().isSideSolid(this, pos, side);
+        return getBlockState(pos).isSideSolid(this, pos, side);
     }
 
     @Override
     public float getLightBrightness(BlockPos pos) {
-        return this.getBlockState(pos).getBlock().getLightValue(mobileChunk, pos);
+        return this.getBlockState(pos).getLightValue(mobileChunk, pos);
     }
 
     @Override

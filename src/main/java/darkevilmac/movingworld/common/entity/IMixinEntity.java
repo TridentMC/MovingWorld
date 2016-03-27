@@ -1,7 +1,7 @@
 package darkevilmac.movingworld.common.entity;
 
 import net.minecraft.block.Block;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 
 /**
  * We have a mixin, we might as well take advantage of it by making some methods accessible with a cast.

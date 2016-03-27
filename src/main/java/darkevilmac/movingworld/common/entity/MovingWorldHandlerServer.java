@@ -4,7 +4,7 @@ import darkevilmac.movingworld.MovingWorld;
 import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunkServer;
 import darkevilmac.movingworld.common.network.ChunkBlockUpdateMessage;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 
 import java.util.Collection;

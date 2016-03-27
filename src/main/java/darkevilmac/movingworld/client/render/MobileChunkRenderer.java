@@ -10,8 +10,9 @@ import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.EnumWorldBlockLayer;
+import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.EnumBlockRenderType;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.fml.relauncher.Side;
@@ -29,12 +30,6 @@ public class MobileChunkRenderer {
     private MobileChunk chunk;
     private int glRenderList = 0;
 
-    /**
-     * Bytes sent to the GPU
-     */
-    @SuppressWarnings("unused")
-    private int bytesDrawn;
-
     public MobileChunkRenderer(MobileChunk mobilechunk) {
         chunk = mobilechunk;
         needsUpdate = true;
@@ -48,7 +43,7 @@ public class MobileChunkRenderer {
 
     private void updateSimpleRender(float partialTicks) {
         Tessellator tessellator = Tessellator.getInstance();
-        WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+        VertexBuffer vertexBuffer = tessellator.getBuffer();
 
         GlStateManager.pushMatrix();
         GlStateManager.rotate(1.0F, 0.0F, 180.0F, 0.0F);
@@ -63,7 +58,7 @@ public class MobileChunkRenderer {
             GlStateManager.shadeModel(7424);
         }
 
-        worldrenderer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
+        vertexBuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
         for (int y = chunk.minY(); y < chunk.maxY(); ++y) {
             for (int z = chunk.minZ(); z < chunk.maxZ(); ++z) {
                 for (int x = chunk.minX(); x < chunk.maxX(); ++x) {
@@ -71,18 +66,18 @@ public class MobileChunkRenderer {
                     IBlockState blockState = chunk.getBlockState(pos);
                     Block block = blockState.getBlock();
 
-                    for (EnumWorldBlockLayer enumWorldBlockLayer : EnumWorldBlockLayer.values()) {
-                        if (!block.canRenderInLayer(enumWorldBlockLayer)) continue;
-                        net.minecraftforge.client.ForgeHooksClient.setRenderLayer(enumWorldBlockLayer);
+                    for (BlockRenderLayer blockRenderLayer : BlockRenderLayer.values()) {
+                        if (!block.canRenderInLayer(blockRenderLayer)) continue;
+                        net.minecraftforge.client.ForgeHooksClient.setRenderLayer(blockRenderLayer);
 
-                        if (block.getRenderType() != -1) {
-                            dispatchBlockRender(blockState, pos, worldrenderer);
+                        if (!block.getRenderType(blockState).equals(EnumBlockRenderType.INVISIBLE)) {
+                            dispatchBlockRender(blockState, pos, vertexBuffer);
                         }
                     }
                 }
             }
         }
-        worldrenderer.setTranslation(0.0D, 0.0D, 0.0D);
+        vertexBuffer.setTranslation(0.0D, 0.0D, 0.0D);
         tessellator.draw();
 
         GlStateManager.pushMatrix();
@@ -115,10 +110,10 @@ public class MobileChunkRenderer {
         GlStateManager.popMatrix();
     }
 
-    public void dispatchBlockRender(IBlockState blockState, BlockPos blockPos, WorldRenderer worldRenderer) {
-        worldRenderer.color(1.0F, 1.0F, 1.0F, 1.0F);
+    public void dispatchBlockRender(IBlockState blockState, BlockPos blockPos, VertexBuffer vertexBuffer) {
+        vertexBuffer.color(1.0F, 1.0F, 1.0F, 1.0F);
         BlockRendererDispatcher blockRendererDispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
-        blockRendererDispatcher.renderBlock(blockState, blockPos, chunk, worldRenderer);
+        blockRendererDispatcher.renderBlock(blockState, blockPos, chunk, vertexBuffer);
     }
 
     public void markDirty() {

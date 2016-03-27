@@ -7,12 +7,13 @@ import net.minecraft.block.BlockFence;
 import net.minecraft.block.BlockFenceGate;
 import net.minecraft.block.BlockWall;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.MathHelper;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 
 import java.util.Iterator;
 import java.util.List;
@@ -30,13 +31,13 @@ public class ChunkCollisionHelper {
         boolean cancel = false;
         IMixinEntity mixinEntity = (IMixinEntity) entity;
 
-        double d3 = mobileChunk.getChunkPosForWorldPos(new Vec3(entity.posX, 0, 0)).xCoord;
-        double d4 = mobileChunk.getChunkPosForWorldPos(new Vec3(0, entity.posY, 0)).yCoord;
-        double d5 = mobileChunk.getChunkPosForWorldPos(new Vec3(0, 0, entity.posZ)).zCoord;
+        double d3 = mobileChunk.getChunkPosForWorldPos(new Vec3d(entity.posX, 0, 0)).xCoord;
+        double d4 = mobileChunk.getChunkPosForWorldPos(new Vec3d(0, entity.posY, 0)).yCoord;
+        double d5 = mobileChunk.getChunkPosForWorldPos(new Vec3d(0, 0, entity.posZ)).zCoord;
 
-        final double entityChunkPosX = mobileChunk.getChunkPosForWorldPos(new Vec3(entity.posX, 0, 0)).xCoord;
-        final double entityChunkPosY = mobileChunk.getChunkPosForWorldPos(new Vec3(0, entity.posY, 0)).yCoord;
-        final double entityChunkPosZ = mobileChunk.getChunkPosForWorldPos(new Vec3(0, 0, entity.posZ)).zCoord;
+        final double entityChunkPosX = mobileChunk.getChunkPosForWorldPos(new Vec3d(entity.posX, 0, 0)).xCoord;
+        final double entityChunkPosY = mobileChunk.getChunkPosForWorldPos(new Vec3d(0, entity.posY, 0)).yCoord;
+        final double entityChunkPosZ = mobileChunk.getChunkPosForWorldPos(new Vec3d(0, 0, entity.posZ)).zCoord;
 
         double d6 = x;
         double d7 = y;
@@ -184,19 +185,20 @@ public class ChunkCollisionHelper {
         int i = MathHelper.floor_double(entityChunkPosX);
         int j = MathHelper.floor_double(entityChunkPosY - 0.20000000298023224D);
         int k = MathHelper.floor_double(entityChunkPosZ);
-        BlockPos blockpos = new BlockPos(i, j, k);
-        Block block1 = mobileChunk.getBlock(blockpos);
+        BlockPos blockPos = new BlockPos(i, j, k);
+        IBlockState blockState = mobileChunk.getBlockState(blockPos);
+        Block block1 = mobileChunk.getBlock(blockPos);
 
-        if (block1.getMaterial() == Material.air) {
-            Block block = mobileChunk.getBlock(blockpos.down());
+        if (blockState.getMaterial() == Material.air) {
+            Block block = mobileChunk.getBlock(blockPos.down());
 
             if (block instanceof BlockFence || block instanceof BlockWall || block instanceof BlockFenceGate) {
                 block1 = block;
-                blockpos = blockpos.down();
+                blockPos = blockPos.down();
             }
         }
 
-        mixinEntity.updateFall(y, entity.onGround, block1, blockpos);
+        mixinEntity.updateFall(y, entity.onGround, block1, blockPos);
 
         if (d6 != x) {
             entity.motionX = 0.0D;
@@ -245,8 +247,6 @@ public class ChunkCollisionHelper {
     }
 
     protected static void playStepSoundForEntity(Entity e, Block blockIn) {
-        Block.SoundType stepSound = blockIn.stepSound;
-
-        e.playSound(stepSound.getStepSound(), stepSound.getVolume() * 0.15F, stepSound.getFrequency());
+       //nah
     }
 }

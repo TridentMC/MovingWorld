@@ -4,8 +4,7 @@ import darkevilmac.movingworld.common.chunk.LocatedBlock;
 import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunk;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Blocks;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 
 import java.util.ArrayList;
 import java.util.Iterator;

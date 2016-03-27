@@ -6,6 +6,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.chunk.storage.IChunkLoader;
+import net.minecraft.world.gen.structure.template.TemplateManager;
 import net.minecraft.world.storage.IPlayerFileData;
 import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.WorldInfo;
@@ -68,9 +69,11 @@ public class MobileWorld extends World {
                     }
 
                     @Override
-                    public String getWorldDirectoryName() {
+                    public TemplateManager getStructureTemplateManager() {
                         return null;
                     }
+
+
                 },
                 //endregion
                 parent.getWorldInfo(), parent.provider, parent.theProfiler, parent.isRemote);
@@ -82,7 +85,8 @@ public class MobileWorld extends World {
     }
 
     @Override
-    protected int getRenderDistanceChunks() {
-        return 0;
+    protected boolean isChunkLoaded(int x, int z, boolean allowEmpty) {
+        return false;
     }
+
 }

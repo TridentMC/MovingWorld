@@ -31,10 +31,7 @@ public class MixinPropertyEnum implements IRotationProperty {
         } else if (propertyValue instanceof EnumFacing.Axis) {
             EnumFacing.Axis axis = (EnumFacing.Axis) propertyValue;
 
-            if (axis == EnumFacing.Axis.X)
-                axis = EnumFacing.Axis.Z;
-            else if (axis == EnumFacing.Axis.Z)
-                axis = EnumFacing.Axis.X;
+            axis = axis == EnumFacing.Axis.X ? EnumFacing.Axis.Z : axis == EnumFacing.Axis.Z ? EnumFacing.Axis.X : axis;
 
             blockState = blockState.withProperty(propertyEnum, axis);
         } else if (propertyValue instanceof BlockLog.EnumAxis) {

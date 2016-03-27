@@ -108,7 +108,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
                     IBlockState blockState = world.getBlockState(new BlockPos(x, y, z));
                     Block block = blockState.getBlock();
 
-                    if (block != null && (block.getMaterial() == Material.water || block.getMaterial() == Material.lava)) {
+                    if (block != null && (blockState.getMaterial() == Material.water || block.getMaterial() == Material.lava)) {
                         int j2 = block.getMetaFromState(blockState);
                         double d0;
 

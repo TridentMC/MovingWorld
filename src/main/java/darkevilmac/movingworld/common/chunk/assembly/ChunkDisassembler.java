@@ -65,7 +65,7 @@ public class ChunkDisassembler {
 
                     state = world.getBlockState(pos);
                     block = state.getBlock();
-                    if ((block != null && !block.isAir(state, world, pos) && !block.getMaterial(state).isLiquid() && !assemblyInteractor.canOverwriteBlock(block))
+                    if ((block != null && !block.isAir(state, world, pos) && !block.getMaterial(state).isLiquid() && !assemblyInteractor.canOverwriteState(state))
                             || (j > world.getActualHeight())) {
                         return false;
                     }

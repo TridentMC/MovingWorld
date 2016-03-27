@@ -54,8 +54,8 @@ public class MovingWorldAssemblyInteractor {
     /**
      * @return returns if it is an over writable block in the config.
      */
-    public boolean canOverwriteBlock(Block block) {
-        return MovingWorld.instance.getNetworkConfig().canOverwriteBlock(block);
+    public boolean canOverwriteState(IBlockState state) {
+        return MovingWorld.instance.getNetworkConfig().canOverwriteState(state);
     }
 
     /**
@@ -86,7 +86,7 @@ public class MovingWorldAssemblyInteractor {
     public CanAssemble isBlockAllowed(World world, IBlockState state, BlockPos pos) {
         CanAssemble canAssemble = new CanAssemble(false, false);
 
-        canAssemble.justCancel = !(!state.getMaterial().equals(Material.air) && !state.getMaterial().isLiquid() && MovingWorld.instance.getNetworkConfig().isBlockAllowed(block));
+        canAssemble.justCancel = !(!state.getMaterial().equals(Material.air) && !state.getMaterial().isLiquid() && MovingWorld.instance.getNetworkConfig().isStateAllowed(state));
 
         return canAssemble;
     }

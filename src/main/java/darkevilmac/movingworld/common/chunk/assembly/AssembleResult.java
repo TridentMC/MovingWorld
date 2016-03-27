@@ -74,7 +74,7 @@ public class AssembleResult {
         if (lb.tileEntity != null) {
             tileEntityCount++;
         }
-        mass += MaterialDensity.getDensity(lb.blockState.getBlock());
+        mass += MaterialDensity.getDensity(lb.blockState);
         offset = new BlockPos(Math.min(offset.getX(), lb.blockPos.getX()),
                 Math.min(offset.getY(), lb.blockPos.getY()),
                 Math.min(offset.getZ(), lb.blockPos.getZ()));

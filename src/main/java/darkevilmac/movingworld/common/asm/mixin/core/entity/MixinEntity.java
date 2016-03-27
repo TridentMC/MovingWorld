@@ -3,7 +3,7 @@ package darkevilmac.movingworld.common.asm.mixin.core.entity;
 import darkevilmac.movingworld.common.entity.IMixinEntity;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 

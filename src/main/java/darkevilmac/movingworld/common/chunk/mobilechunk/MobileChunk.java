@@ -69,7 +69,7 @@ public class MobileChunk implements IBlockAccess {
 
         blockCount = 0;
 
-        creationSpotBiome = BiomeGenBase.ocean;
+        creationSpotBiome = BiomeGenBase.getBiome(0); // Ocean biome id.
     }
 
     public FakeWorld getFakeWorld() {
@@ -621,10 +621,10 @@ public class MobileChunk implements IBlockAccess {
     }
 
     private boolean bbContainsBB(AxisAlignedBB container, AxisAlignedBB axisAlignedBB) {
-        Vec3dMod minVec = new Vec3(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ);
+        Vec3dMod minVec = new Vec3dMod(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ);
         //Vec3d midVec = new Vec3((axisAlignedBB.maxX - axisAlignedBB.minX) / 2, (axisAlignedBB.maxY - axisAlignedBB.minY) / 2, (axisAlignedBB.maxZ - axisAlignedBB.minZ) / 2);
         //midVec = midVec.add(minVec);
-        Vec3d maxVec = new Vec3(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ);
+        Vec3d maxVec = new Vec3d(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ);
 
         if (container.minX < minVec.xCoord || container.minY < minVec.yCoord || container.minZ < minVec.zCoord) {
             return true;

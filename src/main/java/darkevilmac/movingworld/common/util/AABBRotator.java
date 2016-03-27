@@ -1,6 +1,7 @@
 package darkevilmac.movingworld.common.util;
 
-import net.minecraft.util.AxisAlignedBB;
+
+import net.minecraft.util.math.AxisAlignedBB;
 
 public class AABBRotator {
     private static Vec3dMod vec00, vec01, vec10, vec11;

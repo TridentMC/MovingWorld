@@ -24,14 +24,9 @@ public class MaterialDensity {
 
     public static float getDensity(IBlockState state) {
         if (state == null) return DEFAULT_DENSITY;
-        return getDensity(state.getBlock());
-    }
-
-    public static float getDensity(Block block) {
-        if (block == null) return DEFAULT_DENSITY;
-        Float f = blockDensityMap.get(Block.blockRegistry.getNameForObject(block));
+        Float f = blockDensityMap.get(Block.blockRegistry.getNameForObject(state.getBlock()));
         if (f != null) return f.floatValue();
-        return getDensity(block.getMaterial());
+        return getDensity(state.getMaterial());
     }
 
     public static float getDensity(Material mat) {

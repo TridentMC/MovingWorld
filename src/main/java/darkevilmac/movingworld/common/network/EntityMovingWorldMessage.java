@@ -24,7 +24,7 @@ public abstract class EntityMovingWorldMessage extends MovingWorldMessage {
     @Override
     public void encodeInto(ChannelHandlerContext ctx, ByteBuf buf, Side side) {
         buf.writeInt(movingWorld.getEntityId());
-        buf.writeInt(movingWorld.worldObj.provider.getDimensionId());
+        buf.writeInt(movingWorld.worldObj.provider.getDimension());
     }
 
     @Override
