@@ -32,6 +32,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.relauncher.Side;
@@ -108,7 +109,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
                     IBlockState blockState = world.getBlockState(new BlockPos(x, y, z));
                     Block block = blockState.getBlock();
 
-                    if (block != null && (blockState.getMaterial() == Material.water || block.getMaterial() == Material.lava)) {
+                    if (block != null && (blockState.getMaterial() == Material.water || blockState.getMaterial() == Material.lava)) {
                         int j2 = block.getMetaFromState(blockState);
                         double d0;
 
@@ -311,10 +312,11 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     @Override
     public void onUpdate() {
-        if (firstUpdate)
-            mobileChunk.calculateBounds();
-        else
-            mobileChunk.updateBlockBounds(rotationYaw);
+        // TODO: Temporarily disable collision calculations as they aren't implemented.
+        //if (firstUpdate)
+        //    mobileChunk.calculateBounds();
+        //else
+        //    mobileChunk.updateBlockBounds(rotationYaw);
 
 
         onEntityUpdate();
@@ -347,7 +349,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             double dx = posX + (controlX - posX) / controlPosRotationIncrements;
             double dy = posY + (controlY - posY) / controlPosRotationIncrements;
             double dz = posZ + (controlZ - posZ) / controlPosRotationIncrements;
-            double ang = MathHelper.wrapAngleTo180_double(controlYaw - rotationYaw);
+            double ang = MathHelper.wrapDegrees(controlYaw - rotationYaw);
             rotationYaw = (float) (rotationYaw + ang / controlPosRotationIncrements);
             rotationPitch = (float) (rotationPitch + (controlPitch - rotationPitch) / controlPosRotationIncrements);
             controlPosRotationIncrements--;
@@ -456,7 +458,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
                 }
 
                 IBlockState state = mobileChunk.getBlockState(new BlockPos(x1, MathHelper.floor_double(y1 + getMountedYOffset() + entity.getYOffset()), z1));
-                if (state.getBlock().isOpaqueCube()) {
+                if (state.isOpaqueCube()) {
                     x1 = riderDestination.getX();
                     y1 = riderDestination.getY();
                     z1 = riderDestination.getZ();
@@ -605,7 +607,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     }
 
     @Override
-    protected void updateFallState(double distanceFallen, boolean onGround, Block p3, BlockPos p4) {
+    protected void updateFallState(double y, boolean onGroundIn, IBlockState state, BlockPos pos) {
     }
 
     @Override
@@ -620,7 +622,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         rotationYaw = Math.round(rotationYaw / 90F) * 90F;
         rotationPitch = 0F;
 
-        Vec3 vec = new Vec3(-mobileChunk.getCenterX(), -mobileChunk.minY(), -mobileChunk.getCenterZ());
+        Vec3d vec = new Vec3d(-mobileChunk.getCenterX(), -mobileChunk.minY(), -mobileChunk.getCenterZ());
         vec = vec.rotateYaw((float) Math.toRadians(rotationYaw));
 
         int ix = MathHelperMod.round_double(vec.xCoord + posX);
@@ -791,7 +793,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             for (int i = 0; i < tiles.tagCount(); i++) {
                 try {
                     NBTTagCompound comp = tiles.getCompoundTagAt(i);
-                    TileEntity tileentity = TileEntity.createTileEntity(null,comp);
+                    TileEntity tileentity = TileEntity.createTileEntity(null, comp);
                     mobileChunk.setTileEntity(tileentity.getPos(), tileentity);
                 } catch (Exception e) {
                     e.printStackTrace();

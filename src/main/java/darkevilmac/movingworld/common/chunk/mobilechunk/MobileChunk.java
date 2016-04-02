@@ -198,8 +198,8 @@ public class MobileChunk implements IBlockAccess {
         int k = pos.getZ() & 15;
 
         IBlockState currentState = storage.get(i, j, k);
-        Block currentBlock = storage.getBlockByExtId(i, j, k);
-        int currentMeta = storage.getExtBlockMetadata(i, j, k);
+        Block currentBlock = currentState.getBlock();
+        int currentMeta = currentBlock.getMetaFromState(currentState);
         if (currentBlock == block && currentMeta == meta) {
             return false;
         }
@@ -262,15 +262,16 @@ public class MobileChunk implements IBlockAccess {
     }
 
     public AxisAlignedBB calculateBlockBounds(BlockPos pos) {
-        if (this.getBlock(pos) == null || (this.getBlock(pos) != null && this.getBlock(pos).getMaterial() == Material.air)) {
+        IBlockState state = getBlockState(pos);
+        if (state == null || (state.getMaterial().equals(Material.air))) {
             return null;
         }
 
-        if (!this.getBlockState(pos).getBlock().isCollidable() ||
-                (this.getBlockState(pos).getBlock().isCollidable() && this.getBlockState(pos).getBlock().getCollisionBoundingBox(this.getFakeWorld(), pos, getBlockState(pos)) == null))
+        if (!state.getBlock().isCollidable() ||
+                (state.getBlock().isCollidable() && state.getCollisionBoundingBox(this.getFakeWorld(), pos) == null))
             return null;
 
-        AxisAlignedBB axisAlignedBB = this.getBlockState(pos).getBlock().getCollisionBoundingBox(this.getFakeWorld(), pos, getBlockState(pos));
+        AxisAlignedBB axisAlignedBB = this.getBlockState(pos).getCollisionBoundingBox(this.getFakeWorld(), pos);
         chunkBoundingBoxes.put(pos, axisAlignedBB);
 
         double maxDX = new Double(maxX());
@@ -381,8 +382,8 @@ public class MobileChunk implements IBlockAccess {
         ExtendedBlockStorage storage = getBlockStorage(pos);
         if (storage == null) return false;
 
-        int currentMeta = storage.getExtBlockMetadata(pos.getX(), pos.getY() & 15, pos.getZ());
-        if (currentMeta == state.getBlock().getMetaFromState(state)) {
+        IBlockState checkState = getBlockState(new BlockPos(pos.getX(), pos.getY() & 15, pos.getZ()));
+        if (checkState.getBlock().equals(state.getBlock()) && checkState.getBlock().getMetaFromState(checkState) == state.getBlock().getMetaFromState(state)) {
             return false;
         }
 
@@ -407,12 +408,12 @@ public class MobileChunk implements IBlockAccess {
         ExtendedBlockStorage storage = getBlockStorage(pos);
         if (storage == null) return true;
 
-        Block block = storage.getBlockByExtId(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);
-        int meta = storage.getExtBlockMetadata(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);
-        if (block == Blocks.air && meta == 1) {
+        IBlockState state = getBlockState(new BlockPos(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15));
+        Block block = state.getBlock();
+        if (block == Blocks.air && block.getMetaFromState(state) == 1) {
             return true;
         }
-        if (block == null || block.isAir(worldObj, pos)) {
+        if (block == null || state.getMaterial().equals(Material.air)) {
             storage.set(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15, Blocks.air.getDefaultState());
             onSetBlockAsFilledAir(pos);
             return true;
@@ -532,14 +533,14 @@ public class MobileChunk implements IBlockAccess {
 
     @Override
     public boolean isAirBlock(BlockPos pos) {
-        Block block = getBlockState(pos).getBlock();
-        return block == null || block.isAir(worldObj, pos) || block.getMaterial() == Material.air;
+        IBlockState state = getBlockState(pos);
+        return state == null || state.getMaterial().equals(Material.air);
     }
 
     public boolean isBlockTakingWaterVolume(BlockPos pos) {
         IBlockState blockState = getBlockState(pos);
         Block block = blockState.getBlock();
-        if (block == null || block.isAir(worldObj, pos)) {
+        if (block == null || blockState.getMaterial().equals(Material.air)) {
             if (block.getMetaFromState(blockState) == 1) return false;
         }
         return true;
@@ -549,24 +550,9 @@ public class MobileChunk implements IBlockAccess {
         return CHUNK_SIZE;
     }
 
-    public Block getBlock(BlockPos pos) {
-        ExtendedBlockStorage storage = getBlockStorage(pos);
-        if (storage == null) return Blocks.air;
-        return storage.getBlockByExtId(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);
-    }
-
-    protected int getBlockMetadata(BlockPos pos) {
-        ExtendedBlockStorage storage = getBlockStorage(pos);
-        if (storage == null) return 0;
-        return storage.getExtBlockMetadata(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);
-    }
-
     @Override
     public IBlockState getBlockState(BlockPos pos) {
-        int meta = getBlockMetadata(pos);
-        Block block = getBlock(pos);
-
-        return block.getDefaultState().getBlock().getStateFromMeta(meta);
+        return getBlockStorage(pos).get(pos.getX(), pos.getY(), pos.getZ());
     }
 
     @Override
@@ -598,8 +584,9 @@ public class MobileChunk implements IBlockAccess {
             return _default;
         }
 
-        Block block = getBlockState(pos).getBlock();
-        return block.isSideSolid(this, new BlockPos(x, y, z), side);
+        IBlockState state = getBlockState(pos);
+
+        return state.isSideSolid(this, new BlockPos(x, y, z), side);
     }
 
     public final int getMemoryUsage() {
