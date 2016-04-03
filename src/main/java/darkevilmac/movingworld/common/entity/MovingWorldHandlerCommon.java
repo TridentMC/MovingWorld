@@ -5,6 +5,8 @@ import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunk;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -20,7 +22,7 @@ public abstract class MovingWorldHandlerCommon {
 
     public abstract void setMovingWorld(EntityMovingWorld movingWorld);
 
-    public boolean interact(EntityPlayer player) {
+    public boolean interact(EntityPlayer player, ItemStack stack, EnumHand hand) {
         return false;
     }
 

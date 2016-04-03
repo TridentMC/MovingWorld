@@ -67,7 +67,7 @@ public class MobileChunkRenderer {
                     Block block = blockState.getBlock();
 
                     for (BlockRenderLayer blockRenderLayer : BlockRenderLayer.values()) {
-                        if (!block.canRenderInLayer(blockRenderLayer)) continue;
+                        if (!block.canRenderInLayer(blockState, blockRenderLayer)) continue;
                         net.minecraftforge.client.ForgeHooksClient.setRenderLayer(blockRenderLayer);
 
                         if (!block.getRenderType(blockState).equals(EnumBlockRenderType.INVISIBLE)) {

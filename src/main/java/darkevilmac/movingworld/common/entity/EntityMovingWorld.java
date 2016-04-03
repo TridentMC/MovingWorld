@@ -29,6 +29,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -216,8 +217,8 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     }
 
     @Override
-    public boolean interactFirst(EntityPlayer entityplayer) {
-        return getHandler().interact(entityplayer);
+    public boolean processInitialInteract(EntityPlayer entityplayer, ItemStack stack, EnumHand hand) {
+        return getHandler().interact(entityplayer,stack, hand);
     }
 
     @Override

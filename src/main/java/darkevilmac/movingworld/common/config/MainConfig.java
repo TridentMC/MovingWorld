@@ -240,7 +240,7 @@ public class MainConfig {
 
     @SubscribeEvent
     public void onConfigChange(ConfigChangedEvent.OnConfigChangedEvent event) {
-        if (event.modID.equals(MovingWorld.MOD_ID)) {
+        if (event.getModID().equals(MovingWorld.MOD_ID)) {
             if (config.hasChanged())
                 config.save();
             loadAndSave();

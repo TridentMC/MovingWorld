@@ -187,18 +187,18 @@ public class ChunkCollisionHelper {
         int k = MathHelper.floor_double(entityChunkPosZ);
         BlockPos blockPos = new BlockPos(i, j, k);
         IBlockState blockState = mobileChunk.getBlockState(blockPos);
-        Block block1 = mobileChunk.getBlock(blockPos);
+        Block block = blockState.getBlock();
 
         if (blockState.getMaterial() == Material.air) {
-            Block block = mobileChunk.getBlock(blockPos.down());
+            Block blockBelow = mobileChunk.getBlockState(blockPos.down()).getBlock();
 
-            if (block instanceof BlockFence || block instanceof BlockWall || block instanceof BlockFenceGate) {
-                block1 = block;
+            if (blockBelow instanceof BlockFence || blockBelow instanceof BlockWall || blockBelow instanceof BlockFenceGate) {
+                block = blockBelow;
                 blockPos = blockPos.down();
             }
         }
 
-        mixinEntity.updateFall(y, entity.onGround, block1, blockPos);
+        mixinEntity.updateFall(y, entity.onGround, block, blockPos);
 
         if (d6 != x) {
             entity.motionX = 0.0D;
@@ -217,15 +217,15 @@ public class ChunkCollisionHelper {
             double d16 = entityChunkPosY - d4;
             double d17 = entityChunkPosZ - d5;
 
-            if (block1 != Blocks.ladder) {
+            if (block != Blocks.ladder) {
                 d16 = 0.0D;
             }
             entity.distanceWalkedModified = (float) ((double) entity.distanceWalkedModified + (double) MathHelper.sqrt_double(d15 * d15 + d17 * d17) * 0.6D);
             entity.distanceWalkedOnStepModified = (float) ((double) entity.distanceWalkedOnStepModified + (double) MathHelper.sqrt_double(d15 * d15 + d16 * d16 + d17 * d17) * 0.6D);
 
-            if (entity.distanceWalkedOnStepModified > (float) mixinEntity.getNextStepDistance() && block1.getMaterial() != Material.air) {
+            if (entity.distanceWalkedOnStepModified > (float) mixinEntity.getNextStepDistance() && block.getMaterial() != Material.air) {
                 mixinEntity.setNextStepDistance((int) entity.distanceWalkedOnStepModified + 1);
-                playStepSoundForEntity(entity, block1);
+                playStepSoundForEntity(entity, block);
             }
         }
 
@@ -247,6 +247,6 @@ public class ChunkCollisionHelper {
     }
 
     protected static void playStepSoundForEntity(Entity e, Block blockIn) {
-       //nah
+        //nah
     }
 }
