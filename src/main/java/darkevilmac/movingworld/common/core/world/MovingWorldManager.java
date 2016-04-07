@@ -52,9 +52,11 @@ public class MovingWorldManager {
      *
      * @return true if successful, false if no parent was found to remove from.
      */
-    public static boolean removeMovingWorld(int parentID, Integer childID) {
+    public static boolean removeMovingWorld(int parentID, int childID) {
         if (movingWorldIDS.containsKey(parentID)) {
             movingWorldIDS.get(parentID).remove(childID);
+            if (DimensionManager.isDimensionRegistered(childID))
+                DimensionManager.unregisterDimension(childID);
             return true;
         }
         return false;
@@ -81,5 +83,15 @@ public class MovingWorldManager {
                 registerMovingWorld(entry.getKey(), childID);
             }
         }
+    }
+
+    public static void resetMovingWorldManager() {
+        for (Map.Entry<Integer, ArrayList<Integer>> entry : movingWorldIDS.entrySet()) {
+            for (Integer childID : entry.getValue()) {
+                if (DimensionManager.isDimensionRegistered(childID))
+                    DimensionManager.unregisterDimension(childID);
+            }
+        }
+        movingWorldIDS.clear();
     }
 }

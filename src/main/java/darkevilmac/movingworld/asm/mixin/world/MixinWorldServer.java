@@ -3,7 +3,7 @@ package darkevilmac.movingworld.asm.mixin.world;
 import com.google.common.collect.HashBiMap;
 import darkevilmac.movingworld.MovingWorldMod;
 import darkevilmac.movingworld.common.baseclasses.world.IWorldMixin;
-import darkevilmac.movingworld.common.core.*;
+import darkevilmac.movingworld.common.core.IMovingWorld;
 import darkevilmac.movingworld.common.core.assembly.BlockMap;
 import darkevilmac.movingworld.common.core.world.*;
 import net.minecraft.block.state.IBlockState;

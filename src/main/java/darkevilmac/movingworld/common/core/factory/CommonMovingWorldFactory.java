@@ -3,9 +3,9 @@ package darkevilmac.movingworld.common.core.factory;
 
 import darkevilmac.movingworld.common.baseclasses.world.IWorldMixin;
 import darkevilmac.movingworld.common.core.IMovingWorld;
+import darkevilmac.movingworld.common.core.assembly.BlockMap;
 import darkevilmac.movingworld.common.core.world.MovingWorldManager;
 import darkevilmac.movingworld.common.core.world.MovingWorldProvider;
-import darkevilmac.movingworld.common.core.assembly.BlockMap;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;

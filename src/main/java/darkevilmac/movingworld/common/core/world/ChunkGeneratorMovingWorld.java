@@ -19,6 +19,7 @@ public class ChunkGeneratorMovingWorld implements IChunkGenerator {
     public ChunkGeneratorMovingWorld(World worldIn) {
         this.worldObj = worldIn;
         this.movingWorld = (IMovingWorld) worldIn;
+        //TODO: Make the game init WorldServerMulti as a MovingWorld when applicable.
     }
 
     @Override

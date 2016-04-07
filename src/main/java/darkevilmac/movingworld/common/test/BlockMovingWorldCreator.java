@@ -36,12 +36,19 @@ public class BlockMovingWorldCreator extends Block {
     @Override
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
         if (worldIn != null && !worldIn.isRemote) {
+            if (state.getValue(ASSEMBLING))
+                return false;
+
+            worldIn.setBlockState(pos, worldIn.getBlockState(pos).withProperty(ASSEMBLING, true));
+
             System.out.println("Initializing an assembler.");
             final Assembler assembler = new Assembler(new CustomAssemblyInteractor(), worldIn, pos, !player.isSneaking());
             assembler.setAssemblyListener(new Assembler.IAssemblyListener() {
                 @Override
                 public void onComplete(World world, BlockPos origin, BlockMap map) {
-                    if (false && MovingWorldMod.movingWorldFactory != null) {
+                    world.setBlockState(origin, world.getBlockState(origin).withProperty(ASSEMBLING, false));
+
+                    if (MovingWorldMod.movingWorldFactory != null) {
                         IMovingWorld movingWorld = MovingWorldMod.movingWorldFactory.createMovingWorld(map, world);
                         if (movingWorld != null) {
                             movingWorld.move(new Vec3d(origin.getX() - assembler.initialOffset.getX(), map.getMin().getY(), origin.getZ() - assembler.initialOffset.getZ()), true);
@@ -50,7 +57,6 @@ public class BlockMovingWorldCreator extends Block {
 
                 }
             });
-            worldIn.setBlockState(pos, state.withProperty(ASSEMBLING, true));
 
             return true;
         }
@@ -59,11 +65,11 @@ public class BlockMovingWorldCreator extends Block {
     }
 
     public IBlockState getStateFromMeta(int meta) {
-        return this.getDefaultState().withProperty(ASSEMBLING, Boolean.valueOf(meta == 0));
+        return this.getDefaultState().withProperty(ASSEMBLING, Boolean.valueOf(meta == 1));
     }
 
     public int getMetaFromState(IBlockState state) {
-        return state.getValue(ASSEMBLING) ? 0 : 1;
+        return state.getValue(ASSEMBLING) ? 1 : 0;
     }
 
     protected BlockStateContainer createBlockState() {

@@ -18,11 +18,11 @@ import java.util.ArrayList;
  */
 public class Assembler implements ITickBasedIterable {
 
+    public BlockPos initialOffset;
     boolean foundAll;
     World world;
     BlockMap out;
     IAssemblyListener assemblyListener;
-    public BlockPos initialOffset;
     private AssemblyInteractor interactor;
     private BlockPos ORIGIN;
     private ArrayList<BlockPos> posStack;

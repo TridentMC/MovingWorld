@@ -9,7 +9,7 @@ import net.minecraftforge.fml.relauncher.Side;
 /**
  * A client sends this when a chunk loads on their end.
  */
-public class ClientChunkEventMessage extends MovingWorldMessage{
+public class ClientChunkEventMessage extends MovingWorldMessage {
     @Override
     public boolean onMainThread() {
         return false;

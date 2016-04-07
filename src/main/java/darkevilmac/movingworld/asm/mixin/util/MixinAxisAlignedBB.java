@@ -3,8 +3,8 @@ package darkevilmac.movingworld.asm.mixin.util;
 
 import darkevilmac.movingworld.common.baseclasses.util.IAxisAlignedBBMixin;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.math.AxisAlignedBB;
 import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(AxisAlignedBB.class)

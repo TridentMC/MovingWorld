@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "assembling=true": {
+      "model": "minecraft:stone"
+    },
+    "assembling=false": {
+      "model": "minecraft:emerald_block"
+    }
+  }
+}

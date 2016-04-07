@@ -7,12 +7,16 @@ import darkevilmac.movingworld.common.core.world.MovingWorldManager;
 import darkevilmac.movingworld.common.network.MovingWorldMessageToMessageCodec;
 import darkevilmac.movingworld.common.network.MovingWorldPacketHandler;
 import darkevilmac.movingworld.common.network.NetworkUtil;
+import darkevilmac.movingworld.common.test.BlockMovingWorldCreator;
+import net.minecraft.block.material.Material;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.*;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
@@ -55,7 +59,10 @@ public class MovingWorldMod {
         if (MOD_VERSION.equals("@MOVINGWORLDVER@")) {
             // In dev environment initialize some test stuffs.
 
-            //GameRegistry.registerBlock(new BlockMovingWorldCreator(Material.cake), "movingWorldCreator");
+            BlockMovingWorldCreator blockMovingWorldCreator = new BlockMovingWorldCreator(Material.redstoneLight);
+            blockMovingWorldCreator.setRegistryName("movingworld", "movingWorldCreator");
+            GameRegistry.register(blockMovingWorldCreator);
+            GameRegistry.register(new ItemBlock(blockMovingWorldCreator).setRegistryName(blockMovingWorldCreator.getRegistryName()));
         }
     }
 
@@ -76,7 +83,7 @@ public class MovingWorldMod {
     @Mod.EventHandler
     public void onServerAboutToStart(FMLServerAboutToStartEvent e) {
         String worldName = "DEDICATEDSERVER";
-        if(!e.getServer().isDedicatedServer())
+        if (!e.getServer().isDedicatedServer())
             worldName = e.getServer().getWorldName();
 
         dimensionConfig = new MovingWorldDimensionConfig(new File(confFolder, ".dim" + File.separator + worldName));
@@ -105,5 +112,6 @@ public class MovingWorldMod {
     @Mod.EventHandler
     public void onServerStopEvent(FMLServerStoppedEvent e) {
         dimensionConfig.saveDimensionManager();
+        MovingWorldManager.resetMovingWorldManager();
     }
 }

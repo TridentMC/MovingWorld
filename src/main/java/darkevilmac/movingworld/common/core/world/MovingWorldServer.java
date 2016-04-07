@@ -53,7 +53,7 @@ public class MovingWorldServer extends WorldServer implements IMovingWorld {
 
     @Override
     public boolean setBlockState(BlockPos pos, IBlockState newState, int flags) {
-        if (setBlockState(pos, newState, flags)) {
+        if (super.setBlockState(pos, newState, flags)) {
             this.min = new BlockPos(pos.getX() < min.getX() ? pos.getX() : min.getX(),
                     pos.getY() < min.getY() ? pos.getY() : min.getY(),
                     pos.getZ() < min.getZ() ? pos.getZ() : min.getZ());
@@ -207,7 +207,7 @@ public class MovingWorldServer extends WorldServer implements IMovingWorld {
     }
 
     @Override
-    public java.io.File getChunkSaveLocation() {
+    public File getChunkSaveLocation() {
         return new File(new File(parentWorld.getChunkSaveLocation(), "MovingWorld"), id().toString());
     }
 

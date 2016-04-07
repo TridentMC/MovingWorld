@@ -107,5 +107,4 @@ public class MovingWorldDimensionConfig {
         dims.get("dimFiles", Configuration.CATEGORY_GENERAL, new String[0], "DON'T TOUCH MANAGES DIMENSION FILES").set(dimEntriesArray);
         dims.save();
     }
-
 }
