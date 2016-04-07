@@ -20,7 +20,7 @@ import java.io.File;
 /**
  * MovingWorld's Mod container. Nothing to see here, move along.
  */
-//@Mod(modid = MovingWorldMod.MOD_ID, name = MovingWorldMod.MOD_NAME, version = MovingWorldMod.MOD_VERSION)
+@Mod(modid = MovingWorldMod.MOD_ID, name = MovingWorldMod.MOD_NAME, version = MovingWorldMod.MOD_VERSION)
 public class MovingWorldMod {
 
     public static final String MOD_ID = "MovingWorld";
