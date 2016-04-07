@@ -1,5 +1,6 @@
-package darkevilmac.movingworld.common.core;
+package darkevilmac.movingworld.common.core.world;
 
+import darkevilmac.movingworld.common.core.IMovingWorld;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.storage.WorldInfo;
@@ -50,18 +51,18 @@ public class MovingWorldInfo extends WorldInfo {
 
         if (movingWorld != null) {
             //Save MovingWorld stuff.
-            nbt.setIntArray("CoreBlockPos", new int[]{movingWorld.coreBlock().getX(), movingWorld.coreBlock().getY(), movingWorld.coreBlock().getZ()});
-            nbt.setIntArray("MinBlockPos", new int[]{movingWorld.min().getX(), movingWorld.min().getY(), movingWorld.min().getZ()});
-            nbt.setIntArray("MaxBlockPos", new int[]{movingWorld.max().getX(), movingWorld.max().getY(), movingWorld.max().getZ()});
-            nbt.setDouble("PosX", movingWorld.worldTranslation().xCoord);
-            nbt.setDouble("PosY", movingWorld.worldTranslation().yCoord);
-            nbt.setDouble("PosZ", movingWorld.worldTranslation().zCoord);
-            nbt.setDouble("MotionX", movingWorld.motion().xCoord);
-            nbt.setDouble("MotionY", movingWorld.motion().yCoord);
-            nbt.setDouble("MotionZ", movingWorld.motion().zCoord);
-            nbt.setFloat("RotationX", movingWorld.rotation().x);
-            nbt.setFloat("RotationY", movingWorld.rotation().y);
-            nbt.setFloat("RotationZ", movingWorld.rotation().z);
+            // nbt.setIntArray("CoreBlockPos", new int[]{movingWorld.coreBlock().getX(), movingWorld.coreBlock().getY(), movingWorld.coreBlock().getZ()});
+            // nbt.setIntArray("MinBlockPos", new int[]{movingWorld.min().getX(), movingWorld.min().getY(), movingWorld.min().getZ()});
+            // nbt.setIntArray("MaxBlockPos", new int[]{movingWorld.max().getX(), movingWorld.max().getY(), movingWorld.max().getZ()});
+            // nbt.setDouble("PosX", movingWorld.worldTranslation().xCoord);
+            // nbt.setDouble("PosY", movingWorld.worldTranslation().yCoord);
+            // nbt.setDouble("PosZ", movingWorld.worldTranslation().zCoord);
+            // nbt.setDouble("MotionX", movingWorld.motion().xCoord);
+            // nbt.setDouble("MotionY", movingWorld.motion().yCoord);
+            // nbt.setDouble("MotionZ", movingWorld.motion().zCoord);
+            // nbt.setFloat("RotationX", movingWorld.rotation().x);
+            // nbt.setFloat("RotationY", movingWorld.rotation().y);
+            // nbt.setFloat("RotationZ", movingWorld.rotation().z);
         }
         if (this.parentWorldInfo.getDifficulty() != null) {
             nbt.setByte("Difficulty", (byte) this.parentWorldInfo.getDifficulty().getDifficultyId());

@@ -1,9 +1,9 @@
 package darkevilmac.movingworld.common.core;
 
 
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import javax.vecmath.Vector3f;
@@ -34,7 +34,7 @@ public interface IMovingWorld {
     /**
      * The same as translateToWorldSpace but backwards.
      */
-    BlockPos translateToBlockSpace(Vec3 worldSpace);
+    BlockPos translateToBlockSpace(Vec3d worldSpace);
 
     /**
      * Convert a position from internal block space like 12, 32, 16 to space in the parent world, like 50.2, 48.7645, 9.54
@@ -42,7 +42,7 @@ public interface IMovingWorld {
      * @param blockSpace The position in the internal blockspace.
      * @return The position converted to a Vec3 in the parent world.
      */
-    Vec3 translateToWorldSpace(BlockPos blockSpace);
+    Vec3d translateToWorldSpace(BlockPos blockSpace);
 
     /**
      * The minimum coordinate of the world.
@@ -61,14 +61,14 @@ public interface IMovingWorld {
      *
      * @return
      */
-    Vec3 worldTranslation();
+    Vec3d worldTranslation();
 
     /**
      * The scale of this world, this changes how it's rendered in the world as well as how it collides with players.
      *
      * @return
      */
-    Vec3 scale();
+    Vec3d scale();
 
     /**
      * The current rotation of this world.
@@ -111,17 +111,17 @@ public interface IMovingWorld {
      * @param teleport are we moving from our position a set amount of blocks or are we just teleporting to the position in space?
      * @return whether or not we hit something on the way.
      */
-    boolean move(Vec3 move, boolean teleport);
+    boolean move(Vec3d move, boolean teleport);
 
-    Vec3 motion();
+    Vec3d motion();
 
-    IMovingWorld setMotion(Vec3 newMotion);
+    IMovingWorld setMotion(Vec3d newMotion);
 
     IMovingWorld setParent(World world);
 
     IMovingWorld setId(Integer id);
 
-    boolean isInRangeToLoad(Vec3 pos);
+    boolean isInRangeToLoad(Vec3d pos);
 
     /**
      * A bounding box not used for collision just represents the actual size of the ship.

@@ -3,8 +3,8 @@ package darkevilmac.movingworld.common.core.assembly;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.Vec3i;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3i;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -95,7 +95,7 @@ public class BlockMap implements Iterable<Pair<BlockPos, Pair<IBlockState, TileE
 
             if (tileOfIndex != null) {
                 // Adjust the tile's position.
-                shiftedTile = TileEntity.createAndLoadEntity(tileOfIndex.serializeNBT());
+                shiftedTile = TileEntity.createTileEntity(null /*null because it's never even used -.-*/, tileOfIndex.serializeNBT());
                 shiftedTile.setPos(shiftedPos);
             }
 

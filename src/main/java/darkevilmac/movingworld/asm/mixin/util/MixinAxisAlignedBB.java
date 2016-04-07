@@ -3,7 +3,7 @@ package darkevilmac.movingworld.asm.mixin.util;
 
 import darkevilmac.movingworld.common.baseclasses.util.IAxisAlignedBBMixin;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.EnumFacing.Axis;
 import org.spongepowered.asm.mixin.Mixin;
 
@@ -79,7 +79,7 @@ public class MixinAxisAlignedBB implements IAxisAlignedBBMixin {
         double maxY = bbCompound.getDouble("maxY");
         double maxZ = bbCompound.getDouble("maxZ");
 
-        return AxisAlignedBB.fromBounds(minX, minY, minZ, maxX, maxY, maxZ);
+        return new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
     }
 
     public void writeToNBT(NBTTagCompound tagCompound, String key) {

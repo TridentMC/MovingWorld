@@ -2,7 +2,7 @@ package darkevilmac.movingworld.common;
 
 import com.google.common.collect.Maps;
 import com.google.gson.InstanceCreator;
-import darkevilmac.movingworld.common.core.MovingWorldManager;
+import darkevilmac.movingworld.common.core.world.MovingWorldManager;
 import net.minecraftforge.common.config.Configuration;
 
 import java.io.File;

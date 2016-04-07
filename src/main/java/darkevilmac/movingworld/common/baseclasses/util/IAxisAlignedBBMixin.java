@@ -1,6 +1,6 @@
 package darkevilmac.movingworld.common.baseclasses.util;
 
-import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.EnumFacing;
 
 public interface IAxisAlignedBBMixin {

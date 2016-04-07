@@ -5,12 +5,13 @@ import darkevilmac.movingworld.MovingWorldMod;
 import darkevilmac.movingworld.common.baseclasses.world.IWorldMixin;
 import darkevilmac.movingworld.common.core.*;
 import darkevilmac.movingworld.common.core.assembly.BlockMap;
+import darkevilmac.movingworld.common.core.world.*;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.profiler.Profiler;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.Vec3i;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.storage.ISaveHandler;
@@ -62,7 +63,7 @@ public class MixinWorldServer implements IWorldMixin {
 
         MovingWorldMod.movingWorldFactory.setFactoryVariables(id, getThisWorld());
 
-        DimensionManager.registerDimension(id, MovingWorldProvider.PROVIDERID);
+        DimensionManager.registerDimension(id, MovingWorldProvider.TYPE);
 
         MovingWorldServer movingWorldServer = new MovingWorldServer(
                 mcServer, new MovingWorldSaveHandler(getThisWorld().getSaveHandler(), id), new MovingWorldInfo(getThisWorld().getWorldInfo()),

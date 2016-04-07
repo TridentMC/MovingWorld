@@ -3,8 +3,8 @@ package darkevilmac.movingworld.common.core.factory;
 
 import darkevilmac.movingworld.common.baseclasses.world.IWorldMixin;
 import darkevilmac.movingworld.common.core.IMovingWorld;
-import darkevilmac.movingworld.common.core.MovingWorldManager;
-import darkevilmac.movingworld.common.core.MovingWorldProvider;
+import darkevilmac.movingworld.common.core.world.MovingWorldManager;
+import darkevilmac.movingworld.common.core.world.MovingWorldProvider;
 import darkevilmac.movingworld.common.core.assembly.BlockMap;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -48,10 +48,10 @@ public class CommonMovingWorldFactory {
             IWorldMixin mixedWorldServer = (IWorldMixin) worldServer;
 
             if (!DimensionManager.isDimensionRegistered(child)) {
-                DimensionManager.registerDimension(child, MovingWorldProvider.PROVIDERID);
+                DimensionManager.registerDimension(child, MovingWorldProvider.TYPE);
             } else {
-                MovingWorldManager.movingWorldIDS.get(parent.provider.getDimensionId()).remove(new Integer(child));
-                MovingWorldManager.registerMovingWorld(parent.provider.getDimensionId(), DimensionManager.getNextFreeDimId());
+                MovingWorldManager.movingWorldIDS.get(parent.provider.getDimension()).remove(new Integer(child));
+                MovingWorldManager.registerMovingWorld(parent.provider.getDimension(), DimensionManager.getNextFreeDimId());
             }
 
             mixedWorldServer.loadMovingWorld(parent, child);

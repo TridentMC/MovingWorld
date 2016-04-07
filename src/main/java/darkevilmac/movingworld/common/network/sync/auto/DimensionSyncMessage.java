@@ -1,6 +1,6 @@
 package darkevilmac.movingworld.common.network.sync.auto;
 
-import darkevilmac.movingworld.common.core.MovingWorldManager;
+import darkevilmac.movingworld.common.core.world.MovingWorldManager;
 import darkevilmac.movingworld.common.network.MovingWorldMessage;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -27,7 +27,7 @@ public class DimensionSyncMessage extends MovingWorldMessage {
             return;
 
         if (MovingWorldManager.movingWorldIDS.size() == 0) {
-            buf.writeChar("E".charAt(0));
+            buf.writeInt(-1);
         } else {
             buf.writeInt(MovingWorldManager.movingWorldIDS.size());
             for (Map.Entry<Integer, ArrayList<Integer>> entry : MovingWorldManager.movingWorldIDS.entrySet()) {
@@ -47,12 +47,13 @@ public class DimensionSyncMessage extends MovingWorldMessage {
         if (side.isServer())
             return;
 
-        if (buf.readChar() == "E".charAt(0))
+        int size = buf.readInt();
+        if (size < 0)
             return;
 
         HashMap<Integer, ArrayList<Integer>> movingWorldIDS = new HashMap<Integer, ArrayList<Integer>>();
 
-        int count = buf.readInt();
+        int count = size;
         //Assemble entries from the packet.
         for (int i = 0; i < count; i++) {
             int parentID = buf.readInt();

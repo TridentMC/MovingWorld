@@ -1,12 +1,13 @@
-package darkevilmac.movingworld.common.core;
+package darkevilmac.movingworld.common.core.world;
 
 import darkevilmac.movingworld.MovingWorldMod;
+import darkevilmac.movingworld.common.core.IMovingWorld;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.profiler.Profiler;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.storage.ISaveHandler;
@@ -21,7 +22,7 @@ public class MovingWorldServer extends WorldServer implements IMovingWorld {
      * The world we reside in, we forward a lot of boring methods over to it. Like getWorldTime.
      */
     public WorldServer parentWorld;
-    public Vec3 worldPosition;
+    public Vec3d worldPosition;
     private Integer id;
 
     private BlockPos min;
@@ -81,12 +82,12 @@ public class MovingWorldServer extends WorldServer implements IMovingWorld {
     }
 
     @Override
-    public BlockPos translateToBlockSpace(Vec3 worldSpace) {
+    public BlockPos translateToBlockSpace(Vec3d worldSpace) {
         return null;
     }
 
     @Override
-    public Vec3 translateToWorldSpace(BlockPos blockSpace) {
+    public Vec3d translateToWorldSpace(BlockPos blockSpace) {
         return null;
     }
 
@@ -101,12 +102,12 @@ public class MovingWorldServer extends WorldServer implements IMovingWorld {
     }
 
     @Override
-    public Vec3 worldTranslation() {
+    public Vec3d worldTranslation() {
         return null;
     }
 
     @Override
-    public Vec3 scale() {
+    public Vec3d scale() {
         return null;
     }
 
@@ -137,7 +138,7 @@ public class MovingWorldServer extends WorldServer implements IMovingWorld {
     }
 
     @Override
-    public boolean move(Vec3 move, boolean teleport) {
+    public boolean move(Vec3d move, boolean teleport) {
         if (teleport) {
             // A teleport won't fail ever, it ignores collision.
 
@@ -150,12 +151,12 @@ public class MovingWorldServer extends WorldServer implements IMovingWorld {
     }
 
     @Override
-    public Vec3 motion() {
+    public Vec3d motion() {
         return null;
     }
 
     @Override
-    public IMovingWorld setMotion(Vec3 newMotion) {
+    public IMovingWorld setMotion(Vec3d newMotion) {
         return this;
     }
 
@@ -175,7 +176,7 @@ public class MovingWorldServer extends WorldServer implements IMovingWorld {
     }
 
     @Override
-    public boolean isInRangeToLoad(Vec3 pos) {
+    public boolean isInRangeToLoad(Vec3d pos) {
         boolean inRange;
 
         AxisAlignedBB area = area(false);
@@ -190,14 +191,14 @@ public class MovingWorldServer extends WorldServer implements IMovingWorld {
         if (internal)
             return new AxisAlignedBB(min.getX(), min.getY(), min.getZ(), max.getX(), max.getY(), max.getZ());
         else {
-            Vec3 adjust = new Vec3((worldPosition.xCoord + coreBlock.getX()),
+            Vec3d adjust = new Vec3d((worldPosition.xCoord + coreBlock.getX()),
                     (worldPosition.yCoord + coreBlock.getX()),
                     (worldPosition.zCoord + coreBlock.getZ()));
 
-            Vec3 min = new Vec3(adjust.xCoord + min().getX(),
+            Vec3d min = new Vec3d(adjust.xCoord + min().getX(),
                     adjust.yCoord + min().getY(),
                     adjust.zCoord + min().getZ());
-            Vec3 max = new Vec3(adjust.xCoord + max().getX(),
+            Vec3d max = new Vec3d(adjust.xCoord + max().getX(),
                     adjust.yCoord + max().getY(),
                     adjust.zCoord + max().getZ());
 

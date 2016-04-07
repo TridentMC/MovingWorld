@@ -1,4 +1,4 @@
-package darkevilmac.movingworld.common.core;
+package darkevilmac.movingworld.common.core.world;
 
 import darkevilmac.movingworld.MovingWorldMod;
 import net.minecraft.world.World;
@@ -20,7 +20,7 @@ public class MovingWorldManager {
     public static HashMap<Integer, ArrayList<Integer>> movingWorldIDS = new HashMap<Integer, ArrayList<Integer>>();
 
     public static void registerMovingWorld(World parent, World child) {
-        registerMovingWorld(parent.provider.getDimensionId(), child.provider.getDimensionId());
+        registerMovingWorld(parent.provider.getDimension(), child.provider.getDimension());
     }
 
     public static void registerMovingWorld(int parentID, int childID) {
@@ -44,7 +44,7 @@ public class MovingWorldManager {
      * @return true if successful, false if no parent was found to remove from.
      */
     public static boolean removeMovingWorld(World parent, World child) {
-        return removeMovingWorld(parent.provider.getDimensionId(), child.provider.getDimensionId());
+        return removeMovingWorld(parent.provider.getDimension(), child.provider.getDimension());
     }
 
     /**
@@ -64,10 +64,10 @@ public class MovingWorldManager {
      * Initializes all MovingWorlds sourced from the config file, on world load.
      */
     public static void initDims(World parent) {
-        if (!movingWorldIDS.containsKey(parent.provider.getDimensionId()))
+        if (!movingWorldIDS.containsKey(parent.provider.getDimension()))
             return;
 
-        for (Integer child : movingWorldIDS.get(parent.provider.getDimensionId())) {
+        for (Integer child : movingWorldIDS.get(parent.provider.getDimension())) {
             MovingWorldMod.movingWorldFactory.loadMovingWorld(parent, child);
         }
     }
@@ -77,7 +77,7 @@ public class MovingWorldManager {
 
         for (Map.Entry<Integer, ArrayList<Integer>> entry : newMovingWorldIDS.entrySet()) {
             for (Integer childID : entry.getValue()) {
-                DimensionManager.registerDimension(childID, MovingWorldProvider.PROVIDERID);
+                DimensionManager.registerDimension(childID, MovingWorldProvider.TYPE);
                 registerMovingWorld(entry.getKey(), childID);
             }
         }

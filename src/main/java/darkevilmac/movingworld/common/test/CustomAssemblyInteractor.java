@@ -16,7 +16,7 @@ public class CustomAssemblyInteractor extends AssemblyInteractor {
 
     @Override
     public int iterationsPerTick() {
-        return 32;
+        return 256;
     }
 
     @Override
@@ -26,6 +26,6 @@ public class CustomAssemblyInteractor extends AssemblyInteractor {
 
     @Override
     public int maxSize() {
-        return 2048;
+        return 5000;
     }
 }

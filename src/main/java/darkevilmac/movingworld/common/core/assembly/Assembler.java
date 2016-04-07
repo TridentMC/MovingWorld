@@ -5,7 +5,7 @@ import darkevilmac.movingworld.common.core.util.ITickBasedIterable;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 
@@ -26,6 +26,8 @@ public class Assembler implements ITickBasedIterable {
     private AssemblyInteractor interactor;
     private BlockPos ORIGIN;
     private ArrayList<BlockPos> posStack;
+
+    private int lifeTime = 0;
 
     public Assembler(AssemblyInteractor interactor, World world, BlockPos startAt, boolean init) {
         this.interactor = interactor;
@@ -63,6 +65,7 @@ public class Assembler implements ITickBasedIterable {
     public void doTick(Side side) {
         if (side.isClient())
             return;
+        lifeTime++;
 
         int currentIteration = 0;
 
@@ -115,6 +118,7 @@ public class Assembler implements ITickBasedIterable {
         initialOffset = new BlockPos(out.getMin().getX(), 0, out.getMin().getZ());
         out.shiftPosition(new BlockPos(out.getMin().getX(), 0, out.getMin().getZ()), false);
 
+        MovingWorldMod.logger.info("Flood Filler filled " + out.size() + " in " + lifeTime + " ticks. (About " + Math.round(lifeTime / 20) + " seconds.)");
         assemblyListener.onComplete(world, ORIGIN, out);
 
         return true;
@@ -122,7 +126,7 @@ public class Assembler implements ITickBasedIterable {
 
     @Override
     public int iterationsPerTick() {
-        return interactor.useInteraction() ? interactor.iterationsPerTick() : 30;
+        return interactor.useInteraction() ? interactor.iterationsPerTick() : 128;
     }
 
     public interface IAssemblyListener {

@@ -28,12 +28,11 @@ group = "darkevilmac.movingworld"
 archivesBaseName = "movingworld"
 
 minecraft {
-    version = "1.8.9-11.15.1.1732"
+    version = "1.9-12.16.0.1820-1.9"
     runDir = "run"
-
+    mappings = "snapshot_20160401"
+	
     replace '@MOVINGWORLDVER@', project.version
-
-    mappings = 'snapshot_20160112'
 }
 
 mixin {
@@ -102,7 +101,6 @@ processResources
                 exclude 'mcmod.info'
             }
         }
-
 
 idea.workspace.iws {
     withXml { xmlFile ->

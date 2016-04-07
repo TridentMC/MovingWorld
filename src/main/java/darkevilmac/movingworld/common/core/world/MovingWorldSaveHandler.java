@@ -1,5 +1,7 @@
-package darkevilmac.movingworld.common.core;
+package darkevilmac.movingworld.common.core.world;
 
+import darkevilmac.movingworld.common.core.IMovingWorld;
+import net.minecraft.util.datafix.DataFixesManager;
 import net.minecraft.world.chunk.storage.AnvilSaveHandler;
 import net.minecraft.world.storage.ISaveHandler;
 
@@ -11,7 +13,7 @@ public class MovingWorldSaveHandler extends AnvilSaveHandler {
     public IMovingWorld movingWorld;
 
     public MovingWorldSaveHandler(ISaveHandler parentSaveHandler, Integer id) {
-        super(new File(parentSaveHandler.getWorldDirectory(), "MovingWorld"), id.toString(), false);
+        super(new File(parentSaveHandler.getWorldDirectory(), "MovingWorld"), id.toString(), false, DataFixesManager.createFixer());
         this.parentSaveHandler = parentSaveHandler;
     }
 

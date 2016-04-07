@@ -3,7 +3,7 @@ package darkevilmac.movingworld.asm.mixin.world;
 import com.google.common.collect.HashBiMap;
 import darkevilmac.movingworld.common.baseclasses.world.IWorldMixin;
 import darkevilmac.movingworld.common.core.IMovingWorld;
-import darkevilmac.movingworld.common.core.MovingWorldServer;
+import darkevilmac.movingworld.common.core.world.MovingWorldServer;
 import darkevilmac.movingworld.common.core.assembly.BlockMap;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.profiler.Profiler;

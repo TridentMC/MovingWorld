@@ -1,16 +1,16 @@
 package darkevilmac.movingworld.common.util;
 
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.MathHelper;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 
 /**
  * Adds rotateRoll.
  */
 
-public class Vec3Mod extends Vec3 {
+public class Vec3Mod extends Vec3d {
 
-    public Vec3Mod(Vec3 vec3) {
+    public Vec3Mod(Vec3d vec3) {
         super(vec3.xCoord, vec3.yCoord, vec3.zCoord);
     }
 

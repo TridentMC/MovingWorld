@@ -10,8 +10,6 @@ import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 @ChannelHandler.Sharable
 public class MovingWorldPacketHandler extends SimpleChannelInboundHandler<MovingWorldMessage> {
@@ -53,7 +51,6 @@ public class MovingWorldPacketHandler extends SimpleChannelInboundHandler<Moving
         }
     }
 
-    @SideOnly(Side.CLIENT)
     private EntityPlayer getClientPlayer() {
         return Minecraft.getMinecraft().thePlayer;
     }

@@ -2,21 +2,17 @@ package darkevilmac.movingworld;
 
 import darkevilmac.movingworld.common.CommonProxy;
 import darkevilmac.movingworld.common.MovingWorldDimensionConfig;
-import darkevilmac.movingworld.common.core.MovingWorldManager;
-import darkevilmac.movingworld.common.core.MovingWorldProvider;
 import darkevilmac.movingworld.common.core.factory.CommonMovingWorldFactory;
+import darkevilmac.movingworld.common.core.world.MovingWorldManager;
 import darkevilmac.movingworld.common.network.MovingWorldMessageToMessageCodec;
 import darkevilmac.movingworld.common.network.MovingWorldPacketHandler;
 import darkevilmac.movingworld.common.network.NetworkUtil;
-import darkevilmac.movingworld.common.test.BlockMovingWorldCreator;
-import net.minecraft.block.material.Material;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.*;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
@@ -24,7 +20,7 @@ import java.io.File;
 /**
  * MovingWorld's Mod container. Nothing to see here, move along.
  */
-@Mod(modid = MovingWorldMod.MOD_ID, name = MovingWorldMod.MOD_NAME, version = MovingWorldMod.MOD_VERSION)
+//@Mod(modid = MovingWorldMod.MOD_ID, name = MovingWorldMod.MOD_NAME, version = MovingWorldMod.MOD_VERSION)
 public class MovingWorldMod {
 
     public static final String MOD_ID = "MovingWorld";
@@ -56,13 +52,10 @@ public class MovingWorldMod {
 
         proxy.registerHandlers();
 
-        MovingWorldProvider.PROVIDERID = 64;
-        DimensionManager.registerProviderType(64, MovingWorldProvider.class, true);
-
         if (MOD_VERSION.equals("@MOVINGWORLDVER@")) {
             // In dev environment initialize some test stuffs.
 
-            GameRegistry.registerBlock(new BlockMovingWorldCreator(Material.cake), "movingWorldCreator");
+            //GameRegistry.registerBlock(new BlockMovingWorldCreator(Material.cake), "movingWorldCreator");
         }
     }
 
