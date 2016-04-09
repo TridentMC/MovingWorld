@@ -28,7 +28,7 @@ group = "darkevilmac.movingworld"
 archivesBaseName = "movingworld"
 
 minecraft {
-    version = "1.9-12.16.0.1820-1.9"
+    version = "1.9-12.16.0.1859-1.9"
     runDir = "run"
     mappings = "snapshot_20160401"
 
