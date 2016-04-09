@@ -21,10 +21,10 @@ public abstract class MovingWorldHandlerServer extends MovingWorldHandlerCommon 
 
     @Override
     public boolean interact(EntityPlayer player, ItemStack stack, EnumHand hand) {
-        if (getMovingWorld().riddenByEntity == null) {
-            player.mountEntity(getMovingWorld());
+        if (getMovingWorld().getControllingPassenger() == null) {
+            player.startRiding(getMovingWorld());
             return true;
-        } else if (player.ridingEntity == null) {
+        } else if (player.getControllingPassenger() == null) {
             return getMovingWorld().getCapabilities().mountEntity(player);
         }
 

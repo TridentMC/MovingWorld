@@ -1,5 +1,6 @@
 package darkevilmac.movingworld.common.entity;
 
+import com.google.common.base.Objects;
 import darkevilmac.movingworld.MovingWorld;
 import darkevilmac.movingworld.common.chunk.ChunkIO;
 import darkevilmac.movingworld.common.chunk.LocatedBlock;
@@ -26,6 +27,9 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.DataSerializers;
+import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
@@ -48,6 +52,9 @@ import java.util.UUID;
  * All moving sections of blocks extend from this class.
  */
 public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdditionalSpawnData {
+
+    private static final DataParameter<Integer> THIRTY = EntityDataManager.<Integer>createKey(EntityMovingWorld.class, DataSerializers.VARINT);
+
 
     public float motionYaw;
     public EnumFacing frontDirection;
@@ -174,7 +181,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     @Override
     protected void entityInit() {
-        dataWatcher.addObject(30, 0);
+        dataManager.register(THIRTY, 0);
         initMovingWorld();
     }
 
@@ -218,7 +225,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     @Override
     public boolean processInitialInteract(EntityPlayer entityplayer, ItemStack stack, EnumHand hand) {
-        return getHandler().interact(entityplayer,stack, hand);
+        return getHandler().interact(entityplayer, stack, hand);
     }
 
     @Override
@@ -260,7 +267,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     @Override
     @SideOnly(Side.CLIENT)
     public void setPositionAndRotation2(double x, double y, double z, float yaw, float pitch, int inc, boolean control) {
-        if (control && this.riddenByEntity != null) {
+        if (control && this.getControllingPassenger() != null) {
             this.prevPosX = this.posX = x;
             this.prevPosY = this.posY = y;
             this.prevPosZ = this.posZ = z;
@@ -328,9 +335,6 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
         double horvel = Math.sqrt(motionX * motionX + motionZ * motionZ);
         if (worldObj.isRemote) {
-            if (!this.isBeingRidden()) {
-                setIsBoatEmpty(true);
-            }
             spawnParticles(horvel);
         }
 
@@ -370,12 +374,6 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             motionZ *= horFriction;
         }
         setRotatedBoundingBox();
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void setIsBoatEmpty(boolean flag) {
-        noControl = flag;
     }
 
     protected void handleServerUpdate(double horvel) {
@@ -435,11 +433,11 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     }
 
     @Override
-    public void updateRiderPosition() {
-        updateRiderPosition(riddenByEntity, riderDestination, 1);
+    public void updatePassenger(Entity passenger) {
+        updatePassengerPosition(passenger, riderDestination, 1);
     }
 
-    public void updateRiderPosition(Entity entity, BlockPos riderDestination, int flags) {
+    public void updatePassengerPosition(Entity entity, BlockPos riderDestination, int flags) {
         if (entity != null) {
             int frontDir = frontDirection.getHorizontalIndex();
 
@@ -498,7 +496,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             if (list != null && !list.isEmpty()) {
                 didCollide = true;
                 for (Entity entity : list) {
-                    if (entity != riddenByEntity && entity.canBePushed()) {
+                    if (!Objects.equal(entity, getControllingPassenger()) && entity.canBePushed()) {
                         if (entity instanceof EntityMovingWorld) {
                             entity.applyEntityCollision(this);
                         } else if (entity instanceof EntityBoat) {
@@ -599,7 +597,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     @Override
     public boolean canBePushed() {
-        return !isDead && riddenByEntity == null;
+        return !isDead && getControllingPassenger() == null;
     }
 
     @Override
@@ -640,7 +638,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     public boolean disassemble(boolean overwrite) {
         if (worldObj.isRemote) return true;
 
-        updateRiderPosition();
+        updatePassenger(this.getControllingPassenger());
 
         ChunkDisassembler disassembler = getDisassembler();
         disassembler.overwrite = overwrite;

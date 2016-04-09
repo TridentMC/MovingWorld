@@ -1,5 +1,6 @@
 package darkevilmac.movingworld.common.network;
 
+import com.google.common.base.Objects;
 import darkevilmac.movingworld.common.entity.EntityMovingWorld;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -33,7 +34,7 @@ public class MovingWorldClientActionMessage extends EntityMovingWorldMessage {
 
     @Override
     public void decodeInto(ChannelHandlerContext ctx, ByteBuf buf, Side side) {
-        super.decodeInto(ctx, buf,  side);
+        super.decodeInto(ctx, buf, side);
         actionID = Action.NONE;
         actionID = actionID.fromInt(buf.readByte());
     }
@@ -45,16 +46,16 @@ public class MovingWorldClientActionMessage extends EntityMovingWorldMessage {
 
     @Override
     public void handleServerSide(EntityPlayer player) {
-        if (movingWorld != null && movingWorld.riddenByEntity == player) {
+        if (movingWorld != null && Objects.equal(movingWorld.getControllingPassenger(), player)) {
             switch (actionID) {
                 case DISASSEMBLE:
                     movingWorld.alignToGrid();
-                    movingWorld.updateRiderPosition(player, movingWorld.riderDestination, 1);
+                    movingWorld.updatePassengerPosition(player, movingWorld.riderDestination, 1);
                     movingWorld.disassemble(false);
                     break;
                 case DISASSEMBLEOVERWRITE:
                     movingWorld.alignToGrid();
-                    movingWorld.updateRiderPosition(player, movingWorld.riderDestination, 1);
+                    movingWorld.updatePassengerPosition(player, movingWorld.riderDestination, 1);
                     movingWorld.disassemble(true);
                     break;
                 case ALIGN:

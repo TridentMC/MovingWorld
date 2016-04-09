@@ -212,7 +212,7 @@ public class ChunkCollisionHelper {
             entity.motionY = 0.0D;
         }
 
-        if (mixinEntity.doesTriggerWalking() && entity.ridingEntity == null) {
+        if (mixinEntity.doesTriggerWalking() && entity.getControllingPassenger() == null) {
             double d15 = entityChunkPosX - d3;
             double d16 = entityChunkPosY - d4;
             double d17 = entityChunkPosZ - d5;
@@ -223,7 +223,7 @@ public class ChunkCollisionHelper {
             entity.distanceWalkedModified = (float) ((double) entity.distanceWalkedModified + (double) MathHelper.sqrt_double(d15 * d15 + d17 * d17) * 0.6D);
             entity.distanceWalkedOnStepModified = (float) ((double) entity.distanceWalkedOnStepModified + (double) MathHelper.sqrt_double(d15 * d15 + d16 * d16 + d17 * d17) * 0.6D);
 
-            if (entity.distanceWalkedOnStepModified > (float) mixinEntity.getNextStepDistance() && block.getMaterial() != Material.air) {
+            if (entity.distanceWalkedOnStepModified > (float) mixinEntity.getNextStepDistance() && blockState.getMaterial() != Material.air) {
                 mixinEntity.setNextStepDistance((int) entity.distanceWalkedOnStepModified + 1);
                 playStepSoundForEntity(entity, block);
             }
