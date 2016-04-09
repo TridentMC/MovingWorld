@@ -2,18 +2,20 @@ package darkevilmac.movingworld.common.core.world;
 
 import darkevilmac.movingworld.MovingWorldMod;
 import darkevilmac.movingworld.common.core.IMovingWorld;
+import darkevilmac.movingworld.common.util.Vec3dMod;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.profiler.Profiler;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.WorldInfo;
+import org.lwjgl.util.vector.Vector2f;
 
-import javax.vecmath.Vector3f;
 import java.io.File;
 
 public class MovingWorldServer extends WorldServer implements IMovingWorld {
@@ -22,23 +24,28 @@ public class MovingWorldServer extends WorldServer implements IMovingWorld {
      * The world we reside in, we forward a lot of boring methods over to it. Like getWorldTime.
      */
     public WorldServer parentWorld;
-    public Vec3d worldPosition;
     private Integer id;
 
-    private BlockPos min;
-    private BlockPos max;
-    private BlockPos coreBlock;
+    private BlockPos min = new BlockPos(0, 0, 0);
+    private BlockPos max = new BlockPos(0, 0, 0);
+    private BlockPos coreBlock = new BlockPos(0, 0, 0);
+
+    public Vec3d prevPos = Vec3d.ZERO;
+    public Vec3d pos = Vec3d.ZERO;
+    public Vec3d motion = Vec3d.ZERO;
+    public Vector2f rotation = new Vector2f(0, 0);
+    public Vector2f prevRotation = new Vector2f(0, 0);
 
     public MovingWorldServer(MinecraftServer server, ISaveHandler saveHandlerIn, WorldInfo info, int dimensionId, Profiler profilerIn) {
         super(server, saveHandlerIn, info, dimensionId, profilerIn);
 
-        if (info instanceof MovingWorldInfo) {
+        if (info != null && info instanceof MovingWorldInfo) {
             ((MovingWorldInfo) info).movingWorld = this;
         }
+    }
 
-        min = new BlockPos(0, 0, 0);
-        max = new BlockPos(0, 0, 0);
-        coreBlock = new BlockPos(0, 0, 0);
+    public void setWorldInfo(WorldInfo worldInfo) {
+        this.worldInfo = worldInfo;
     }
 
     @Override
@@ -50,6 +57,12 @@ public class MovingWorldServer extends WorldServer implements IMovingWorld {
     public long getWorldTime() {
         return parentWorld.getWorldTime();
     }
+
+    @Override
+    public EnumDifficulty getDifficulty() {
+        return this.parent().getDifficulty();
+    }
+
 
     @Override
     public boolean setBlockState(BlockPos pos, IBlockState newState, int flags) {
@@ -68,12 +81,10 @@ public class MovingWorldServer extends WorldServer implements IMovingWorld {
 
     @Override
     public void doPark() {
-
     }
 
     @Override
     public void unPark() {
-
     }
 
     @Override
@@ -88,32 +99,42 @@ public class MovingWorldServer extends WorldServer implements IMovingWorld {
 
     @Override
     public Vec3d translateToWorldSpace(BlockPos blockSpace) {
-        return null;
+        Vec3dMod vec = new Vec3dMod(blockSpace.getX(), blockSpace.getY(), blockSpace.getZ());
+        float yaw = Math.round(rotation.getX());
+        yaw = (float) Math.toRadians(yaw);
+        vec = vec.rotateAroundY(yaw);
+
+        Vec3d worldSpace = new Vec3d((vec.xCoord + pos.xCoord),
+                (vec.yCoord + pos.yCoord),
+                (vec.zCoord + pos.zCoord));
+
+        return worldSpace;
+        //TODO: Could be broken, I don't know it's loosely based off of the old AssembleResult canAssemble code.
     }
 
     @Override
     public BlockPos min() {
-        return null;
+        return min;
     }
 
     @Override
     public BlockPos max() {
-        return null;
+        return max;
     }
 
     @Override
     public Vec3d worldTranslation() {
-        return null;
+        return pos;
     }
 
     @Override
     public Vec3d scale() {
-        return null;
+        return new Vec3d(1, 1, 1);
     }
 
     @Override
-    public Vector3f rotation() {
-        return null;
+    public Vector2f rotation() {
+        return rotation;
     }
 
     @Override
@@ -141,8 +162,11 @@ public class MovingWorldServer extends WorldServer implements IMovingWorld {
     public boolean move(Vec3d move, boolean teleport) {
         if (teleport) {
             // A teleport won't fail ever, it ignores collision.
-
-            worldPosition = move;
+            if (pos != null)
+                prevPos = pos;
+            else
+                prevPos = Vec3d.ZERO;
+            pos = move;
 
             return true;
         }
@@ -152,11 +176,13 @@ public class MovingWorldServer extends WorldServer implements IMovingWorld {
 
     @Override
     public Vec3d motion() {
-        return null;
+        return motion;
     }
 
     @Override
     public IMovingWorld setMotion(Vec3d newMotion) {
+        this.motion = newMotion;
+
         return this;
     }
 
@@ -176,6 +202,25 @@ public class MovingWorldServer extends WorldServer implements IMovingWorld {
     }
 
     @Override
+    public IMovingWorld setRotation(Vector2f rotation) {
+        if (this.rotation != null)
+            prevRotation = this.rotation;
+        else
+            prevRotation = new Vector2f(0, 0);
+
+        this.rotation = rotation;
+        return this;
+    }
+
+    @Override
+    public IMovingWorld setBounds(BlockPos min, BlockPos max) {
+        this.min = min;
+        this.max = max;
+
+        return this;
+    }
+
+    @Override
     public boolean isInRangeToLoad(Vec3d pos) {
         boolean inRange;
 
@@ -191,9 +236,9 @@ public class MovingWorldServer extends WorldServer implements IMovingWorld {
         if (internal)
             return new AxisAlignedBB(min.getX(), min.getY(), min.getZ(), max.getX(), max.getY(), max.getZ());
         else {
-            Vec3d adjust = new Vec3d((worldPosition.xCoord + coreBlock.getX()),
-                    (worldPosition.yCoord + coreBlock.getX()),
-                    (worldPosition.zCoord + coreBlock.getZ()));
+            Vec3d adjust = new Vec3d((pos.xCoord + coreBlock.getX()),
+                    (pos.yCoord + coreBlock.getX()),
+                    (pos.zCoord + coreBlock.getZ()));
 
             Vec3d min = new Vec3d(adjust.xCoord + min().getX(),
                     adjust.yCoord + min().getY(),

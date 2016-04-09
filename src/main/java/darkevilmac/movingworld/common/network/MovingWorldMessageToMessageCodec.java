@@ -1,5 +1,6 @@
 package darkevilmac.movingworld.common.network;
 
+import darkevilmac.movingworld.common.network.sync.auto.DimensionSyncMessage;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -11,6 +12,7 @@ public class MovingWorldMessageToMessageCodec extends FMLIndexedMessageToMessage
 
     public MovingWorldMessageToMessageCodec() {
         index = 1;
+        addDiscriminator(DimensionSyncMessage.class);
     }
 
     public FMLIndexedMessageToMessageCodec<MovingWorldMessage> addDiscriminator(Class<? extends MovingWorldMessage> type) {

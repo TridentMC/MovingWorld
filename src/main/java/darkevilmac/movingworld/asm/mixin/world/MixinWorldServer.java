@@ -119,11 +119,14 @@ public class MixinWorldServer implements IWorldMixin {
 
         MovingWorldMod.movingWorldFactory.setFactoryVariables(id, getThisWorld());
 
+        MovingWorldSaveHandler saveHandler = new MovingWorldSaveHandler(getThisWorld().getSaveHandler(), id);
+
         MovingWorldServer movingWorldServer = new MovingWorldServer(
-                mcServer, new MovingWorldSaveHandler(getThisWorld().getSaveHandler(), id), new MovingWorldInfo(getThisWorld().getWorldInfo()),
+                mcServer, saveHandler, new MovingWorldInfo(parent.getWorldInfo()),
                 id, getThisWorld().theProfiler);
 
         ((MovingWorldSaveHandler) movingWorldServer.getSaveHandler()).movingWorld = movingWorldServer;
+        movingWorldServer.setWorldInfo(saveHandler.loadWorldInfo()); // Update WorldInfo to actually be accurate.
 
         movingWorldServer.init();
         movingWorlds.put(id, movingWorldServer);

@@ -2,6 +2,7 @@ package darkevilmac.movingworld;
 
 import darkevilmac.movingworld.common.CommonProxy;
 import darkevilmac.movingworld.common.MovingWorldDimensionConfig;
+import darkevilmac.movingworld.common.core.IMovingWorld;
 import darkevilmac.movingworld.common.core.factory.CommonMovingWorldFactory;
 import darkevilmac.movingworld.common.core.world.MovingWorldManager;
 import darkevilmac.movingworld.common.network.MovingWorldMessageToMessageCodec;
@@ -9,7 +10,12 @@ import darkevilmac.movingworld.common.network.MovingWorldPacketHandler;
 import darkevilmac.movingworld.common.network.NetworkUtil;
 import darkevilmac.movingworld.common.test.BlockMovingWorldCreator;
 import net.minecraft.block.material.Material;
+import net.minecraft.command.CommandBase;
+import net.minecraft.command.CommandException;
+import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemBlock;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.Mod;
@@ -92,7 +98,41 @@ public class MovingWorldMod {
     }
 
     @Mod.EventHandler
+    public void onServerStarting(FMLServerStartingEvent evt) {
+        if (MOD_VERSION.equals("@MOVINGWORLDVER@"))
+            evt.registerServerCommand(new CommandBase() {
+                @Override
+                public String getCommandName() {
+                    return "tpx";
+                }
+
+                @Override
+                public String getCommandUsage(ICommandSender sender) {
+                    return "tpx dim";
+                }
+
+                @Override
+                public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+                    if (sender != null && sender instanceof Entity && args.length > 0) {
+                        ((Entity) sender).changeDimension(1);
+                        ((Entity) sender).changeDimension(Integer.parseInt(args[0]));
+                        if (DimensionManager.getWorld(Integer.parseInt(args[0])) != null && DimensionManager.getWorld(Integer.parseInt(args[0])) instanceof IMovingWorld) {
+                            IMovingWorld world = (IMovingWorld) DimensionManager.getWorld(Integer.parseInt(args[0]));
+                            ((Entity) sender).setPosition(world.coreBlock().add(0, 32, 0).getX(), world.coreBlock().add(0, 32, 0).getY(), world.coreBlock().add(0, 32, 0).getZ());
+                        } else {
+                            ((Entity) sender).setPosition(0, 64, 0);
+                        }
+                    } else {
+                        throw new CommandException("thats no good");
+                    }
+                }
+            });
+    }
+
+    @Mod.EventHandler
     public void onServerStarted(FMLServerStartedEvent e) {
+
+
         if (DimensionManager.getWorld(0) == null) {
             //No overworld loaded. Fun.
             DimensionManager.initDimension(0);

@@ -4,6 +4,7 @@ import darkevilmac.movingworld.MovingWorldMod;
 import darkevilmac.movingworld.common.core.factory.CommonMovingWorldFactory;
 import darkevilmac.movingworld.common.core.util.ITickBasedIterable;
 import darkevilmac.movingworld.common.handler.CommonTickHandler;
+import darkevilmac.movingworld.common.handler.PlayerEventHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.LoaderState;
 
@@ -18,6 +19,7 @@ public class CommonProxy {
 
     public void registerHandlers() {
         MinecraftForge.EVENT_BUS.register(new CommonTickHandler());
+        MinecraftForge.EVENT_BUS.register(new PlayerEventHandler());
     }
 
     public void registerRenderers() {

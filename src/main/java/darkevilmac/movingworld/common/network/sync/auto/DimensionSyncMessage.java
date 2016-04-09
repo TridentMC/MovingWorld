@@ -16,6 +16,15 @@ import java.util.Map;
  */
 public class DimensionSyncMessage extends MovingWorldMessage {
 
+    public boolean clear;
+
+    public DimensionSyncMessage(boolean clear) {
+        this.clear = clear;
+    }
+
+    public DimensionSyncMessage() {
+    }
+
     @Override
     public boolean onMainThread() {
         return true;
@@ -25,6 +34,9 @@ public class DimensionSyncMessage extends MovingWorldMessage {
     public void encodeInto(ChannelHandlerContext ctx, ByteBuf buf, Side side) {
         if (side.isClient())
             return;
+
+        if (clear)
+            buf.writeInt(-2);
 
         if (MovingWorldManager.movingWorldIDS.size() == 0) {
             buf.writeInt(-1);
@@ -47,13 +59,19 @@ public class DimensionSyncMessage extends MovingWorldMessage {
         if (side.isServer())
             return;
 
-        int size = buf.readInt();
-        if (size < 0)
+        int flag = buf.readInt();
+
+        if (flag == -1)
             return;
+
+        if (flag == -2) {
+            MovingWorldManager.resetMovingWorldManager();
+            return;
+        }
 
         HashMap<Integer, ArrayList<Integer>> movingWorldIDS = new HashMap<Integer, ArrayList<Integer>>();
 
-        int count = size;
+        int count = flag;
         //Assemble entries from the packet.
         for (int i = 0; i < count; i++) {
             int parentID = buf.readInt();

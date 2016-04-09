@@ -5,8 +5,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-
-import javax.vecmath.Vector3f;
+import org.lwjgl.util.vector.Vector2f;
 
 public interface IMovingWorld {
 
@@ -73,9 +72,9 @@ public interface IMovingWorld {
     /**
      * The current rotation of this world.
      *
-     * @return
+     * @return x = yaw, y = pitch
      */
-    Vector3f rotation();
+    Vector2f rotation();
 
     /**
      * The parent world.
@@ -120,6 +119,10 @@ public interface IMovingWorld {
     IMovingWorld setParent(World world);
 
     IMovingWorld setId(Integer id);
+
+    IMovingWorld setRotation(Vector2f rotation);
+
+    IMovingWorld setBounds(BlockPos min, BlockPos max);
 
     boolean isInRangeToLoad(Vec3d pos);
 

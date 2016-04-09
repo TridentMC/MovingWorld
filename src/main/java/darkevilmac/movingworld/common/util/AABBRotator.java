@@ -3,19 +3,19 @@ package darkevilmac.movingworld.common.util;
 import net.minecraft.util.math.AxisAlignedBB;
 
 public class AABBRotator {
-    private static Vec3Mod vec00, vec01, vec10, vec11;
-    private static Vec3Mod vec0h, vec1h, vech0, vech1;
+    private static Vec3dMod vec00, vec01, vec10, vec11;
+    private static Vec3dMod vec0h, vec1h, vech0, vech1;
 
     static {
-        vec00 = new Vec3Mod(0D, 0D, 0D);
-        vec01 = new Vec3Mod(0D, 0D, 0D);
-        vec10 = new Vec3Mod(0D, 0D, 0D);
-        vec11 = new Vec3Mod(0D, 0D, 0D);
+        vec00 = new Vec3dMod(0D, 0D, 0D);
+        vec01 = new Vec3dMod(0D, 0D, 0D);
+        vec10 = new Vec3dMod(0D, 0D, 0D);
+        vec11 = new Vec3dMod(0D, 0D, 0D);
 
-        vec0h = new Vec3Mod(0D, 0D, 0D);
-        vec1h = new Vec3Mod(0D, 0D, 0D);
-        vech0 = new Vec3Mod(0D, 0D, 0D);
-        vech1 = new Vec3Mod(0D, 0D, 0D);
+        vec0h = new Vec3dMod(0D, 0D, 0D);
+        vec1h = new Vec3dMod(0D, 0D, 0D);
+        vech0 = new Vec3dMod(0D, 0D, 0D);
+        vech1 = new Vec3dMod(0D, 0D, 0D);
     }
 
     /**
