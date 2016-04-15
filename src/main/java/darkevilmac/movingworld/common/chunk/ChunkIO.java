@@ -29,8 +29,8 @@ public abstract class ChunkIO {
         for (int i = chunk.minX(); i < chunk.maxX(); i++) {
             for (int j = chunk.minY(); j < chunk.maxY(); j++) {
                 for (int k = chunk.minZ(); k < chunk.maxZ(); k++) {
-                    Block block = chunk.getBlockState(new BlockPos(i, j, k)).getBlock();
-                    if (block != Blocks.air) {
+                    IBlockState state = chunk.getBlockState(new BlockPos(i, j, k));
+                    if (state != null && state.getBlock() != Blocks.air) {
                         count++;
                     }
                 }
@@ -42,8 +42,8 @@ public abstract class ChunkIO {
         for (int i = chunk.minX(); i < chunk.maxX(); i++) {
             for (int j = chunk.minY(); j < chunk.maxY(); j++) {
                 for (int k = chunk.minZ(); k < chunk.maxZ(); k++) {
-                    Block block = chunk.getBlockState(new BlockPos(i, j, k)).getBlock();
-                    if (block != Blocks.air) {
+                    IBlockState state = chunk.getBlockState(new BlockPos(i, j, k));
+                    if (state != null && state.getBlock() != Blocks.air) {
                         writeBlock(out, chunk.getBlockState(new BlockPos(i, j, k)), new BlockPos(i, j, k));
                     }
                 }
@@ -111,7 +111,7 @@ public abstract class ChunkIO {
         MovingWorld.logger.debug(String.format(Locale.ENGLISH, "%d blocks written. Efficiency: %d/%d = %.2f", count, byteswritten, count * 9, f));
 
         if (byteswritten > 32000) {
-             MovingWorld.logger.warn("Ship probably contains too many blocks");
+            MovingWorld.logger.warn("Ship probably contains too many blocks");
         }
     }
 

@@ -1,7 +1,7 @@
 package darkevilmac.movingworld.common.asm.mixin.core.entity;
 
 import darkevilmac.movingworld.common.entity.IMixinEntity;
-import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import org.spongepowered.asm.mixin.Mixin;
@@ -20,7 +20,7 @@ public abstract class MixinEntity implements IMixinEntity {
     protected abstract void resetPositionToBB();
 
     @Shadow
-    protected abstract void updateFallState(double y, boolean onGroundIn, Block blockIn, BlockPos pos);
+    protected abstract void updateFallState(double y, boolean onGroundIn, IBlockState state, BlockPos pos);
 
     @Shadow
     protected abstract boolean canTriggerWalking();
@@ -36,8 +36,8 @@ public abstract class MixinEntity implements IMixinEntity {
     }
 
     @Override
-    public void updateFall(double y, boolean onGroundIn, Block blockIn, BlockPos pos) {
-        updateFallState(y, onGroundIn, blockIn, pos);
+    public void updateFall(double y, boolean onGroundIn, IBlockState state, BlockPos pos) {
+        updateFallState(y, onGroundIn, state, pos);
     }
 
     @Override

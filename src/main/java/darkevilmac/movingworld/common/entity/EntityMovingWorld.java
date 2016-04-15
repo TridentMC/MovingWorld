@@ -244,6 +244,11 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         }
     }
 
+    @Override
+    public EntityBoat.Type getBoatType() {
+        return Type.OAK;
+    }
+
     public void setRotatedBoundingBox() {
         if (mobileChunk == null) {
             float hw = width / 2F;
@@ -346,6 +351,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         } else {
             handleServerUpdate(horvel);
         }
+
     }
 
     @SideOnly(Side.CLIENT)
@@ -434,11 +440,12 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     @Override
     public void updatePassenger(Entity passenger) {
-        updatePassengerPosition(passenger, riderDestination, 1);
+        if (this.isPassenger(passenger))
+            updatePassengerPosition(passenger, riderDestination, 1);
     }
 
-    public void updatePassengerPosition(Entity entity, BlockPos riderDestination, int flags) {
-        if (entity != null) {
+    public void updatePassengerPosition(Entity passenger, BlockPos riderDestination, int flags) {
+        if (passenger != null) {
             int frontDir = frontDirection.getHorizontalIndex();
 
             float yaw = (float) Math.toRadians(rotationYaw);
@@ -456,7 +463,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
                     x1 -= 1;
                 }
 
-                IBlockState state = mobileChunk.getBlockState(new BlockPos(x1, MathHelper.floor_double(y1 + getMountedYOffset() + entity.getYOffset()), z1));
+                IBlockState state = mobileChunk.getBlockState(new BlockPos(x1, MathHelper.floor_double(y1 + getMountedYOffset() + passenger.getYOffset()), z1));
                 if (state.isOpaqueCube()) {
                     x1 = riderDestination.getX();
                     y1 = riderDestination.getY();
@@ -485,8 +492,40 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             if ((flags & 1) == 1)
                 vec.addVector(0, 0.25, 0);
 
-            entity.setPosition(posX + vec.xCoord, posY + vec.yCoord + entity.getYOffset(), posZ + vec.zCoord);
+            passenger.setPosition(posX + vec.xCoord, posY + vec.yCoord + passenger.getYOffset(), posZ + vec.zCoord);
+
+            this.applyYawToEntity(passenger);
         }
+    }
+
+    @Override
+    protected void applyYawToEntity(Entity entityToUpdate) {
+        int frontDirIndex = frontDirection.getHorizontalIndex();
+
+        float modifiedRotationYaw = -this.rotationYaw;
+        EnumFacing frontDirEnumFacing = EnumFacing.getHorizontal(frontDirIndex);
+        switch (frontDirEnumFacing) {
+            case NORTH: {
+                modifiedRotationYaw -= 180;
+            }
+            case SOUTH: {
+                modifiedRotationYaw -= 90;
+            }
+            case WEST: {
+                modifiedRotationYaw -= 180;
+            }
+            case EAST: {
+                modifiedRotationYaw -= 90;
+            }
+        }
+
+
+        entityToUpdate.setRenderYawOffset(modifiedRotationYaw);
+        float f = MathHelper.wrapDegrees(entityToUpdate.rotationYaw - modifiedRotationYaw);
+        float f1 = MathHelper.clamp_float(f, -105.0F, 105.0F);
+        entityToUpdate.prevRotationYaw += f1 - f;
+        entityToUpdate.rotationYaw += f1 - f;
+        entityToUpdate.setRotationYawHead(entityToUpdate.rotationYaw);
     }
 
     private boolean handleCollision(double cPosX, double cPosY, double cPosZ) {

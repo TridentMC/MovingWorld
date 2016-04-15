@@ -1,6 +1,6 @@
 package darkevilmac.movingworld.common.entity;
 
-import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
 
 /**
@@ -12,7 +12,7 @@ public interface IMixinEntity {
 
     void resetPosToBB();
 
-    void updateFall(double y, boolean onGroundIn, Block blockIn, BlockPos pos);
+    void updateFall(double y, boolean onGroundIn, IBlockState state, BlockPos pos);
 
     int getNextStepDistance();
 

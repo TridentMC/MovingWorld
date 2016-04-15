@@ -198,7 +198,7 @@ public class ChunkCollisionHelper {
             }
         }
 
-        mixinEntity.updateFall(y, entity.onGround, block, blockPos);
+        mixinEntity.updateFall(y, entity.onGround, blockState, blockPos);
 
         if (d6 != x) {
             entity.motionX = 0.0D;

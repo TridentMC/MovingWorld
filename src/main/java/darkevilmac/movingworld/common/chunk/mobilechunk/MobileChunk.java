@@ -246,7 +246,6 @@ public class MobileChunk implements IBlockAccess {
             }
         }
 
-
         return true;
     }
 
@@ -552,7 +551,11 @@ public class MobileChunk implements IBlockAccess {
 
     @Override
     public IBlockState getBlockState(BlockPos pos) {
-        return getBlockStorage(pos).get(pos.getX(), pos.getY(), pos.getZ());
+        ExtendedBlockStorage storage = getBlockStorage(pos);
+        IBlockState state = storage != null ? storage.get(pos.getX(), pos.getY(), pos.getZ()) : null;
+        if (state == null || storage == null)
+            return Blocks.air.getDefaultState();
+        return state;
     }
 
     @Override
