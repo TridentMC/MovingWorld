@@ -68,16 +68,16 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     private ChunkDisassembler disassembler;
 
     // Related to actual movement. We don't ever really change these variables, they're changed by classes derived from EntityMovingWorld
-    private boolean noControl;
-    private boolean syncPosWithServer;
+    protected boolean noControl;
+    protected boolean syncPosWithServer;
     @SideOnly(Side.CLIENT)
-    private double controlPosRotationIncrements;
+    protected double controlPosRotationIncrements;
     @SideOnly(Side.CLIENT)
-    private double controlX, controlY, controlZ;
+    protected double controlX, controlY, controlZ;
     @SideOnly(Side.CLIENT)
-    private double controlPitch, controlYaw;
+    protected double controlPitch, controlYaw;
     @SideOnly(Side.CLIENT)
-    private double controlVelX, controlVelY, controlVelZ;
+    protected double controlVelX, controlVelY, controlVelZ;
 
     public EntityMovingWorld(World world) {
         super(world);

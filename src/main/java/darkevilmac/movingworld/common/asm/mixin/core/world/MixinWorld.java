@@ -12,7 +12,7 @@ import java.util.List;
 
 @Mixin(World.class)
 public class MixinWorld {
-    @Inject(method = "getCubes(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/AxisAlignedBB;)Ljava/util/List;", at = @At("RETURN"), cancellable = true)
+    @Inject(method = "getCollisionBoxes(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/AxisAlignedBB;)Ljava/util/List;", at = @At("RETURN"), cancellable = true)
     public void onGetCollisionBoxes(Entity source, AxisAlignedBB within, CallbackInfoReturnable<List> cbr) {
         //TODO: Experiment with getting ship collision boxes
     }
