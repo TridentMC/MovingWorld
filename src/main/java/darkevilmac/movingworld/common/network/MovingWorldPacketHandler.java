@@ -1,5 +1,6 @@
 package darkevilmac.movingworld.common.network;
 
+import darkevilmac.movingworld.MovingWorld;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -19,6 +20,9 @@ public class MovingWorldPacketHandler extends SimpleChannelInboundHandler<Moving
     @Override
     protected void channelRead0(final ChannelHandlerContext ctx, final MovingWorldMessage msg) throws Exception {
         final EntityPlayer player;
+
+        MovingWorld.logger.debug("Reading packet " + msg.getClass().getName() + " for " + FMLCommonHandler.instance().getEffectiveSide());
+
         switch (FMLCommonHandler.instance().getEffectiveSide()) {
             case CLIENT: {
                 player = this.getClientPlayer();

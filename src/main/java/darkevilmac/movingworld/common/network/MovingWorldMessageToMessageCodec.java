@@ -1,5 +1,6 @@
 package darkevilmac.movingworld.common.network;
 
+import darkevilmac.movingworld.MovingWorld;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -20,6 +21,7 @@ public class MovingWorldMessageToMessageCodec extends FMLIndexedMessageToMessage
     }
 
     public FMLIndexedMessageToMessageCodec<MovingWorldMessage> addDiscriminator(Class<? extends MovingWorldMessage> type) {
+        MovingWorld.logger.info("Registering discriminator " + index + " " + type.getName());
         FMLIndexedMessageToMessageCodec<MovingWorldMessage> ret = super.addDiscriminator(index, type);
         index++;
         return ret;
