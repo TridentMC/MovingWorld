@@ -2,7 +2,7 @@ package darkevilmac.movingworld.common;
 
 import darkevilmac.movingworld.MovingWorldMod;
 import darkevilmac.movingworld.common.core.factory.CommonMovingWorldFactory;
-import darkevilmac.movingworld.common.core.util.ITickBasedIterable;
+import darkevilmac.movingworld.common.core.util.ITickingTask;
 import darkevilmac.movingworld.common.handler.CommonTickHandler;
 import darkevilmac.movingworld.common.handler.PlayerEventHandler;
 import net.minecraftforge.common.MinecraftForge;
@@ -25,7 +25,7 @@ public class CommonProxy {
     public void registerRenderers() {
     }
 
-    public void registerTickable(ITickBasedIterable tickBasedIterable) {
+    public void registerTickable(ITickingTask tickBasedIterable) {
         if (tickBasedIterable.side().isServer())
             CommonTickHandler.INSTANCE.registerIterable(tickBasedIterable);
     }

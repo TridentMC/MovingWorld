@@ -1,7 +1,7 @@
 package darkevilmac.movingworld.common.core.assembly;
 
 import darkevilmac.movingworld.MovingWorldMod;
-import darkevilmac.movingworld.common.core.util.ITickBasedIterable;
+import darkevilmac.movingworld.common.core.util.ITickingTask;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
@@ -16,7 +16,7 @@ import java.util.ArrayList;
  * <p/>
  * Not a mandatory implementation, but it's nice to have.
  */
-public class Assembler implements ITickBasedIterable {
+public class Assembler implements ITickingTask {
 
     public BlockPos initialOffset;
     boolean foundAll;
@@ -118,7 +118,9 @@ public class Assembler implements ITickBasedIterable {
         initialOffset = new BlockPos(out.getMin().getX(), 0, out.getMin().getZ());
         out.shiftPosition(new BlockPos(out.getMin().getX(), 0, out.getMin().getZ()), false);
 
-        MovingWorldMod.logger.info("Flood Filler filled " + out.size() + " in " + lifeTime + " ticks. (About " + Math.round(lifeTime / 20) + " seconds.)");
+        if (MovingWorldMod.instance.inDev())
+            MovingWorldMod.logger.info("Flood Filler filled " + out.size() + " in " + lifeTime + " ticks. (About " + Math.round(lifeTime / 20) + " seconds.)");
+
         assemblyListener.onComplete(world, ORIGIN, out);
 
         return true;

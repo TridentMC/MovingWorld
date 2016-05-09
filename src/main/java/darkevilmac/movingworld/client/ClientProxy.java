@@ -4,7 +4,7 @@ import darkevilmac.movingworld.MovingWorldMod;
 import darkevilmac.movingworld.client.handler.ClientTickHandler;
 import darkevilmac.movingworld.common.CommonProxy;
 import darkevilmac.movingworld.common.core.factory.ClientMovingWorldFactory;
-import darkevilmac.movingworld.common.core.util.ITickBasedIterable;
+import darkevilmac.movingworld.common.core.util.ITickingTask;
 import darkevilmac.movingworld.common.handler.CommonTickHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.LoaderState;
@@ -30,7 +30,7 @@ public class ClientProxy extends CommonProxy {
     }
 
     @Override
-    public void registerTickable(ITickBasedIterable tickBasedIterable) {
+    public void registerTickable(ITickingTask tickBasedIterable) {
         if (tickBasedIterable.side() == null) {
             ClientTickHandler.INSTANCE.registerIterable(tickBasedIterable);
             CommonTickHandler.INSTANCE.registerIterable(tickBasedIterable);

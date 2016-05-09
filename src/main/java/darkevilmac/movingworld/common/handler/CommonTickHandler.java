@@ -1,6 +1,6 @@
 package darkevilmac.movingworld.common.handler;
 
-import darkevilmac.movingworld.common.core.util.ITickBasedIterable;
+import darkevilmac.movingworld.common.core.util.ITickingTask;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -12,12 +12,12 @@ public class CommonTickHandler {
 
     public static CommonTickHandler INSTANCE;
 
-    private ArrayList<ITickBasedIterable> runningIterables;
-    private ArrayList<ITickBasedIterable> newIterables;
+    private ArrayList<ITickingTask> runningIterables;
+    private ArrayList<ITickingTask> newIterables;
 
     public CommonTickHandler() {
-        runningIterables = new ArrayList<ITickBasedIterable>();
-        newIterables = new ArrayList<ITickBasedIterable>();
+        runningIterables = new ArrayList<ITickingTask>();
+        newIterables = new ArrayList<ITickingTask>();
 
         INSTANCE = this;
     }
@@ -25,9 +25,9 @@ public class CommonTickHandler {
     @SubscribeEvent
     public void onTick(TickEvent.ServerTickEvent event) {
         if (event.phase.equals(TickEvent.Phase.START)) {
-            Iterator<ITickBasedIterable> runningIterator = runningIterables.iterator();
+            Iterator<ITickingTask> runningIterator = runningIterables.iterator();
             while (runningIterator.hasNext()) {
-                ITickBasedIterable tickBasedIterable = runningIterator.next();
+                ITickingTask tickBasedIterable = runningIterator.next();
 
                 tickBasedIterable.doTick(Side.SERVER);
 
@@ -35,7 +35,7 @@ public class CommonTickHandler {
                     runningIterator.remove();
             }
 
-            for (ITickBasedIterable tickBasedIterable : newIterables) {
+            for (ITickingTask tickBasedIterable : newIterables) {
                 if (tickBasedIterable.begin(Side.SERVER))
                     tickBasedIterable.doTick(Side.SERVER);
 
@@ -45,7 +45,7 @@ public class CommonTickHandler {
         }
     }
 
-    public void registerIterable(ITickBasedIterable tickBasedIterable) {
+    public void registerIterable(ITickingTask tickBasedIterable) {
         newIterables.add(tickBasedIterable);
     }
 

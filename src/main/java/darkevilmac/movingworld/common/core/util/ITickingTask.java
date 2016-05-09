@@ -2,7 +2,7 @@ package darkevilmac.movingworld.common.core.util;
 
 import net.minecraftforge.fml.relauncher.Side;
 
-public interface ITickBasedIterable {
+public interface ITickingTask {
 
     /**
      * @Return null if to be run on both sides.

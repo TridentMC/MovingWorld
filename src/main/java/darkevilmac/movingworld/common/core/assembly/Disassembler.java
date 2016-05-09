@@ -1,12 +1,12 @@
 package darkevilmac.movingworld.common.core.assembly;
 
-import darkevilmac.movingworld.common.core.util.ITickBasedIterable;
+import darkevilmac.movingworld.common.core.util.ITickingTask;
 import net.minecraftforge.fml.relauncher.Side;
 
 /**
  * Please don't use this, just park your SubWorlds.
  */
-public class Disassembler implements ITickBasedIterable {
+public class Disassembler implements ITickingTask {
 
     @Override
     public Side side() {

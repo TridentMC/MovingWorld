@@ -99,7 +99,8 @@ public class MovingWorldMod {
 
     @Mod.EventHandler
     public void onServerStarting(FMLServerStartingEvent evt) {
-        if (MOD_VERSION.equals("@MOVINGWORLDVER@"))
+        if (inDev())
+            //this command is awful im not sorry.
             evt.registerServerCommand(new CommandBase() {
                 @Override
                 public String getCommandName() {
@@ -129,10 +130,12 @@ public class MovingWorldMod {
             });
     }
 
+    public boolean inDev(){
+        return MOD_VERSION.equals("@MOVINGWORLDVER@");
+    }
+
     @Mod.EventHandler
     public void onServerStarted(FMLServerStartedEvent e) {
-
-
         if (DimensionManager.getWorld(0) == null) {
             //No overworld loaded. Fun.
             DimensionManager.initDimension(0);
