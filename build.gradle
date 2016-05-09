@@ -5,23 +5,22 @@ buildscript {
             name = "forge"
             url = "http://files.minecraftforge.net/maven"
         }
-        maven {
-            name = 'sponge'
-            url = 'http://repo.spongepowered.org/maven'
-        }
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT'
-        classpath 'org.spongepowered:mixingradle:0.4-SNAPSHOT'
         classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.3'
+    }
+}
+
+repositories {
+    maven {
+        url = 'http://unascribed.com/maven/releases'
     }
 }
 
 apply plugin: 'java'
 apply plugin: 'net.minecraftforge.gradle.forge'
-apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: 'idea'
 
 version = "1.0"
 group = "elytra.movingworld"
@@ -35,96 +34,45 @@ minecraft {
     replace '@MOVINGWORLDVER@', project.version
 }
 
-mixin {
-    add sourceSets.main, "mixins.movingworld.refmap.json"
-}
+jar {
+    classifier = 'slim'
 
-repositories {
-    maven {
-        name 'spongepowered'
-        url 'https://repo.spongepowered.org/maven/'
-    }
-}
-
-dependencies {
-    compile('org.spongepowered:mixin:0.5.3-SNAPSHOT') {
-        exclude module: 'launchwrapper'
-        exclude module: 'guava'
+    manifest {
+        attributes 'FMLAT': 'MovingWorld_at.cfg'
     }
 }
 
 shadowJar {
+    classifier = ''
+
     exclude 'dummyThing'
-
-    dependencies {
-        include(dependency('org.spongepowered:mixin'))
-    }
-
-    classifier = 'full'
+    relocate 'com.unascribed.lambdanetwork', "elytra.movingworld.com.unascribed.lambdanetwork"
 }
 
 reobf {
-    shadowJar {
-        mappingType = 'NOTCH'
-        classpath = sourceSets.main.compileClasspath
-    }
+    shadowJar { mappingType = 'SEARGE' }
 }
 
-build.dependsOn(shadowJar)
-
-jar {
-    manifest {
-        attributes(
-                'MixinConfigs': 'mixins.movingworld.json',
-                'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
-                'TweakOrder': '0',
-                'FMLCorePlugin': 'elytra.movingworld.asm.coremod.MovingWorldCoreMod',
-                'FMLCorePluginContainsFMLMod': 'true',
-                'ForceLoadAsMod': 'true',
-                'FMLAT': 'MovingWorld_at.cfg'
-        )
-    }
+artifacts {
+    archives shadowJar
 }
 
-processResources
-        {
-            inputs.property "version", project.version
-            inputs.property "mcversion", project.minecraft.version
+dependencies {
+    compile 'com.unascribed:lambdanetwork:0.0.3'
+    shadow 'com.unascribed:lambdanetwork:0.0.3'
+}
 
-            from(sourceSets.main.resources.srcDirs) {
-                include 'mcmod.info'
+processResources {
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
 
-                expand 'version': project.version, 'mcversion': project.minecraft.version
-            }
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
 
-            from(sourceSets.main.resources.srcDirs) {
-                exclude 'mcmod.info'
-            }
-        }
+        expand 'version': project.version, 'mcversion': project.minecraft.version
+    }
 
-idea.workspace.iws {
-    withXml { xmlFile ->
-        //Please don't kill me for my shitty groovy usage ;-;
-        print(":Tweaking iws file... ")
-        def runManager = xmlFile.asNode().component.find { it.@name == 'RunManager' }
-
-        def minecraftClientDefaults = runManager.configuration.find {
-            it.@name == 'Minecraft Client' && it.@type == 'Application'
-        }
-
-        def minecraftServerDefaults = runManager.configuration.find {
-            it.@name == 'Minecraft Server' && it.@type == 'Application'
-        }
-
-        def minecraftClientVMArgs = '-Xincgc -Xmx1024M -Xms1024M -Dfml.coreMods.load=elytra.movingworld.asm.coremod.MovingWorldCoreMod -Dmixin.debug=true'
-        minecraftClientDefaults.option.find { it.@name == 'VM_PARAMETERS' }.replaceNode {
-            option(name: 'VM_PARAMETERS', value: minecraftClientVMArgs)
-        }
-
-        def minecraftServerVMArgs = '-Xincgc -Dfml.ignoreInvalidMinecraftCertificates=true -Dfml.coreMods.load=elytra.movingworld.asm.coremod.MovingWorldCoreMod -Dmixin.debug=true'
-        minecraftServerDefaults.option.find { it.@name == 'VM_PARAMETERS' }.replaceNode {
-            option(name: 'VM_PARAMETERS', value: minecraftServerVMArgs)
-        }
-        println("Done!");
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
     }
 }

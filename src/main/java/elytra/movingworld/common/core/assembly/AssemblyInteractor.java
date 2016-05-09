@@ -1,10 +1,5 @@
 package elytra.movingworld.common.core.assembly;
 
-/**
- * Created by DarkEvilMac on 1/30/2016.
- */
-
-
 public abstract class AssemblyInteractor {
     /**
      * Should the flood fill go diagonal, or just to it's direct NSWE neighbors?

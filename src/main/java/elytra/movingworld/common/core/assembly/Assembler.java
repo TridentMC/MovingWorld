@@ -126,7 +126,6 @@ public class Assembler implements ITickingTask {
         return true;
     }
 
-    @Override
     public int iterationsPerTick() {
         return interactor.useInteraction() ? interactor.iterationsPerTick() : 128;
     }

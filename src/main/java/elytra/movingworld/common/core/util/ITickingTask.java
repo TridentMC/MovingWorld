@@ -14,10 +14,19 @@ public interface ITickingTask {
      */
     boolean begin(Side side);
 
+    /**
+     * Called 20 times per second just like most thing in minecraft.
+     *
+     * @param side
+     */
     void doTick(Side side);
 
+    /**
+     * If we're finished yet, if we are this will be removed from the list of things to iterate and forgotten about.
+     *
+     * @param side
+     * @return
+     */
     boolean complete(Side side);
-
-    int iterationsPerTick();
 
 }

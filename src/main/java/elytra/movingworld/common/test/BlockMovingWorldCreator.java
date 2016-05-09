@@ -1,7 +1,5 @@
 package elytra.movingworld.common.test;
 
-import elytra.movingworld.MovingWorldMod;
-import elytra.movingworld.common.core.IMovingWorld;
 import elytra.movingworld.common.core.assembly.Assembler;
 import elytra.movingworld.common.core.assembly.BlockMap;
 import net.minecraft.block.Block;
@@ -16,7 +14,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 /**
@@ -47,14 +44,6 @@ public class BlockMovingWorldCreator extends Block {
                 @Override
                 public void onComplete(World world, BlockPos origin, BlockMap map) {
                     world.setBlockState(origin, world.getBlockState(origin).withProperty(ASSEMBLING, false));
-
-                    if (MovingWorldMod.movingWorldFactory != null) {
-                        IMovingWorld movingWorld = MovingWorldMod.movingWorldFactory.createMovingWorld(map, world);
-                        if (movingWorld != null) {
-                            movingWorld.move(new Vec3d(origin.getX() - assembler.initialOffset.getX(), map.getMin().getY(), origin.getZ() - assembler.initialOffset.getZ()), true);
-                        }
-                    }
-
                 }
             });
 
