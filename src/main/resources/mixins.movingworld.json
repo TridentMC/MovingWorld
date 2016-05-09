@@ -1,6 +1,6 @@
 {
   "required": true,
-  "package": "darkevilmac.movingworld.asm.mixin",
+  "package": "elytra.movingworld.asm.mixin",
   "mixins": [
     "world.MixinWorld",
     "world.MixinWorldServer",

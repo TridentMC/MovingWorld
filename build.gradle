@@ -24,8 +24,8 @@ apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'idea'
 
 version = "1.0"
-group = "darkevilmac.movingworld"
-archivesBaseName = "movingworld"
+group = "elytra.movingworld"
+archivesBaseName = "movingworld-REDUX"
 
 minecraft {
     version = "1.9-12.16.0.1854-1.9"
@@ -78,7 +78,7 @@ jar {
                 'MixinConfigs': 'mixins.movingworld.json',
                 'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
                 'TweakOrder': '0',
-                'FMLCorePlugin': 'darkevilmac.movingworld.asm.coremod.MovingWorldCoreMod',
+                'FMLCorePlugin': 'elytra.movingworld.asm.coremod.MovingWorldCoreMod',
                 'FMLCorePluginContainsFMLMod': 'true',
                 'ForceLoadAsMod': 'true',
                 'FMLAT': 'MovingWorld_at.cfg'
@@ -116,12 +116,12 @@ idea.workspace.iws {
             it.@name == 'Minecraft Server' && it.@type == 'Application'
         }
 
-        def minecraftClientVMArgs = '-Xincgc -Xmx1024M -Xms1024M -Dfml.coreMods.load=darkevilmac.movingworld.asm.coremod.MovingWorldCoreMod -Dmixin.debug=true'
+        def minecraftClientVMArgs = '-Xincgc -Xmx1024M -Xms1024M -Dfml.coreMods.load=elytra.movingworld.asm.coremod.MovingWorldCoreMod -Dmixin.debug=true'
         minecraftClientDefaults.option.find { it.@name == 'VM_PARAMETERS' }.replaceNode {
             option(name: 'VM_PARAMETERS', value: minecraftClientVMArgs)
         }
 
-        def minecraftServerVMArgs = '-Xincgc -Dfml.ignoreInvalidMinecraftCertificates=true -Dfml.coreMods.load=darkevilmac.movingworld.asm.coremod.MovingWorldCoreMod -Dmixin.debug=true'
+        def minecraftServerVMArgs = '-Xincgc -Dfml.ignoreInvalidMinecraftCertificates=true -Dfml.coreMods.load=elytra.movingworld.asm.coremod.MovingWorldCoreMod -Dmixin.debug=true'
         minecraftServerDefaults.option.find { it.@name == 'VM_PARAMETERS' }.replaceNode {
             option(name: 'VM_PARAMETERS', value: minecraftServerVMArgs)
         }
