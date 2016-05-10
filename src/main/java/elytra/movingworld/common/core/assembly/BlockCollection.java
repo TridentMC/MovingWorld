@@ -5,25 +5,21 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
-import org.apache.commons.lang3.tuple.MutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 
 /**
  * Get a blockstate and a tile (if applicable) from a position. Contains some nice utility methods.
  */
-public class BlockMap implements Iterable<Pair<BlockPos, Pair<IBlockState, TileEntity>>> {
+public class BlockCollection implements Iterable<BlockEntry> {
 
-    protected HashMap<BlockPos, Pair<IBlockState, TileEntity>> internalMap;
+    protected HashMap<BlockPos, BlockEntry> internalMap;
     private Vec3i min;
     private Vec3i max;
 
-    public BlockMap(Vec3i ORIGIN) {
-        internalMap = new HashMap<BlockPos, Pair<IBlockState, TileEntity>>();
+    public BlockCollection(Vec3i ORIGIN) {
+        internalMap = new HashMap<BlockPos, BlockEntry>();
         min = new Vec3i(ORIGIN.getX(), ORIGIN.getY(), ORIGIN.getZ());
         max = new Vec3i(ORIGIN.getX(), ORIGIN.getY(), ORIGIN.getZ());
     }
@@ -37,12 +33,12 @@ public class BlockMap implements Iterable<Pair<BlockPos, Pair<IBlockState, TileE
     }
 
     @Override
-    public Iterator<Pair<BlockPos, Pair<IBlockState, TileEntity>>> iterator() {
-        return new BlockMapIterator(this);
+    public Iterator<BlockEntry> iterator() {
+        return internalMap.values().iterator();
     }
 
     public void addToMap(BlockPos pos, IBlockState state, TileEntity tileEntity) {
-        internalMap.put(pos, new MutablePair<IBlockState, TileEntity>(state, tileEntity));
+        internalMap.put(pos, new BlockEntry(pos, state, tileEntity));
 
         min = new Vec3i(pos.getX() < min.getX() ? pos.getX() : min.getX(),
                 pos.getY() < min.getY() ? pos.getY() : min.getY(),
@@ -58,11 +54,11 @@ public class BlockMap implements Iterable<Pair<BlockPos, Pair<IBlockState, TileE
     }
 
     public IBlockState getBlockState(BlockPos key) {
-        return internalMap.get(key).getLeft();
+        return internalMap.get(key).state;
     }
 
     public TileEntity getTile(BlockPos key) {
-        return internalMap.get(key).getRight();
+        return internalMap.get(key).tile;
     }
 
     public int size() {
@@ -79,22 +75,23 @@ public class BlockMap implements Iterable<Pair<BlockPos, Pair<IBlockState, TileE
      * @param shiftMode if true add pos, if false subtract pos
      */
     public void shiftPosition(BlockPos pos, boolean shiftMode) {
-        HashMap<BlockPos, Pair<IBlockState, TileEntity>> newMap = new HashMap<BlockPos, Pair<IBlockState, TileEntity>>(); // Temp storage for the moved tiles.
+        HashMap<BlockPos, BlockEntry> newMap = new HashMap<BlockPos, BlockEntry>(); // Temp storage for the moved tiles.
         Vec3i newMin = new Vec3i(0, 0, 0);
         Vec3i newMax = new Vec3i(0, 0, 0);
 
-        Iterator<Pair<BlockPos, Pair<IBlockState, TileEntity>>> iterator = this.iterator();
+        Iterator<BlockEntry> iterator = this.iterator();
         while (iterator.hasNext()) {
-            Pair<BlockPos, Pair<IBlockState, TileEntity>> entry = iterator.next();
-            BlockPos posOfIndex = entry.getLeft();
-            TileEntity tileOfIndex = entry.getRight().getRight();
+            BlockEntry entry = iterator.next();
+
+            BlockPos posOfIndex = entry.pos;
+            IBlockState stateOfIndex = entry.state;
+            TileEntity tileOfIndex = entry.tile;
 
             BlockPos shiftedPos = new BlockPos(posOfIndex);
             shiftedPos = shiftMode ? shiftedPos.add(pos) : shiftedPos.subtract(pos);
             TileEntity shiftedTile = null;
 
             if (tileOfIndex != null) {
-                // Adjust the tile's position.
                 shiftedTile = TileEntity.createTileEntity(null /*null because it's never even used -.-*/, tileOfIndex.serializeNBT());
                 shiftedTile.setPos(shiftedPos);
             }
@@ -107,46 +104,12 @@ public class BlockMap implements Iterable<Pair<BlockPos, Pair<IBlockState, TileE
                     shiftedPos.getY() > newMax.getY() ? shiftedPos.getY() : newMax.getY(),
                     shiftedPos.getZ() > newMax.getZ() ? shiftedPos.getZ() : newMax.getZ());
 
-            newMap.put(shiftedPos, new MutablePair<IBlockState, TileEntity>(entry.getRight().getLeft(), shiftedTile));
+            newMap.put(shiftedPos, new BlockEntry(shiftedPos, stateOfIndex, tileOfIndex));
         }
 
         this.min = newMin;
         this.max = newMax;
         internalMap.clear();
         internalMap.putAll(newMap);
-    }
-
-    protected class BlockMapIterator implements Iterator<Pair<BlockPos, Pair<IBlockState, TileEntity>>> {
-        int index;
-        List<BlockPos> keySet = new ArrayList<BlockPos>();
-        BlockMap parent;
-
-        public BlockMapIterator(BlockMap parent) {
-            index = 0;
-            this.parent = parent;
-        }
-
-        @Override
-        public boolean hasNext() {
-            return index < parent.internalMap.size();
-        }
-
-        @Override
-        public Pair<BlockPos, Pair<IBlockState, TileEntity>> next() {
-            if (keySet.isEmpty())
-                keySet.addAll(parent.internalMap.keySet());
-
-            Pair<BlockPos, Pair<IBlockState, TileEntity>> pair =
-                    new MutablePair<BlockPos, Pair<IBlockState, TileEntity>>(keySet.get(index), parent.internalMap.get(keySet.get(index)));
-            index++;
-            return pair;
-        }
-
-        @Override
-        public void remove() {
-            parent.internalMap.remove(keySet.get(index));
-            keySet.remove(index);
-            index--;
-        }
     }
 }

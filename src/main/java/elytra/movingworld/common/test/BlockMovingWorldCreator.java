@@ -1,7 +1,7 @@
 package elytra.movingworld.common.test;
 
 import elytra.movingworld.common.core.assembly.Assembler;
-import elytra.movingworld.common.core.assembly.BlockMap;
+import elytra.movingworld.common.core.assembly.BlockCollection;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
@@ -42,7 +42,7 @@ public class BlockMovingWorldCreator extends Block {
             final Assembler assembler = new Assembler(new CustomAssemblyInteractor(), worldIn, pos, !player.isSneaking());
             assembler.setAssemblyListener(new Assembler.IAssemblyListener() {
                 @Override
-                public void onComplete(World world, BlockPos origin, BlockMap map) {
+                public void onComplete(World world, BlockPos origin, BlockCollection map) {
                     world.setBlockState(origin, world.getBlockState(origin).withProperty(ASSEMBLING, false));
                 }
             });

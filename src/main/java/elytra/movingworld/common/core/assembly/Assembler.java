@@ -21,7 +21,7 @@ public class Assembler implements ITickingTask {
     public BlockPos initialOffset;
     boolean foundAll;
     World world;
-    BlockMap out;
+    BlockCollection out;
     IAssemblyListener assemblyListener;
     private AssemblyInteractor interactor;
     private BlockPos ORIGIN;
@@ -56,7 +56,7 @@ public class Assembler implements ITickingTask {
 
     @Override
     public boolean begin(Side side) {
-        out = new BlockMap(ORIGIN);
+        out = new BlockCollection(ORIGIN);
 
         return true;
     }
@@ -131,7 +131,7 @@ public class Assembler implements ITickingTask {
     }
 
     public interface IAssemblyListener {
-        void onComplete(World world, BlockPos origin, BlockMap map);
+        void onComplete(World world, BlockPos origin, BlockCollection map);
     }
 
 }
