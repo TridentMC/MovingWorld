@@ -1,21 +1,22 @@
-package elytra.movingworld.common.util;
+package elytra.movingworld.common.helpers;
 
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.Vec3d;
 
 public class AABBRotator {
-    private static Vec3dMod vec00, vec01, vec10, vec11;
-    private static Vec3dMod vec0h, vec1h, vech0, vech1;
+    private static Vec3d vec00, vec01, vec10, vec11;
+    private static Vec3d vec0h, vec1h, vech0, vech1;
 
     static {
-        vec00 = new Vec3dMod(0D, 0D, 0D);
-        vec01 = new Vec3dMod(0D, 0D, 0D);
-        vec10 = new Vec3dMod(0D, 0D, 0D);
-        vec11 = new Vec3dMod(0D, 0D, 0D);
+        vec00 = new Vec3d(0D, 0D, 0D);
+        vec01 = new Vec3d(0D, 0D, 0D);
+        vec10 = new Vec3d(0D, 0D, 0D);
+        vec11 = new Vec3d(0D, 0D, 0D);
 
-        vec0h = new Vec3dMod(0D, 0D, 0D);
-        vec1h = new Vec3dMod(0D, 0D, 0D);
-        vech0 = new Vec3dMod(0D, 0D, 0D);
-        vech1 = new Vec3dMod(0D, 0D, 0D);
+        vec0h = new Vec3d(0D, 0D, 0D);
+        vec1h = new Vec3d(0D, 0D, 0D);
+        vech0 = new Vec3d(0D, 0D, 0D);
+        vech1 = new Vec3d(0D, 0D, 0D);
     }
 
     /**
@@ -26,34 +27,24 @@ public class AABBRotator {
         double y0 = aabb.minY;
         double y1 = aabb.maxY;
 
-        vec00 = vec00.setX(aabb.minX - xoff);
-        vec00 = vec00.setZ(aabb.minZ - zoff);
+        vec00 = new Vec3d(aabb.minX - xoff, vec00.yCoord, aabb.minZ - zoff);
+        vec01 = new Vec3d(aabb.minX - xoff, vec01.yCoord, aabb.maxZ - zoff);
 
-        vec01 = vec01.setX(aabb.minX - xoff);
-        vec01 = vec01.setZ(aabb.maxZ - zoff);
+        vec10 = new Vec3d(aabb.maxX - xoff, vec10.yCoord, aabb.minZ - zoff);
+        vec11 = new Vec3d(aabb.maxX - xoff, vec11.yCoord, aabb.maxZ - zoff);
 
-        vec10 = vec10.setX(aabb.maxX - xoff);
-        vec10 = vec10.setZ(aabb.minZ - zoff);
+        vec00 = Vec3dHelper.rotateAroundY(vec00, ang);
+        vec01 = Vec3dHelper.rotateAroundY(vec01, ang);
+        vec10 = Vec3dHelper.rotateAroundY(vec10, ang);
+        vec11 = Vec3dHelper.rotateAroundY(vec11, ang);
 
-        vec11 = vec11.setX(aabb.maxX - xoff);
-        vec11 = vec11.setZ(aabb.maxZ - zoff);
+        vec0h = new Vec3d((vec00.xCoord + vec01.xCoord) / 2D, vec0h.yCoord, (vec00.zCoord + vec01.zCoord) / 2D);
 
-        vec00 = vec00.rotateAroundY(ang);
-        vec01 = vec01.rotateAroundY(ang);
-        vec10 = vec10.rotateAroundY(ang);
-        vec11 = vec11.rotateAroundY(ang);
+        vec1h = new Vec3d((vec10.xCoord + vec11.xCoord) / 2D, vec1h.yCoord, (vec10.zCoord + vec11.zCoord) / 2D);
 
-        vec0h = vec0h.setX((vec00.xCoord + vec01.xCoord) / 2D);
-        vec0h = vec0h.setZ((vec00.zCoord + vec01.zCoord) / 2D);
+        vech0 = new Vec3d((vec00.xCoord + vec10.xCoord) / 2D, vech0.yCoord, (vec00.zCoord + vec10.zCoord) / 2D);
 
-        vec1h = vec1h.setX((vec10.xCoord + vec11.xCoord) / 2D);
-        vec1h = vec1h.setZ((vec10.zCoord + vec11.zCoord) / 2D);
-
-        vech0 = vech0.setX((vec00.xCoord + vec10.xCoord) / 2D);
-        vech0 = vech0.setZ((vec00.zCoord + vec10.zCoord) / 2D);
-
-        vech1 = vech1.setX((vec01.xCoord + vec11.xCoord) / 2D);
-        vech1 = vech1.setZ((vec01.zCoord + vec11.zCoord) / 2D);
+        vech1 = new Vec3d((vec01.xCoord + vec11.xCoord) / 2D, vech1.yCoord, (vec01.zCoord + vec11.zCoord) / 2D);
 
         aabb = new AxisAlignedBB(minX(), y0, minZ(), maxX(), y1, maxZ()).offset(xoff, 0F, zoff);
 

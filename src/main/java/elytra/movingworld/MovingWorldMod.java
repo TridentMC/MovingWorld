@@ -1,6 +1,7 @@
 package elytra.movingworld;
 
 import elytra.movingworld.common.CommonProxy;
+import elytra.movingworld.common.network.CommonNetworking;
 import elytra.movingworld.common.test.BlockMovingWorldCreator;
 import net.minecraft.block.material.Material;
 import net.minecraft.item.ItemBlock;
@@ -32,6 +33,7 @@ public class MovingWorldMod {
     public void preInit(FMLPreInitializationEvent e) {
         logger = e.getModLog();
         proxy.registerHandlers();
+        CommonNetworking.setupNetwork();
 
         if (inDev()) {
             // In dev environment initialize some test stuffs.
@@ -55,7 +57,7 @@ public class MovingWorldMod {
         proxy.initEvent(e.getModState());
     }
 
-    public boolean inDev(){
+    public boolean inDev() {
         return MOD_VERSION.equals("@MOVINGWORLDVER@");
     }
 

@@ -1,4 +1,4 @@
-package elytra.movingworld.common.util;
+package elytra.movingworld.common.helpers;
 
 public class MathHelperMod {
 
