@@ -2,11 +2,9 @@ package darkevilmac.movingworld;
 
 import darkevilmac.movingworld.client.ClientProxy;
 import darkevilmac.movingworld.common.CommonProxy;
-import darkevilmac.movingworld.common.config.MainConfig;
+import darkevilmac.movingworld.common.config.MovingWorldConfig;
 import darkevilmac.movingworld.common.mrot.MetaRotations;
-import darkevilmac.movingworld.common.network.MovingWorldMessageToMessageCodec;
-import darkevilmac.movingworld.common.network.MovingWorldPacketHandler;
-import darkevilmac.movingworld.common.network.NetworkUtil;
+import darkevilmac.movingworld.common.network.MovingWorldNetworking;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
@@ -14,7 +12,6 @@ import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
@@ -35,38 +32,35 @@ public class MovingWorld {
     public static Logger logger;
 
     public MetaRotations metaRotations;
-    private MainConfig localConfig;
-    public NetworkUtil network;
+    private MovingWorldConfig localConfig;
 
     public MovingWorld() {
-        network = new NetworkUtil();
     }
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent e) {
         logger = e.getModLog();
+
         File configFolder = new File(e.getModConfigurationDirectory(), "MovingWorld");
         File mConfigFile = new File(configFolder, "Main.cfg");
-        localConfig = new MainConfig(new Configuration(mConfigFile));
+        localConfig = new MovingWorldConfig(new Configuration(mConfigFile));
         localConfig.loadAndSave();
     }
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent e) {
+        MovingWorldNetworking.setupNetwork();
         localConfig.postLoad();
-        MovingWorldMessageToMessageCodec codec = new MovingWorldMessageToMessageCodec();
-        MovingWorldPacketHandler packetHandler = new MovingWorldPacketHandler();
-        network.channels = NetworkRegistry.INSTANCE.newChannel(MOD_ID, codec, packetHandler);
         proxy.registerRenderers();
-        localConfig.getShared().assemblePriorityConfig.loadAndSaveInit();
+        localConfig.assemblePriorityConfig.loadAndSaveInit();
     }
 
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent e) {
-        localConfig.getShared().assemblePriorityConfig.loadAndSavePostInit();
+        localConfig.assemblePriorityConfig.loadAndSavePostInit();
     }
 
-    public MainConfig getNetworkConfig() {
+    public MovingWorldConfig getNetworkConfig() {
         if (FMLCommonHandler.instance().getSide().isClient()) {
             if (((ClientProxy) proxy).syncedConfig != null)
                 return ((ClientProxy) proxy).syncedConfig;
@@ -74,7 +68,7 @@ public class MovingWorld {
         return localConfig;
     }
 
-    public MainConfig getLocalConfig() {
+    public MovingWorldConfig getLocalConfig() {
         return localConfig;
     }
 }

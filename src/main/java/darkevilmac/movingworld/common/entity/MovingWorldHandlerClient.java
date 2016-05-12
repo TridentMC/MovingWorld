@@ -1,7 +1,6 @@
 package darkevilmac.movingworld.common.entity;
 
-import darkevilmac.movingworld.MovingWorld;
-import darkevilmac.movingworld.common.network.FarInteractMessage;
+import darkevilmac.movingworld.common.network.MovingWorldNetworking;
 import net.minecraft.entity.player.EntityPlayer;
 
 public abstract class MovingWorldHandlerClient extends MovingWorldHandlerCommon {
@@ -12,8 +11,9 @@ public abstract class MovingWorldHandlerClient extends MovingWorldHandlerCommon 
     @Override
     public boolean interact(EntityPlayer player) {
         if (player.getDistanceSqToEntity(getMovingWorld()) >= 36D) {
-            FarInteractMessage msg = new FarInteractMessage(getMovingWorld());
-            MovingWorld.instance.network.sendToServer(msg);
+            MovingWorldNetworking.NETWORK.send().packet("FarInteractMessage")
+                    .with("dimID", getMovingWorld().worldObj.provider.getDimensionId())
+                    .with("entityID", getMovingWorld().getEntityId()).toServer();
         }
 
         return super.interact(player);

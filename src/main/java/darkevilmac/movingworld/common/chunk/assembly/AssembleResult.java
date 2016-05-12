@@ -23,28 +23,76 @@ import java.util.ArrayList;
 
 public class AssembleResult {
 
-    public static final int RESULT_NONE = 0, RESULT_OK = 1, RESULT_BLOCK_OVERFLOW = 2, RESULT_MISSING_MARKER = 3, RESULT_ERROR_OCCURED = 4,
-            RESULT_BUSY_COMPILING = 5, RESULT_INCONSISTENT = 6, RESULT_OK_WITH_WARNINGS = 7;
+    public enum ResultType {
+        RESULT_NONE, RESULT_OK, RESULT_BLOCK_OVERFLOW, RESULT_MISSING_MARKER, RESULT_ERROR_OCCURED,
+        RESULT_BUSY_COMPILING, RESULT_INCONSISTENT, RESULT_OK_WITH_WARNINGS;
+
+        public byte toByte() {
+            return ResultType.toByte(this);
+        }
+
+        public static byte toByte(ResultType action) {
+            switch (action) {
+                case RESULT_OK:
+                    return (byte) 1;
+                case RESULT_BLOCK_OVERFLOW:
+                    return (byte) 2;
+                case RESULT_MISSING_MARKER:
+                    return (byte) 3;
+                case RESULT_ERROR_OCCURED:
+                    return (byte) 4;
+                case RESULT_BUSY_COMPILING:
+                    return (byte) 5;
+                case RESULT_INCONSISTENT:
+                    return (byte) 6;
+                case RESULT_OK_WITH_WARNINGS:
+                    return (byte) 7;
+                default:
+                    return (byte) 0;
+            }
+        }
+
+        public static ResultType fromByte(byte actionInt) {
+            switch (actionInt) {
+                case 1:
+                    return RESULT_OK;
+                case 2:
+                    return RESULT_BLOCK_OVERFLOW;
+                case 3:
+                    return RESULT_MISSING_MARKER;
+                case 4:
+                    return RESULT_ERROR_OCCURED;
+                case 5:
+                    return RESULT_BUSY_COMPILING;
+                case 6:
+                    return RESULT_INCONSISTENT;
+                case 7:
+                    return RESULT_OK_WITH_WARNINGS;
+                default:
+                    return RESULT_NONE;
+            }
+        }
+    }
 
     public final LocatedBlockList assembledBlocks = new LocatedBlockList();
     public BlockPos offset;
     public MovingWorldAssemblyInteractor assemblyInteractor;
     LocatedBlock movingWorldMarkingBlock;
-    int resultCode;
+    ResultType resultType;
     int blockCount;
     int tileEntityCount;
     float mass;
 
-    public AssembleResult(int resultCode, ByteBuf buf) {
-        this.resultCode = resultCode;
-        if (resultCode == RESULT_NONE) return;
+    public AssembleResult(ResultType resultCode, ByteBuf buf) {
+        this.resultType = resultCode;
+        if (resultCode == ResultType.RESULT_NONE) return;
         blockCount = buf.readInt();
         tileEntityCount = buf.readInt();
         mass = buf.readFloat();
     }
 
     public AssembleResult(NBTTagCompound compound, World world) {
-        resultCode = compound.getByte("res");
+        resultType = ResultType.fromByte(compound.getByte("res"));
         blockCount = compound.getInteger("blockc");
         tileEntityCount = compound.getInteger("tec");
         mass = compound.getFloat("mass");
@@ -81,7 +129,7 @@ public class AssembleResult {
     }
 
     public void clear() {
-        resultCode = RESULT_NONE;
+        resultType = ResultType.RESULT_NONE;
         movingWorldMarkingBlock = null;
         assembledBlocks.clear();
         offset = new BlockPos(BlockPos.ORIGIN);
@@ -113,7 +161,7 @@ public class AssembleResult {
                 }
             }
         } catch (Exception e) {
-            resultCode = RESULT_ERROR_OCCURED;
+            resultType = ResultType.RESULT_ERROR_OCCURED;
             MovingWorld.logger.error("Result code: RESULT ERROR OCCURED was reached when attempting to getEntity from assembly result. Printing stacktrace...");
             MovingWorld.logger.error(e);
             e.printStackTrace();
@@ -163,7 +211,7 @@ public class AssembleResult {
             }
         }
 
-        for(LocatedBlock lb : setAirState2){
+        for (LocatedBlock lb : setAirState2) {
             world.setBlockState(lb.blockPos, Blocks.air.getDefaultState(), 2);
             world.removeTileEntity(lb.blockPos);
         }
@@ -189,12 +237,12 @@ public class AssembleResult {
 
     }
 
-    public int getCode() {
-        return resultCode;
+    public ResultType getCode() {
+        return resultType;
     }
 
     public boolean isOK() {
-        return resultCode == RESULT_OK || resultCode == RESULT_OK_WITH_WARNINGS;
+        return resultType == ResultType.RESULT_OK || resultType == ResultType.RESULT_OK_WITH_WARNINGS;
     }
 
     public LocatedBlock getShipMarker() {
@@ -219,14 +267,14 @@ public class AssembleResult {
             IBlockState blockState = world.getBlockState(lb.blockPos);
             Block block = blockState.getBlock();
             if (block != lb.blockState.getBlock()) {
-                resultCode = RESULT_INCONSISTENT;
+                resultType = ResultType.RESULT_INCONSISTENT;
                 return;
             }
             if (blockState != lb.blockState) {
                 warn = true;
             }
         }
-        resultCode = warn ? RESULT_OK_WITH_WARNINGS : RESULT_OK;
+        resultType = warn ? ResultType.RESULT_OK_WITH_WARNINGS : ResultType.RESULT_OK;
     }
 
     public void writeNBTFully(NBTTagCompound compound) {
@@ -247,7 +295,7 @@ public class AssembleResult {
     }
 
     public void writeNBTMetadata(NBTTagCompound compound) {
-        compound.setByte("res", (byte) getCode());
+        compound.setByte("res", getCode().toByte());
         compound.setInteger("blockc", getBlockCount());
         compound.setInteger("tec", getTileEntityCount());
         compound.setFloat("mass", getMass());
@@ -255,4 +303,15 @@ public class AssembleResult {
         compound.setInteger("yO", offset.getY());
         compound.setInteger("zO", offset.getZ());
     }
+
+    public ByteBuf toByteBuf(ByteBuf buf) {
+        buf.writeByte(getCode().toByte());
+        buf.writeInt(getBlockCount());
+        buf.writeInt(getTileEntityCount());
+        buf.writeFloat(getMass());
+        assemblyInteractor.toByteBuf(buf);
+
+        return buf;
+    }
+
 }

@@ -5,6 +5,7 @@ import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunk;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
+import io.netty.buffer.Unpooled;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -51,7 +52,6 @@ public abstract class ChunkIO {
         }
 
         return count;
-
     }
 
     public static void writeBlock(DataOutput out, MobileChunk chunk, BlockPos pos) throws IOException {
@@ -84,6 +84,18 @@ public abstract class ChunkIO {
         }
     }
 
+    public static byte[] writeCompressed(MobileChunk chunk, Collection<BlockPos> blocks) {
+        ByteBuf buffer = Unpooled.buffer();
+
+        try {
+            ChunkIO.writeCompressed(buffer, chunk, blocks);
+        } catch (IOException e) {
+            MovingWorld.logger.error(e);
+        }
+
+        return buffer.array();
+    }
+
     public static void writeCompressed(ByteBuf buf, MobileChunk chunk, Collection<BlockPos> blocks) throws IOException {
         DataOutputStream out = preCompress(buf);
         write(out, chunk, blocks);
@@ -111,7 +123,7 @@ public abstract class ChunkIO {
         MovingWorld.logger.debug(String.format(Locale.ENGLISH, "%d blocks written. Efficiency: %d/%d = %.2f", count, byteswritten, count * 9, f));
 
         if (byteswritten > 32000) {
-             MovingWorld.logger.warn("Ship probably contains too many blocks");
+            MovingWorld.logger.warn("Ship probably contains too many blocks");
         }
     }
 

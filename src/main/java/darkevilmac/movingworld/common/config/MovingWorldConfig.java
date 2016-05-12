@@ -1,5 +1,6 @@
 package darkevilmac.movingworld.common.config;
 
+import com.google.gson.GsonBuilder;
 import darkevilmac.movingworld.MovingWorld;
 import darkevilmac.movingworld.common.config.priority.AssemblePriorityConfig;
 import darkevilmac.movingworld.common.util.MaterialDensity;
@@ -18,16 +19,18 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-public class MainConfig {
+public class MovingWorldConfig {
 
     private Configuration config;
     private SharedConfig shared;
+    public AssemblePriorityConfig assemblePriorityConfig;
+
     private boolean allowListInsertion;
 
-    public MainConfig(Configuration config) {
+    public MovingWorldConfig(Configuration config) {
         this.config = config;
         this.shared = new SharedConfig();
-        this.shared.assemblePriorityConfig = new AssemblePriorityConfig(
+        this.assemblePriorityConfig = new AssemblePriorityConfig(
                 new Configuration(new File(config.getConfigFile().getParentFile(), "AssemblePriority.cfg")));
 
         shared.blockBlacklist = new HashSet<String>();
@@ -107,7 +110,7 @@ public class MainConfig {
 
         config.save();
 
-        this.shared.assemblePriorityConfig.loadAndSavePreInit();
+        this.assemblePriorityConfig.loadAndSavePreInit();
     }
 
     public void postLoad() {
@@ -253,10 +256,14 @@ public class MainConfig {
         public Set<String> blockBlacklist;
         public Set<String> blockWhitelist;
         public Set<String> overwritableBlocks;
-        public AssemblePriorityConfig assemblePriorityConfig;
 
         private String[] loadedBlockDensities;
         private String[] loadedMaterialDensities;
+
+        public String serialize() {
+            GsonBuilder builder = new GsonBuilder();
+            return builder.create().toJson(MovingWorld.instance.getNetworkConfig().getShared(), MovingWorldConfig.SharedConfig.class);
+        }
     }
 
 

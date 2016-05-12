@@ -160,7 +160,7 @@ public class ChunkDisassembler {
         movingWorld.setDead();
 
         if (this.result.movingWorldMarkingBlock == null || !assemblyInteractor.isTileMovingWorldMarker(this.result.movingWorldMarkingBlock.tileEntity)) {
-            this.result.resultCode = AssembleResult.RESULT_MISSING_MARKER;
+            this.result.resultType = AssembleResult.ResultType.RESULT_MISSING_MARKER;
         } else {
             result.checkConsistent(world);
         }

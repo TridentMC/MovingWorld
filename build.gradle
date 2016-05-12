@@ -28,7 +28,7 @@ group = "darkevilmac.movingworld"
 archivesBaseName = "movingworld"
 
 minecraft {
-    version = "1.8.9-11.15.0.1695"
+    version = "1.8.9-11.15.1.1902-1.8.9"
     runDir = "run"
 
     replace '@MOVINGWORLDVER@', project.version
@@ -45,6 +45,9 @@ repositories {
         name 'spongepowered'
         url 'https://repo.spongepowered.org/maven/'
     }
+	maven {
+        url = 'http://unascribed.com/maven/releases'
+    }
 }
 
 dependencies {
@@ -52,6 +55,9 @@ dependencies {
         exclude module: 'launchwrapper'
         exclude module: 'guava'
     }
+	
+	compile 'com.unascribed:lambdanetwork:0.0.6'
+    shadow 'com.unascribed:lambdanetwork:0.0.6'
 }
 
 shadowJar {
@@ -60,6 +66,8 @@ shadowJar {
     dependencies {
         include(dependency('org.spongepowered:mixin'))
     }
+	
+	relocate 'com.unascribed.lambdanetwork', "darkevilmac.movingworld.repackage.com.unascribed.lambdanetwork"
 
     classifier = 'full'
 }

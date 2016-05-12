@@ -38,14 +38,14 @@ public class ChunkAssembler {
                 assembleRecursive(result, new HashSet<BlockPos>(), result.assemblyInteractor, start);
             }
             if (result.movingWorldMarkingBlock == null) {
-                result.resultCode = AssembleResult.RESULT_MISSING_MARKER;
+                result.resultType = AssembleResult.ResultType.RESULT_MISSING_MARKER;
             } else {
-                result.resultCode = AssembleResult.RESULT_OK;
+                result.resultType = AssembleResult.ResultType.RESULT_OK;
             }
         } catch (MovingWorldSizeOverflowException e) {
-            result.resultCode = AssembleResult.RESULT_BLOCK_OVERFLOW;
+            result.resultType = AssembleResult.ResultType.RESULT_BLOCK_OVERFLOW;
         } catch (Error e) {
-            result.resultCode = AssembleResult.RESULT_ERROR_OCCURED;
+            result.resultType = AssembleResult.ResultType.RESULT_ERROR_OCCURED;
             MovingWorld.logger.error(e.toString());
         }
         result.assemblyInteractor.chunkAssembled(result);
