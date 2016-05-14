@@ -3,7 +3,6 @@ package darkevilmac.movingworld;
 import darkevilmac.movingworld.client.ClientProxy;
 import darkevilmac.movingworld.common.CommonProxy;
 import darkevilmac.movingworld.common.config.MovingWorldConfig;
-import darkevilmac.movingworld.common.mrot.MetaRotations;
 import darkevilmac.movingworld.common.network.MovingWorldNetworking;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -30,8 +29,6 @@ public class MovingWorld {
     public static CommonProxy proxy;
 
     public static Logger logger;
-
-    public MetaRotations metaRotations;
     private MovingWorldConfig localConfig;
 
     public MovingWorld() {

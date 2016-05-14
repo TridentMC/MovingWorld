@@ -25,7 +25,9 @@ public class MovingWorldNetworking {
     public static LambdaNetwork NETWORK;
 
     public static void setupNetwork() {
-        NETWORK = registerPackets(LambdaNetwork.builder().channel("MovingWorld")).build();
+        MovingWorld.logger.info("Setting up network...");
+        MovingWorldNetworking.NETWORK = registerPackets(LambdaNetwork.builder().channel("MovingWorld")).build();
+        MovingWorld.logger.info("Setup network! " + MovingWorldNetworking.NETWORK.toString());
     }
 
     private static LambdaNetworkBuilder registerPackets(LambdaNetworkBuilder builder) {

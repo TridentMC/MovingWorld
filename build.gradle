@@ -31,7 +31,10 @@ minecraft {
     version = "1.8.9-11.15.1.1902-1.8.9"
     runDir = "run"
 
-    replace '@MOVINGWORLDVER@', project.version
+	def replacementVersion = 'MOD_VERSION = \"' + project.version + '\"'
+
+    replace ("MOD_VERSION = \"@MOVINGWORLDVER@\"",
+			 replacementVersion)
 
     mappings = 'snapshot_20160112'
 }
@@ -74,7 +77,7 @@ shadowJar {
 
 reobf {
     shadowJar {
-        mappingType = 'NOTCH'
+        mappingType = 'SEARGE'
         classpath = sourceSets.main.compileClasspath
     }
 }
