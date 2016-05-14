@@ -23,7 +23,7 @@ apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'idea'
 
-version = 'MC1.8.9-INDEV-I'
+version = 'MC1.8.9-V1.9'
 group = "darkevilmac.movingworld"
 archivesBaseName = "movingworld"
 
@@ -63,12 +63,12 @@ dependencies {
 shadowJar {
     exclude 'dummyThing'
 
+	relocate 'com.unascribed.lambdanetwork', "darkevilmac.movingworld.repackage.com.unascribed.lambdanetwork"
     dependencies {
         include(dependency('org.spongepowered:mixin'))
+		include(dependency('com.unascribed:lambdanetwork'))
     }
 	
-	relocate 'com.unascribed.lambdanetwork', "darkevilmac.movingworld.repackage.com.unascribed.lambdanetwork"
-
     classifier = 'full'
 }
 
