@@ -20,6 +20,8 @@ import net.minecraft.world.World;
 
 import java.util.UUID;
 
+import static darkevilmac.movingworld.common.chunk.assembly.AssembleResult.ResultType.*;
+
 public abstract class TileMovingWorldMarkingBlock extends TileEntity implements IMovingWorldTileEntity {
 
     public LocatedBlockList removedFluidBlocks; // A list of fluid blocks that were destroyed last disassemble, used to fill back in when we reassemble.
@@ -77,26 +79,26 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
 
             setInteractor(interactor);
             TextComponentString c;
-            switch (assembleResult.getCode()) {
-                case AssembleResult.RESULT_OK:
+            switch (assembleResult.getType()) {
+                case RESULT_OK:
                     c = new TextComponentString("Assembled " + getInfo().getName() + "!");
                     player.addChatMessage(c);
                     break;
-                case AssembleResult.RESULT_OK_WITH_WARNINGS:
+                case RESULT_OK_WITH_WARNINGS:
                     returnVal = true;
-                case AssembleResult.RESULT_BLOCK_OVERFLOW:
+                case RESULT_BLOCK_OVERFLOW:
                     c = new TextComponentString("Cannot create moving world with more than " + getMaxBlocks() + " blocks");
                     player.addChatMessage(c);
                     break;
-                case AssembleResult.RESULT_MISSING_MARKER:
+                case RESULT_MISSING_MARKER:
                     c = new TextComponentString("Cannot create moving world with no moving world marker");
                     player.addChatMessage(c);
                     break;
-                case AssembleResult.RESULT_ERROR_OCCURED:
+                case RESULT_ERROR_OCCURED:
                     c = new TextComponentString("An error occured while assembling moving world. See console log for details.");
                     player.addChatMessage(c);
                     break;
-                case AssembleResult.RESULT_NONE:
+                case RESULT_NONE:
                     c = new TextComponentString("Nothing was assembled");
                     player.addChatMessage(c);
                     break;
@@ -115,10 +117,10 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
             if (assembleResult != null && assembleResult.isOK()) {
                 assembleResult.checkConsistent(worldObj);
                 mountedMovingWorld(player, movingWorld, 1);
-                if (assembleResult.getCode() == AssembleResult.RESULT_INCONSISTENT) {
+                if (assembleResult.getType() == RESULT_INCONSISTENT) {
                     return false;
                 }
-                if (assembleResult.getCode() == AssembleResult.RESULT_OK_WITH_WARNINGS) {
+                if (assembleResult.getType() == RESULT_OK_WITH_WARNINGS) {
                     ITextComponent c = new TextComponentString("Moving world contains changes");
                     player.addChatMessage(c);
                 }

@@ -19,12 +19,12 @@ public class MaterialDensity {
     }
 
     public static void addDensity(Block block, float dens) {
-        blockDensityMap.put(Block.blockRegistry.getNameForObject(block).toString(), Float.valueOf(dens));
+        blockDensityMap.put(Block.REGISTRY.getNameForObject(block).toString(), Float.valueOf(dens));
     }
 
     public static float getDensity(IBlockState state) {
         if (state == null) return DEFAULT_DENSITY;
-        Float f = blockDensityMap.get(Block.blockRegistry.getNameForObject(state.getBlock()));
+        Float f = blockDensityMap.get(Block.REGISTRY.getNameForObject(state.getBlock()));
         if (f != null) return f.floatValue();
         return getDensity(state.getMaterial());
     }

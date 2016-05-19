@@ -34,7 +34,7 @@ public abstract class MovingWorldHandlerCommon {
                 for (int k = chunk.minZ(); k < chunk.maxZ(); k++) {
                     BlockPos pos = new BlockPos(i, j, k);
                     IBlockState blockState = chunk.getBlockState(pos);
-                    if (blockState != null && blockState.getMaterial() != Material.air) {
+                    if (blockState != null && blockState.getMaterial() != Material.AIR) {
                         getMovingWorld().getCapabilities().onChunkBlockAdded(blockState, pos);
                     }
                 }

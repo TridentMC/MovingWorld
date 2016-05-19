@@ -51,6 +51,6 @@ public class RenderMovingWorld extends Render {
 
     @Override
     protected ResourceLocation getEntityTexture(Entity entity) {
-        return TextureMap.locationBlocksTexture;
+        return TextureMap.LOCATION_BLOCKS_TEXTURE;
     }
 }

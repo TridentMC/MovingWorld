@@ -5,6 +5,7 @@ import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunk;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
+import io.netty.buffer.Unpooled;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -30,7 +31,7 @@ public abstract class ChunkIO {
             for (int j = chunk.minY(); j < chunk.maxY(); j++) {
                 for (int k = chunk.minZ(); k < chunk.maxZ(); k++) {
                     IBlockState state = chunk.getBlockState(new BlockPos(i, j, k));
-                    if (state != null && state.getBlock() != Blocks.air) {
+                    if (state != null && state.getBlock() != Blocks.AIR) {
                         count++;
                     }
                 }
@@ -43,7 +44,7 @@ public abstract class ChunkIO {
             for (int j = chunk.minY(); j < chunk.maxY(); j++) {
                 for (int k = chunk.minZ(); k < chunk.maxZ(); k++) {
                     IBlockState state = chunk.getBlockState(new BlockPos(i, j, k));
-                    if (state != null && state.getBlock() != Blocks.air) {
+                    if (state != null && state.getBlock() != Blocks.AIR) {
                         writeBlock(out, chunk.getBlockState(new BlockPos(i, j, k)), new BlockPos(i, j, k));
                     }
                 }
@@ -82,6 +83,18 @@ public abstract class ChunkIO {
             state = Block.getBlockById(id).getStateFromMeta(in.readInt());
             chunk.addBlockWithState(new BlockPos(x, y, z), state);
         }
+    }
+
+    public static byte[] writeCompressed(MobileChunk chunk, Collection<BlockPos> blocks) {
+        ByteBuf buffer = Unpooled.buffer();
+
+        try {
+            ChunkIO.writeCompressed(buffer, chunk, blocks);
+        } catch (IOException e) {
+            MovingWorld.logger.error(e);
+        }
+
+        return buffer.array();
     }
 
     public static void writeCompressed(ByteBuf buf, MobileChunk chunk, Collection<BlockPos> blocks) throws IOException {

@@ -189,7 +189,7 @@ public class ChunkCollisionHelper {
         IBlockState blockState = mobileChunk.getBlockState(blockPos);
         Block block = blockState.getBlock();
 
-        if (blockState.getMaterial() == Material.air) {
+        if (blockState.getMaterial() == Material.AIR) {
             Block blockBelow = mobileChunk.getBlockState(blockPos.down()).getBlock();
 
             if (blockBelow instanceof BlockFence || blockBelow instanceof BlockWall || blockBelow instanceof BlockFenceGate) {
@@ -217,13 +217,13 @@ public class ChunkCollisionHelper {
             double d16 = entityChunkPosY - d4;
             double d17 = entityChunkPosZ - d5;
 
-            if (block != Blocks.ladder) {
+            if (block != Blocks.LADDER) {
                 d16 = 0.0D;
             }
             entity.distanceWalkedModified = (float) ((double) entity.distanceWalkedModified + (double) MathHelper.sqrt_double(d15 * d15 + d17 * d17) * 0.6D);
             entity.distanceWalkedOnStepModified = (float) ((double) entity.distanceWalkedOnStepModified + (double) MathHelper.sqrt_double(d15 * d15 + d16 * d16 + d17 * d17) * 0.6D);
 
-            if (entity.distanceWalkedOnStepModified > (float) mixinEntity.getNextStepDistance() && blockState.getMaterial() != Material.air) {
+            if (entity.distanceWalkedOnStepModified > (float) mixinEntity.getNextStepDistance() && blockState.getMaterial() != Material.AIR) {
                 mixinEntity.setNextStepDistance((int) entity.distanceWalkedOnStepModified + 1);
                 playStepSoundForEntity(entity, block);
             }

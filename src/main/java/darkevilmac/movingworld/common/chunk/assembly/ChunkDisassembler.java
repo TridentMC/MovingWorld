@@ -111,7 +111,7 @@ public class ChunkDisassembler {
             for (int j = chunk.minY(); j < chunk.maxY(); j++) {
                 for (int k = chunk.minZ(); k < chunk.maxZ(); k++) {
                     blockState = chunk.getBlockState(new BlockPos(i, j, k));
-                    if (blockState.getBlock() == Blocks.air) {
+                    if (blockState.getBlock() == Blocks.AIR) {
                         if (blockState.getBlock().getMetaFromState(blockState) == 1) continue;
                     } else if (blockState.getBlock().isAir(blockState, world, new BlockPos(i, j, k))) continue;
                     tileentity = chunk.getTileEntity(new BlockPos(i, j, k));
@@ -160,7 +160,7 @@ public class ChunkDisassembler {
         movingWorld.setDead();
 
         if (this.result.movingWorldMarkingBlock == null || !assemblyInteractor.isTileMovingWorldMarker(this.result.movingWorldMarkingBlock.tileEntity)) {
-            this.result.resultCode = AssembleResult.RESULT_MISSING_MARKER;
+            this.result.resultType = AssembleResult.ResultType.RESULT_MISSING_MARKER;
         } else {
             result.checkConsistent(world);
         }

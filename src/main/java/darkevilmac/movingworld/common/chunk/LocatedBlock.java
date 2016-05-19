@@ -46,7 +46,7 @@ public class LocatedBlock {
     }
 
     public String getBlockName() {
-        return Block.blockRegistry.getNameForObject(blockState.getBlock()).toString();
+        return Block.REGISTRY.getNameForObject(blockState.getBlock()).toString();
     }
 
     public void writeToNBT(NBTTagCompound comp) {

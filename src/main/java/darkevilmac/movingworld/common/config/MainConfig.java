@@ -56,7 +56,7 @@ public class MainConfig {
      * @return
      */
     private Block[] getDefaultBlockWhiteList() {
-        return new Block[]{Blocks.acacia_stairs, Blocks.activator_rail, Blocks.anvil, Blocks.bed, Blocks.birch_stairs, Blocks.bookshelf, Blocks.brewing_stand, Blocks.brick_block, Blocks.brick_stairs, Blocks.cactus, Blocks.cake, Blocks.carpet, Blocks.coal_block, Blocks.cobblestone, Blocks.cobblestone_wall, Blocks.command_block, Blocks.crafting_table, Blocks.dark_oak_stairs, Blocks.detector_rail, Blocks.diamond_block, Blocks.dispenser, Blocks.dropper, Blocks.daylight_detector, Blocks.double_stone_slab, Blocks.double_wooden_slab, Blocks.emerald_block, Blocks.enchanting_table, Blocks.end_stone, Blocks.ender_chest, Blocks.acacia_fence, Blocks.birch_fence, Blocks.dark_oak_fence, Blocks.jungle_fence, Blocks.nether_brick_fence, Blocks.oak_fence, Blocks.spruce_fence, Blocks.acacia_fence_gate, Blocks.birch_fence_gate, Blocks.dark_oak_fence_gate, Blocks.jungle_fence_gate, Blocks.oak_fence_gate, Blocks.spruce_fence_gate, Blocks.flower_pot, Blocks.furnace, Blocks.fire, Blocks.glass, Blocks.glass_pane, Blocks.glowstone, Blocks.gold_block, Blocks.golden_rail, Blocks.hardened_clay, Blocks.hay_block, Blocks.heavy_weighted_pressure_plate, Blocks.hopper, Blocks.iron_bars, Blocks.iron_block, Blocks.iron_door, Blocks.jukebox, Blocks.jungle_stairs, Blocks.ladder, Blocks.lapis_block, Blocks.lever, Blocks.light_weighted_pressure_plate, Blocks.lit_furnace, Blocks.lit_pumpkin, Blocks.lit_redstone_lamp, Blocks.log, Blocks.log2, Blocks.melon_block, Blocks.mob_spawner, Blocks.monster_egg, Blocks.mossy_cobblestone, Blocks.nether_brick, Blocks.nether_brick_fence, Blocks.nether_brick_stairs, Blocks.noteblock, Blocks.oak_stairs, Blocks.obsidian, Blocks.planks, Blocks.pumpkin, Blocks.piston, Blocks.piston_extension, Blocks.piston_head, Blocks.powered_comparator, Blocks.powered_repeater, Blocks.quartz_block, Blocks.quartz_stairs, Blocks.rail, Blocks.redstone_block, Blocks.redstone_torch, Blocks.redstone_wire, Blocks.sandstone, Blocks.sandstone_stairs, Blocks.skull, Blocks.sponge, Blocks.spruce_stairs, Blocks.stained_hardened_clay, Blocks.standing_sign, Blocks.stone_brick_stairs, Blocks.stone_button, Blocks.stone_pressure_plate, Blocks.stone_stairs, Blocks.stonebrick, Blocks.stained_glass, Blocks.stained_glass_pane, Blocks.sticky_piston, Blocks.stone_slab, Blocks.tnt, Blocks.torch, Blocks.trapdoor, Blocks.trapped_chest, Blocks.tripwire, Blocks.tripwire_hook, Blocks.unlit_redstone_torch, Blocks.unpowered_comparator, Blocks.unpowered_repeater, Blocks.wall_sign, Blocks.web, Blocks.wooden_button, Blocks.acacia_door, Blocks.birch_door, Blocks.dark_oak_door, Blocks.jungle_door, Blocks.oak_door, Blocks.spruce_door, Blocks.wooden_pressure_plate, Blocks.wool, Blocks.wooden_slab};
+        return new Block[]{Blocks.ACACIA_STAIRS, Blocks.ACTIVATOR_RAIL, Blocks.ANVIL, Blocks.BED, Blocks.BIRCH_STAIRS, Blocks.BOOKSHELF, Blocks.BREWING_STAND, Blocks.BRICK_BLOCK, Blocks.BRICK_STAIRS, Blocks.CACTUS, Blocks.CAKE, Blocks.CARPET, Blocks.COAL_BLOCK, Blocks.COBBLESTONE, Blocks.COBBLESTONE_WALL, Blocks.COMMAND_BLOCK, Blocks.CRAFTING_TABLE, Blocks.DARK_OAK_STAIRS, Blocks.DETECTOR_RAIL, Blocks.DIAMOND_BLOCK, Blocks.DISPENSER, Blocks.DROPPER, Blocks.DAYLIGHT_DETECTOR, Blocks.DOUBLE_STONE_SLAB, Blocks.DOUBLE_WOODEN_SLAB, Blocks.EMERALD_BLOCK, Blocks.ENCHANTING_TABLE, Blocks.END_STONE, Blocks.ENDER_CHEST, Blocks.ACACIA_FENCE, Blocks.BIRCH_FENCE, Blocks.DARK_OAK_FENCE, Blocks.JUNGLE_FENCE, Blocks.NETHER_BRICK_FENCE, Blocks.OAK_FENCE, Blocks.SPRUCE_FENCE, Blocks.ACACIA_FENCE_GATE, Blocks.BIRCH_FENCE_GATE, Blocks.DARK_OAK_FENCE_GATE, Blocks.JUNGLE_FENCE_GATE, Blocks.OAK_FENCE_GATE, Blocks.SPRUCE_FENCE_GATE, Blocks.FLOWER_POT, Blocks.FURNACE, Blocks.FIRE, Blocks.GLASS, Blocks.GLASS_PANE, Blocks.GLOWSTONE, Blocks.GOLD_BLOCK, Blocks.GOLDEN_RAIL, Blocks.HARDENED_CLAY, Blocks.HAY_BLOCK, Blocks.HEAVY_WEIGHTED_PRESSURE_PLATE, Blocks.HOPPER, Blocks.IRON_BARS, Blocks.IRON_BLOCK, Blocks.IRON_DOOR, Blocks.JUKEBOX, Blocks.JUNGLE_STAIRS, Blocks.LADDER, Blocks.LAPIS_BLOCK, Blocks.LEVER, Blocks.LIGHT_WEIGHTED_PRESSURE_PLATE, Blocks.LIT_FURNACE, Blocks.LIT_PUMPKIN, Blocks.LIT_REDSTONE_LAMP, Blocks.LOG, Blocks.LOG2, Blocks.MELON_BLOCK, Blocks.MOB_SPAWNER, Blocks.MONSTER_EGG, Blocks.MOSSY_COBBLESTONE, Blocks.NETHER_BRICK, Blocks.NETHER_BRICK_FENCE, Blocks.NETHER_BRICK_STAIRS, Blocks.NOTEBLOCK, Blocks.OAK_STAIRS, Blocks.OBSIDIAN, Blocks.PLANKS, Blocks.PUMPKIN, Blocks.PISTON, Blocks.PISTON_EXTENSION, Blocks.PISTON_HEAD, Blocks.POWERED_COMPARATOR, Blocks.POWERED_REPEATER, Blocks.QUARTZ_BLOCK, Blocks.QUARTZ_STAIRS, Blocks.RAIL, Blocks.REDSTONE_BLOCK, Blocks.REDSTONE_TORCH, Blocks.REDSTONE_WIRE, Blocks.SANDSTONE, Blocks.SANDSTONE_STAIRS, Blocks.RED_SANDSTONE, Blocks.RED_SANDSTONE_STAIRS, Blocks.SKULL, Blocks.SPONGE, Blocks.SPRUCE_STAIRS, Blocks.STAINED_HARDENED_CLAY, Blocks.STANDING_SIGN, Blocks.STONE_BRICK_STAIRS, Blocks.STONE_BUTTON, Blocks.STONE_PRESSURE_PLATE, Blocks.STONE_STAIRS, Blocks.STONEBRICK, Blocks.STAINED_GLASS, Blocks.STAINED_GLASS_PANE, Blocks.STICKY_PISTON, Blocks.STONE_SLAB, Blocks.STONE_SLAB2, Blocks.TNT, Blocks.TORCH, Blocks.TRAPDOOR, Blocks.TRAPPED_CHEST, Blocks.TRIPWIRE, Blocks.TRIPWIRE_HOOK, Blocks.UNLIT_REDSTONE_TORCH, Blocks.UNPOWERED_COMPARATOR, Blocks.UNPOWERED_REPEATER, Blocks.WALL_SIGN, Blocks.WEB, Blocks.WOODEN_BUTTON, Blocks.ACACIA_DOOR, Blocks.BIRCH_DOOR, Blocks.DARK_OAK_DOOR, Blocks.JUNGLE_DOOR, Blocks.OAK_DOOR, Blocks.SPRUCE_DOOR, Blocks.WOODEN_PRESSURE_PLATE, Blocks.WOOL, Blocks.WOODEN_SLAB};
     }
 
     /**
@@ -65,28 +65,28 @@ public class MainConfig {
      * @return
      */
     private Block[] getDefaultBlockBlackList() {
-        return new Block[]{(Blocks.dirt), (Blocks.grass), (Blocks.sand), (Blocks.gravel), (Blocks.clay), (Blocks.ice), (Blocks.water), (Blocks.flowing_water), (Blocks.flowing_lava), (Blocks.lava), (Blocks.snow), Blocks.snow_layer, (Blocks.waterlily), (Blocks.netherrack), (Blocks.soul_sand), Blocks.tallgrass};
+        return new Block[]{(Blocks.DIRT), (Blocks.GRASS), (Blocks.SAND), (Blocks.GRAVEL), (Blocks.CLAY), (Blocks.ICE), (Blocks.WATER), (Blocks.FLOWING_WATER), (Blocks.LAVA), (Blocks.FLOWING_LAVA), (Blocks.SNOW), Blocks.SNOW_LAYER, (Blocks.WATERLILY), (Blocks.NETHERRACK), (Blocks.SOUL_SAND), Blocks.TALLGRASS};
     }
 
     public void loadAndSave() {
         String[] defaultMaterialDensities = {"\"minecraft:air=0.0\"", "\"minecraft:wool=0.1\""};
         String[] defaultBlockDensities = {"\"ArchimedesShipsPlus:floater=0.04\"", "\"ArchimedesShipsPlus:balloon=0.02\""};
 
-        Block[] defaultOverWritableBlocks = {Blocks.tallgrass, Blocks.waterlily, Blocks.snow_layer};
+        Block[] defaultOverWritableBlocks = {Blocks.TALLGRASS, Blocks.WATERLILY, Blocks.SNOW_LAYER};
 
         String[] blockBlackListNames = new String[getDefaultBlockBlackList().length];
         for (int i = 0; i < getDefaultBlockBlackList().length; i++) {
-            blockBlackListNames[i] = Block.blockRegistry.getNameForObject(getDefaultBlockBlackList()[i]).toString();
+            blockBlackListNames[i] = Block.REGISTRY.getNameForObject(getDefaultBlockBlackList()[i]).toString();
         }
 
         String[] blockWhiteListNames = new String[getDefaultBlockWhiteList().length];
         for (int i = 0; i < blockWhiteListNames.length; i++) {
-            blockWhiteListNames[i] = Block.blockRegistry.getNameForObject(getDefaultBlockWhiteList()[i]).toString();
+            blockWhiteListNames[i] = Block.REGISTRY.getNameForObject(getDefaultBlockWhiteList()[i]).toString();
         }
 
         String[] overWritableBlockNames = new String[defaultOverWritableBlocks.length];
         for (int i = 0; i < defaultOverWritableBlocks.length; i++) {
-            overWritableBlockNames[i] = Block.blockRegistry.getNameForObject(defaultOverWritableBlocks[i]).toString();
+            overWritableBlockNames[i] = Block.REGISTRY.getNameForObject(defaultOverWritableBlocks[i]).toString();
         }
         config.load();
 
@@ -167,13 +167,13 @@ public class MainConfig {
     public void addBlacklistedBlock(Block block) {
         if (!allowListInsertion) return;
 
-        String blockName = Block.blockRegistry.getNameForObject(block).toString();
+        String blockName = Block.REGISTRY.getNameForObject(block).toString();
 
         config.load();
 
         String[] blockBlackListNames = new String[getDefaultBlockBlackList().length];
         for (int i = 0; i < getDefaultBlockBlackList().length; i++) {
-            blockBlackListNames[i] = Block.blockRegistry.getNameForObject(getDefaultBlockBlackList()[i]).toString();
+            blockBlackListNames[i] = Block.REGISTRY.getNameForObject(getDefaultBlockBlackList()[i]).toString();
         }
 
         Property prop = config.get("mobile_chunk", "forbidden_blocks", blockBlackListNames, "A list of blocks that will not be added to a Moving World.");
@@ -200,13 +200,13 @@ public class MainConfig {
     public void addWhitelistedBlock(Block block) {
         if (!allowListInsertion) return;
 
-        String blockName = Block.blockRegistry.getNameForObject(block).toString();
+        String blockName = Block.REGISTRY.getNameForObject(block).toString();
 
         config.load();
 
         String[] blockWhiteListNames = new String[getDefaultBlockWhiteList().length];
         for (int i = 0; i < blockWhiteListNames.length; i++) {
-            blockWhiteListNames[i] = Block.blockRegistry.getNameForObject(getDefaultBlockWhiteList()[i]).toString();
+            blockWhiteListNames[i] = Block.REGISTRY.getNameForObject(getDefaultBlockWhiteList()[i]).toString();
         }
 
         Property prop = config.get("mobile_chunk", "allowed_blocks", blockWhiteListNames, "A list of blocks that are allowed on a Moving World.");
@@ -230,12 +230,12 @@ public class MainConfig {
     }
 
     public boolean isStateAllowed(IBlockState state) {
-        String id = Block.blockRegistry.getNameForObject(state.getBlock()).toString();
+        String id = Block.REGISTRY.getNameForObject(state.getBlock()).toString();
         return shared.useWhitelist ? shared.blockWhitelist.contains(id) : !shared.blockBlacklist.contains(id);
     }
 
     public boolean canOverwriteState(IBlockState state) {
-        return shared.overwritableBlocks.contains(Block.blockRegistry.getNameForObject(state.getBlock()));
+        return shared.overwritableBlocks.contains(Block.REGISTRY.getNameForObject(state.getBlock()));
     }
 
     @SubscribeEvent

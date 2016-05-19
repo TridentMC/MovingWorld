@@ -34,7 +34,7 @@ public class MetaRotations {
             MovingWorld.logger.error("Adding null block meta rotations");
             return;
         }
-        MovingWorld.logger.trace("Adding meta rotations (block=" + Block.blockRegistry.getNameForObject(block) + ", id=" + Block.getIdFromBlock(block) + ", mask=" + bitmask + ", rot=" + Arrays.toString(metarotation) + ")");
+        MovingWorld.logger.trace("Adding meta rotations (block=" + Block.REGISTRY.getNameForObject(block) + ", id=" + Block.getIdFromBlock(block) + ", mask=" + bitmask + ", rot=" + Arrays.toString(metarotation) + ")");
 
         metaRotationMap.put(Block.getIdFromBlock(block), new BlockMetaRotation(block, metarotation, bitmask));
     }

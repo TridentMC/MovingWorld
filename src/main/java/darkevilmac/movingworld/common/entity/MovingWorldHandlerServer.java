@@ -1,13 +1,12 @@
 package darkevilmac.movingworld.common.entity;
 
-import darkevilmac.movingworld.MovingWorld;
+import darkevilmac.movingworld.common.chunk.ChunkIO;
 import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunkServer;
-import darkevilmac.movingworld.common.network.ChunkBlockUpdateMessage;
+import darkevilmac.movingworld.common.network.MovingWorldNetworking;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
 
 import java.util.Collection;
 
@@ -36,10 +35,14 @@ public abstract class MovingWorldHandlerServer extends MovingWorldHandlerCommon 
         super.onChunkUpdate();
         Collection<BlockPos> list = ((MobileChunkServer) getMovingWorld().getMobileChunk()).getSendQueue();
         if (!firstChunkUpdate) {
-            ChunkBlockUpdateMessage msg = new ChunkBlockUpdateMessage(getMovingWorld(), list);
-            MovingWorld.instance.network.sendToAllAround(msg, new NetworkRegistry.TargetPoint(getMovingWorld().worldObj.provider.getDimension(), getMovingWorld().posX, getMovingWorld().posY, getMovingWorld().posZ, 64D));
+            MovingWorldNetworking.NETWORK.send().packet("ChunkBlockUpdateMessage")
+                    .with("dimID", getMovingWorld().worldObj.provider.getDimension())
+                    .with("entityID", getMovingWorld().getEntityId())
+                    .with("chunk", ChunkIO.writeCompressed(getMovingWorld().getMobileChunk(), list))
+                    .toAllAround(getMovingWorld().worldObj, getMovingWorld(), 64D);
         }
         list.clear();
         firstChunkUpdate = false;
     }
 }
+

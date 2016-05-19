@@ -29,11 +29,11 @@ public class AssemblePriorityConfig {
 
     private boolean rediscoverPoweredBlocks;
 
-    private Block[] defaultHighPriorityAssemblyBlocks = {Blocks.portal, Blocks.piston_extension, Blocks.piston_head, Blocks.sticky_piston, Blocks.piston, Blocks.portal};
-    private Block[] defaultLowPriorityAssemblyBlocks = {Blocks.redstone_wire, Blocks.obsidian};
+    private Block[] defaultHighPriorityAssemblyBlocks = {Blocks.PORTAL, Blocks.PISTON_EXTENSION, Blocks.PISTON_HEAD, Blocks.STICKY_PISTON, Blocks.PISTON, Blocks.PORTAL};
+    private Block[] defaultLowPriorityAssemblyBlocks = {Blocks.REDSTONE_WIRE, Blocks.OBSIDIAN};
 
-    private Block[] defaultHighPriorityDisassemblyBlocks = {Blocks.piston_head, Blocks.piston_extension};
-    private Block[] defaultLowPriorityDisassemblyBlocks = {Blocks.end_portal, Blocks.portal, Blocks.redstone_wire};
+    private Block[] defaultHighPriorityDisassemblyBlocks = {Blocks.PISTON_HEAD, Blocks.PISTON_EXTENSION};
+    private Block[] defaultLowPriorityDisassemblyBlocks = {Blocks.END_PORTAL, Blocks.PORTAL, Blocks.REDSTONE_WIRE};
 
     private Set<String> highPriorityAssemblyBlocksToRegister;
     private Set<String> lowPriorityAssemblyBlocksToRegister;
@@ -93,7 +93,7 @@ public class AssemblePriorityConfig {
         String[] retVal = new String[blocks.length];
 
         for (int i = 0; i < blocks.length; i++) {
-            retVal[i] = Block.blockRegistry.getNameForObject(blocks[i]).toString();
+            retVal[i] = Block.REGISTRY.getNameForObject(blocks[i]).toString();
         }
 
         return retVal;
@@ -145,13 +145,13 @@ public class AssemblePriorityConfig {
     void discoverPoweredBlocks() {
         if (rediscoverPoweredBlocks) {
             ArrayList<String> poweredBlockNames = new ArrayList<String>();
-            ArrayList<Block> allBlocks = Lists.newArrayList(Block.blockRegistry.iterator());
+            ArrayList<Block> allBlocks = Lists.newArrayList(Block.REGISTRY.iterator());
 
             for (Block checkBlock : allBlocks) {
                 IBlockState state = checkBlock.getDefaultState();
                 for (IProperty prop : state.getProperties().keySet()) {
                     if (prop.getName().equals("powered")) {
-                        String poweredBlockName = Block.blockRegistry.getNameForObject(checkBlock).toString();
+                        String poweredBlockName = Block.REGISTRY.getNameForObject(checkBlock).toString();
                         poweredBlockNames.add(poweredBlockName);
                         MovingWorld.logger.info("Found powered block with name: " + poweredBlockName);
                     }
@@ -165,7 +165,7 @@ public class AssemblePriorityConfig {
 
             String[] defaultHighPriorityAssemblyBlockNames = new String[defaultHighPriorityAssemblyBlocks.length];
             for (int i = 0; i < defaultHighPriorityAssemblyBlocks.length; i++) {
-                defaultHighPriorityAssemblyBlockNames[i] = Block.blockRegistry.getNameForObject(defaultHighPriorityAssemblyBlocks[i]).toString();
+                defaultHighPriorityAssemblyBlockNames[i] = Block.REGISTRY.getNameForObject(defaultHighPriorityAssemblyBlocks[i]).toString();
             }
 
             config.get("mobile_chunk", "highpriorityassembly_blocks", defaultHighPriorityAssemblyBlockNames, "A list of blocks that should be set to air first, and then placed last when disassembled.").set(ArrayUtils.addAll(defaultHighPriorityAssemblyBlockNames, discoveredPoweredBlockNames));
@@ -176,19 +176,19 @@ public class AssemblePriorityConfig {
     }
 
     public void registerHighPriorityAssemblyBlock(Block block) {
-        highPriorityAssemblyBlocksToRegister.add(Block.blockRegistry.getNameForObject(block).toString());
+        highPriorityAssemblyBlocksToRegister.add(Block.REGISTRY.getNameForObject(block).toString());
     }
 
     public void registerLowPriorityAssemblyBlock(Block block) {
-        lowPriorityAssemblyBlocksToRegister.add(Block.blockRegistry.getNameForObject(block).toString());
+        lowPriorityAssemblyBlocksToRegister.add(Block.REGISTRY.getNameForObject(block).toString());
     }
 
     public void registerHighPriorityDisassemblyBlock(Block block) {
-        highPriorityDisassemblyBlocksToRegister.add(Block.blockRegistry.getNameForObject(block).toString());
+        highPriorityDisassemblyBlocksToRegister.add(Block.REGISTRY.getNameForObject(block).toString());
     }
 
     public void registerLowPriorityDisassemblyBlock(Block block) {
-        lowPriorityDisassemblyBlocksToRegister.add(Block.blockRegistry.getNameForObject(block).toString());
+        lowPriorityDisassemblyBlocksToRegister.add(Block.REGISTRY.getNameForObject(block).toString());
     }
 
     public Set<String> getHighPriorityAssembly() {

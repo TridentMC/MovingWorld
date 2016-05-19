@@ -55,7 +55,6 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     private static final DataParameter<Integer> THIRTY = EntityDataManager.<Integer>createKey(EntityMovingWorld.class, DataSerializers.VARINT);
 
-
     public float motionYaw;
     public EnumFacing frontDirection;
     public BlockPos riderDestination;
@@ -117,7 +116,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
                     IBlockState blockState = world.getBlockState(new BlockPos(x, y, z));
                     Block block = blockState.getBlock();
 
-                    if (block != null && (blockState.getMaterial() == Material.water || blockState.getMaterial() == Material.lava)) {
+                    if (block != null && (blockState.getMaterial() == Material.WATER || blockState.getMaterial() == Material.LAVA)) {
                         int j2 = block.getMetaFromState(blockState);
                         double d0;
 
@@ -271,7 +270,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void setPositionAndRotation2(double x, double y, double z, float yaw, float pitch, int inc, boolean control) {
+    public void setPositionAndRotationDirect(double x, double y, double z, float yaw, float pitch, int inc, boolean control) {
         if (control && this.getControllingPassenger() != null) {
             this.prevPosX = this.posX = x;
             this.prevPosY = this.posY = y;
@@ -325,13 +324,6 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     @Override
     public void onUpdate() {
-        // TODO: Temporarily disable collision calculations as they aren't implemented.
-        //if (firstUpdate)
-        //    mobileChunk.calculateBounds();
-        //else
-        //    mobileChunk.updateBlockBounds(rotationYaw);
-
-
         onEntityUpdate();
 
         prevPosX = posX;
@@ -575,10 +567,10 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
                     IBlockState blockState = worldObj.getBlockState(new BlockPos(i1, l1, j1));
                     Block block = blockState.getBlock();
 
-                    if (block == Blocks.snow) {
+                    if (block == Blocks.SNOW) {
                         worldObj.setBlockToAir(new BlockPos(i1, l1, j1));
                         isCollidedHorizontally = false;
-                    } else if (block == Blocks.waterlily) {
+                    } else if (block == Blocks.WATERLILY) {
                         worldObj.destroyBlock(new BlockPos(i1, l1, j1), true);
                         isCollidedHorizontally = false;
                     } else {
@@ -711,7 +703,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
                     }
                     blockState = mobileChunk.getBlockState(new BlockPos(i, j, k));
 
-                    if (blockState.getBlock() != Blocks.air) {
+                    if (blockState.getBlock() != Blocks.AIR) {
                         blockState.getBlock().dropBlockAsItem(worldObj, new BlockPos(MathHelper.floor_double(posX), MathHelper.floor_double(posY), MathHelper.floor_double(posZ)), blockState, 0);
                     }
                 }

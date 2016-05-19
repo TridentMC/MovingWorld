@@ -262,7 +262,7 @@ public class MobileChunk implements IBlockAccess {
 
     public AxisAlignedBB calculateBlockBounds(BlockPos pos) {
         IBlockState state = getBlockState(pos);
-        if (state == null || (state.getMaterial().equals(Material.air))) {
+        if (state == null || (state.getMaterial().equals(Material.AIR))) {
             return null;
         }
 
@@ -409,11 +409,11 @@ public class MobileChunk implements IBlockAccess {
 
         IBlockState state = getBlockState(new BlockPos(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15));
         Block block = state.getBlock();
-        if (block == Blocks.air && block.getMetaFromState(state) == 1) {
+        if (block == Blocks.AIR && block.getMetaFromState(state) == 1) {
             return true;
         }
-        if (block == null || state.getMaterial().equals(Material.air)) {
-            storage.set(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15, Blocks.air.getDefaultState());
+        if (block == null || state.getMaterial().equals(Material.AIR)) {
+            storage.set(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15, Blocks.AIR.getDefaultState());
             onSetBlockAsFilledAir(pos);
             return true;
         }
@@ -533,13 +533,13 @@ public class MobileChunk implements IBlockAccess {
     @Override
     public boolean isAirBlock(BlockPos pos) {
         IBlockState state = getBlockState(pos);
-        return state == null || state.getMaterial().equals(Material.air);
+        return state == null || state.getMaterial().equals(Material.AIR);
     }
 
     public boolean isBlockTakingWaterVolume(BlockPos pos) {
         IBlockState blockState = getBlockState(pos);
         Block block = blockState.getBlock();
-        if (block == null || blockState.getMaterial().equals(Material.air)) {
+        if (block == null || blockState.getMaterial().equals(Material.AIR)) {
             if (block.getMetaFromState(blockState) == 1) return false;
         }
         return true;
@@ -554,7 +554,7 @@ public class MobileChunk implements IBlockAccess {
         ExtendedBlockStorage storage = getBlockStorage(pos);
         IBlockState state = storage != null ? storage.get(pos.getX(), pos.getY(), pos.getZ()) : null;
         if (state == null || storage == null)
-            return Blocks.air.getDefaultState();
+            return Blocks.AIR.getDefaultState();
         return state;
     }
 
