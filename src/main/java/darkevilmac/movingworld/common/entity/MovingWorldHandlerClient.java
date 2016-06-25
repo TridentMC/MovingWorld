@@ -1,9 +1,10 @@
 package darkevilmac.movingworld.common.entity;
 
-import darkevilmac.movingworld.common.network.MovingWorldNetworking;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
+
+import darkevilmac.movingworld.common.network.MovingWorldNetworking;
 
 public abstract class MovingWorldHandlerClient extends MovingWorldHandlerCommon {
     public MovingWorldHandlerClient(EntityMovingWorld movingWorld) {

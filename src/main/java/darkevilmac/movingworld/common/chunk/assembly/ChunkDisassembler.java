@@ -1,14 +1,5 @@
 package darkevilmac.movingworld.common.chunk.assembly;
 
-import darkevilmac.movingworld.MovingWorld;
-import darkevilmac.movingworld.common.chunk.LocatedBlock;
-import darkevilmac.movingworld.common.chunk.MovingWorldAssemblyInteractor;
-import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunk;
-import darkevilmac.movingworld.common.entity.EntityMovingWorld;
-import darkevilmac.movingworld.common.event.DisassembleBlockEvent;
-import darkevilmac.movingworld.common.tile.IMovingWorldTileEntity;
-import darkevilmac.movingworld.common.tile.TileMovingWorldMarkingBlock;
-import darkevilmac.movingworld.common.util.*;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -19,6 +10,20 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 
 import java.util.ArrayList;
+
+import darkevilmac.movingworld.MovingWorld;
+import darkevilmac.movingworld.common.chunk.LocatedBlock;
+import darkevilmac.movingworld.common.chunk.MovingWorldAssemblyInteractor;
+import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunk;
+import darkevilmac.movingworld.common.entity.EntityMovingWorld;
+import darkevilmac.movingworld.common.event.DisassembleBlockEvent;
+import darkevilmac.movingworld.common.tile.IMovingWorldTileEntity;
+import darkevilmac.movingworld.common.tile.TileMovingWorldMarkingBlock;
+import darkevilmac.movingworld.common.util.FloodFiller;
+import darkevilmac.movingworld.common.util.LocatedBlockList;
+import darkevilmac.movingworld.common.util.MathHelperMod;
+import darkevilmac.movingworld.common.util.RotationHelper;
+import darkevilmac.movingworld.common.util.Vec3dMod;
 
 public class ChunkDisassembler {
     public boolean overwrite;
@@ -113,7 +118,8 @@ public class ChunkDisassembler {
                     blockState = chunk.getBlockState(new BlockPos(i, j, k));
                     if (blockState.getBlock() == Blocks.AIR) {
                         if (blockState.getBlock().getMetaFromState(blockState) == 1) continue;
-                    } else if (blockState.getBlock().isAir(blockState, world, new BlockPos(i, j, k))) continue;
+                    } else if (blockState.getBlock().isAir(blockState, world, new BlockPos(i, j, k)))
+                        continue;
                     tileentity = chunk.getTileEntity(new BlockPos(i, j, k));
 
                     vec = new Vec3dMod(i + ox, j + oy, k + oz);

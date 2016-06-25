@@ -1,12 +1,13 @@
 package darkevilmac.movingworld.common.util;
 
-import darkevilmac.movingworld.common.chunk.LocatedBlock;
-import darkevilmac.movingworld.common.util.rotation.IRotationBlock;
-import darkevilmac.movingworld.common.util.rotation.IRotationProperty;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.Vec3i;
+
+import darkevilmac.movingworld.common.chunk.LocatedBlock;
+import darkevilmac.movingworld.common.util.rotation.IRotationBlock;
+import darkevilmac.movingworld.common.util.rotation.IRotationProperty;
 
 public class RotationHelper {
 

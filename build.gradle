@@ -31,10 +31,10 @@ minecraft {
     version = "1.10-12.18.0.1986-1.10.0"
     runDir = "run"
 
-	def replacementVersion = 'MOD_VERSION = \"' + project.version + '\"'
+    def replacementVersion = 'MOD_VERSION = \"' + project.version + '\"'
 
-    replace ("MOD_VERSION = \"@MOVINGWORLDVER@\"",
-			 replacementVersion)
+    replace("MOD_VERSION = \"@MOVINGWORLDVER@\"",
+            replacementVersion)
 
     mappings = "snapshot_20160621"
 }
@@ -48,7 +48,7 @@ repositories {
         name 'spongepowered'
         url 'https://repo.spongepowered.org/maven/'
     }
-	maven {
+    maven {
         url = 'http://unascribed.com/maven/releases'
     }
 }
@@ -58,20 +58,20 @@ dependencies {
         exclude module: 'launchwrapper'
         exclude module: 'guava'
     }
-	
-	compile 'com.unascribed:lambdanetwork:1.0.0'
+
+    compile 'com.unascribed:lambdanetwork:1.0.0'
     shadow 'com.unascribed:lambdanetwork:1.0.0'
 }
 
 shadowJar {
     exclude 'dummyThing'
 
-	relocate 'com.unascribed.lambdanetwork', "darkevilmac.movingworld.repackage.com.unascribed.lambdanetwork"
+    relocate 'com.unascribed.lambdanetwork', "darkevilmac.movingworld.repackage.com.unascribed.lambdanetwork"
     dependencies {
         include(dependency('org.spongepowered:mixin'))
-		include(dependency('com.unascribed:lambdanetwork'))
+        include(dependency('com.unascribed:lambdanetwork'))
     }
-	
+
     classifier = 'full'
 }
 

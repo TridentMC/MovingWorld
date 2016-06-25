@@ -1,6 +1,5 @@
 package darkevilmac.movingworld.client.gui;
 
-import darkevilmac.movingworld.MovingWorld;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.common.config.ConfigElement;
@@ -9,6 +8,8 @@ import net.minecraftforge.fml.client.config.IConfigElement;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import darkevilmac.movingworld.MovingWorld;
 
 public class MovingWorldConfigGUI extends GuiConfig {
 

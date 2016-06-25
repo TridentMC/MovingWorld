@@ -68,10 +68,6 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     public Entity prevRiddenByEntity;
     protected float groundFriction, horFriction, vertFriction;
     protected int[] layeredBlockVolumeCount;
-    private MobileChunk mobileChunk;
-    private MovingWorldInfo info;
-    private ChunkDisassembler disassembler;
-
     // Related to actual movement. We don't ever really change these variables, they're changed by classes derived from EntityMovingWorld
     protected boolean noControl;
     protected boolean syncPosWithServer;
@@ -83,6 +79,9 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     protected double controlPitch, controlYaw;
     @SideOnly(Side.CLIENT)
     protected double controlVelX, controlVelY, controlVelZ;
+    private MobileChunk mobileChunk;
+    private MovingWorldInfo info;
+    private ChunkDisassembler disassembler;
 
     public EntityMovingWorld(World world) {
         super(world);

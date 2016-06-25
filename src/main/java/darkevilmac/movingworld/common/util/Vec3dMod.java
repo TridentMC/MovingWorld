@@ -45,9 +45,6 @@ public class Vec3dMod extends Vec3d {
 
     /**
      * Rotate around the X axis
-     *
-     * @param pitch
-     * @return
      */
     @Deprecated
     public Vec3dMod rotatePitch(float pitch) {
@@ -56,9 +53,6 @@ public class Vec3dMod extends Vec3d {
 
     /**
      * Rotate around the Y axis
-     *
-     * @param yaw
-     * @return
      */
     @Deprecated
     public Vec3dMod rotateYaw(float yaw) {
@@ -67,9 +61,6 @@ public class Vec3dMod extends Vec3d {
 
     /**
      * Rotate around the Z axis.
-     *
-     * @param roll
-     * @return
      */
     @Deprecated
     public Vec3dMod rotateRoll(float roll) {

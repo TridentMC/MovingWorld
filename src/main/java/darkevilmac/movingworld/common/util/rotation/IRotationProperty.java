@@ -3,8 +3,9 @@ package darkevilmac.movingworld.common.util.rotation;
 import net.minecraft.block.state.IBlockState;
 
 /**
- * If a block is for whatever reason not using one of the pre-made rotation systems Minecraft provides they can make
- * their custom property extend this so MovingWorld will know how to rotate it.
+ * If a block is for whatever reason not using one of the pre-made rotation systems Minecraft
+ * provides they can make their custom property extend this so MovingWorld will know how to rotate
+ * it.
  */
 public interface IRotationProperty {
 

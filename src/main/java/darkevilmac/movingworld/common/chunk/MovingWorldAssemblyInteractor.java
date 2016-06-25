@@ -1,11 +1,5 @@
 package darkevilmac.movingworld.common.chunk;
 
-import darkevilmac.movingworld.MovingWorld;
-import darkevilmac.movingworld.common.block.BlockMovingWorldMarker;
-import darkevilmac.movingworld.common.chunk.assembly.AssembleResult;
-import darkevilmac.movingworld.common.chunk.assembly.CanAssemble;
-import darkevilmac.movingworld.common.tile.TileMovingWorldMarkingBlock;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -15,10 +9,16 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import darkevilmac.movingworld.MovingWorld;
+import darkevilmac.movingworld.common.block.BlockMovingWorldMarker;
+import darkevilmac.movingworld.common.chunk.assembly.AssembleResult;
+import darkevilmac.movingworld.common.chunk.assembly.CanAssemble;
+import darkevilmac.movingworld.common.tile.TileMovingWorldMarkingBlock;
+import io.netty.buffer.ByteBuf;
+
 /**
- * Used for storing information given by and taken by the (Dis)Assembler
- * <p/>
- * Mostly for use in GUIs, the ship pretty much immediately forgets this thing.
+ * Used for storing information given by and taken by the (Dis)Assembler <p/> Mostly for use in
+ * GUIs, the ship pretty much immediately forgets this thing.
  */
 public class MovingWorldAssemblyInteractor {
 
@@ -105,8 +105,6 @@ public class MovingWorldAssemblyInteractor {
 
     /**
      * Recommended to call writeNBTMetadata first, then write the rest of your data.
-     *
-     * @param compound
      */
     public void writeNBTFully(NBTTagCompound compound) {
     }
@@ -114,8 +112,6 @@ public class MovingWorldAssemblyInteractor {
 
     /**
      * Write metadata to NBT.
-     *
-     * @param compound
      */
     public void writeNBTMetadata(NBTTagCompound compound) {
     }

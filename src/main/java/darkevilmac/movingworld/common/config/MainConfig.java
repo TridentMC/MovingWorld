@@ -1,8 +1,5 @@
 package darkevilmac.movingworld.common.config;
 
-import darkevilmac.movingworld.MovingWorld;
-import darkevilmac.movingworld.common.config.priority.AssemblePriorityConfig;
-import darkevilmac.movingworld.common.util.MaterialDensity;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -18,6 +15,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
+
+import darkevilmac.movingworld.MovingWorld;
+import darkevilmac.movingworld.common.config.priority.AssemblePriorityConfig;
+import darkevilmac.movingworld.common.util.MaterialDensity;
 
 public class MainConfig {
 
@@ -52,8 +53,6 @@ public class MainConfig {
 
     /**
      * A private method so I can hide it in my IDE, because it's an eye sore.
-     *
-     * @return
      */
     private Block[] getDefaultBlockWhiteList() {
         return new Block[]{Blocks.ACACIA_STAIRS, Blocks.ACTIVATOR_RAIL, Blocks.ANVIL, Blocks.BED, Blocks.BIRCH_STAIRS, Blocks.BOOKSHELF, Blocks.BREWING_STAND, Blocks.BRICK_BLOCK, Blocks.BRICK_STAIRS, Blocks.CACTUS, Blocks.CAKE, Blocks.CARPET, Blocks.COAL_BLOCK, Blocks.COBBLESTONE, Blocks.COBBLESTONE_WALL, Blocks.COMMAND_BLOCK, Blocks.CRAFTING_TABLE, Blocks.DARK_OAK_STAIRS, Blocks.DETECTOR_RAIL, Blocks.DIAMOND_BLOCK, Blocks.DISPENSER, Blocks.DROPPER, Blocks.DAYLIGHT_DETECTOR, Blocks.DOUBLE_STONE_SLAB, Blocks.DOUBLE_WOODEN_SLAB, Blocks.EMERALD_BLOCK, Blocks.ENCHANTING_TABLE, Blocks.END_STONE, Blocks.ENDER_CHEST, Blocks.ACACIA_FENCE, Blocks.BIRCH_FENCE, Blocks.DARK_OAK_FENCE, Blocks.JUNGLE_FENCE, Blocks.NETHER_BRICK_FENCE, Blocks.OAK_FENCE, Blocks.SPRUCE_FENCE, Blocks.ACACIA_FENCE_GATE, Blocks.BIRCH_FENCE_GATE, Blocks.DARK_OAK_FENCE_GATE, Blocks.JUNGLE_FENCE_GATE, Blocks.OAK_FENCE_GATE, Blocks.SPRUCE_FENCE_GATE, Blocks.FLOWER_POT, Blocks.FURNACE, Blocks.FIRE, Blocks.GLASS, Blocks.GLASS_PANE, Blocks.GLOWSTONE, Blocks.GOLD_BLOCK, Blocks.GOLDEN_RAIL, Blocks.HARDENED_CLAY, Blocks.HAY_BLOCK, Blocks.HEAVY_WEIGHTED_PRESSURE_PLATE, Blocks.HOPPER, Blocks.IRON_BARS, Blocks.IRON_BLOCK, Blocks.IRON_DOOR, Blocks.JUKEBOX, Blocks.JUNGLE_STAIRS, Blocks.LADDER, Blocks.LAPIS_BLOCK, Blocks.LEVER, Blocks.LIGHT_WEIGHTED_PRESSURE_PLATE, Blocks.LIT_FURNACE, Blocks.LIT_PUMPKIN, Blocks.LIT_REDSTONE_LAMP, Blocks.LOG, Blocks.LOG2, Blocks.MELON_BLOCK, Blocks.MOB_SPAWNER, Blocks.MONSTER_EGG, Blocks.MOSSY_COBBLESTONE, Blocks.NETHER_BRICK, Blocks.NETHER_BRICK_FENCE, Blocks.NETHER_BRICK_STAIRS, Blocks.NOTEBLOCK, Blocks.OAK_STAIRS, Blocks.OBSIDIAN, Blocks.PLANKS, Blocks.PUMPKIN, Blocks.PISTON, Blocks.PISTON_EXTENSION, Blocks.PISTON_HEAD, Blocks.POWERED_COMPARATOR, Blocks.POWERED_REPEATER, Blocks.QUARTZ_BLOCK, Blocks.QUARTZ_STAIRS, Blocks.RAIL, Blocks.REDSTONE_BLOCK, Blocks.REDSTONE_TORCH, Blocks.REDSTONE_WIRE, Blocks.SANDSTONE, Blocks.SANDSTONE_STAIRS, Blocks.RED_SANDSTONE, Blocks.RED_SANDSTONE_STAIRS, Blocks.SKULL, Blocks.SPONGE, Blocks.SPRUCE_STAIRS, Blocks.STAINED_HARDENED_CLAY, Blocks.STANDING_SIGN, Blocks.STONE_BRICK_STAIRS, Blocks.STONE_BUTTON, Blocks.STONE_PRESSURE_PLATE, Blocks.STONE_STAIRS, Blocks.STONEBRICK, Blocks.STAINED_GLASS, Blocks.STAINED_GLASS_PANE, Blocks.STICKY_PISTON, Blocks.STONE_SLAB, Blocks.STONE_SLAB2, Blocks.TNT, Blocks.TORCH, Blocks.TRAPDOOR, Blocks.TRAPPED_CHEST, Blocks.TRIPWIRE, Blocks.TRIPWIRE_HOOK, Blocks.UNLIT_REDSTONE_TORCH, Blocks.UNPOWERED_COMPARATOR, Blocks.UNPOWERED_REPEATER, Blocks.WALL_SIGN, Blocks.WEB, Blocks.WOODEN_BUTTON, Blocks.ACACIA_DOOR, Blocks.BIRCH_DOOR, Blocks.DARK_OAK_DOOR, Blocks.JUNGLE_DOOR, Blocks.OAK_DOOR, Blocks.SPRUCE_DOOR, Blocks.WOODEN_PRESSURE_PLATE, Blocks.WOOL, Blocks.WOODEN_SLAB};
@@ -61,8 +60,6 @@ public class MainConfig {
 
     /**
      * A private method so I can hide it in my IDE, because it's an eye sore.
-     *
-     * @return
      */
     private Block[] getDefaultBlockBlackList() {
         return new Block[]{(Blocks.DIRT), (Blocks.GRASS), (Blocks.SAND), (Blocks.GRAVEL), (Blocks.CLAY), (Blocks.ICE), (Blocks.WATER), (Blocks.FLOWING_WATER), (Blocks.LAVA), (Blocks.FLOWING_LAVA), (Blocks.SNOW), Blocks.SNOW_LAYER, (Blocks.WATERLILY), (Blocks.NETHERRACK), (Blocks.SOUL_SAND), Blocks.TALLGRASS};

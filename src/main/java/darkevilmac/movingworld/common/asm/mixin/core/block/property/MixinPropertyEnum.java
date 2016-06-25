@@ -1,13 +1,15 @@
 package darkevilmac.movingworld.common.asm.mixin.core.block.property;
 
-import darkevilmac.movingworld.common.util.rotation.IRotationProperty;
 import net.minecraft.block.BlockLever;
 import net.minecraft.block.BlockLog;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.EnumFacing;
+
 import org.spongepowered.asm.mixin.Mixin;
+
+import darkevilmac.movingworld.common.util.rotation.IRotationProperty;
 
 @Mixin(PropertyEnum.class)
 public class MixinPropertyEnum implements IRotationProperty {

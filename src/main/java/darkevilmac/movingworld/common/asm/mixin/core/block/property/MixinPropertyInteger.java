@@ -1,10 +1,12 @@
 package darkevilmac.movingworld.common.asm.mixin.core.block.property;
 
-import darkevilmac.movingworld.common.util.RotationHelper;
-import darkevilmac.movingworld.common.util.rotation.IRotationProperty;
 import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.IBlockState;
+
 import org.spongepowered.asm.mixin.Mixin;
+
+import darkevilmac.movingworld.common.util.RotationHelper;
+import darkevilmac.movingworld.common.util.rotation.IRotationProperty;
 
 @Mixin(PropertyInteger.class)
 public class MixinPropertyInteger implements IRotationProperty {

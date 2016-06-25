@@ -24,57 +24,6 @@ import io.netty.buffer.ByteBuf;
 
 public class AssembleResult {
 
-    public enum ResultType {
-        RESULT_NONE, RESULT_OK, RESULT_BLOCK_OVERFLOW, RESULT_MISSING_MARKER, RESULT_ERROR_OCCURED,
-        RESULT_BUSY_COMPILING, RESULT_INCONSISTENT, RESULT_OK_WITH_WARNINGS;
-
-        public byte toByte() {
-            return ResultType.toByte(this);
-        }
-
-        public static byte toByte(ResultType action) {
-            switch (action) {
-                case RESULT_OK:
-                    return (byte) 1;
-                case RESULT_BLOCK_OVERFLOW:
-                    return (byte) 2;
-                case RESULT_MISSING_MARKER:
-                    return (byte) 3;
-                case RESULT_ERROR_OCCURED:
-                    return (byte) 4;
-                case RESULT_BUSY_COMPILING:
-                    return (byte) 5;
-                case RESULT_INCONSISTENT:
-                    return (byte) 6;
-                case RESULT_OK_WITH_WARNINGS:
-                    return (byte) 7;
-                default:
-                    return (byte) 0;
-            }
-        }
-
-        public static ResultType fromByte(byte actionInt) {
-            switch (actionInt) {
-                case 1:
-                    return RESULT_OK;
-                case 2:
-                    return RESULT_BLOCK_OVERFLOW;
-                case 3:
-                    return RESULT_MISSING_MARKER;
-                case 4:
-                    return RESULT_ERROR_OCCURED;
-                case 5:
-                    return RESULT_BUSY_COMPILING;
-                case 6:
-                    return RESULT_INCONSISTENT;
-                case 7:
-                    return RESULT_OK_WITH_WARNINGS;
-                default:
-                    return RESULT_NONE;
-            }
-        }
-    }
-
     public final LocatedBlockList assembledBlocks = new LocatedBlockList();
     public BlockPos offset;
     public MovingWorldAssemblyInteractor assemblyInteractor;
@@ -83,7 +32,6 @@ public class AssembleResult {
     int blockCount;
     int tileEntityCount;
     float mass;
-
     public AssembleResult(ResultType resultCode, ByteBuf buf) {
         this.resultType = resultCode;
         if (resultCode == ResultType.RESULT_NONE) return;
@@ -313,6 +261,57 @@ public class AssembleResult {
         assemblyInteractor.toByteBuf(buf);
 
         return buf;
+    }
+
+    public enum ResultType {
+        RESULT_NONE, RESULT_OK, RESULT_BLOCK_OVERFLOW, RESULT_MISSING_MARKER, RESULT_ERROR_OCCURED,
+        RESULT_BUSY_COMPILING, RESULT_INCONSISTENT, RESULT_OK_WITH_WARNINGS;
+
+        public static byte toByte(ResultType action) {
+            switch (action) {
+                case RESULT_OK:
+                    return (byte) 1;
+                case RESULT_BLOCK_OVERFLOW:
+                    return (byte) 2;
+                case RESULT_MISSING_MARKER:
+                    return (byte) 3;
+                case RESULT_ERROR_OCCURED:
+                    return (byte) 4;
+                case RESULT_BUSY_COMPILING:
+                    return (byte) 5;
+                case RESULT_INCONSISTENT:
+                    return (byte) 6;
+                case RESULT_OK_WITH_WARNINGS:
+                    return (byte) 7;
+                default:
+                    return (byte) 0;
+            }
+        }
+
+        public static ResultType fromByte(byte actionInt) {
+            switch (actionInt) {
+                case 1:
+                    return RESULT_OK;
+                case 2:
+                    return RESULT_BLOCK_OVERFLOW;
+                case 3:
+                    return RESULT_MISSING_MARKER;
+                case 4:
+                    return RESULT_ERROR_OCCURED;
+                case 5:
+                    return RESULT_BUSY_COMPILING;
+                case 6:
+                    return RESULT_INCONSISTENT;
+                case 7:
+                    return RESULT_OK_WITH_WARNINGS;
+                default:
+                    return RESULT_NONE;
+            }
+        }
+
+        public byte toByte() {
+            return ResultType.toByte(this);
+        }
     }
 
 }

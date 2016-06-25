@@ -1,14 +1,15 @@
 package darkevilmac.movingworld.common.entity;
 
-import darkevilmac.movingworld.common.chunk.ChunkIO;
-import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunkServer;
-import darkevilmac.movingworld.common.network.MovingWorldNetworking;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.Collection;
+
+import darkevilmac.movingworld.common.chunk.ChunkIO;
+import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunkServer;
+import darkevilmac.movingworld.common.network.MovingWorldNetworking;
 
 public abstract class MovingWorldHandlerServer extends MovingWorldHandlerCommon {
     protected boolean firstChunkUpdate;

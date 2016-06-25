@@ -1,7 +1,5 @@
 package darkevilmac.movingworld.common.chunk;
 
-import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunk;
-import darkevilmac.movingworld.common.entity.IMixinEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFence;
 import net.minecraft.block.BlockFenceGate;
@@ -18,13 +16,14 @@ import net.minecraft.util.math.Vec3d;
 import java.util.Iterator;
 import java.util.List;
 
+import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunk;
+import darkevilmac.movingworld.common.entity.IMixinEntity;
+
 public class ChunkCollisionHelper {
 
     /**
      * Unimplemented, for colliding with a MobileChunk
      *
-     * @param entity
-     * @param mobileChunk
      * @return cancel further method.
      */
     public static boolean onEntityMove(Entity entity, MobileChunk mobileChunk, double x, double y, double z) {

@@ -1,7 +1,5 @@
 package darkevilmac.movingworld.common.chunk.mobilechunk;
 
-import darkevilmac.movingworld.client.render.MobileChunkRenderer;
-import darkevilmac.movingworld.common.entity.EntityMovingWorld;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -9,6 +7,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import darkevilmac.movingworld.client.render.MobileChunkRenderer;
+import darkevilmac.movingworld.common.entity.EntityMovingWorld;
 
 @SideOnly(Side.CLIENT)
 public class MobileChunkClient extends MobileChunk {

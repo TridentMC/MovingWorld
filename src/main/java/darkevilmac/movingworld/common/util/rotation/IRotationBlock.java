@@ -4,8 +4,8 @@ import darkevilmac.movingworld.common.chunk.LocatedBlock;
 
 
 /**
- * The same as IRotationProperty but applies if you're using one of Minecraft's properties that aren't designed for rotation
- * like the banner's rotation integer.
+ * The same as IRotationProperty but applies if you're using one of Minecraft's properties that
+ * aren't designed for rotation like the banner's rotation integer.
  */
 public interface IRotationBlock {
 

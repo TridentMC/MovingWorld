@@ -1,10 +1,5 @@
 package darkevilmac.movingworld;
 
-import darkevilmac.movingworld.client.ClientProxy;
-import darkevilmac.movingworld.common.CommonProxy;
-import darkevilmac.movingworld.common.config.MainConfig;
-import darkevilmac.movingworld.common.mrot.MetaRotations;
-import darkevilmac.movingworld.common.network.MovingWorldNetworking;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
@@ -12,9 +7,16 @@ import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
+
+import darkevilmac.movingworld.client.ClientProxy;
+import darkevilmac.movingworld.common.CommonProxy;
+import darkevilmac.movingworld.common.config.MainConfig;
+import darkevilmac.movingworld.common.mrot.MetaRotations;
+import darkevilmac.movingworld.common.network.MovingWorldNetworking;
 
 @Mod(modid = MovingWorld.MOD_ID, name = MovingWorld.MOD_NAME, version = MovingWorld.MOD_VERSION, guiFactory = MovingWorld.MOD_GUIFACTORY)
 public class MovingWorld {

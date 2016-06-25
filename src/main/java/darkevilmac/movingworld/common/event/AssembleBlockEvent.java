@@ -1,7 +1,8 @@
 package darkevilmac.movingworld.common.event;
 
-import darkevilmac.movingworld.common.chunk.LocatedBlock;
 import net.minecraftforge.fml.common.eventhandler.Event;
+
+import darkevilmac.movingworld.common.chunk.LocatedBlock;
 
 /**
  * Created by DarkEvilMac on 2/22/2015.
