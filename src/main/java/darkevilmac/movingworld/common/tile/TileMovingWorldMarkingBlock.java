@@ -1,17 +1,9 @@
 package darkevilmac.movingworld.common.tile;
 
-import darkevilmac.movingworld.common.chunk.LocatedBlock;
-import darkevilmac.movingworld.common.chunk.MovingWorldAssemblyInteractor;
-import darkevilmac.movingworld.common.chunk.assembly.AssembleResult;
-import darkevilmac.movingworld.common.chunk.assembly.ChunkAssembler;
-import darkevilmac.movingworld.common.entity.EntityMovingWorld;
-import darkevilmac.movingworld.common.entity.MovingWorldInfo;
-import darkevilmac.movingworld.common.util.LocatedBlockList;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.text.ITextComponent;
@@ -20,7 +12,16 @@ import net.minecraft.world.World;
 
 import java.util.UUID;
 
-import static darkevilmac.movingworld.common.chunk.assembly.AssembleResult.ResultType.*;
+import darkevilmac.movingworld.common.chunk.LocatedBlock;
+import darkevilmac.movingworld.common.chunk.MovingWorldAssemblyInteractor;
+import darkevilmac.movingworld.common.chunk.assembly.AssembleResult;
+import darkevilmac.movingworld.common.chunk.assembly.ChunkAssembler;
+import darkevilmac.movingworld.common.entity.EntityMovingWorld;
+import darkevilmac.movingworld.common.entity.MovingWorldInfo;
+import darkevilmac.movingworld.common.util.LocatedBlockList;
+
+import static darkevilmac.movingworld.common.chunk.assembly.AssembleResult.ResultType.RESULT_INCONSISTENT;
+import static darkevilmac.movingworld.common.chunk.assembly.AssembleResult.ResultType.RESULT_OK_WITH_WARNINGS;
 
 public abstract class TileMovingWorldMarkingBlock extends TileEntity implements IMovingWorldTileEntity {
 
@@ -61,8 +62,6 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
 
     /**
      * For getting a new instance of your ship type to create.
-     *
-     * @return
      */
     public abstract EntityMovingWorld getMovingWorld(World worldObj);
 
@@ -149,7 +148,7 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
     }
 
     @Override
-    public Packet getDescriptionPacket() {
+    public SPacketUpdateTileEntity getUpdatePacket() {
         NBTTagCompound compound = new NBTTagCompound();
         writeNBTForSending(compound);
         return new SPacketUpdateTileEntity(pos, 0, compound);
@@ -165,11 +164,9 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
     /**
      * Called during/after mountMovingWorld();
      *
-     * @param player
-     * @param movingWorld
-     * @param stage       can be 1, 2, or 3 this represents the stage of the method we're at.
-     *                    more information can be viewed at the github repo to see when your code will be executed.
-     *                    http://github.com/darkevilmac/MovingWorld
+     * @param stage can be 1, 2, or 3 this represents the stage of the method we're at. more
+     *              information can be viewed at the github repo to see when your code will be
+     *              executed. http://github.com/darkevilmac/MovingWorld
      */
     public void mountedMovingWorld(EntityPlayer player, EntityMovingWorld movingWorld, int stage) {
 
@@ -211,8 +208,8 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound compound) {
-        super.writeToNBT(compound);
+    public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+        compound = super.writeToNBT(compound);
 
         compound.setString("name", getInfo().getName());
         if (getInfo().getOwner() != null) {
@@ -241,6 +238,8 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
             }
             compound.setTag("removedFluidCompounds", removedFluidCompound);
         }
+
+        return compound;
     }
 
     public void writeNBTForSending(NBTTagCompound compound) {

@@ -1,21 +1,7 @@
 package darkevilmac.movingworld.common.entity;
 
 import com.google.common.base.Objects;
-import darkevilmac.movingworld.MovingWorld;
-import darkevilmac.movingworld.common.chunk.ChunkIO;
-import darkevilmac.movingworld.common.chunk.LocatedBlock;
-import darkevilmac.movingworld.common.chunk.MovingWorldAssemblyInteractor;
-import darkevilmac.movingworld.common.chunk.MovingWorldSizeOverflowException;
-import darkevilmac.movingworld.common.chunk.assembly.AssembleResult;
-import darkevilmac.movingworld.common.chunk.assembly.ChunkDisassembler;
-import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunk;
-import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunkClient;
-import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunkServer;
-import darkevilmac.movingworld.common.tile.IMovingWorldTileEntity;
-import darkevilmac.movingworld.common.util.AABBRotator;
-import darkevilmac.movingworld.common.util.MathHelperMod;
-import darkevilmac.movingworld.common.util.Vec3dMod;
-import io.netty.buffer.ByteBuf;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -43,10 +29,30 @@ import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+
+import darkevilmac.movingworld.MovingWorld;
+import darkevilmac.movingworld.common.chunk.ChunkIO;
+import darkevilmac.movingworld.common.chunk.LocatedBlock;
+import darkevilmac.movingworld.common.chunk.MovingWorldAssemblyInteractor;
+import darkevilmac.movingworld.common.chunk.MovingWorldSizeOverflowException;
+import darkevilmac.movingworld.common.chunk.assembly.AssembleResult;
+import darkevilmac.movingworld.common.chunk.assembly.ChunkDisassembler;
+import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunk;
+import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunkClient;
+import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunkServer;
+import darkevilmac.movingworld.common.tile.IMovingWorldTileEntity;
+import darkevilmac.movingworld.common.util.AABBRotator;
+import darkevilmac.movingworld.common.util.MathHelperMod;
+import darkevilmac.movingworld.common.util.Vec3dMod;
+import io.netty.buffer.ByteBuf;
 
 /**
  * All moving sections of blocks extend from this class.
@@ -218,7 +224,8 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     }
 
     public void setInfo(MovingWorldInfo movingWorldInfo) {
-        if (movingWorldInfo == null) throw new NullPointerException("Cannot set null moving world info");
+        if (movingWorldInfo == null)
+            throw new NullPointerException("Cannot set null moving world info");
         info = movingWorldInfo;
     }
 
@@ -823,7 +830,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             for (int i = 0; i < tiles.tagCount(); i++) {
                 try {
                     NBTTagCompound comp = tiles.getCompoundTagAt(i);
-                    TileEntity tileentity = TileEntity.createTileEntity(null, comp);
+                    TileEntity tileentity = TileEntity.func_190200_a(mobileChunk.getFakeWorld(), comp);
                     mobileChunk.setTileEntity(tileentity.getPos(), tileentity);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -877,7 +884,8 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     }
 
     /**
-     * Same as the code from the Entity Class but it doesn't spawn particles, as with larger ships it can cause a lot of lag.
+     * Same as the code from the Entity Class but it doesn't spawn particles, as with larger ships
+     * it can cause a lot of lag.
      */
     @Override
     protected void resetHeight() {

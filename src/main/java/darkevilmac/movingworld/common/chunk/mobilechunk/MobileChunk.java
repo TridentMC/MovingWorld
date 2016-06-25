@@ -1,12 +1,7 @@
 package darkevilmac.movingworld.common.chunk.mobilechunk;
 
 import com.google.common.collect.HashBiMap;
-import darkevilmac.movingworld.common.chunk.LocatedBlock;
-import darkevilmac.movingworld.common.chunk.mobilechunk.world.FakeWorld;
-import darkevilmac.movingworld.common.entity.EntityMovingWorld;
-import darkevilmac.movingworld.common.tile.IMovingWorldTileEntity;
-import darkevilmac.movingworld.common.util.AABBRotator;
-import darkevilmac.movingworld.common.util.Vec3dMod;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -20,7 +15,7 @@ import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldType;
-import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -29,6 +24,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import darkevilmac.movingworld.common.chunk.LocatedBlock;
+import darkevilmac.movingworld.common.chunk.mobilechunk.world.FakeWorld;
+import darkevilmac.movingworld.common.entity.EntityMovingWorld;
+import darkevilmac.movingworld.common.tile.IMovingWorldTileEntity;
+import darkevilmac.movingworld.common.util.AABBRotator;
+import darkevilmac.movingworld.common.util.Vec3dMod;
 
 public class MobileChunk implements IBlockAccess {
     public static final int CHUNK_SIZE = 16;
@@ -46,7 +48,7 @@ public class MobileChunk implements IBlockAccess {
     private BlockPos minBounds;
     private BlockPos maxBounds;
     private int blockCount;
-    private BiomeGenBase creationSpotBiome;
+    private Biome creationSpotBiome;
     private HashBiMap<BlockPos, AxisAlignedBB> boundingBoxes;
     private HashBiMap<BlockPos, AxisAlignedBB> chunkBoundingBoxes;
 
@@ -69,7 +71,7 @@ public class MobileChunk implements IBlockAccess {
 
         blockCount = 0;
 
-        creationSpotBiome = BiomeGenBase.getBiome(0); // Ocean biome id.
+        creationSpotBiome = Biome.getBiome(0); // Ocean biome id.
     }
 
     public FakeWorld getFakeWorld() {
@@ -180,8 +182,8 @@ public class MobileChunk implements IBlockAccess {
         return maxBounds.getZ();
     }
 
-    public void setCreationSpotBiomeGen(BiomeGenBase biomegenbase) {
-        creationSpotBiome = biomegenbase;
+    public void setCreationSpotBiomeGen(Biome biomeGen) {
+        creationSpotBiome = biomeGen;
     }
 
     public boolean addBlockWithState(BlockPos pos, IBlockState state) {
@@ -343,8 +345,6 @@ public class MobileChunk implements IBlockAccess {
 
     /**
      * Offsets all the bounding boxes as needed.
-     *
-     * @param rotationYaw
      */
     public void updateBlockBounds(float rotationYaw) {
         HashBiMap<BlockPos, AxisAlignedBB> newBoundingBoxes = HashBiMap.create();
@@ -559,7 +559,7 @@ public class MobileChunk implements IBlockAccess {
     }
 
     @Override
-    public BiomeGenBase getBiomeGenForCoords(BlockPos pos) {
+    public Biome getBiome(BlockPos pos) {
         return creationSpotBiome;
     }
 

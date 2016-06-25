@@ -1,6 +1,18 @@
 package darkevilmac.movingworld.common.chunk.assembly;
 
 
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Blocks;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+
+import java.util.ArrayList;
+
 import darkevilmac.movingworld.MovingWorld;
 import darkevilmac.movingworld.common.chunk.LocatedBlock;
 import darkevilmac.movingworld.common.chunk.MovingWorldAssemblyInteractor;
@@ -9,17 +21,6 @@ import darkevilmac.movingworld.common.tile.TileMovingWorldMarkingBlock;
 import darkevilmac.movingworld.common.util.LocatedBlockList;
 import darkevilmac.movingworld.common.util.MaterialDensity;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Blocks;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.world.World;
-
-import java.util.ArrayList;
 
 public class AssembleResult {
 
@@ -147,7 +148,7 @@ public class AssembleResult {
         BlockPos riderDestination = new BlockPos(movingWorldMarkingBlock.blockPos.getX() - offset.getX(), movingWorldMarkingBlock.blockPos.getY() - offset.getY(), movingWorldMarkingBlock.blockPos.getZ() - offset.getZ());
 
         entity.setRiderDestination(facing, riderDestination);
-        entity.getMobileChunk().setCreationSpotBiomeGen(world.getBiomeGenForCoords(movingWorldMarkingBlock.blockPos));
+        entity.getMobileChunk().setCreationSpotBiomeGen(world.getBiome(movingWorldMarkingBlock.blockPos));
 
         boolean doTileDropsInWorld = world.getGameRules().getBoolean("doTileDrops");
         world.getGameRules().setOrCreateGameRule("doTileDrops", "false");
