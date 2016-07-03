@@ -564,11 +564,6 @@ public class MobileChunk implements IBlockAccess {
     }
 
     @Override
-    public boolean extendedLevelsInChunkCache() {
-        return false;
-    }
-
-    @Override
     public int getStrongPower(BlockPos pos, EnumFacing direction) {
         return 0;
     }

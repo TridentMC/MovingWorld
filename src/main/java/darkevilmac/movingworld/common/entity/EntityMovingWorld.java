@@ -740,8 +740,6 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     @Override
     protected void writeEntityToNBT(NBTTagCompound compound) {
-        super.writeEntityToNBT(compound);
-
         ByteArrayOutputStream baos = new ByteArrayOutputStream(mobileChunk.getMemoryUsage());
         DataOutputStream out = new DataOutputStream(baos);
         try {
@@ -787,8 +785,6 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     @Override
     protected void readEntityFromNBT(NBTTagCompound compound) {
-        super.readEntityFromNBT(compound);
-
         if (mobileChunk == null) {
             if (worldObj != null) {
                 if (worldObj.isRemote) {
@@ -829,7 +825,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             for (int i = 0; i < tiles.tagCount(); i++) {
                 try {
                     NBTTagCompound comp = tiles.getCompoundTagAt(i);
-                    TileEntity tileentity = TileEntity.func_190200_a(mobileChunk.getFakeWorld(), comp);
+                    TileEntity tileentity = TileEntity.create(mobileChunk.getFakeWorld(), comp);
                     mobileChunk.setTileEntity(tileentity.getPos(), tileentity);
                 } catch (Exception e) {
                     e.printStackTrace();

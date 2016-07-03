@@ -28,7 +28,7 @@ group = "darkevilmac.movingworld"
 archivesBaseName = "movingworld"
 
 minecraft {
-    version = "1.10-12.18.0.1986-1.10.0"
+    version = "1.10.2-12.18.0.2006-1.10.0"
     runDir = "run"
 
     def replacementVersion = 'MOD_VERSION = \"' + project.version + '\"'
@@ -36,7 +36,7 @@ minecraft {
     replace("MOD_VERSION = \"@MOVINGWORLDVER@\"",
             replacementVersion)
 
-    mappings = "snapshot_20160621"
+    mappings = "snapshot_20160630"
 }
 
 mixin {
