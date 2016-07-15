@@ -32,6 +32,7 @@ public class AssembleResult {
     int blockCount;
     int tileEntityCount;
     float mass;
+
     public AssembleResult(ResultType resultCode, ByteBuf buf) {
         this.resultType = resultCode;
         if (resultCode == ResultType.RESULT_NONE) return;

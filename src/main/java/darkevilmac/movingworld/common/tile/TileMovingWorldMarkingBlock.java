@@ -28,6 +28,7 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
     public LocatedBlockList removedFluidBlocks; // A list of fluid blocks that were destroyed last disassemble, used to fill back in when we reassemble.
     private AssembleResult assembleResult, prevResult;
 
+
     public TileMovingWorldMarkingBlock() {
         super();
         setParentMovingWorld(null);
@@ -111,11 +112,15 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
         //No Implementation.
     }
 
+    public enum MountStage {
+        PREMSG, PRERIDE, POSTRIDE
+    }
+
     public boolean mountMovingWorld(EntityPlayer player, EntityMovingWorld movingWorld) {
         if (!worldObj.isRemote) {
             if (assembleResult != null && assembleResult.isOK()) {
                 assembleResult.checkConsistent(worldObj);
-                mountedMovingWorld(player, movingWorld, 1);
+                mountedMovingWorld(player, movingWorld, MountStage.PREMSG);
                 if (assembleResult.getType() == RESULT_INCONSISTENT) {
                     return false;
                 }
@@ -124,7 +129,7 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
                     player.addChatMessage(c);
                 }
 
-                mountedMovingWorld(player, movingWorld, 2);
+                mountedMovingWorld(player, movingWorld, MountStage.PRERIDE);
 
                 EntityMovingWorld entity = assembleResult.getEntity(worldObj, movingWorld);
                 if (entity != null) {
@@ -135,7 +140,7 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
                         return true;
                     }
                 }
-                mountedMovingWorld(player, entity, 3);
+                mountedMovingWorld(player, entity, MountStage.POSTRIDE);
             }
         }
         return false;
@@ -166,10 +171,9 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
      *
      * @param stage can be 1, 2, or 3 this represents the stage of the method we're at. more
      *              information can be viewed at the github repo to see when your code will be
-     *              executed. http://github.com/darkevilmac/MovingWorld
+     *              executed. http://github.com/elytra/MovingWorld
      */
-    public void mountedMovingWorld(EntityPlayer player, EntityMovingWorld movingWorld, int stage) {
-
+    public void mountedMovingWorld(EntityPlayer player, EntityMovingWorld movingWorld, MountStage stage) {
     }
 
     @Override
