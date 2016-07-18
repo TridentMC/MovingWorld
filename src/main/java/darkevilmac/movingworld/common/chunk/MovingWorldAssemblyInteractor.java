@@ -6,7 +6,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import darkevilmac.movingworld.MovingWorld;
@@ -83,8 +82,9 @@ public class MovingWorldAssemblyInteractor {
     public void chunkDissasembled(AssembleResult assembleResult) {
     }
 
-    public CanAssemble isBlockAllowed(World world, IBlockState state, BlockPos pos) {
+    public CanAssemble isBlockAllowed(World world, LocatedBlock lb) {
         CanAssemble canAssemble = new CanAssemble(false, false);
+        IBlockState state = lb.blockState;
 
         canAssemble.justCancel = !(!state.getMaterial().equals(Material.AIR) && !state.getMaterial().isLiquid() && MovingWorld.instance.getNetworkConfig().isStateAllowed(state));
 

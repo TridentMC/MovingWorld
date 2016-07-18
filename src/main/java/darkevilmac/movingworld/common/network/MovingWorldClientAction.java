@@ -1,7 +1,7 @@
 package darkevilmac.movingworld.common.network;
 
 public enum MovingWorldClientAction {
-    NONE, ALIGN, DISASSEMBLE, DISASSEMBLEOVERWRITE;
+    NONE, ALIGN, DISASSEMBLE, DISASSEMBLEWITHOVERWRITE;
 
     public static byte toByte(MovingWorldClientAction action) {
         switch (action) {
@@ -9,7 +9,7 @@ public enum MovingWorldClientAction {
                 return (byte) 1;
             case DISASSEMBLE:
                 return (byte) 2;
-            case DISASSEMBLEOVERWRITE:
+            case DISASSEMBLEWITHOVERWRITE:
                 return (byte) 3;
             default:
                 return (byte) 0;
@@ -23,7 +23,7 @@ public enum MovingWorldClientAction {
             case 2:
                 return DISASSEMBLE;
             case 3:
-                return DISASSEMBLEOVERWRITE;
+                return DISASSEMBLEWITHOVERWRITE;
             default:
                 return NONE;
         }

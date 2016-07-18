@@ -78,7 +78,7 @@ public class ChunkAssembler {
                 closedSet.add(mobileChunkPos);
 
                 IBlockState blockState = worldObj.getBlockState(worldPos);
-                CanAssemble canAssemble = canUseBlockForVehicle(blockState, assemblyInteractor, worldPos);
+                CanAssemble canAssemble = canUseBlockForVehicle(new LocatedBlock(blockState, worldObj.getTileEntity(worldPos), worldPos), assemblyInteractor);
 
                 if (canAssemble.justCancel) {
                     continue;
@@ -137,7 +137,7 @@ public class ChunkAssembler {
         IBlockState blockState = worldObj.getBlockState(pos);
         Block block = blockState.getBlock();
 
-        CanAssemble canAssemble = canUseBlockForVehicle(blockState, assemblyInteractor, pos);
+        CanAssemble canAssemble = canUseBlockForVehicle(new LocatedBlock(blockState, worldObj.getTileEntity(pos), pos), assemblyInteractor);
 
         if (canAssemble.justCancel) {
             return;
@@ -181,7 +181,7 @@ public class ChunkAssembler {
         result.movingWorldMarkingBlock = movingWorldMarker;
     }
 
-    public CanAssemble canUseBlockForVehicle(IBlockState state, MovingWorldAssemblyInteractor assemblyInteractor, BlockPos pos) {
-        return assemblyInteractor.isBlockAllowed(worldObj, state, pos);
+    public CanAssemble canUseBlockForVehicle(LocatedBlock lb, MovingWorldAssemblyInteractor assemblyInteractor) {
+        return assemblyInteractor.isBlockAllowed(worldObj, lb);
     }
 }

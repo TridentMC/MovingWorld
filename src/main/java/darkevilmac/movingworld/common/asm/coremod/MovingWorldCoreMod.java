@@ -3,18 +3,16 @@ package darkevilmac.movingworld.common.asm.coremod;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 
 import org.spongepowered.asm.launch.MixinBootstrap;
-import org.spongepowered.asm.mixin.MixinEnvironment;
+import org.spongepowered.asm.mixin.Mixins;
 
 import java.util.Map;
 
-@IFMLLoadingPlugin.MCVersion(value = "1.9")
+@IFMLLoadingPlugin.MCVersion(value = "1.10.2")
 public class MovingWorldCoreMod implements IFMLLoadingPlugin {
 
     public MovingWorldCoreMod() {
         MixinBootstrap.init();
-        MixinEnvironment.setCompatibilityLevel(MixinEnvironment.CompatibilityLevel.JAVA_7);
-        MixinEnvironment env = MixinEnvironment.getDefaultEnvironment();
-        env.addConfiguration("mixins.movingworld.json");
+        Mixins.addConfiguration("mixins.movingworld.json");
     }
 
     @Override

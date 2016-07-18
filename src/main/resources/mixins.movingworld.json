@@ -1,11 +1,12 @@
 {
   "required": true,
   "package": "darkevilmac.movingworld.common.asm.mixin.core",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "movingworld.mixin.refmap.json",
   "mixins": [
     "entity.MixinEntity",
     "block.property.MixinPropertyEnum",
     "block.property.MixinPropertyInteger",
     "block.MixinBlockSkull"
-  ],
-  "refmap": "movingworld.mixin.refmap.json"
+  ]
 }

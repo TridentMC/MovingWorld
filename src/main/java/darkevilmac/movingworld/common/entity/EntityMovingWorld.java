@@ -654,7 +654,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         return (float) Math.sqrt(motionX * motionX + motionZ * motionZ);
     }
 
-    public void alignToGrid() {
+    public void alignToGrid(boolean doPosAdjustment) {
         rotationYaw = Math.round(rotationYaw / 90F) * 90F;
         rotationPitch = 0F;
 
@@ -665,9 +665,11 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         int iy = MathHelperMod.round_double(vec.yCoord + posY);
         int iz = MathHelperMod.round_double(vec.zCoord + posZ);
 
-        posX = ix - vec.xCoord;
-        posY = iy - vec.yCoord;
-        posZ = iz - vec.zCoord;
+        if (doPosAdjustment) {
+            posX = ix - vec.xCoord;
+            posY = iy - vec.yCoord;
+            posZ = iz - vec.zCoord;
+        }
 
         motionX = motionY = motionZ = 0D;
     }

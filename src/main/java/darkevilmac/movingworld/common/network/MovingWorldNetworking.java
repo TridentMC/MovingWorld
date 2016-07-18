@@ -203,17 +203,17 @@ public class MovingWorldNetworking {
                                 if (movingWorld != null && movingWorld.getControllingPassenger().getEntityId() == entityPlayer.getEntityId()) {
                                     switch (action) {
                                         case DISASSEMBLE:
-                                            movingWorld.alignToGrid();
+                                            movingWorld.alignToGrid(true);
                                             movingWorld.updatePassengerPosition(entityPlayer, movingWorld.riderDestination, 1);
                                             movingWorld.disassemble(false);
                                             break;
-                                        case DISASSEMBLEOVERWRITE:
-                                            movingWorld.alignToGrid();
+                                        case DISASSEMBLEWITHOVERWRITE:
+                                            movingWorld.alignToGrid(true);
                                             movingWorld.updatePassengerPosition(entityPlayer, movingWorld.riderDestination, 1);
                                             movingWorld.disassemble(true);
                                             break;
                                         case ALIGN:
-                                            movingWorld.alignToGrid();
+                                            movingWorld.alignToGrid(true);
                                             break;
                                         default:
                                             break;
