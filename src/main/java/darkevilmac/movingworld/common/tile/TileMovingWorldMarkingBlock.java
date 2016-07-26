@@ -177,27 +177,27 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound compound) {
-        super.readFromNBT(compound);
-        getInfo().setName(compound.getString("name"));
-        if (compound.hasKey("owner")) {
-            getInfo().setOwner(UUID.fromString(compound.getString("owner")));
+    public void readFromNBT(NBTTagCompound tag) {
+        super.readFromNBT(tag);
+        getInfo().setName(tag.getString("name"));
+        if (tag.hasKey("owner")) {
+            getInfo().setOwner(UUID.fromString(tag.getString("owner")));
         }
-        blockMetadata = compound.getInteger("meta");
-        if (compound.hasKey("ship") && worldObj != null) {
-            int id = compound.getInteger("ship");
+        blockMetadata = tag.getInteger("meta");
+        if (tag.hasKey("ship") && worldObj != null) {
+            int id = tag.getInteger("ship");
             Entity entity = worldObj.getEntityByID(id);
             if (entity instanceof EntityMovingWorld) {
                 setParentMovingWorld((EntityMovingWorld) entity);
             }
         }
-        if (compound.hasKey("res")) {
-            assembleResult = new AssembleResult(compound.getCompoundTag("res"), worldObj);
-            assembleResult.assemblyInteractor = getNewAssemblyInteractor().fromNBT(compound.getCompoundTag("res"), worldObj);
+        if (tag.hasKey("res")) {
+            assembleResult = new AssembleResult(tag.getCompoundTag("res"), worldObj);
+            assembleResult.assemblyInteractor = getNewAssemblyInteractor().fromNBT(tag.getCompoundTag("res"), worldObj);
         }
-        if (compound.hasKey("removedFluidCompounds")) {
+        if (tag.hasKey("removedFluidCompounds")) {
             removedFluidBlocks = new LocatedBlockList();
-            NBTTagCompound removedFluidCompound = compound.getCompoundTag("removedFluidCompounds");
+            NBTTagCompound removedFluidCompound = tag.getCompoundTag("removedFluidCompounds");
             int tagIndex = 0;
 
             while (removedFluidCompound.hasKey("block#" + tagIndex)) {
@@ -207,29 +207,30 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
                 removedFluidBlocks.add(locatedBlock);
                 tagIndex++;
             }
-            compound.setTag("removedFluidCompounds", new NBTTagCompound());
+            tag.setTag("removedFluidCompounds", new NBTTagCompound());
         }
     }
 
     @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-        compound = super.writeToNBT(compound);
+    public NBTTagCompound writeToNBT(NBTTagCompound tag) {
+        tag = super.writeToNBT(tag);
 
-        compound.setString("name", getInfo().getName());
+        tag.setString("name", getInfo().getName());
         if (getInfo().getOwner() != null) {
-            compound.setString("owner", getInfo().getOwner().toString());
+            tag.setString("owner", getInfo().getOwner().toString());
         }
 
-        compound.setInteger("meta", blockMetadata);
-        compound.setString("name", getInfo().getName());
+        tag.setInteger("meta", blockMetadata);
+        tag.setString("name", getInfo().getName());
         if (getParentMovingWorld() != null && !getParentMovingWorld().isDead) {
-            compound.setInteger("movingWorld", getParentMovingWorld().getEntityId());
+            tag.setInteger("movingWorld", getParentMovingWorld().getEntityId());
         }
         if (assembleResult != null) {
             NBTTagCompound comp = new NBTTagCompound();
             assembleResult.writeNBTFully(comp);
             assembleResult.assemblyInteractor.writeNBTFully(comp);
-            compound.setTag("res", comp);
+            tag.setTag("res", comp);
+            // Where the hell did this go in the transition to MovingWorld? Lost to the ether I suppose.
         }
         if (removedFluidBlocks != null && !removedFluidBlocks.isEmpty()) {
             NBTTagCompound removedFluidCompound = new NBTTagCompound();
@@ -240,26 +241,26 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
 
                 removedFluidCompound.setTag("block#" + i, lbTag);
             }
-            compound.setTag("removedFluidCompounds", removedFluidCompound);
+            tag.setTag("removedFluidCompounds", removedFluidCompound);
         }
 
-        return compound;
+        return tag;
     }
 
-    public void writeNBTForSending(NBTTagCompound compound) {
-        super.writeToNBT(compound);
-        compound.setInteger("meta", blockMetadata);
-        compound.setString("name", getInfo().getName());
+    public void writeNBTForSending(NBTTagCompound tag) {
+        super.writeToNBT(tag);
+        tag.setInteger("meta", blockMetadata);
+        tag.setString("name", getInfo().getName());
 
         if (getParentMovingWorld() != null && !getParentMovingWorld().isDead) {
-            compound.setInteger("movingWorld", getParentMovingWorld().getEntityId());
+            tag.setInteger("movingWorld", getParentMovingWorld().getEntityId());
         }
 
         if (assembleResult != null) {
             NBTTagCompound comp = new NBTTagCompound();
             assembleResult.writeNBTMetadata(comp);
             assembleResult.assemblyInteractor.writeNBTMetadata(comp);
-            compound.setTag("res", comp);
+            tag.setTag("res", comp);
         }
     }
 

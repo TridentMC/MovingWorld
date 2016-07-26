@@ -28,9 +28,9 @@ public class LocatedBlock {
         tileEntity = tileentity;
     }
 
-    public LocatedBlock(NBTTagCompound comp, World world) {
-        blockState = Block.getBlockById(comp.getInteger("block")).getDefaultState().getBlock().getStateFromMeta(comp.getInteger("meta"));
-        blockPos = new BlockPos(comp.getInteger("x"), comp.getInteger("y"), comp.getInteger("z"));
+    public LocatedBlock(NBTTagCompound tag, World world) {
+        blockState = Block.getBlockById(tag.getInteger("block")).getDefaultState().getBlock().getStateFromMeta(tag.getInteger("meta"));
+        blockPos = new BlockPos(tag.getInteger("x"), tag.getInteger("y"), tag.getInteger("z"));
         bPosNoOffset = null;
         tileEntity = world == null ? null : world.getTileEntity(new BlockPos(blockPos.getX(), blockPos.getY(), blockPos.getZ()));
     }
@@ -49,11 +49,11 @@ public class LocatedBlock {
         return Block.REGISTRY.getNameForObject(blockState.getBlock()).toString();
     }
 
-    public void writeToNBT(NBTTagCompound comp) {
-        comp.setShort("block", (short) Block.getIdFromBlock(blockState.getBlock()));
-        comp.setInteger("meta", blockState.getBlock().getMetaFromState(blockState));
-        comp.setInteger("x", blockPos.getX());
-        comp.setInteger("y", blockPos.getY());
-        comp.setInteger("z", blockPos.getZ());
+    public void writeToNBT(NBTTagCompound tag) {
+        tag.setShort("block", (short) Block.getIdFromBlock(blockState.getBlock()));
+        tag.setInteger("meta", blockState.getBlock().getMetaFromState(blockState));
+        tag.setInteger("x", blockPos.getX());
+        tag.setInteger("y", blockPos.getY());
+        tag.setInteger("z", blockPos.getZ());
     }
 }

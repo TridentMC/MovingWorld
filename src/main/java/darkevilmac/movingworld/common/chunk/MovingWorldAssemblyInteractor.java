@@ -106,14 +106,14 @@ public class MovingWorldAssemblyInteractor {
     /**
      * Recommended to call writeNBTMetadata first, then write the rest of your data.
      */
-    public void writeNBTFully(NBTTagCompound compound) {
+    public void writeNBTFully(NBTTagCompound tag) {
     }
 
 
     /**
      * Write metadata to NBT.
      */
-    public void writeNBTMetadata(NBTTagCompound compound) {
+    public void writeNBTMetadata(NBTTagCompound tag) {
     }
 
 }

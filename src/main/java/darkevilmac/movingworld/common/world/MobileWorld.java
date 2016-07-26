@@ -14,8 +14,7 @@ import net.minecraft.world.storage.WorldInfo;
 import java.io.File;
 
 /**
- * NO IMPLEMENTATION, WORK IN PROGRESS DO NOT EXPECT IN THE NEAR FUTURE FOR THIS TO BE COMPLETE, THE
- * SAME APPLIES TO THE NEW MOBILECHUNK CLASS
+ * NO IMPLEMENTATION, WORK IN PROGRESS DO NOT EXPECT IN THE NEAR FUTURE FOR THIS TO BE COMPLETE
  */
 public class MobileWorld extends World {
 
@@ -40,7 +39,7 @@ public class MobileWorld extends World {
                     }
 
                     @Override
-                    public void saveWorldInfoWithPlayer(WorldInfo worldInformation, NBTTagCompound tagCompound) {
+                    public void saveWorldInfoWithPlayer(WorldInfo worldInformation, NBTTagCompound tag) {
 
                     }
 

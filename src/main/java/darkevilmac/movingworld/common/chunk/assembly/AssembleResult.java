@@ -41,23 +41,23 @@ public class AssembleResult {
         mass = buf.readFloat();
     }
 
-    public AssembleResult(NBTTagCompound compound, World world) {
-        resultType = ResultType.fromByte(compound.getByte("res"));
-        blockCount = compound.getInteger("blockc");
-        tileEntityCount = compound.getInteger("tec");
-        mass = compound.getFloat("mass");
-        offset = new BlockPos(-compound.getInteger("xO"),
-                compound.getInteger("yO"),
-                compound.getInteger("zO"));
-        if (compound.hasKey("list")) {
-            NBTTagList list = compound.getTagList("list", 10);
+    public AssembleResult(NBTTagCompound tag, World world) {
+        resultType = ResultType.fromByte(tag.getByte("res"));
+        blockCount = tag.getInteger("blockc");
+        tileEntityCount = tag.getInteger("tec");
+        mass = tag.getFloat("mass");
+        offset = new BlockPos(-tag.getInteger("xO"),
+                tag.getInteger("yO"),
+                tag.getInteger("zO"));
+        if (tag.hasKey("list")) {
+            NBTTagList list = tag.getTagList("list", 10);
             for (int i = 0; i < list.tagCount(); i++) {
                 NBTTagCompound comp = list.getCompoundTagAt(i);
                 assembledBlocks.add(new LocatedBlock(comp, world));
             }
         }
-        if (compound.hasKey("marker")) {
-            NBTTagCompound comp = compound.getCompoundTag("marker");
+        if (tag.hasKey("marker")) {
+            NBTTagCompound comp = tag.getCompoundTag("marker");
             movingWorldMarkingBlock = new LocatedBlock(comp, world);
         }
     }
@@ -227,31 +227,31 @@ public class AssembleResult {
         resultType = warn ? ResultType.RESULT_OK_WITH_WARNINGS : ResultType.RESULT_OK;
     }
 
-    public void writeNBTFully(NBTTagCompound compound) {
-        writeNBTMetadata(compound);
+    public void writeNBTFully(NBTTagCompound tag) {
+        writeNBTMetadata(tag);
         NBTTagList list = new NBTTagList();
         for (LocatedBlock lb : assembledBlocks) {
             NBTTagCompound comp = new NBTTagCompound();
             lb.writeToNBT(comp);
             list.appendTag(comp);
         }
-        compound.setTag("list", list);
+        tag.setTag("list", list);
 
         if (movingWorldMarkingBlock != null) {
             NBTTagCompound comp = new NBTTagCompound();
             movingWorldMarkingBlock.writeToNBT(comp);
-            compound.setTag("marker", comp);
+            tag.setTag("marker", comp);
         }
     }
 
-    public void writeNBTMetadata(NBTTagCompound compound) {
-        compound.setByte("res", getType().toByte());
-        compound.setInteger("blockc", getBlockCount());
-        compound.setInteger("tec", getTileEntityCount());
-        compound.setFloat("mass", getMass());
-        compound.setInteger("xO", offset.getX());
-        compound.setInteger("yO", offset.getY());
-        compound.setInteger("zO", offset.getZ());
+    public void writeNBTMetadata(NBTTagCompound tag) {
+        tag.setByte("res", getType().toByte());
+        tag.setInteger("blockc", getBlockCount());
+        tag.setInteger("tec", getTileEntityCount());
+        tag.setFloat("mass", getMass());
+        tag.setInteger("xO", offset.getX());
+        tag.setInteger("yO", offset.getY());
+        tag.setInteger("zO", offset.getZ());
     }
 
     public ByteBuf toByteBuf(ByteBuf buf) {

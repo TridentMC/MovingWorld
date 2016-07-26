@@ -741,7 +741,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     }
 
     @Override
-    protected void writeEntityToNBT(NBTTagCompound compound) {
+    protected void writeEntityToNBT(NBTTagCompound tag) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream(mobileChunk.getMemoryUsage());
         DataOutputStream out = new DataOutputStream(baos);
         try {
@@ -751,11 +751,11 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         } catch (IOException e) {
             e.printStackTrace();
         }
-        compound.setByteArray("chunk", baos.toByteArray());
-        compound.setInteger("riderDestinationX", riderDestination.getX());
-        compound.setInteger("riderDestinationY", riderDestination.getY());
-        compound.setInteger("riderDestinationZ", riderDestination.getZ());
-        compound.setInteger("front", frontDirection.getHorizontalIndex());
+        tag.setByteArray("chunk", baos.toByteArray());
+        tag.setInteger("riderDestinationX", riderDestination.getX());
+        tag.setInteger("riderDestinationY", riderDestination.getY());
+        tag.setInteger("riderDestinationZ", riderDestination.getZ());
+        tag.setInteger("front", frontDirection.getHorizontalIndex());
 
         if (!mobileChunk.chunkTileEntityMap.isEmpty()) {
             NBTTagList tileEntities = new NBTTagList();
@@ -764,7 +764,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
                 tileentity.writeToNBT(comp);
                 tileEntities.appendTag(comp);
             }
-            compound.setTag("tileent", tileEntities);
+            tag.setTag("tileent", tileEntities);
         }
 
         if (mobileChunk.marker != null) {
@@ -772,21 +772,21 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             markerComp.setInteger("markerPosX", mobileChunk.marker.blockPos.getX());
             markerComp.setInteger("markerPosY", mobileChunk.marker.blockPos.getY());
             markerComp.setInteger("markerPosZ", mobileChunk.marker.blockPos.getZ());
-            compound.setTag("markerInfo", markerComp);
+            tag.setTag("markerInfo", markerComp);
         }
 
-        compound.setString("name", info.getName());
+        tag.setString("name", info.getName());
         if (info.getOwner() != null) {
-            compound.setString("owner", info.getOwner().toString());
+            tag.setString("owner", info.getOwner().toString());
         }
 
-        writeMovingWorldNBT(compound);
+        writeMovingWorldNBT(tag);
     }
 
-    public abstract void writeMovingWorldNBT(NBTTagCompound compound);
+    public abstract void writeMovingWorldNBT(NBTTagCompound tag);
 
     @Override
-    protected void readEntityFromNBT(NBTTagCompound compound) {
+    protected void readEntityFromNBT(NBTTagCompound tag) {
         if (mobileChunk == null) {
             if (worldObj != null) {
                 if (worldObj.isRemote) {
@@ -797,7 +797,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             }
         }
 
-        byte[] ab = compound.getByteArray("chunk");
+        byte[] ab = tag.getByteArray("chunk");
         ByteArrayInputStream bais = new ByteArrayInputStream(ab);
         DataInputStream in = new DataInputStream(bais);
         try {
@@ -807,22 +807,22 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             e.printStackTrace();
         }
 
-        if (compound.hasKey("riderDestination")) {
-            short s = compound.getShort("riderDestination");
+        if (tag.hasKey("riderDestination")) {
+            short s = tag.getShort("riderDestination");
             int rX = s & 0xF;
             int rY = s >>> 4 & 0xF;
             int rZ = s >>> 8 & 0xF;
             riderDestination = new BlockPos(rX, rY, rZ);
             frontDirection = EnumFacing.NORTH;
         } else {
-            int rX = compound.getInteger("riderDestinationX");
-            int rY = compound.getInteger("riderDestinationY");
-            int rZ = compound.getInteger("riderDestinationZ");
+            int rX = tag.getInteger("riderDestinationX");
+            int rY = tag.getInteger("riderDestinationY");
+            int rZ = tag.getInteger("riderDestinationZ");
             riderDestination = new BlockPos(rX, rY, rZ);
-            frontDirection = EnumFacing.getHorizontal(compound.getInteger("front"));
+            frontDirection = EnumFacing.getHorizontal(tag.getInteger("front"));
         }
 
-        NBTTagList tiles = compound.getTagList("tileent", 10);
+        NBTTagList tiles = tag.getTagList("tileent", 10);
         if (tiles != null) {
             for (int i = 0; i < tiles.tagCount(); i++) {
                 try {
@@ -835,8 +835,8 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             }
         }
 
-        if (compound.hasKey("markerInfo")) {
-            NBTTagCompound markerComp = (NBTTagCompound) compound.getTag("markerInfo");
+        if (tag.hasKey("markerInfo")) {
+            NBTTagCompound markerComp = (NBTTagCompound) tag.getTag("markerInfo");
             BlockPos markerPos = new BlockPos(markerComp.getInteger("markerPosX"),
                     markerComp.getInteger("markerPosY"),
                     markerComp.getInteger("markerPosZ"));
@@ -845,15 +845,15 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         }
 
         info = new MovingWorldInfo();
-        info.setName(compound.getString("name"));
-        if (compound.hasKey("owner")) {
-            info.setOwner(UUID.fromString(compound.getString("owner")));
+        info.setName(tag.getString("name"));
+        if (tag.hasKey("owner")) {
+            info.setOwner(UUID.fromString(tag.getString("owner")));
         }
-        System.out.println(compound.toString());
-        readMovingWorldNBT(compound);
+        System.out.println(tag.toString());
+        readMovingWorldNBT(tag);
     }
 
-    public abstract void readMovingWorldNBT(NBTTagCompound compound);
+    public abstract void readMovingWorldNBT(NBTTagCompound tag);
 
     @SideOnly(Side.CLIENT)
     public void spawnParticles(double horvel) {
