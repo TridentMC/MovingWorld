@@ -1,4 +1,4 @@
-package darkevilmac.movingworld.common.util.rotation;
+package darkevilmac.movingworld.api.rotation;
 
 import net.minecraft.block.state.IBlockState;
 

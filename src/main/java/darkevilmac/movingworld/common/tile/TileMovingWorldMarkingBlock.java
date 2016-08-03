@@ -12,6 +12,7 @@ import net.minecraft.world.World;
 
 import java.util.UUID;
 
+import darkevilmac.movingworld.api.IMovingWorldTileEntity;
 import darkevilmac.movingworld.common.chunk.LocatedBlock;
 import darkevilmac.movingworld.common.chunk.MovingWorldAssemblyInteractor;
 import darkevilmac.movingworld.common.chunk.assembly.AssembleResult;

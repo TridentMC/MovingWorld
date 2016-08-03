@@ -1,7 +1,22 @@
 package darkevilmac.movingworld.common.entity;
 
 import com.google.common.base.Objects;
-
+import com.google.common.collect.Lists;
+import darkevilmac.movingworld.MovingWorldMod;
+import darkevilmac.movingworld.api.IMovingWorldTileEntity;
+import darkevilmac.movingworld.common.chunk.ChunkIO;
+import darkevilmac.movingworld.common.chunk.LocatedBlock;
+import darkevilmac.movingworld.common.chunk.MovingWorldAssemblyInteractor;
+import darkevilmac.movingworld.common.chunk.MovingWorldSizeOverflowException;
+import darkevilmac.movingworld.common.chunk.assembly.AssembleResult;
+import darkevilmac.movingworld.common.chunk.assembly.ChunkDisassembler;
+import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunk;
+import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunkClient;
+import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunkServer;
+import darkevilmac.movingworld.common.util.AABBRotator;
+import darkevilmac.movingworld.common.util.MathHelperMod;
+import darkevilmac.movingworld.common.util.Vec3dMod;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -20,6 +35,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.ITickable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -29,30 +45,10 @@ import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-
-import darkevilmac.movingworld.MovingWorld;
-import darkevilmac.movingworld.common.chunk.ChunkIO;
-import darkevilmac.movingworld.common.chunk.LocatedBlock;
-import darkevilmac.movingworld.common.chunk.MovingWorldAssemblyInteractor;
-import darkevilmac.movingworld.common.chunk.MovingWorldSizeOverflowException;
-import darkevilmac.movingworld.common.chunk.assembly.AssembleResult;
-import darkevilmac.movingworld.common.chunk.assembly.ChunkDisassembler;
-import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunk;
-import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunkClient;
-import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunkServer;
-import darkevilmac.movingworld.common.tile.IMovingWorldTileEntity;
-import darkevilmac.movingworld.common.util.AABBRotator;
-import darkevilmac.movingworld.common.util.MathHelperMod;
-import darkevilmac.movingworld.common.util.Vec3dMod;
-import io.netty.buffer.ByteBuf;
 
 /**
  * All moving sections of blocks extend from this class.
@@ -381,9 +377,17 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     }
 
     protected void handleServerUpdate(double horvel) {
-        if (getMobileChunk() != null && !getMobileChunk().movingWorldTileEntities.isEmpty()) {
-            for (IMovingWorldTileEntity movingWorldTileEntity : getMobileChunk().movingWorldTileEntities) {
-                movingWorldTileEntity.tick(getMobileChunk());
+        if (getMobileChunk() != null) {
+            if (!getMobileChunk().movingWorldTileEntities.isEmpty())
+                for (IMovingWorldTileEntity movingWorldTileEntity : getMobileChunk().movingWorldTileEntities) {
+                    movingWorldTileEntity.tick(getMobileChunk());
+                }
+            if (!getMobileChunk().updatableTiles.isEmpty()) {
+                for (TileEntity tickable : Lists.newArrayList(getMobileChunk().updatableTiles)) {
+                    tickable.setWorldObj(mobileChunk.getFakeWorld());
+                    ((ITickable)tickable).update();
+                    tickable.setWorldObj(mobileChunk.worldObj);
+                }
             }
         }
 
@@ -875,7 +879,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             e.printStackTrace();
         } catch (MovingWorldSizeOverflowException ssoe) {
             disassemble(false);
-            MovingWorld.logger.warn("Ship is too large to be sent");
+            MovingWorldMod.logger.warn("Ship is too large to be sent");
         }
         writeMovingWorldSpawnData(data);
     }

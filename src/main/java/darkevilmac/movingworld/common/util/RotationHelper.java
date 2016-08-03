@@ -6,8 +6,8 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.Vec3i;
 
 import darkevilmac.movingworld.common.chunk.LocatedBlock;
-import darkevilmac.movingworld.common.util.rotation.IRotationBlock;
-import darkevilmac.movingworld.common.util.rotation.IRotationProperty;
+import darkevilmac.movingworld.api.rotation.IRotationBlock;
+import darkevilmac.movingworld.api.rotation.IRotationProperty;
 
 public class RotationHelper {
 

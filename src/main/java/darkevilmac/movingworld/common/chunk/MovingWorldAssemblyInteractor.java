@@ -8,7 +8,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 
-import darkevilmac.movingworld.MovingWorld;
+import darkevilmac.movingworld.MovingWorldMod;
 import darkevilmac.movingworld.common.block.BlockMovingWorldMarker;
 import darkevilmac.movingworld.common.chunk.assembly.AssembleResult;
 import darkevilmac.movingworld.common.chunk.assembly.CanAssemble;
@@ -30,7 +30,7 @@ public class MovingWorldAssemblyInteractor {
     }
 
     public boolean doDiagonalAssembly() {
-        return MovingWorld.instance.getNetworkConfig().getShared().diagonalAssembly;
+        return MovingWorldMod.instance.getNetworkConfig().getShared().diagonalAssembly;
     }
 
     public void toByteBuf(ByteBuf byteBuf) {
@@ -54,7 +54,7 @@ public class MovingWorldAssemblyInteractor {
      * @return returns if it is an over writable block in the config.
      */
     public boolean canOverwriteState(IBlockState state) {
-        return MovingWorld.instance.getNetworkConfig().canOverwriteState(state);
+        return MovingWorldMod.instance.getNetworkConfig().canOverwriteState(state);
     }
 
     /**
@@ -86,7 +86,7 @@ public class MovingWorldAssemblyInteractor {
         CanAssemble canAssemble = new CanAssemble(false, false);
         IBlockState state = lb.blockState;
 
-        canAssemble.justCancel = !(!state.getMaterial().equals(Material.AIR) && !state.getMaterial().isLiquid() && MovingWorld.instance.getNetworkConfig().isStateAllowed(state));
+        canAssemble.justCancel = !(!state.getMaterial().equals(Material.AIR) && !state.getMaterial().isLiquid() && MovingWorldMod.instance.getNetworkConfig().isStateAllowed(state));
 
         return canAssemble;
     }

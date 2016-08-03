@@ -6,7 +6,7 @@ import net.minecraft.util.math.BlockPos;
 
 import java.util.ArrayList;
 
-import darkevilmac.movingworld.MovingWorld;
+import darkevilmac.movingworld.MovingWorldMod;
 import darkevilmac.movingworld.common.chunk.LocatedBlock;
 
 public class LocatedBlockList extends ArrayList<LocatedBlock> {
@@ -63,7 +63,7 @@ public class LocatedBlockList extends ArrayList<LocatedBlock> {
 
         if (!thisList.isEmpty()) {
             for (LocatedBlock lb : thisList) {
-                if (MovingWorld.instance.getNetworkConfig().getShared().assemblePriorityConfig.getHighPriorityAssembly().contains(lb.getBlockName())) {
+                if (MovingWorldMod.instance.getNetworkConfig().getShared().assemblePriorityConfig.getHighPriorityAssembly().contains(lb.getBlockName())) {
                     lbList.add(lb);
                 }
             }
@@ -79,7 +79,7 @@ public class LocatedBlockList extends ArrayList<LocatedBlock> {
 
         if (!thisList.isEmpty()) {
             for (LocatedBlock lb : thisList) {
-                if (MovingWorld.instance.getNetworkConfig().getShared().assemblePriorityConfig.getHighPriorityDisassembly().contains(lb.getBlockName())) {
+                if (MovingWorldMod.instance.getNetworkConfig().getShared().assemblePriorityConfig.getHighPriorityDisassembly().contains(lb.getBlockName())) {
                     lbList.add(lb);
                 }
             }
@@ -95,7 +95,7 @@ public class LocatedBlockList extends ArrayList<LocatedBlock> {
 
         if (!thisList.isEmpty()) {
             for (LocatedBlock lb : thisList) {
-                if (MovingWorld.instance.getNetworkConfig().getShared().assemblePriorityConfig.getLowPriorityAssembly().contains(lb.getBlockName())) {
+                if (MovingWorldMod.instance.getNetworkConfig().getShared().assemblePriorityConfig.getLowPriorityAssembly().contains(lb.getBlockName())) {
                     lbList.add(lb);
                 }
             }
@@ -111,7 +111,7 @@ public class LocatedBlockList extends ArrayList<LocatedBlock> {
 
         if (!thisList.isEmpty()) {
             for (LocatedBlock lb : thisList) {
-                if (MovingWorld.instance.getNetworkConfig().getShared().assemblePriorityConfig.getLowPriorityDisassembly().contains(lb.getBlockName())) {
+                if (MovingWorldMod.instance.getNetworkConfig().getShared().assemblePriorityConfig.getLowPriorityDisassembly().contains(lb.getBlockName())) {
                     lbList.add(lb);
                 }
             }
@@ -127,8 +127,8 @@ public class LocatedBlockList extends ArrayList<LocatedBlock> {
 
         if (!thisList.isEmpty()) {
             for (LocatedBlock lb : thisList) {
-                if (!MovingWorld.instance.getNetworkConfig().getShared().assemblePriorityConfig.getHighPriorityAssembly().contains(lb.getBlockName())
-                        && !MovingWorld.instance.getNetworkConfig().getShared().assemblePriorityConfig.getLowPriorityAssembly().contains(lb.getBlockName())) {
+                if (!MovingWorldMod.instance.getNetworkConfig().getShared().assemblePriorityConfig.getHighPriorityAssembly().contains(lb.getBlockName())
+                        && !MovingWorldMod.instance.getNetworkConfig().getShared().assemblePriorityConfig.getLowPriorityAssembly().contains(lb.getBlockName())) {
                     lbList.add(lb);
                 }
             }
@@ -144,8 +144,8 @@ public class LocatedBlockList extends ArrayList<LocatedBlock> {
 
         if (!thisList.isEmpty()) {
             for (LocatedBlock lb : thisList) {
-                if (!MovingWorld.instance.getNetworkConfig().getShared().assemblePriorityConfig.getHighPriorityDisassembly().contains(lb.getBlockName())
-                        && !MovingWorld.instance.getNetworkConfig().getShared().assemblePriorityConfig.getLowPriorityDisassembly().contains(lb.getBlockName())) {
+                if (!MovingWorldMod.instance.getNetworkConfig().getShared().assemblePriorityConfig.getHighPriorityDisassembly().contains(lb.getBlockName())
+                        && !MovingWorldMod.instance.getNetworkConfig().getShared().assemblePriorityConfig.getLowPriorityDisassembly().contains(lb.getBlockName())) {
                     lbList.add(lb);
                 }
             }

@@ -1,5 +1,6 @@
 package darkevilmac.movingworld.common.chunk.mobilechunk.world;
 
+import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunk;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -9,7 +10,7 @@ import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunk;
+import javax.annotation.Nullable;
 
 /**
  * A wrapper for MobileChunks, used to give blocks accurate information about it's neighbors.
@@ -46,12 +47,27 @@ public class FakeWorld extends World {
 
     @Override
     public boolean setBlockState(BlockPos pos, IBlockState state) {
+        mobileChunk.setBlockState(pos, state);
         return false;
     }
 
     @Override
-    public boolean setBlockState(BlockPos pos, IBlockState newState, int flags) {
+    public boolean setBlockState(BlockPos pos, IBlockState state, int flags) {
+        mobileChunk.setBlockState(pos,state);
         return false;
+    }
+
+    @Override
+    public void setTileEntity(BlockPos pos, @Nullable TileEntity tileEntityIn) {
+        mobileChunk.setTileEntity(pos, tileEntityIn);
+    }
+
+    @Override
+    public void markChunkDirty(BlockPos pos, TileEntity unusedTileEntity) {
+        mobileChunk.setChunkModified();
+        if(mobileChunk.side().isServer()){
+            mobileChunk.markTileDirty(pos);
+        }
     }
 
     private boolean isValidPosition(BlockPos pos) {

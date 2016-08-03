@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import darkevilmac.movingworld.MovingWorld;
+import darkevilmac.movingworld.MovingWorldMod;
 
 public class AssemblePriorityConfig {
 
@@ -156,7 +156,7 @@ public class AssemblePriorityConfig {
                     if (prop.getName().equals("powered")) {
                         String poweredBlockName = Block.REGISTRY.getNameForObject(checkBlock).toString();
                         poweredBlockNames.add(poweredBlockName);
-                        MovingWorld.logger.info("Found powered block with name: " + poweredBlockName);
+                        MovingWorldMod.logger.info("Found powered block with name: " + poweredBlockName);
                     }
                 }
             }

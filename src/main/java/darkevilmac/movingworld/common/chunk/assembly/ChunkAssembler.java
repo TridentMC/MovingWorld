@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import darkevilmac.movingworld.MovingWorld;
+import darkevilmac.movingworld.MovingWorldMod;
 import darkevilmac.movingworld.common.chunk.LocatedBlock;
 import darkevilmac.movingworld.common.chunk.MovingWorldAssemblyInteractor;
 import darkevilmac.movingworld.common.chunk.MovingWorldSizeOverflowException;
@@ -33,7 +33,7 @@ public class ChunkAssembler {
         result.offset = start;
         result.assemblyInteractor = interactor;
         try {
-            if (MovingWorld.instance.getNetworkConfig().getShared().iterativeAlgorithm) {
+            if (MovingWorldMod.instance.getNetworkConfig().getShared().iterativeAlgorithm) {
                 assembleIterative(result, result.assemblyInteractor, start);
             } else {
                 assembleRecursive(result, new HashSet<BlockPos>(), result.assemblyInteractor, start);
@@ -47,7 +47,7 @@ public class ChunkAssembler {
             result.resultType = AssembleResult.ResultType.RESULT_BLOCK_OVERFLOW;
         } catch (Error e) {
             result.resultType = AssembleResult.ResultType.RESULT_ERROR_OCCURED;
-            MovingWorld.logger.error(e.toString());
+            MovingWorldMod.logger.error(e.toString());
         }
         result.assemblyInteractor.chunkAssembled(result);
         return result;

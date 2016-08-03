@@ -1,11 +1,13 @@
 package darkevilmac.movingworld.common.network;
 
-import com.unascribed.lambdanetwork.BiConsumer;
-import com.unascribed.lambdanetwork.DataType;
-import com.unascribed.lambdanetwork.LambdaNetwork;
-import com.unascribed.lambdanetwork.LambdaNetworkBuilder;
-import com.unascribed.lambdanetwork.Token;
-
+import com.unascribed.lambdanetwork.*;
+import darkevilmac.movingworld.MovingWorldMod;
+import darkevilmac.movingworld.common.chunk.ChunkIO;
+import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunkClient;
+import darkevilmac.movingworld.common.entity.EntityMovingWorld;
+import darkevilmac.movingworld.common.tile.TileMovingWorldMarkingBlock;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -20,14 +22,6 @@ import net.minecraftforge.fml.relauncher.Side;
 
 import java.io.IOException;
 
-import darkevilmac.movingworld.MovingWorld;
-import darkevilmac.movingworld.common.chunk.ChunkIO;
-import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunkClient;
-import darkevilmac.movingworld.common.entity.EntityMovingWorld;
-import darkevilmac.movingworld.common.tile.TileMovingWorldMarkingBlock;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-
 public class MovingWorldNetworking {
 
     public static LambdaNetwork NETWORK;
@@ -35,9 +29,9 @@ public class MovingWorldNetworking {
     public static void setupNetwork() {
         //Init net code with builder.
 
-        MovingWorld.logger.info("Setting up network...");
+        MovingWorldMod.logger.info("Setting up network...");
         MovingWorldNetworking.NETWORK = registerPackets(LambdaNetwork.builder().channel("MovingWorld")).build();
-        MovingWorld.logger.info("Setup network! " + MovingWorldNetworking.NETWORK.toString());
+        MovingWorldMod.logger.info("Setup network! " + MovingWorldNetworking.NETWORK.toString());
     }
 
     private static LambdaNetworkBuilder registerPackets(LambdaNetworkBuilder builder) {
@@ -71,7 +65,6 @@ public class MovingWorldNetworking {
                     @Override
                     public void accept(EntityPlayer entityPlayer, Token token) {
                         ByteBuf buf = Unpooled.wrappedBuffer(token.getData("chunk"));
-
                         World world = DimensionManager.getWorld(token.getInt("dimID"));
                         if (world != null) {
                             Entity unCast = world.getEntityByID(token.getInt("entityID"));
@@ -81,7 +74,7 @@ public class MovingWorldNetworking {
                                 try {
                                     ChunkIO.readCompressed(buf, movingWorld.getMobileChunk());
                                 } catch (IOException e) {
-                                    MovingWorld.logger.error(e);
+                                    MovingWorldMod.logger.error(e);
                                 }
                             }
                         }

@@ -10,7 +10,7 @@ import net.minecraft.world.World;
 
 import java.util.HashSet;
 
-import darkevilmac.movingworld.MovingWorld;
+import darkevilmac.movingworld.MovingWorldMod;
 import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunk;
 
 public abstract class MovingWorldHandlerCommon {
@@ -48,7 +48,7 @@ public abstract class MovingWorldHandlerCommon {
         try {
             getMovingWorld().fillAirBlocks(new HashSet<BlockPos>(), new BlockPos(-1, -1, -1));
         } catch (StackOverflowError e) {
-            MovingWorld.logger.error("Failure during moving world post-initialization", e);
+            MovingWorldMod.logger.error("Failure during moving world post-initialization", e);
         }
 
         getMovingWorld().setLayeredBlockVolumeCount(new int[chunk.maxY() - chunk.minY()]);

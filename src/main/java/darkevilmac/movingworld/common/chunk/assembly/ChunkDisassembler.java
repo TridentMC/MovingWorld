@@ -11,13 +11,13 @@ import net.minecraftforge.common.MinecraftForge;
 
 import java.util.ArrayList;
 
-import darkevilmac.movingworld.MovingWorld;
+import darkevilmac.movingworld.MovingWorldMod;
 import darkevilmac.movingworld.common.chunk.LocatedBlock;
 import darkevilmac.movingworld.common.chunk.MovingWorldAssemblyInteractor;
 import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunk;
 import darkevilmac.movingworld.common.entity.EntityMovingWorld;
 import darkevilmac.movingworld.common.event.DisassembleBlockEvent;
-import darkevilmac.movingworld.common.tile.IMovingWorldTileEntity;
+import darkevilmac.movingworld.api.IMovingWorldTileEntity;
 import darkevilmac.movingworld.common.tile.TileMovingWorldMarkingBlock;
 import darkevilmac.movingworld.common.util.FloodFiller;
 import darkevilmac.movingworld.common.util.LocatedBlockList;
@@ -150,7 +150,7 @@ public class ChunkDisassembler {
             if (pList != null && !pList.isEmpty())
                 for (LocatedBlock locatedBlockInstance : pList) {
                     pos = locatedBlockInstance.blockPos;
-                    MovingWorld.logger.debug("Post-rejoining block: " + locatedBlockInstance.toString());
+                    MovingWorldMod.logger.debug("Post-rejoining block: " + locatedBlockInstance.toString());
                     world.setBlockState(pos, locatedBlockInstance.blockState, 2);
                     assemblyInteractor.blockDisassembled(locatedBlockInstance);
                     DisassembleBlockEvent event = new DisassembleBlockEvent(locatedBlockInstance);

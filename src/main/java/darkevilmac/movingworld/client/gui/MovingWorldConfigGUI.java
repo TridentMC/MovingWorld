@@ -9,21 +9,21 @@ import net.minecraftforge.fml.client.config.IConfigElement;
 import java.util.ArrayList;
 import java.util.List;
 
-import darkevilmac.movingworld.MovingWorld;
+import darkevilmac.movingworld.MovingWorldMod;
 
 public class MovingWorldConfigGUI extends GuiConfig {
 
     public MovingWorldConfigGUI(GuiScreen parentScreen) {
         super(parentScreen, generateConfigList(), "MovingWorld",
-                false, false, GuiConfig.getAbridgedConfigPath(MovingWorld.instance.getNetworkConfig().getConfig().toString()));
+                false, false, GuiConfig.getAbridgedConfigPath(MovingWorldMod.instance.getNetworkConfig().getConfig().toString()));
     }
 
     public static List<IConfigElement> generateConfigList() {
 
         ArrayList<IConfigElement> elements = new ArrayList<IConfigElement>();
 
-        for (String name : MovingWorld.instance.getNetworkConfig().getConfig().getCategoryNames())
-            elements.add(new ConfigElement(MovingWorld.instance.getNetworkConfig().getConfig().getCategory(name)));
+        for (String name : MovingWorldMod.instance.getNetworkConfig().getConfig().getCategoryNames())
+            elements.add(new ConfigElement(MovingWorldMod.instance.getNetworkConfig().getConfig().getCategory(name)));
 
         return elements;
     }

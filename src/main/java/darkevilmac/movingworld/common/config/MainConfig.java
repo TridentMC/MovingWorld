@@ -1,8 +1,12 @@
 package darkevilmac.movingworld.common.config;
 
+import darkevilmac.movingworld.MovingWorldMod;
+import darkevilmac.movingworld.common.config.priority.AssemblePriorityConfig;
+import darkevilmac.movingworld.common.util.MaterialDensity;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
@@ -15,10 +19,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
-
-import darkevilmac.movingworld.MovingWorld;
-import darkevilmac.movingworld.common.config.priority.AssemblePriorityConfig;
-import darkevilmac.movingworld.common.util.MaterialDensity;
 
 public class MainConfig {
 
@@ -35,6 +35,7 @@ public class MainConfig {
         shared.blockBlacklist = new HashSet<String>();
         shared.blockWhitelist = new HashSet<String>();
         shared.overwritableBlocks = new HashSet<String>();
+        shared.updatableTiles = new HashSet<>();
 
         MinecraftForge.EVENT_BUS.register(this); // For in game config reloads.
     }
@@ -68,6 +69,7 @@ public class MainConfig {
     public void loadAndSave() {
         String[] defaultMaterialDensities = {"\"minecraft:air=0.0\"", "\"minecraft:wool=0.1\""};
         String[] defaultBlockDensities = {"\"ArchimedesShipsPlus:floater=0.04\"", "\"ArchimedesShipsPlus:balloon=0.02\""};
+        String[] defaultUpdatableTiles = {"Furnace", "Hopper", "Banner", "EnchantTable", "DLDetector"};
 
         Block[] defaultOverWritableBlocks = {Blocks.TALLGRASS, Blocks.WATERLILY, Blocks.SNOW_LAYER};
 
@@ -85,9 +87,10 @@ public class MainConfig {
         for (int i = 0; i < defaultOverWritableBlocks.length; i++) {
             overWritableBlockNames[i] = Block.REGISTRY.getNameForObject(defaultOverWritableBlocks[i]).toString();
         }
+
         config.load();
 
-        shared.iterativeAlgorithm = config.get(Configuration.CATEGORY_GENERAL, "Use Iterative Algorithm", false).getBoolean();
+        shared.iterativeAlgorithm = config.get(Configuration.CATEGORY_GENERAL, "Use Iterative Algorithm", true).getBoolean();
         shared.diagonalAssembly = config.get(Configuration.CATEGORY_GENERAL, "Assemble Diagonal Blocks NOTE: Can be overridden by mods!", false).getBoolean();
         shared.useWhitelist = config.get("mobile_chunk", "use_whitelist", false, "Switch this property to select the block restriction list to use. 'true' for the 'allowed_blocks' whitelist, 'false' for the 'forbidden_blocks' blacklist.").getBoolean(false);
         shared.loadedBlockDensities = config.get("mobile_chunk", "block_densities", defaultBlockDensities, "A list of pairs of a block with a density value. This list overrides the 'material_densities' list.").getStringList();
@@ -98,10 +101,13 @@ public class MainConfig {
         String[] forbiddenBlocks = config.get("mobile_chunk", "forbidden_blocks", blockBlackListNames, "A list of blocks that will not be added to a Moving World.").getStringList();
         String[] allowedBlocks = config.get("mobile_chunk", "allowed_blocks", blockWhiteListNames, "A list of blocks that are allowed on a Moving World.").getStringList();
         String[] overwritableBlocks = config.get("mobile_chunk", "overwritable_blocks", overWritableBlockNames, "A list of blocks that may be overwritten when decompiling a Moving World.").getStringList();
+        String[] updatableTiles = config.get("mobile_chunk", "updatable_tiles", defaultUpdatableTiles,
+                "A list of tiles that are allowed to tick while they're part of a MobileChunk, might cause explosions loss of data, type 2 diabetes, and cancer. Use with caution.").getStringList();
 
         Collections.addAll(this.shared.blockBlacklist, forbiddenBlocks);
         Collections.addAll(this.shared.blockWhitelist, allowedBlocks);
         Collections.addAll(this.shared.overwritableBlocks, overwritableBlocks);
+        Collections.addAll(this.shared.updatableTiles, updatableTiles);
 
         config.save();
 
@@ -115,7 +121,7 @@ public class MainConfig {
             s = s.replace("\"", "");
             String[] pair = splitpattern.split(s);
             if (pair.length != 2) {
-                MovingWorld.logger.warn("Invalid key-value pair at block_densities[" + i + "]");
+                MovingWorldMod.logger.warn("Invalid key-value pair at block_densities[" + i + "]");
                 continue;
             }
             String key = pair[0];
@@ -123,12 +129,12 @@ public class MainConfig {
             try {
                 density = Float.parseFloat(pair[1]);
             } catch (NumberFormatException e) {
-                MovingWorld.logger.warn("Cannot parse value " + pair[1] + " to floating point at block_densities[" + i + "]");
+                MovingWorldMod.logger.warn("Cannot parse value " + pair[1] + " to floating point at block_densities[" + i + "]");
                 continue;
             }
             Block block = Block.getBlockFromName(key);
             if (block == null) {
-                MovingWorld.logger.warn("No block found for " + key + " at block_densities[" + i + "]");
+                MovingWorldMod.logger.warn("No block found for " + key + " at block_densities[" + i + "]");
                 continue;
             }
 
@@ -140,7 +146,7 @@ public class MainConfig {
             s = s.replace("\"", "");
             String[] pair = splitpattern.split(s);
             if (pair.length != 2) {
-                MovingWorld.logger.warn("Invalid key-value pair at material_densities[" + i + "]");
+                MovingWorldMod.logger.warn("Invalid key-value pair at material_densities[" + i + "]");
                 continue;
             }
             String key = pair[0];
@@ -148,12 +154,12 @@ public class MainConfig {
             try {
                 density = Float.parseFloat(pair[1]);
             } catch (NumberFormatException e) {
-                MovingWorld.logger.warn("Cannot parse value " + pair[1] + " to floating point at material_densities[" + i + "]");
+                MovingWorldMod.logger.warn("Cannot parse value " + pair[1] + " to floating point at material_densities[" + i + "]");
                 continue;
             }
             Block block = Block.getBlockFromName(key);
             if (block == null) {
-                MovingWorld.logger.warn("No block found for " + key + " at material_densities[" + i + "]");
+                MovingWorldMod.logger.warn("No block found for " + key + " at material_densities[" + i + "]");
                 continue;
             }
 
@@ -235,9 +241,13 @@ public class MainConfig {
         return shared.overwritableBlocks.contains(Block.REGISTRY.getNameForObject(state.getBlock()));
     }
 
+    public boolean isTileUpdatable(Class<? extends TileEntity> tileClass) {
+        return shared.updatableTiles.contains(TileEntity.classToNameMap.get(tileClass));
+    }
+
     @SubscribeEvent
     public void onConfigChange(ConfigChangedEvent.OnConfigChangedEvent event) {
-        if (event.getModID().equals(MovingWorld.MOD_ID)) {
+        if (event.getModID().equals(MovingWorldMod.MOD_ID)) {
             if (config.hasChanged())
                 config.save();
             loadAndSave();
@@ -251,6 +261,7 @@ public class MainConfig {
         public Set<String> blockBlacklist;
         public Set<String> blockWhitelist;
         public Set<String> overwritableBlocks;
+        public Set<String> updatableTiles;
         public AssemblePriorityConfig assemblePriorityConfig;
 
         private String[] loadedBlockDensities;

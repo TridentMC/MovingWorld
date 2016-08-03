@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import darkevilmac.movingworld.MovingWorld;
+import darkevilmac.movingworld.MovingWorldMod;
 
 public class MetaRotations {
     public Map<Integer, BlockMetaRotation> metaRotationMap;
@@ -41,10 +41,10 @@ public class MetaRotations {
 
     public void addMetaRotation(Block block, int bitmask, int... metarotation) {
         if (block == null) {
-            MovingWorld.logger.error("Adding null block meta rotations");
+            MovingWorldMod.logger.error("Adding null block meta rotations");
             return;
         }
-        MovingWorld.logger.trace("Adding meta rotations (block=" + Block.REGISTRY.getNameForObject(block) + ", id=" + Block.getIdFromBlock(block) + ", mask=" + bitmask + ", rot=" + Arrays.toString(metarotation) + ")");
+        MovingWorldMod.logger.trace("Adding meta rotations (block=" + Block.REGISTRY.getNameForObject(block) + ", id=" + Block.getIdFromBlock(block) + ", mask=" + bitmask + ", rot=" + Arrays.toString(metarotation) + ")");
 
         metaRotationMap.put(Block.getIdFromBlock(block), new BlockMetaRotation(block, metarotation, bitmask));
     }
@@ -64,9 +64,9 @@ public class MetaRotations {
             IOUtils.copy(iStream, oStream);
             iStream.close();
             oStream.close();
-            MovingWorld.logger.debug("Created " + fileName + " meta rotation");
+            MovingWorldMod.logger.debug("Created " + fileName + " meta rotation");
         }
-        MovingWorld.logger.debug(fileName + " ready to load");
+        MovingWorldMod.logger.debug(fileName + " ready to load");
     }
 
     public boolean parseMetaRotations(BufferedReader reader) throws IOException, OutdatedMrotException {
@@ -131,7 +131,7 @@ public class MetaRotations {
     }
 
     public void mrotError(String msg, int lineno) {
-        MovingWorld.logger.warn("Error in metarotation file at line " + lineno + " (" + msg + ")");
+        MovingWorldMod.logger.warn("Error in metarotation file at line " + lineno + " (" + msg + ")");
     }
 
     public void readMetaRotationFiles() {
@@ -143,18 +143,18 @@ public class MetaRotations {
             try {
                 readMetaRotationFile(new File(metaRotationsDirectory, "vanilla.mrot"));
             } catch (OutdatedMrotException ome) {
-                MovingWorld.logger.info("Outdated vanilla.mrot detected: " + ome.getLocalizedMessage());
+                MovingWorldMod.logger.info("Outdated vanilla.mrot detected: " + ome.getLocalizedMessage());
                 createDefaultMrot();
                 readMetaRotationFile(new File(metaRotationsDirectory, "vanilla.mrot"));
             } catch (FileNotFoundException fnfe) {
-                MovingWorld.logger.info("vanilla.mrot file not found: " + fnfe.getLocalizedMessage());
+                MovingWorldMod.logger.info("vanilla.mrot file not found: " + fnfe.getLocalizedMessage());
                 createDefaultMrot();
                 readMetaRotationFile(new File(metaRotationsDirectory, "vanilla.mrot"));
             } catch (Exception e0) {
                 throw e0;
             }
         } catch (Exception e1) {
-            MovingWorld.logger.error("Could not load default meta rotations", e1);
+            MovingWorldMod.logger.error("Could not load default meta rotations", e1);
         }
 
         //Discover other defaults.
@@ -195,7 +195,7 @@ public class MetaRotations {
     }
 
     public void readMetaRotationFile(File file) throws IOException, OutdatedMrotException {
-        MovingWorld.logger.info("Reading metarotation file: " + file.getName());
+        MovingWorldMod.logger.info("Reading metarotation file: " + file.getName());
 
         BufferedReader reader = new BufferedReader(new FileReader(file));
         boolean flag = parseMetaRotations(reader);
@@ -206,11 +206,11 @@ public class MetaRotations {
     }
 
     public void createDefaultMrot() {
-        MovingWorld.logger.info("Creating vanilla.mrot");
+        MovingWorldMod.logger.info("Creating vanilla.mrot");
         try {
             registerMetaRotationFile("vanilla.mrot", getClass().getResourceAsStream("/mrot/vanilla.mrot"));
         } catch (IOException e) {
-            MovingWorld.logger.error("UNABLE TO LOAD VANILLA.MROT");
+            MovingWorldMod.logger.error("UNABLE TO LOAD VANILLA.MROT");
         }
     }
 }

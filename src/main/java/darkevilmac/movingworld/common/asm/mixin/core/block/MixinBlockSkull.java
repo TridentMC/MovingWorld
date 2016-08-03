@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.Mixin;
 
 import darkevilmac.movingworld.common.chunk.LocatedBlock;
 import darkevilmac.movingworld.common.util.RotationHelper;
-import darkevilmac.movingworld.common.util.rotation.IRotationBlock;
+import darkevilmac.movingworld.api.rotation.IRotationBlock;
 
 @Mixin(BlockSkull.class)
 public class MixinBlockSkull implements IRotationBlock {

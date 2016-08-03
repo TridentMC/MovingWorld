@@ -13,7 +13,7 @@ import net.minecraft.world.World;
 
 import java.util.ArrayList;
 
-import darkevilmac.movingworld.MovingWorld;
+import darkevilmac.movingworld.MovingWorldMod;
 import darkevilmac.movingworld.common.chunk.LocatedBlock;
 import darkevilmac.movingworld.common.chunk.MovingWorldAssemblyInteractor;
 import darkevilmac.movingworld.common.entity.EntityMovingWorld;
@@ -89,7 +89,7 @@ public class AssembleResult {
         if (!isOK()) return null;
 
         if (entity == null) {
-            MovingWorld.logger.error("A null movingWorld was attempted!");
+            MovingWorldMod.logger.error("A null movingWorld was attempted!");
             return null;
         }
 
@@ -112,8 +112,8 @@ public class AssembleResult {
             }
         } catch (Exception e) {
             resultType = ResultType.RESULT_ERROR_OCCURED;
-            MovingWorld.logger.error("Result code: RESULT ERROR OCCURED was reached when attempting to getEntity from assembly result. Printing stacktrace...");
-            MovingWorld.logger.error(e);
+            MovingWorldMod.logger.error("Result code: RESULT ERROR OCCURED was reached when attempting to getEntity from assembly result. Printing stacktrace...");
+            MovingWorldMod.logger.error(e);
             e.printStackTrace();
             return null;
         }

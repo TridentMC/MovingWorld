@@ -1,14 +1,11 @@
 package darkevilmac.movingworld.client.render;
 
+import darkevilmac.movingworld.MovingWorldMod;
+import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunk;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BlockRendererDispatcher;
-import net.minecraft.client.renderer.GLAllocation;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -20,11 +17,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
 import org.lwjgl.opengl.GL11;
-
-import darkevilmac.movingworld.MovingWorld;
-import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunk;
 
 @SideOnly(Side.CLIENT)
 public class MobileChunkRenderer {
@@ -81,6 +74,7 @@ public class MobileChunkRenderer {
                             dispatchBlockRender(blockState, pos, vertexBuffer);
                         }
                     }
+                    net.minecraftforge.client.ForgeHooksClient.setRenderLayer(null);
                 }
             }
         }
@@ -89,29 +83,26 @@ public class MobileChunkRenderer {
 
         GlStateManager.pushMatrix();
         World tesrDispatchWorld = TileEntityRendererDispatcher.instance.worldObj;
-
+        TileEntityRendererDispatcher.instance.setWorld(chunk.getFakeWorld());
         for (int y = chunk.minY(); y < chunk.maxY(); ++y) {
             for (int z = chunk.minZ(); z < chunk.maxZ(); ++z) {
                 for (int x = chunk.minX(); x < chunk.maxX(); ++x) {
                     BlockPos pos = new BlockPos(x, y, z);
                     TileEntity tile = chunk.getTileEntity(pos);
                     if (tile != null) {
+                        tile.setWorldObj(chunk.getFakeWorld());
                         TileEntitySpecialRenderer renderer = TileEntityRendererDispatcher.instance.getSpecialRenderer(tile);
 
                         if (renderer != null && tile.shouldRenderInPass(MinecraftForgeClient.getRenderPass())) {
-                            TileEntity tileClone = tile;
-                            tileClone.setWorldObj(chunk.getFakeWorld());
-                            TileEntityRendererDispatcher.instance.setWorld(chunk.getFakeWorld());
-                            TileEntityRendererDispatcher.instance.renderTileEntityAt(tileClone, tileClone.getPos().getX(), tileClone.getPos().getY(), tileClone.getPos().getZ(), partialTicks);
-                            TileEntityRendererDispatcher.instance.setWorld(tile.getWorld());
+                            TileEntityRendererDispatcher.instance.renderTileEntityAt(tile, tile.getPos().getX(), tile.getPos().getY(), tile.getPos().getZ(), partialTicks);
                         }
+                        tile.setWorldObj(chunk.worldObj);
                     }
                 }
             }
         }
-        RenderHelper.enableStandardItemLighting();
-
         TileEntityRendererDispatcher.instance.setWorld(tesrDispatchWorld);
+        RenderHelper.enableStandardItemLighting();
 
         GlStateManager.popMatrix();
         GlStateManager.popMatrix();
@@ -132,12 +123,12 @@ public class MobileChunkRenderer {
 
         try {
             if (glRenderList != 0) {
-                MovingWorld.logger.debug("Deleting mobile chunk display list " + glRenderList);
+                MovingWorldMod.logger.debug("Deleting mobile chunk display list " + glRenderList);
                 GLAllocation.deleteDisplayLists(glRenderList);
                 glRenderList = 0;
             }
         } catch (Exception e) {
-            MovingWorld.logger.error("Failed to destroy mobile chunk display list", e);
+            MovingWorldMod.logger.error("Failed to destroy mobile chunk display list", e);
         }
     }
 }

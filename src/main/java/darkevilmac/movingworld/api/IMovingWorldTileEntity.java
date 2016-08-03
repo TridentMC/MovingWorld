@@ -1,4 +1,4 @@
-package darkevilmac.movingworld.common.tile;
+package darkevilmac.movingworld.api;
 
 import net.minecraft.util.math.BlockPos;
 
@@ -7,11 +7,13 @@ import darkevilmac.movingworld.common.entity.EntityMovingWorld;
 
 public interface IMovingWorldTileEntity {
 
-    void setParentMovingWorld(BlockPos pos, EntityMovingWorld entityMovingWorld);
+    void setParentMovingWorld(BlockPos chunkPos, EntityMovingWorld entityMovingWorld);
 
     EntityMovingWorld getParentMovingWorld();
 
     void setParentMovingWorld(EntityMovingWorld entityMovingWorld);
+
+    BlockPos getChunkPos();
 
     /**
      * Called each tick from the mobilechunk, I advise strongly against any major modifications to

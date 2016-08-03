@@ -9,7 +9,7 @@ import net.minecraft.util.EnumFacing;
 
 import org.spongepowered.asm.mixin.Mixin;
 
-import darkevilmac.movingworld.common.util.rotation.IRotationProperty;
+import darkevilmac.movingworld.api.rotation.IRotationProperty;
 
 @Mixin(PropertyEnum.class)
 public class MixinPropertyEnum implements IRotationProperty {
