@@ -23,7 +23,7 @@ apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'idea'
 
-version = 'MC1.9-INDEV'
+version = 'MC1.10-INDEV'
 group = "darkevilmac.movingworld"
 archivesBaseName = "movingworld"
 
