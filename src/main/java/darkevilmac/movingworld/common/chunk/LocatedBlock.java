@@ -2,12 +2,15 @@ package darkevilmac.movingworld.common.chunk;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class LocatedBlock {
+    public static final LocatedBlock AIR = new LocatedBlock(Blocks.AIR.getDefaultState(), BlockPos.ORIGIN);
+
     public final IBlockState blockState;
     public final TileEntity tileEntity;
     public final BlockPos blockPos;

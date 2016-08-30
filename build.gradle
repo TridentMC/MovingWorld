@@ -27,8 +27,11 @@ version = 'MC1.10-INDEV'
 group = "darkevilmac.movingworld"
 archivesBaseName = "movingworld"
 
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
 minecraft {
-    version = "1.10.2-12.18.1.2044"
+    version = "1.10.2-12.18.1.2074"
     runDir = "run"
 
     def replacementVersion = 'MOD_VERSION = \"' + project.version + '\"'

@@ -102,7 +102,7 @@ public class MainConfig {
         String[] allowedBlocks = config.get("mobile_chunk", "allowed_blocks", blockWhiteListNames, "A list of blocks that are allowed on a Moving World.").getStringList();
         String[] overwritableBlocks = config.get("mobile_chunk", "overwritable_blocks", overWritableBlockNames, "A list of blocks that may be overwritten when decompiling a Moving World.").getStringList();
         String[] updatableTiles = config.get("mobile_chunk", "updatable_tiles", defaultUpdatableTiles,
-                "A list of tiles that are allowed to tick while they're part of a MobileChunk, might cause explosions loss of data, type 2 diabetes, and cancer. Use with caution.").getStringList();
+                "(Currently unimplemented) A list of tiles that are allowed to tick while they're part of a MobileChunk, might cause explosive loss of data, type 2 diabetes, and cancer. Use with caution.").getStringList();
 
         Collections.addAll(this.shared.blockBlacklist, forbiddenBlocks);
         Collections.addAll(this.shared.blockWhitelist, allowedBlocks);
@@ -242,7 +242,9 @@ public class MainConfig {
     }
 
     public boolean isTileUpdatable(Class<? extends TileEntity> tileClass) {
-        return shared.updatableTiles.contains(TileEntity.classToNameMap.get(tileClass));
+        return false;
+
+        //return shared.updatableTiles.contains(TileEntity.classToNameMap.get(tileClass));
     }
 
     @SubscribeEvent

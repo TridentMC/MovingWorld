@@ -547,7 +547,6 @@ public abstract class MobileChunk implements IBlockAccess {
     public void onChunkLoad() {
         isChunkLoaded = true;
         worldObj.addTileEntities(chunkTileEntityMap.values());
-
     }
 
     /**

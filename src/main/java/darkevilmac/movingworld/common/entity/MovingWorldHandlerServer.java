@@ -1,5 +1,6 @@
 package darkevilmac.movingworld.common.entity;
 
+import darkevilmac.movingworld.MovingWorldMod;
 import darkevilmac.movingworld.common.chunk.ChunkIO;
 import darkevilmac.movingworld.common.chunk.mobilechunk.MobileChunkServer;
 import darkevilmac.movingworld.common.network.MovingWorldNetworking;
@@ -44,19 +45,21 @@ public abstract class MovingWorldHandlerServer extends MovingWorldHandlerCommon 
         super.onChunkUpdate();
         if (getMobileChunkServer() != null) {
             if (!firstChunkUpdate) {
-                if (!getMobileChunkServer().getBlockQueue().isEmpty())
+                if (!getMobileChunkServer().getBlockQueue().isEmpty()) {
                     MovingWorldNetworking.NETWORK.send().packet("ChunkBlockUpdateMessage")
                             .with("dimID", getMovingWorld().worldObj.provider.getDimension())
                             .with("entityID", getMovingWorld().getEntityId())
                             .with("chunk", ChunkIO.writeCompressed(getMovingWorld().getMobileChunk(), getMobileChunkServer().getBlockQueue()))
                             .toAllAround(getMovingWorld().worldObj, getMovingWorld(), 64D);
 
-                if(!getMobileChunkServer().getTileQueue().isEmpty()){
+                    MovingWorldMod.logger.debug("MobileChunk block change detected, sending packet to all within 64 blocks of " + getMovingWorld().toString());
+                }
+                if (!getMobileChunkServer().getTileQueue().isEmpty()) {
                     NBTTagCompound tagCompound = new NBTTagCompound();
                     NBTTagList list = new NBTTagList();
                     for (BlockPos tilePosition : getMobileChunkServer().getTileQueue()) {
                         NBTTagCompound nbt = new NBTTagCompound();
-                        if(getMobileChunkServer().getTileEntity(tilePosition) == null)
+                        if (getMobileChunkServer().getTileEntity(tilePosition) == null)
                             continue;
 
                         TileEntity te = getMobileChunkServer().getTileEntity(tilePosition);
@@ -74,6 +77,7 @@ public abstract class MovingWorldHandlerServer extends MovingWorldHandlerCommon 
                             .with("entityID", getMovingWorld().getEntityId())
                             .with("tagCompound", tagCompound)
                             .toAllAround(getMovingWorld().worldObj, getMovingWorld(), 64D);
+                    MovingWorldMod.logger.debug("MobileChunk tile change detected, sending packet to all within 64 blocks of " + getMovingWorld().toString());
                 }
             }
             getMobileChunkServer().getTileQueue().clear();

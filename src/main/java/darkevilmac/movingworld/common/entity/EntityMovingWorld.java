@@ -385,7 +385,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             if (!getMobileChunk().updatableTiles.isEmpty()) {
                 for (TileEntity tickable : Lists.newArrayList(getMobileChunk().updatableTiles)) {
                     tickable.setWorldObj(mobileChunk.getFakeWorld());
-                    ((ITickable)tickable).update();
+                    ((ITickable) tickable).update();
                     tickable.setWorldObj(mobileChunk.worldObj);
                 }
             }
@@ -670,9 +670,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         int iz = MathHelperMod.round_double(vec.zCoord + posZ);
 
         if (doPosAdjustment) {
-            posX = ix - vec.xCoord;
-            posY = iy - vec.yCoord;
-            posZ = iz - vec.zCoord;
+            setPositionAndUpdate(ix - vec.xCoord, iy - vec.yCoord, iz - vec.zCoord);
         }
 
         motionX = motionY = motionZ = 0D;

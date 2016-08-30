@@ -1,13 +1,13 @@
 package darkevilmac.movingworld.common.util;
 
+import darkevilmac.movingworld.MovingWorldMod;
+import darkevilmac.movingworld.api.rotation.IRotationBlock;
+import darkevilmac.movingworld.api.rotation.IRotationProperty;
+import darkevilmac.movingworld.common.chunk.LocatedBlock;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.Vec3i;
-
-import darkevilmac.movingworld.common.chunk.LocatedBlock;
-import darkevilmac.movingworld.api.rotation.IRotationBlock;
-import darkevilmac.movingworld.api.rotation.IRotationProperty;
 
 public class RotationHelper {
 
@@ -24,8 +24,10 @@ public class RotationHelper {
             for (IProperty prop : blockState.getProperties().keySet()) {
                 if (prop instanceof IRotationProperty) {
                     // Custom rotation property found.
+                    MovingWorldMod.logger.debug("Rotate state in " + blockState.getBlock().getLocalizedName() + " " + blockState.getValue(prop));
                     IRotationProperty rotationProperty = (IRotationProperty) prop;
                     blockState = rotationProperty.rotate(blockState, ccw);
+                    MovingWorldMod.logger.debug("Rotate state out " + blockState.getBlock().getLocalizedName() + " " + blockState.getValue(prop));
                 }
             }
         }
