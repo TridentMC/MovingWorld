@@ -1,6 +1,6 @@
 {
   "required": true,
-  "package": "darkevilmac.movingworld.common.asm.mixin.core",
+  "package": "io.github.elytra.movingworld.common.asm.mixin.core",
   "compatibilityLevel": "JAVA_8",
   "refmap": "movingworld.mixin.refmap.json",
   "mixins": [
