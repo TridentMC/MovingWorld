@@ -50,7 +50,7 @@ public class MobileChunkRenderer {
         RenderHelper.disableStandardItemLighting();
         GlStateManager.blendFunc(770, 771);
         GlStateManager.enableBlend();
-        GlStateManager.disableCull();
+        GlStateManager.enableCull();
 
         if (Minecraft.isAmbientOcclusionEnabled()) {
             GlStateManager.shadeModel(7425);
@@ -80,6 +80,8 @@ public class MobileChunkRenderer {
         }
         vertexBuffer.setTranslation(0.0D, 0.0D, 0.0D);
         tessellator.draw();
+        RenderHelper.enableStandardItemLighting();
+        GlStateManager.popMatrix();
 
         GlStateManager.pushMatrix();
         World tesrDispatchWorld = TileEntityRendererDispatcher.instance.worldObj;
@@ -102,16 +104,13 @@ public class MobileChunkRenderer {
             }
         }
         TileEntityRendererDispatcher.instance.setWorld(tesrDispatchWorld);
-        RenderHelper.enableStandardItemLighting();
-
-        GlStateManager.popMatrix();
         GlStateManager.popMatrix();
     }
 
     public void dispatchBlockRender(IBlockState blockState, BlockPos blockPos, VertexBuffer vertexBuffer) {
         vertexBuffer.color(1.0F, 1.0F, 1.0F, 1.0F);
         BlockRendererDispatcher blockRendererDispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
-        blockRendererDispatcher.renderBlock(blockState, blockPos, chunk, vertexBuffer);
+        blockRendererDispatcher.renderBlock(blockState, blockPos, chunk.getFakeWorld(), vertexBuffer);
     }
 
     public void markDirty() {
