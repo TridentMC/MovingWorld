@@ -46,7 +46,6 @@ public class MobileChunkRenderer {
         VertexBuffer vertexBuffer = tessellator.getBuffer();
 
         GlStateManager.pushMatrix();
-        GlStateManager.rotate(1.0F, 0.0F, 180.0F, 0.0F);
         RenderHelper.disableStandardItemLighting();
         GlStateManager.blendFunc(770, 771);
         GlStateManager.enableBlend();
@@ -81,7 +80,6 @@ public class MobileChunkRenderer {
         vertexBuffer.setTranslation(0.0D, 0.0D, 0.0D);
         tessellator.draw();
         RenderHelper.enableStandardItemLighting();
-        GlStateManager.popMatrix();
 
         GlStateManager.pushMatrix();
         World tesrDispatchWorld = TileEntityRendererDispatcher.instance.worldObj;
@@ -104,6 +102,7 @@ public class MobileChunkRenderer {
             }
         }
         TileEntityRendererDispatcher.instance.setWorld(tesrDispatchWorld);
+        GlStateManager.popMatrix();
         GlStateManager.popMatrix();
     }
 
