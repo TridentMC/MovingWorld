@@ -435,7 +435,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     }
 
     public void handleServerUpdatePreRotation() {
-        //No implementation basically just a hook for archimedes ships.
+        // No implementation basically just a hook for archimedes ships.
 
         // dis mai code i do wut i wan
     }
@@ -444,6 +444,16 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     public void updatePassenger(Entity passenger) {
         if (this.isPassenger(passenger))
             updatePassengerPosition(passenger, riderDestination, 1);
+    }
+
+    @Override
+    public void removePassengers() {
+        if (getPassengers() != null && !getPassengers().isEmpty()) {
+            getPassengers().forEach(entity -> {
+                updatePassengerPosition(entity, riderDestination, 1);
+            });
+        }
+        super.removePassengers();
     }
 
     public void updatePassengerPosition(Entity passenger, BlockPos riderDestination, int flags) {

@@ -158,29 +158,6 @@ public class MovingWorldNetworking {
                     }
                 });
 
-        //builder = builder.packet("ConfigMessage").boundTo(Side.CLIENT)
-        //        .with(DataType.STRING, "config")
-        //        .with(DataType.BOOLEAN, "restore")
-        //        .handledBy(new BiConsumer<EntityPlayer, Token>() {
-        //            @Override
-        //            public void accept(EntityPlayer entityPlayer, Token token) {
-        //                MovingWorldConfig.SharedConfig config = null;
-        //                if (!token.getBoolean("restore")) {
-        //                    config = new Gson().fromJson(token.getString("config"), MovingWorldConfig.SharedConfig.class);
-        //                }
-//
-        //                if (MovingWorld.proxy != null && MovingWorld.proxy instanceof ClientProxy) {
-        //                    if (config != null) {
-        //                        ((ClientProxy) MovingWorld.proxy).syncedConfig = MovingWorld.instance.getLocalConfig();
-        //                        ((ClientProxy) MovingWorld.proxy).syncedConfig.setShared(config);
-        //                    } else {
-        //                        ((ClientProxy) MovingWorld.proxy).syncedConfig = null;
-        //                    }
-        //                }
-//
-        //            }
-        //        });
-
         builder = builder.packet("MovingWorldClientActionMessage").boundTo(Side.SERVER)
                 .with(DataType.INT, "dimID")
                 .with(DataType.INT, "entityID")
@@ -200,11 +177,13 @@ public class MovingWorldNetworking {
                                         case DISASSEMBLE:
                                             movingWorld.alignToGrid(true);
                                             movingWorld.updatePassengerPosition(entityPlayer, movingWorld.riderDestination, 1);
+                                            movingWorld.removePassengers();
                                             movingWorld.disassemble(false);
                                             break;
                                         case DISASSEMBLEWITHOVERWRITE:
                                             movingWorld.alignToGrid(true);
                                             movingWorld.updatePassengerPosition(entityPlayer, movingWorld.riderDestination, 1);
+                                            movingWorld.removePassengers();
                                             movingWorld.disassemble(true);
                                             break;
                                         case ALIGN:
