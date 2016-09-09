@@ -440,6 +440,10 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         // dis mai code i do wut i wan
     }
 
+    public void updatePassengers() {
+        getPassengers().forEach(entity -> updatePassengerPosition(entity, riderDestination, 1));
+    }
+
     @Override
     public void updatePassenger(Entity passenger) {
         if (this.isPassenger(passenger))
