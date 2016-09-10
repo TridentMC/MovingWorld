@@ -77,9 +77,9 @@ public class Vec3dMod extends Vec3d {
     /**
      * Rotates the vector around the x axis by the specified angle.
      */
-    public Vec3dMod rotateAroundX(float p_72440_1_) {
-        float f1 = MathHelper.cos(p_72440_1_);
-        float f2 = MathHelper.sin(p_72440_1_);
+    public Vec3dMod rotateAroundX(float angle) {
+        float f1 = MathHelper.cos(angle);
+        float f2 = MathHelper.sin(angle);
         double d0 = this.xCoord;
         double d1 = this.yCoord * (double) f1 + this.zCoord * (double) f2;
         double d2 = this.zCoord * (double) f1 - this.yCoord * (double) f2;
@@ -89,9 +89,9 @@ public class Vec3dMod extends Vec3d {
     /**
      * Rotates the vector around the y axis by the specified angle.
      */
-    public Vec3dMod rotateAroundY(float p_72442_1_) {
-        float f1 = MathHelper.cos(p_72442_1_);
-        float f2 = MathHelper.sin(p_72442_1_);
+    public Vec3dMod rotateAroundY(float angle) {
+        float f1 = MathHelper.cos(angle);
+        float f2 = MathHelper.sin(angle);
         double d0 = this.xCoord * (double) f1 + this.zCoord * (double) f2;
         double d1 = this.yCoord;
         double d2 = this.zCoord * (double) f1 - this.xCoord * (double) f2;
@@ -101,9 +101,9 @@ public class Vec3dMod extends Vec3d {
     /**
      * Rotates the vector around the z axis by the specified angle.
      */
-    public Vec3dMod rotateAroundZ(float p_72446_1_) {
-        float f1 = MathHelper.cos(p_72446_1_);
-        float f2 = MathHelper.sin(p_72446_1_);
+    public Vec3dMod rotateAroundZ(float angle) {
+        float f1 = MathHelper.cos(angle);
+        float f2 = MathHelper.sin(angle);
         double d0 = this.xCoord * (double) f1 + this.yCoord * (double) f2;
         double d1 = this.yCoord * (double) f1 - this.xCoord * (double) f2;
         double d2 = this.zCoord;

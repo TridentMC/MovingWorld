@@ -28,7 +28,6 @@ public class MobileChunkRenderer {
     public boolean isRemoved;
 
     private MobileChunk chunk;
-    private int glRenderList = 0;
 
     public MobileChunkRenderer(MobileChunk mobilechunk) {
         chunk = mobilechunk;
@@ -45,7 +44,6 @@ public class MobileChunkRenderer {
         Tessellator tessellator = Tessellator.getInstance();
         VertexBuffer vertexBuffer = tessellator.getBuffer();
 
-        GlStateManager.pushMatrix();
         RenderHelper.disableStandardItemLighting();
         GlStateManager.blendFunc(770, 771);
         GlStateManager.enableBlend();
@@ -79,6 +77,8 @@ public class MobileChunkRenderer {
         }
         vertexBuffer.setTranslation(0.0D, 0.0D, 0.0D);
         tessellator.draw();
+        GlStateManager.disableBlend();
+        GlStateManager.disableCull();
         RenderHelper.enableStandardItemLighting();
 
         GlStateManager.pushMatrix();
@@ -103,7 +103,6 @@ public class MobileChunkRenderer {
         }
         TileEntityRendererDispatcher.instance.setWorld(tesrDispatchWorld);
         GlStateManager.popMatrix();
-        GlStateManager.popMatrix();
     }
 
     public void dispatchBlockRender(IBlockState blockState, BlockPos blockPos, VertexBuffer vertexBuffer) {
@@ -118,15 +117,5 @@ public class MobileChunkRenderer {
 
     public void markRemoved() {
         isRemoved = true;
-
-        try {
-            if (glRenderList != 0) {
-                MovingWorldMod.logger.debug("Deleting mobile chunk display list " + glRenderList);
-                GLAllocation.deleteDisplayLists(glRenderList);
-                glRenderList = 0;
-            }
-        } catch (Exception e) {
-            MovingWorldMod.logger.error("Failed to destroy mobile chunk display list", e);
-        }
     }
 }
