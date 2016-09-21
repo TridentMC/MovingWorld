@@ -2,21 +2,18 @@ package io.github.elytra.movingworld.common.config.priority;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-
+import io.github.elytra.movingworld.MovingWorldMod;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraftforge.common.config.Configuration;
-
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
-import io.github.elytra.movingworld.MovingWorldMod;
 
 public class AssemblePriorityConfig {
 

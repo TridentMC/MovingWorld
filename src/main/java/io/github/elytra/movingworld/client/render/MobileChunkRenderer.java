@@ -1,6 +1,5 @@
 package io.github.elytra.movingworld.client.render;
 
-import io.github.elytra.movingworld.MovingWorldMod;
 import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunk;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;

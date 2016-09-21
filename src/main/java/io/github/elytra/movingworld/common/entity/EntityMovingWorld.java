@@ -1,6 +1,5 @@
 package io.github.elytra.movingworld.common.entity;
 
-import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import io.github.elytra.movingworld.MovingWorldMod;
 import io.github.elytra.movingworld.api.IMovingWorldTileEntity;
@@ -45,8 +44,10 @@ import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.annotation.Nullable;
 import java.io.*;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -56,6 +57,8 @@ import java.util.UUID;
 public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdditionalSpawnData {
 
     private static final DataParameter<Integer> THIRTY = EntityDataManager.<Integer>createKey(EntityMovingWorld.class, DataSerializers.VARINT);
+
+    public EntityPlayer controllingPassenger;
 
     public float motionYaw;
     public EnumFacing frontDirection;
@@ -135,6 +138,12 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
         return false;
     }
+
+    @Override
+    protected boolean canFitPassenger(Entity passenger) {
+        return this.getPassengers().size() == 0;
+    }
+
 
     public double getControlX() {
         return controlX;
@@ -360,8 +369,10 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             controlPosRotationIncrements--;
             setPosition(dx, dy, dz);
             setRotation(rotationYaw, rotationPitch);
+            this.worldObj.updateEntityWithOptionalForce(this, false);
         } else {
             setPosition(posX + motionX, posY + motionY, posZ + motionZ);
+            this.worldObj.updateEntityWithOptionalForce(this, false);
 
             if (onGround) {
                 motionX *= groundFriction;
@@ -440,10 +451,6 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         // dis mai code i do wut i wan
     }
 
-    public void updatePassengers() {
-        getPassengers().forEach(entity -> updatePassengerPosition(entity, riderDestination, 1));
-    }
-
     @Override
     public void updatePassenger(Entity passenger) {
         if (this.isPassenger(passenger))
@@ -451,13 +458,14 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     }
 
     @Override
+    public boolean isPassenger(Entity entity) {
+        return Objects.equals(this.controllingPassenger, entity);
+    }
+
+    @Override
     public void removePassengers() {
-        if (getPassengers() != null && !getPassengers().isEmpty()) {
-            getPassengers().forEach(entity -> {
-                updatePassengerPosition(entity, riderDestination, 1);
-            });
-        }
-        super.removePassengers();
+        updatePassengerPosition(controllingPassenger, riderDestination, 1);
+        controllingPassenger.dismountRidingEntity();
     }
 
     public void updatePassengerPosition(Entity passenger, BlockPos riderDestination, int flags) {
@@ -544,6 +552,30 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         entityToUpdate.setRotationYawHead(entityToUpdate.rotationYaw);
     }
 
+    @Nullable
+    @Override
+    public Entity getControllingPassenger() {
+        return controllingPassenger;
+    }
+
+    @Override
+    public List<Entity> getPassengers() {
+        if (controllingPassenger != null) return Lists.newArrayList(controllingPassenger);
+        else return Lists.newArrayList();
+    }
+
+    @Override
+    protected void removePassenger(Entity passenger) {
+        if (passenger.equals(controllingPassenger)) {
+            controllingPassenger = null;
+        }
+    }
+
+    @Override
+    protected void addPassenger(Entity passenger) {
+        super.addPassenger(passenger);
+    }
+
     private boolean handleCollision(double cPosX, double cPosY, double cPosZ) {
         boolean didCollide = false;
         if (!worldObj.isRemote) {
@@ -551,7 +583,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             if (list != null && !list.isEmpty()) {
                 didCollide = true;
                 for (Entity entity : list) {
-                    if (!Objects.equal(entity, getControllingPassenger()) && entity.canBePushed()) {
+                    if (!Objects.equals(entity, getControllingPassenger()) && entity.canBePushed()) {
                         if (entity instanceof EntityMovingWorld) {
                             entity.applyEntityCollision(this);
                         } else if (entity instanceof EntityBoat) {

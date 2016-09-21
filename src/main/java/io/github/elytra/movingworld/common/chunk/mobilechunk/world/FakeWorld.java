@@ -53,7 +53,7 @@ public class FakeWorld extends World {
 
     @Override
     public boolean setBlockState(BlockPos pos, IBlockState state, int flags) {
-        mobileChunk.setBlockState(pos,state);
+        mobileChunk.setBlockState(pos, state);
         return false;
     }
 
@@ -65,7 +65,7 @@ public class FakeWorld extends World {
     @Override
     public void markChunkDirty(BlockPos pos, TileEntity unusedTileEntity) {
         mobileChunk.setChunkModified();
-        if(mobileChunk.side().isServer()){
+        if (mobileChunk.side().isServer()) {
             mobileChunk.markTileDirty(pos);
         }
     }

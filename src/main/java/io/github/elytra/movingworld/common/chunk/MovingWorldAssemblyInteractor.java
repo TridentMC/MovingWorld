@@ -1,5 +1,11 @@
 package io.github.elytra.movingworld.common.chunk;
 
+import io.github.elytra.movingworld.MovingWorldMod;
+import io.github.elytra.movingworld.common.block.BlockMovingWorldMarker;
+import io.github.elytra.movingworld.common.chunk.assembly.AssembleResult;
+import io.github.elytra.movingworld.common.chunk.assembly.CanAssemble;
+import io.github.elytra.movingworld.common.tile.TileMovingWorldMarkingBlock;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -7,13 +13,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
-
-import io.github.elytra.movingworld.MovingWorldMod;
-import io.github.elytra.movingworld.common.block.BlockMovingWorldMarker;
-import io.github.elytra.movingworld.common.chunk.assembly.AssembleResult;
-import io.github.elytra.movingworld.common.chunk.assembly.CanAssemble;
-import io.github.elytra.movingworld.common.tile.TileMovingWorldMarkingBlock;
-import io.netty.buffer.ByteBuf;
 
 /**
  * Used for storing information given by and taken by the (Dis)Assembler <p/> Mostly for use in

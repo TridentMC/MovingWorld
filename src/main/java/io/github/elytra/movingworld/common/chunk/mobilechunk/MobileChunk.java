@@ -394,7 +394,7 @@ public abstract class MobileChunk implements IBlockAccess {
         if (checkState.getBlock().equals(state.getBlock()) && checkState.getBlock().getMetaFromState(checkState) == state.getBlock().getMetaFromState(state)) {
             return false;
         }
-        if(storage.get(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15) == null){
+        if (storage.get(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15) == null) {
             blockCount++;
         }
 
