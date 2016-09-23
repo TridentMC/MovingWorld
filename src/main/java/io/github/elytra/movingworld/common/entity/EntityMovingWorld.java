@@ -46,10 +46,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
 import java.io.*;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * All moving sections of blocks extend from this class.
@@ -57,13 +54,13 @@ import java.util.UUID;
 public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdditionalSpawnData {
 
     private static final DataParameter<Integer> THIRTY = EntityDataManager.<Integer>createKey(EntityMovingWorld.class, DataSerializers.VARINT);
+    public static final DataParameter<Boolean> IS_FLYING = EntityDataManager.createKey(EntityMovingWorld.class, DataSerializers.BOOLEAN);
 
     public EntityPlayer controllingPassenger;
 
     public float motionYaw;
     public EnumFacing frontDirection;
     public BlockPos riderDestination;
-    public boolean isFlying;
     public Entity prevRiddenByEntity;
     protected float groundFriction, horFriction, vertFriction;
     protected int[] layeredBlockVolumeCount;
@@ -102,7 +99,6 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
         prevRiddenByEntity = null;
 
-        isFlying = false;
         ignoreFrustumCheck = true;
     }
 
@@ -141,7 +137,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     @Override
     protected boolean canFitPassenger(Entity passenger) {
-        return this.getPassengers().size() == 0;
+        return controllingPassenger == null;
     }
 
 
@@ -191,6 +187,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     @Override
     protected void entityInit() {
         dataManager.register(THIRTY, 0);
+        dataManager.register(IS_FLYING, false);
         initMovingWorld();
     }
 
@@ -465,7 +462,8 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     @Override
     public void removePassengers() {
         updatePassengerPosition(controllingPassenger, riderDestination, 1);
-        controllingPassenger.dismountRidingEntity();
+        if (controllingPassenger != null)
+            controllingPassenger.dismountRidingEntity();
     }
 
     public void updatePassengerPosition(Entity passenger, BlockPos riderDestination, int flags) {
@@ -561,7 +559,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     @Override
     public List<Entity> getPassengers() {
         if (controllingPassenger != null) return Lists.newArrayList(controllingPassenger);
-        else return Lists.newArrayList();
+        else return Collections.emptyList();
     }
 
     @Override
@@ -573,7 +571,12 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     @Override
     protected void addPassenger(Entity passenger) {
-        super.addPassenger(passenger);
+        if (passenger.getRidingEntity() != this) {
+            throw new IllegalStateException("Use x.startRiding(y), not y.addPassenger(x)");
+        } else {
+            if (controllingPassenger == null && passenger != null && passenger instanceof EntityPlayer)
+                controllingPassenger = (EntityPlayer) passenger;
+        }
     }
 
     private boolean handleCollision(double cPosX, double cPosY, double cPosZ) {
@@ -649,7 +652,11 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     }
 
     public boolean isFlying() {
-        return getCapabilities().canFly() && isFlying;
+        return getCapabilities().canFly() && dataManager.get(IS_FLYING);
+    }
+
+    public void setFlying(boolean isFlying) {
+        dataManager.set(IS_FLYING, isFlying);
     }
 
     public abstract boolean isBraking();
@@ -897,7 +904,6 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         if (tag.hasKey("owner")) {
             info.setOwner(UUID.fromString(tag.getString("owner")));
         }
-        System.out.println(tag.toString());
         readMovingWorldNBT(tag);
     }
 
