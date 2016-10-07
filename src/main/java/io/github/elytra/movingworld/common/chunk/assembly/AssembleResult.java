@@ -111,7 +111,7 @@ public class AssembleResult {
             }
         } catch (Exception e) {
             resultType = ResultType.RESULT_ERROR_OCCURED;
-            MovingWorldMod.logger.error("Result code: RESULT ERROR OCCURED was reached when attempting to getEntity from assembly result. Printing stacktrace...");
+            MovingWorldMod.logger.error("Result code: RESULT ERROR OCCURRED was reached when attempting to getEntity from assembly result. Printing stacktrace...");
             MovingWorldMod.logger.error(e);
             e.printStackTrace();
             return null;

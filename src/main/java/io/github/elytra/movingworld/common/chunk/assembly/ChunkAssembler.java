@@ -35,7 +35,7 @@ public class ChunkAssembler {
             if (MovingWorldMod.instance.getNetworkConfig().getShared().iterativeAlgorithm) {
                 assembleIterative(result, result.assemblyInteractor, start);
             } else {
-                assembleRecursive(result, new HashSet<BlockPos>(), result.assemblyInteractor, start);
+                assembleRecursive(result, new HashSet<>(), result.assemblyInteractor, start);
             }
             if (result.movingWorldMarkingBlock == null) {
                 result.resultType = AssembleResult.ResultType.RESULT_MISSING_MARKER;
@@ -53,9 +53,9 @@ public class ChunkAssembler {
     }
 
     private void assembleIterative(AssembleResult result, MovingWorldAssemblyInteractor assemblyInteractor, BlockPos worldPos) throws MovingWorldSizeOverflowException {
-        HashSet<BlockPos> openSet = new HashSet<BlockPos>();
-        HashSet<BlockPos> closedSet = new HashSet<BlockPos>();
-        List<BlockPos> iterator = new ArrayList<BlockPos>();
+        HashSet<BlockPos> openSet = new HashSet<>();
+        HashSet<BlockPos> closedSet = new HashSet<>();
+        List<BlockPos> iterator = new ArrayList<>();
 
         LocatedBlock movingWorldMarker = null;
 
