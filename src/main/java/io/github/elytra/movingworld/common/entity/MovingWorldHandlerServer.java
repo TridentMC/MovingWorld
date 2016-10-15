@@ -4,7 +4,7 @@ import io.github.elytra.movingworld.MovingWorldMod;
 import io.github.elytra.movingworld.common.chunk.ChunkIO;
 import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunkServer;
 import io.github.elytra.movingworld.common.network.MovingWorldNetworking;
-import io.github.elytra.movingworld.common.tile.TileMovingWorldMarkingBlock;
+import io.github.elytra.movingworld.common.tile.TileMovingMarkingBlock;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -63,8 +63,8 @@ public abstract class MovingWorldHandlerServer extends MovingWorldHandlerCommon 
                             continue;
 
                         TileEntity te = getMobileChunkServer().getTileEntity(tilePosition);
-                        if (te instanceof TileMovingWorldMarkingBlock) {
-                            ((TileMovingWorldMarkingBlock) te).writeNBTForSending(nbt);
+                        if (te instanceof TileMovingMarkingBlock) {
+                            ((TileMovingMarkingBlock) te).writeNBTForSending(nbt);
                         } else {
                             te.writeToNBT(nbt);
                         }

@@ -2,7 +2,7 @@ package io.github.elytra.movingworld.common.entity;
 
 import com.google.common.collect.Lists;
 import io.github.elytra.movingworld.MovingWorldMod;
-import io.github.elytra.movingworld.api.IMovingWorldTileEntity;
+import io.github.elytra.movingworld.api.IMovingTile;
 import io.github.elytra.movingworld.common.chunk.ChunkIO;
 import io.github.elytra.movingworld.common.chunk.LocatedBlock;
 import io.github.elytra.movingworld.common.chunk.MovingWorldAssemblyInteractor;
@@ -53,9 +53,8 @@ import java.util.*;
  */
 public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdditionalSpawnData {
 
-    private static final DataParameter<Integer> THIRTY = EntityDataManager.<Integer>createKey(EntityMovingWorld.class, DataSerializers.VARINT);
     public static final DataParameter<Boolean> IS_FLYING = EntityDataManager.createKey(EntityMovingWorld.class, DataSerializers.BOOLEAN);
-
+    private static final DataParameter<Integer> THIRTY = EntityDataManager.<Integer>createKey(EntityMovingWorld.class, DataSerializers.VARINT);
     public EntityPlayer controllingPassenger;
 
     public float motionYaw;
@@ -387,7 +386,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     protected void handleServerUpdate(double horvel) {
         if (getMobileChunk() != null) {
             if (!getMobileChunk().movingWorldTileEntities.isEmpty())
-                for (IMovingWorldTileEntity movingWorldTileEntity : getMobileChunk().movingWorldTileEntities) {
+                for (IMovingTile movingWorldTileEntity : getMobileChunk().movingWorldTileEntities) {
                     movingWorldTileEntity.tick(getMobileChunk());
                 }
             if (!getMobileChunk().updatableTiles.isEmpty()) {

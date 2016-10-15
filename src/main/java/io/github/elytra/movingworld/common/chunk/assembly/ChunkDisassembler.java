@@ -1,13 +1,13 @@
 package io.github.elytra.movingworld.common.chunk.assembly;
 
 import io.github.elytra.movingworld.MovingWorldMod;
-import io.github.elytra.movingworld.api.IMovingWorldTileEntity;
+import io.github.elytra.movingworld.api.IMovingTile;
 import io.github.elytra.movingworld.common.chunk.LocatedBlock;
 import io.github.elytra.movingworld.common.chunk.MovingWorldAssemblyInteractor;
 import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunk;
 import io.github.elytra.movingworld.common.entity.EntityMovingWorld;
 import io.github.elytra.movingworld.common.event.DisassembleBlockEvent;
-import io.github.elytra.movingworld.common.tile.TileMovingWorldMarkingBlock;
+import io.github.elytra.movingworld.common.tile.TileMovingMarkingBlock;
 import io.github.elytra.movingworld.common.util.*;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -26,7 +26,7 @@ public class ChunkDisassembler {
 
     private AssembleResult result;
     private LocatedBlockList removedFluidBlocks;
-    private TileMovingWorldMarkingBlock tileMarker;
+    private TileMovingMarkingBlock tileMarker;
 
     public ChunkDisassembler(EntityMovingWorld EntityMovingWorld) {
         movingWorld = EntityMovingWorld;
@@ -77,8 +77,8 @@ public class ChunkDisassembler {
 
     public AssembleResult doDisassemble(MovingWorldAssemblyInteractor assemblyInteractor) {
         tileMarker = null;
-        if (movingWorld.getMobileChunk().marker != null && movingWorld.getMobileChunk().marker.tileEntity != null && movingWorld.getMobileChunk().marker.tileEntity instanceof TileMovingWorldMarkingBlock)
-            tileMarker = (TileMovingWorldMarkingBlock) movingWorld.getMobileChunk().marker.tileEntity;
+        if (movingWorld.getMobileChunk().marker != null && movingWorld.getMobileChunk().marker.tileEntity != null && movingWorld.getMobileChunk().marker.tileEntity instanceof TileMovingMarkingBlock)
+            tileMarker = (TileMovingMarkingBlock) movingWorld.getMobileChunk().marker.tileEntity;
 
         removedFluidBlocks = new LocatedBlockList();
         World world = movingWorld.getEntityWorld();
@@ -213,8 +213,8 @@ public class ChunkDisassembler {
             }
             if (tileentity != null) {
                 tileentity.setPos(pos);
-                if (tileentity instanceof IMovingWorldTileEntity) {
-                    ((IMovingWorldTileEntity) tileentity).setParentMovingWorld(new BlockPos(i, j, k), null);
+                if (tileentity instanceof IMovingTile) {
+                    ((IMovingTile) tileentity).setParentMovingWorld(null, new BlockPos(i, j, k));
                 }
                 NBTTagCompound tileTag = new NBTTagCompound();
                 tileentity.writeToNBT(tileTag);
@@ -225,7 +225,7 @@ public class ChunkDisassembler {
                 tileentity = world.getTileEntity(pos);
 
                 if (tileMarker != null && tileMarker.getPos().equals(tileentity.getPos())) {
-                    tileMarker = (TileMovingWorldMarkingBlock) tileentity;
+                    tileMarker = (TileMovingMarkingBlock) tileentity;
                 }
             }
 

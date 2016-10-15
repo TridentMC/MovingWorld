@@ -4,7 +4,7 @@ import io.github.elytra.movingworld.MovingWorldMod;
 import io.github.elytra.movingworld.common.block.BlockMovingWorldMarker;
 import io.github.elytra.movingworld.common.chunk.assembly.AssembleResult;
 import io.github.elytra.movingworld.common.chunk.assembly.CanAssemble;
-import io.github.elytra.movingworld.common.tile.TileMovingWorldMarkingBlock;
+import io.github.elytra.movingworld.common.tile.TileMovingMarkingBlock;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -96,7 +96,7 @@ public class MovingWorldAssemblyInteractor {
     }
 
     public boolean isTileMovingWorldMarker(TileEntity tile) {
-        return tile != null && tile instanceof TileMovingWorldMarkingBlock;
+        return tile != null && tile instanceof TileMovingMarkingBlock;
     }
 
     public EnumFacing getFrontDirection(LocatedBlock marker) {

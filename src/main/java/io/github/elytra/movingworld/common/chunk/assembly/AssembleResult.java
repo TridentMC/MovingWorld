@@ -5,7 +5,7 @@ import io.github.elytra.movingworld.MovingWorldMod;
 import io.github.elytra.movingworld.common.chunk.LocatedBlock;
 import io.github.elytra.movingworld.common.chunk.MovingWorldAssemblyInteractor;
 import io.github.elytra.movingworld.common.entity.EntityMovingWorld;
-import io.github.elytra.movingworld.common.tile.TileMovingWorldMarkingBlock;
+import io.github.elytra.movingworld.common.tile.TileMovingMarkingBlock;
 import io.github.elytra.movingworld.common.util.LocatedBlockList;
 import io.github.elytra.movingworld.common.util.MaterialDensity;
 import io.netty.buffer.ByteBuf;
@@ -133,9 +133,9 @@ public class AssembleResult {
 
         LocatedBlockList setAirState2 = new LocatedBlockList();
 
-        if (movingWorldMarkingBlock != null && movingWorldMarkingBlock.tileEntity != null && movingWorldMarkingBlock.tileEntity instanceof TileMovingWorldMarkingBlock
-                && ((TileMovingWorldMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks != null &&
-                !((TileMovingWorldMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks.isEmpty()) {
+        if (movingWorldMarkingBlock != null && movingWorldMarkingBlock.tileEntity != null && movingWorldMarkingBlock.tileEntity instanceof TileMovingMarkingBlock
+                && ((TileMovingMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks != null &&
+                !((TileMovingMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks.isEmpty()) {
 
             setFluids = true;
         }
@@ -170,13 +170,13 @@ public class AssembleResult {
         }
 
         if (setFluids) {
-            for (LocatedBlock fluid : ((TileMovingWorldMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks) {
+            for (LocatedBlock fluid : ((TileMovingMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks) {
                 if (fluid != null && world.isAirBlock(fluid.blockPos)) {
                     world.setBlockState(fluid.blockPos, fluid.blockState, 2);
                 }
             }
 
-            for (LocatedBlock fluid : ((TileMovingWorldMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks) {
+            for (LocatedBlock fluid : ((TileMovingMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks) {
                 if (fluid != null && world.isAirBlock(fluid.blockPos)) {
                     world.setBlockState(fluid.blockPos, fluid.blockState, 3);
                 }

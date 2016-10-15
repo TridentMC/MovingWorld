@@ -1,6 +1,6 @@
 package io.github.elytra.movingworld.common.block;
 
-import io.github.elytra.movingworld.common.tile.TileMovingWorldMarkingBlock;
+import io.github.elytra.movingworld.common.tile.TileMovingMarkingBlock;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyDirection;
@@ -22,8 +22,8 @@ public abstract class BlockMovingWorldMarker extends BlockContainer {
 
     public static void onPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase entity, ItemStack itemStack) {
         if (world != null && !world.isRemote && entity != null && entity instanceof EntityPlayer) {
-            if (world.getTileEntity(pos) != null && world.getTileEntity(pos) instanceof TileMovingWorldMarkingBlock) {
-                TileMovingWorldMarkingBlock tile = (TileMovingWorldMarkingBlock) world.getTileEntity(pos);
+            if (world.getTileEntity(pos) != null && world.getTileEntity(pos) instanceof TileMovingMarkingBlock) {
+                TileMovingMarkingBlock tile = (TileMovingMarkingBlock) world.getTileEntity(pos);
                 tile.getInfo().setOwner(((EntityPlayer) entity).getGameProfile().getId());
             }
         }
@@ -34,8 +34,8 @@ public abstract class BlockMovingWorldMarker extends BlockContainer {
         super.onBlockPlacedBy(world, pos, state, entity, itemStack);
 
         if (world != null && !world.isRemote && entity != null && entity instanceof EntityPlayer) {
-            if (world.getTileEntity(pos) != null && world.getTileEntity(pos) instanceof TileMovingWorldMarkingBlock) {
-                TileMovingWorldMarkingBlock tile = (TileMovingWorldMarkingBlock) world.getTileEntity(pos);
+            if (world.getTileEntity(pos) != null && world.getTileEntity(pos) instanceof TileMovingMarkingBlock) {
+                TileMovingMarkingBlock tile = (TileMovingMarkingBlock) world.getTileEntity(pos);
                 tile.getInfo().setOwner(((EntityPlayer) entity).getGameProfile().getId());
             }
         }

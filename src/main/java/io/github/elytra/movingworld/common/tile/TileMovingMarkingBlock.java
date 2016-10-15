@@ -1,6 +1,6 @@
 package io.github.elytra.movingworld.common.tile;
 
-import io.github.elytra.movingworld.api.IMovingWorldTileEntity;
+import io.github.elytra.movingworld.api.IMovingTile;
 import io.github.elytra.movingworld.common.chunk.LocatedBlock;
 import io.github.elytra.movingworld.common.chunk.MovingWorldAssemblyInteractor;
 import io.github.elytra.movingworld.common.chunk.assembly.AssembleResult;
@@ -23,13 +23,13 @@ import java.util.UUID;
 import static io.github.elytra.movingworld.common.chunk.assembly.AssembleResult.ResultType.RESULT_INCONSISTENT;
 import static io.github.elytra.movingworld.common.chunk.assembly.AssembleResult.ResultType.RESULT_OK_WITH_WARNINGS;
 
-public abstract class TileMovingWorldMarkingBlock extends TileEntity implements IMovingWorldTileEntity {
+public abstract class TileMovingMarkingBlock extends TileEntity implements IMovingTile {
 
     public LocatedBlockList removedFluidBlocks; // A list of fluid blocks that were destroyed last disassemble, used to fill back in when we reassemble.
     private AssembleResult assembleResult, prevResult;
 
 
-    public TileMovingWorldMarkingBlock() {
+    public TileMovingMarkingBlock() {
         super();
         setParentMovingWorld(null);
         assembleResult = prevResult = null;

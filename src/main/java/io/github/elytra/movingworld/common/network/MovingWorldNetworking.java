@@ -5,7 +5,7 @@ import io.github.elytra.movingworld.MovingWorldMod;
 import io.github.elytra.movingworld.common.chunk.ChunkIO;
 import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunkClient;
 import io.github.elytra.movingworld.common.entity.EntityMovingWorld;
-import io.github.elytra.movingworld.common.tile.TileMovingWorldMarkingBlock;
+import io.github.elytra.movingworld.common.tile.TileMovingMarkingBlock;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.minecraft.entity.Entity;
@@ -139,8 +139,8 @@ public class MovingWorldNetworking {
                                 NBTTagList list = new NBTTagList();
                                 for (TileEntity te : movingWorld.getMobileChunk().chunkTileEntityMap.values()) {
                                     NBTTagCompound nbt = new NBTTagCompound();
-                                    if (te instanceof TileMovingWorldMarkingBlock) {
-                                        ((TileMovingWorldMarkingBlock) te).writeNBTForSending(nbt);
+                                    if (te instanceof TileMovingMarkingBlock) {
+                                        ((TileMovingMarkingBlock) te).writeNBTForSending(nbt);
                                     } else {
                                         te.writeToNBT(nbt);
                                     }
