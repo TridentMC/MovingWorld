@@ -88,7 +88,7 @@ public class AssembleResult {
         if (!isOK()) return null;
 
         if (entity == null) {
-            MovingWorldMod.logger.error("A null movingWorld was attempted!");
+            MovingWorldMod.LOG.error("A null movingWorld was attempted!");
             return null;
         }
 
@@ -111,8 +111,8 @@ public class AssembleResult {
             }
         } catch (Exception e) {
             resultType = ResultType.RESULT_ERROR_OCCURED;
-            MovingWorldMod.logger.error("Result code: RESULT ERROR OCCURRED was reached when attempting to getEntity from assembly result. Printing stacktrace...");
-            MovingWorldMod.logger.error(e);
+            MovingWorldMod.LOG.error("Result code: RESULT ERROR OCCURRED was reached when attempting to getEntity from assembly result. Printing stacktrace...");
+            MovingWorldMod.LOG.error(e);
             e.printStackTrace();
             return null;
         }

@@ -62,7 +62,7 @@ public abstract class TileMovingMarkingBlock extends TileEntity implements IMovi
     }
 
     /**
-     * For getting a new instance of your ship type to create.
+     * For getting a new INSTANCE of your ship type to create.
      */
     public abstract EntityMovingWorld getMovingWorld(World worldObj);
 

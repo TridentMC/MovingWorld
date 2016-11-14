@@ -121,7 +121,7 @@ public class MainConfig {
             s = s.replace("\"", "");
             String[] pair = splitpattern.split(s);
             if (pair.length != 2) {
-                MovingWorldMod.logger.warn("Invalid key-value pair at block_densities[" + i + "]");
+                MovingWorldMod.LOG.warn("Invalid key-value pair at block_densities[" + i + "]");
                 continue;
             }
             String key = pair[0];
@@ -129,12 +129,12 @@ public class MainConfig {
             try {
                 density = Float.parseFloat(pair[1]);
             } catch (NumberFormatException e) {
-                MovingWorldMod.logger.warn("Cannot parse value " + pair[1] + " to floating point at block_densities[" + i + "]");
+                MovingWorldMod.LOG.warn("Cannot parse value " + pair[1] + " to floating point at block_densities[" + i + "]");
                 continue;
             }
             Block block = Block.getBlockFromName(key);
             if (block == null) {
-                MovingWorldMod.logger.warn("No block found for " + key + " at block_densities[" + i + "]");
+                MovingWorldMod.LOG.warn("No block found for " + key + " at block_densities[" + i + "]");
                 continue;
             }
 
@@ -146,7 +146,7 @@ public class MainConfig {
             s = s.replace("\"", "");
             String[] pair = splitpattern.split(s);
             if (pair.length != 2) {
-                MovingWorldMod.logger.warn("Invalid key-value pair at material_densities[" + i + "]");
+                MovingWorldMod.LOG.warn("Invalid key-value pair at material_densities[" + i + "]");
                 continue;
             }
             String key = pair[0];
@@ -154,12 +154,12 @@ public class MainConfig {
             try {
                 density = Float.parseFloat(pair[1]);
             } catch (NumberFormatException e) {
-                MovingWorldMod.logger.warn("Cannot parse value " + pair[1] + " to floating point at material_densities[" + i + "]");
+                MovingWorldMod.LOG.warn("Cannot parse value " + pair[1] + " to floating point at material_densities[" + i + "]");
                 continue;
             }
             Block block = Block.getBlockFromName(key);
             if (block == null) {
-                MovingWorldMod.logger.warn("No block found for " + key + " at material_densities[" + i + "]");
+                MovingWorldMod.LOG.warn("No block found for " + key + " at material_densities[" + i + "]");
                 continue;
             }
 

@@ -145,7 +145,7 @@ public class ChunkDisassembler {
             if (pList != null && !pList.isEmpty())
                 for (LocatedBlock locatedBlockInstance : pList) {
                     pos = locatedBlockInstance.blockPos;
-                    MovingWorldMod.logger.debug("Post-rejoining block: " + locatedBlockInstance.toString());
+                    MovingWorldMod.LOG.debug("Post-rejoining block: " + locatedBlockInstance.toString());
                     world.setBlockState(pos, locatedBlockInstance.blockState, 2);
                     assemblyInteractor.blockDisassembled(locatedBlockInstance);
                     DisassembleBlockEvent event = new DisassembleBlockEvent(locatedBlockInstance);
@@ -212,16 +212,14 @@ public class ChunkDisassembler {
                 }
             }
             if (tileentity != null) {
-                tileentity.setPos(pos);
                 if (tileentity instanceof IMovingTile) {
                     ((IMovingTile) tileentity).setParentMovingWorld(null, new BlockPos(i, j, k));
                 }
                 NBTTagCompound tileTag = new NBTTagCompound();
                 tileentity.writeToNBT(tileTag);
-
                 world.setTileEntity(pos, tileentity);
                 world.getTileEntity(pos).readFromNBT(tileTag);
-                tileentity.validate();
+                tileentity.invalidate();
                 tileentity = world.getTileEntity(pos);
 
                 if (tileMarker != null && tileMarker.getPos().equals(tileentity.getPos())) {

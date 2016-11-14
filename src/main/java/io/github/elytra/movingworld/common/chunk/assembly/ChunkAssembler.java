@@ -32,7 +32,7 @@ public class ChunkAssembler {
         result.offset = start;
         result.assemblyInteractor = interactor;
         try {
-            if (MovingWorldMod.instance.getNetworkConfig().getShared().iterativeAlgorithm) {
+            if (MovingWorldMod.INSTANCE.getNetworkConfig().getShared().iterativeAlgorithm) {
                 assembleIterative(result, result.assemblyInteractor, start);
             } else {
                 assembleRecursive(result, new HashSet<>(), result.assemblyInteractor, start);
@@ -46,7 +46,7 @@ public class ChunkAssembler {
             result.resultType = AssembleResult.ResultType.RESULT_BLOCK_OVERFLOW;
         } catch (Error e) {
             result.resultType = AssembleResult.ResultType.RESULT_ERROR_OCCURED;
-            MovingWorldMod.logger.error(e.toString());
+            MovingWorldMod.LOG.error(e.toString());
         }
         result.assemblyInteractor.chunkAssembled(result);
         return result;

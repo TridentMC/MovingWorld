@@ -153,7 +153,7 @@ public class AssemblePriorityConfig {
                     if (prop.getName().equals("powered")) {
                         String poweredBlockName = Block.REGISTRY.getNameForObject(checkBlock).toString();
                         poweredBlockNames.add(poweredBlockName);
-                        MovingWorldMod.logger.info("Found powered block with name: " + poweredBlockName);
+                        MovingWorldMod.LOG.info("Found powered block with name: " + poweredBlockName);
                     }
                 }
             }

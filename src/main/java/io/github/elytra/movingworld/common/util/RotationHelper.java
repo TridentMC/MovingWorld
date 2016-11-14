@@ -24,10 +24,10 @@ public class RotationHelper {
             for (IProperty prop : blockState.getProperties().keySet()) {
                 if (prop instanceof IRotationProperty) {
                     // Custom rotation property found.
-                    MovingWorldMod.logger.debug("Rotate state in " + blockState.getBlock().getLocalizedName() + " " + blockState.getValue(prop));
+                    MovingWorldMod.LOG.debug("Rotate state in " + blockState.getBlock().getLocalizedName() + " " + blockState.getValue(prop));
                     IRotationProperty rotationProperty = (IRotationProperty) prop;
                     blockState = rotationProperty.rotate(blockState, ccw);
-                    MovingWorldMod.logger.debug("Rotate state out " + blockState.getBlock().getLocalizedName() + " " + blockState.getValue(prop));
+                    MovingWorldMod.LOG.debug("Rotate state out " + blockState.getBlock().getLocalizedName() + " " + blockState.getValue(prop));
                 }
             }
         }

@@ -167,12 +167,6 @@ public class ChunkCollisionHelper {
         double maxY = entityBox.maxY + (mobileChunk.getEntityMovingWorld().posY - (mobileChunk.maxY() / 2));
         double maxZ = entityBox.maxZ + (mobileChunk.getEntityMovingWorld().posZ - (mobileChunk.maxZ() / 2));
 
-        System.out.println(minX);
-        System.out.println(minY);
-        System.out.println(minZ);
-        System.out.println(maxX);
-        System.out.println(maxY);
-        System.out.println(maxZ);
         entity.setEntityBoundingBox(new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ));
 
         mixinEntity.resetPosToBB();

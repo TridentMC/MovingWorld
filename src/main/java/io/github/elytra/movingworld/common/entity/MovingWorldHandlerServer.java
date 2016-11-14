@@ -22,14 +22,7 @@ public abstract class MovingWorldHandlerServer extends MovingWorldHandlerCommon 
     }
 
     @Override
-    public boolean interact(EntityPlayer player, ItemStack stack, EnumHand hand) {
-        if (!getMovingWorld().isBeingRidden()) {
-            player.startRiding(getMovingWorld());
-            return true;
-        } else if (player.getControllingPassenger() == null) {
-            return getMovingWorld().getCapabilities().mountEntity(player);
-        }
-
+    public boolean processInitialInteract(EntityPlayer player, ItemStack stack, EnumHand hand) {
         return false;
     }
 
@@ -52,7 +45,7 @@ public abstract class MovingWorldHandlerServer extends MovingWorldHandlerCommon 
                             .with("chunk", ChunkIO.writeCompressed(getMovingWorld().getMobileChunk(), getMobileChunkServer().getBlockQueue()))
                             .toAllAround(getMovingWorld().worldObj, getMovingWorld(), 64D);
 
-                    MovingWorldMod.logger.debug("MobileChunk block change detected, sending packet to all within 64 blocks of " + getMovingWorld().toString());
+                    MovingWorldMod.LOG.debug("MobileChunk block change detected, sending packet to all within 64 blocks of " + getMovingWorld().toString());
                 }
                 if (!getMobileChunkServer().getTileQueue().isEmpty()) {
                     NBTTagCompound tagCompound = new NBTTagCompound();
@@ -77,7 +70,7 @@ public abstract class MovingWorldHandlerServer extends MovingWorldHandlerCommon 
                             .with("entityID", getMovingWorld().getEntityId())
                             .with("tagCompound", tagCompound)
                             .toAllAround(getMovingWorld().worldObj, getMovingWorld(), 64D);
-                    MovingWorldMod.logger.debug("MobileChunk tile change detected, sending packet to all within 64 blocks of " + getMovingWorld().toString());
+                    MovingWorldMod.LOG.debug("MobileChunk tile change detected, sending packet to all within 64 blocks of " + getMovingWorld().toString());
                 }
             }
             getMobileChunkServer().getTileQueue().clear();

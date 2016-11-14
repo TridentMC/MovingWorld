@@ -31,7 +31,7 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 minecraft {
-    version = "1.10.2-12.18.1.2074"
+    version = "1.10.2-12.18.2.2125"
     runDir = "run"
 
     def replacementVersion = 'MOD_VERSION = \"' + project.version + '\"'
@@ -39,7 +39,7 @@ minecraft {
     replace("MOD_VERSION = \"@MOVINGWORLDVER@\"",
             replacementVersion)
 
-    mappings = "snapshot_20160731"
+    mappings = "snapshot_20161111"
 }
 
 mixin {

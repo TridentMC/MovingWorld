@@ -210,8 +210,7 @@ public abstract class MobileChunk implements IBlockAccess {
         Block currentBlock = currentState.getBlock();
         int currentID = Block.getIdFromBlock(currentBlock);
         int currentMeta = currentBlock.getMetaFromState(currentState);
-        MovingWorldMod.logger.info(String.format("Adding block with state: %s, at position %s in a mobile chunk. \n The block id is: %s, and the metadata is: %s", state, pos, id, meta));
-        MovingWorldMod.logger.info(String.format("The current state of the block is %s, the id is %s and the meta is %s", currentState, currentID, currentMeta));
+        MovingWorldMod.LOG.debug(String.format("Adding block with state: %s, at position %s in a mobile chunk. \n The block id is: %s, and the metadata is: %s", state, pos, id, meta));
         if (currentID == id && currentMeta == meta) {
             return false;
         }
@@ -506,7 +505,7 @@ public abstract class MobileChunk implements IBlockAccess {
                 if (!movingWorldTileEntities.contains(tileentity))
                     movingWorldTileEntities.add((IMovingTile) tileentity);
                 ((IMovingTile) tileentity).setParentMovingWorld(entityMovingWorld, chunkPosition);
-            } else if (tileentity instanceof ITickable && MovingWorldMod.instance.getNetworkConfig().isTileUpdatable(tileentity.getClass())) {
+            } else if (tileentity instanceof ITickable && MovingWorldMod.INSTANCE.getNetworkConfig().isTileUpdatable(tileentity.getClass())) {
                 updatableTiles.add(tileentity);
             }
         }
@@ -532,7 +531,7 @@ public abstract class MobileChunk implements IBlockAccess {
                         movingWorldTileEntities.add((IMovingTile) tileentity);
                     ((IMovingTile) tileentity).setParentMovingWorld(null, pos);
                 }
-                if (tileentity instanceof ITickable && MovingWorldMod.instance.getNetworkConfig().isTileUpdatable(tileentity.getClass())) {
+                if (tileentity instanceof ITickable && MovingWorldMod.INSTANCE.getNetworkConfig().isTileUpdatable(tileentity.getClass())) {
                     updatableTiles.remove(tileentity);
                 }
 

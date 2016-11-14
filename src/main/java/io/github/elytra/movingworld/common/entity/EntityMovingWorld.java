@@ -231,7 +231,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     @Override
     public boolean processInitialInteract(EntityPlayer entityplayer, ItemStack stack, EnumHand hand) {
-        return getHandler().interact(entityplayer, stack, hand);
+        return getHandler().processInitialInteract(entityplayer, stack, hand);
     }
 
     @Override
@@ -521,32 +521,6 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     @Override
     protected void applyYawToEntity(Entity entityToUpdate) {
-        int frontDirIndex = frontDirection.getHorizontalIndex();
-
-        float modifiedRotationYaw = -this.rotationYaw;
-        EnumFacing frontDirEnumFacing = EnumFacing.getHorizontal(frontDirIndex);
-        switch (frontDirEnumFacing) {
-            case NORTH: {
-                modifiedRotationYaw -= 180;
-            }
-            case SOUTH: {
-                modifiedRotationYaw -= 90;
-            }
-            case WEST: {
-                modifiedRotationYaw -= 180;
-            }
-            case EAST: {
-                modifiedRotationYaw -= 90;
-            }
-        }
-
-
-        entityToUpdate.setRenderYawOffset(modifiedRotationYaw);
-        float f = MathHelper.wrapDegrees(entityToUpdate.rotationYaw - modifiedRotationYaw);
-        float f1 = MathHelper.clamp_float(f, -105.0F, 105.0F);
-        entityToUpdate.prevRotationYaw += f1 - f;
-        entityToUpdate.rotationYaw += f1 - f;
-        entityToUpdate.setRotationYawHead(entityToUpdate.rotationYaw);
     }
 
     @Nullable
@@ -928,7 +902,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             e.printStackTrace();
         } catch (MovingWorldSizeOverflowException ssoe) {
             disassemble(false);
-            MovingWorldMod.logger.warn("Ship is too large to be sent");
+            MovingWorldMod.LOG.warn("Ship is too large to be sent");
         }
         writeMovingWorldSpawnData(data);
     }

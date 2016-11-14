@@ -37,7 +37,7 @@ public abstract class ChunkIO {
                 }
             }
         }
-        MovingWorldMod.logger.debug("Writing mobile chunk data: " + count + " blocks");
+        MovingWorldMod.LOG.debug("Writing mobile chunk data: " + count + " blocks");
 
         out.writeShort(count);
         for (int i = chunk.minX(); i < chunk.maxX(); i++) {
@@ -70,7 +70,7 @@ public abstract class ChunkIO {
     public static void read(DataInput in, MobileChunk chunk) throws IOException {
         int count = in.readShort();
 
-        MovingWorldMod.logger.debug("Reading mobile chunk data: " + count + " blocks");
+        MovingWorldMod.LOG.debug("Reading mobile chunk data: " + count + " blocks");
 
         int x, y, z;
         int id;
@@ -91,7 +91,7 @@ public abstract class ChunkIO {
         try {
             ChunkIO.writeCompressed(buffer, chunk, blocks);
         } catch (IOException e) {
-            MovingWorldMod.logger.error(e);
+            MovingWorldMod.LOG.error(e);
         }
 
         return buffer.array();
@@ -121,10 +121,10 @@ public abstract class ChunkIO {
 
         int byteswritten = data.writerIndex();
         float f = (float) byteswritten / (count * 9);
-        MovingWorldMod.logger.debug(String.format(Locale.ENGLISH, "%d blocks written. Efficiency: %d/%d = %.2f", count, byteswritten, count * 9, f));
+        MovingWorldMod.LOG.debug(String.format(Locale.ENGLISH, "%d blocks written. Efficiency: %d/%d = %.2f", count, byteswritten, count * 9, f));
 
         if (byteswritten > 32000) {
-            MovingWorldMod.logger.warn("Ship probably contains too many blocks");
+            MovingWorldMod.LOG.warn("MobileChunk probably contains too many blocks");
         }
     }
 
