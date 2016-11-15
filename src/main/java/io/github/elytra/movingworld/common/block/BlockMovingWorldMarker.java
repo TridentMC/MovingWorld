@@ -1,6 +1,5 @@
 package io.github.elytra.movingworld.common.block;
 
-import io.github.elytra.movingworld.common.tile.TileMovingMarkingBlock;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyDirection;
@@ -11,6 +10,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+
+import io.github.elytra.movingworld.common.tile.TileMovingMarkingBlock;
 
 public abstract class BlockMovingWorldMarker extends BlockContainer {
 

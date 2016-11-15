@@ -1,10 +1,5 @@
 package io.github.elytra.movingworld;
 
-import io.github.elytra.movingworld.client.ClientProxy;
-import io.github.elytra.movingworld.common.CommonProxy;
-import io.github.elytra.movingworld.common.config.MainConfig;
-import io.github.elytra.movingworld.common.mrot.MetaRotations;
-import io.github.elytra.movingworld.common.network.MovingWorldNetworking;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
@@ -12,9 +7,15 @@ import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
+
+import io.github.elytra.movingworld.client.ClientProxy;
+import io.github.elytra.movingworld.common.CommonProxy;
+import io.github.elytra.movingworld.common.config.MainConfig;
+import io.github.elytra.movingworld.common.network.MovingWorldNetworking;
 
 @Mod(modid = MovingWorldMod.MOD_ID, name = MovingWorldMod.MOD_NAME, version = MovingWorldMod.MOD_VERSION, guiFactory = MovingWorldMod.MOD_GUIFACTORY)
 public class MovingWorldMod {

@@ -1,13 +1,14 @@
 package io.github.elytra.movingworld.common.util;
 
-import io.github.elytra.movingworld.MovingWorldMod;
-import io.github.elytra.movingworld.api.rotation.IRotationBlock;
-import io.github.elytra.movingworld.api.rotation.IRotationProperty;
-import io.github.elytra.movingworld.common.chunk.LocatedBlock;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.Vec3i;
+
+import io.github.elytra.movingworld.MovingWorldMod;
+import io.github.elytra.movingworld.api.rotation.IRotationBlock;
+import io.github.elytra.movingworld.api.rotation.IRotationProperty;
+import io.github.elytra.movingworld.common.chunk.LocatedBlock;
 
 public class RotationHelper {
 

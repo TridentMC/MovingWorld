@@ -1,13 +1,5 @@
 package io.github.elytra.movingworld.common.tile;
 
-import io.github.elytra.movingworld.api.IMovingTile;
-import io.github.elytra.movingworld.common.chunk.LocatedBlock;
-import io.github.elytra.movingworld.common.chunk.MovingWorldAssemblyInteractor;
-import io.github.elytra.movingworld.common.chunk.assembly.AssembleResult;
-import io.github.elytra.movingworld.common.chunk.assembly.ChunkAssembler;
-import io.github.elytra.movingworld.common.entity.EntityMovingWorld;
-import io.github.elytra.movingworld.common.entity.MovingWorldInfo;
-import io.github.elytra.movingworld.common.util.LocatedBlockList;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -19,6 +11,15 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 
 import java.util.UUID;
+
+import io.github.elytra.movingworld.api.IMovingTile;
+import io.github.elytra.movingworld.common.chunk.LocatedBlock;
+import io.github.elytra.movingworld.common.chunk.MovingWorldAssemblyInteractor;
+import io.github.elytra.movingworld.common.chunk.assembly.AssembleResult;
+import io.github.elytra.movingworld.common.chunk.assembly.ChunkAssembler;
+import io.github.elytra.movingworld.common.entity.EntityMovingWorld;
+import io.github.elytra.movingworld.common.entity.MovingWorldInfo;
+import io.github.elytra.movingworld.common.util.LocatedBlockList;
 
 import static io.github.elytra.movingworld.common.chunk.assembly.AssembleResult.ResultType.RESULT_INCONSISTENT;
 import static io.github.elytra.movingworld.common.chunk.assembly.AssembleResult.ResultType.RESULT_OK_WITH_WARNINGS;

@@ -1,7 +1,5 @@
 package io.github.elytra.movingworld.api;
 
-import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunk;
-import io.github.elytra.movingworld.common.entity.EntityMovingWorld;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
@@ -9,6 +7,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
+
+import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunk;
+import io.github.elytra.movingworld.common.entity.EntityMovingWorld;
 
 /**
  * This is pretty much a stub, I might actually use it but now isn't the time.

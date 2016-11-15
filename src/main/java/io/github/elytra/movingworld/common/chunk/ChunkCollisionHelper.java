@@ -1,7 +1,5 @@
 package io.github.elytra.movingworld.common.chunk;
 
-import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunk;
-import io.github.elytra.movingworld.common.entity.IMixinEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFence;
 import net.minecraft.block.BlockFenceGate;
@@ -17,6 +15,9 @@ import net.minecraft.util.math.Vec3d;
 
 import java.util.Iterator;
 import java.util.List;
+
+import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunk;
+import io.github.elytra.movingworld.common.entity.IMixinEntity;
 
 public class ChunkCollisionHelper {
 

@@ -1,7 +1,5 @@
 package io.github.elytra.movingworld.client.render;
 
-import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunkClient;
-import io.github.elytra.movingworld.common.entity.EntityMovingWorld;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.culling.ICamera;
 import net.minecraft.client.renderer.entity.Render;
@@ -9,7 +7,11 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
+
 import org.lwjgl.opengl.GL11;
+
+import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunkClient;
+import io.github.elytra.movingworld.common.entity.EntityMovingWorld;
 
 public class RenderMovingWorld extends Render {
     public RenderMovingWorld(RenderManager renderManager) {

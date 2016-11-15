@@ -1,13 +1,7 @@
 package io.github.elytra.movingworld.common.chunk.mobilechunk;
 
 import com.google.common.collect.HashBiMap;
-import io.github.elytra.movingworld.MovingWorldMod;
-import io.github.elytra.movingworld.api.IMovingTile;
-import io.github.elytra.movingworld.common.chunk.LocatedBlock;
-import io.github.elytra.movingworld.common.chunk.mobilechunk.world.FakeWorld;
-import io.github.elytra.movingworld.common.entity.EntityMovingWorld;
-import io.github.elytra.movingworld.common.util.AABBRotator;
-import io.github.elytra.movingworld.common.util.Vec3dMod;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -31,6 +25,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import io.github.elytra.movingworld.MovingWorldMod;
+import io.github.elytra.movingworld.api.IMovingTile;
+import io.github.elytra.movingworld.common.chunk.LocatedBlock;
+import io.github.elytra.movingworld.common.chunk.mobilechunk.world.FakeWorld;
+import io.github.elytra.movingworld.common.entity.EntityMovingWorld;
+import io.github.elytra.movingworld.common.util.AABBRotator;
+import io.github.elytra.movingworld.common.util.Vec3dMod;
 
 public abstract class MobileChunk implements IBlockAccess {
     public static final int CHUNK_SIZE = 16;

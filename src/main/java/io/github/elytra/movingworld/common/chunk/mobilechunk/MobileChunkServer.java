@@ -1,6 +1,5 @@
 package io.github.elytra.movingworld.common.chunk.mobilechunk;
 
-import io.github.elytra.movingworld.common.entity.EntityMovingWorld;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -9,6 +8,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+
+import io.github.elytra.movingworld.common.entity.EntityMovingWorld;
 
 public class MobileChunkServer extends MobileChunk {
     private Set<BlockPos> blockQueue;

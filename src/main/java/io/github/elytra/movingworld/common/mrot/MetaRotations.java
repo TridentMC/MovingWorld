@@ -1,14 +1,24 @@
 package io.github.elytra.movingworld.common.mrot;
 
-import io.github.elytra.movingworld.MovingWorldMod;
 import net.minecraft.block.Block;
+
 import org.apache.commons.io.IOUtils;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import io.github.elytra.movingworld.MovingWorldMod;
 
 public class MetaRotations {
     public Map<Integer, BlockMetaRotation> metaRotationMap;

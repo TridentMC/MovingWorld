@@ -1,6 +1,5 @@
 package io.github.elytra.movingworld.common.chunk.mobilechunk.world;
 
-import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunk;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -11,6 +10,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
+
+import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunk;
 
 /**
  * A wrapper for MobileChunks, used to give blocks accurate information about it's neighbors.

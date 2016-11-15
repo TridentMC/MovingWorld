@@ -1,8 +1,5 @@
 package io.github.elytra.movingworld.common.config;
 
-import io.github.elytra.movingworld.MovingWorldMod;
-import io.github.elytra.movingworld.common.config.priority.AssemblePriorityConfig;
-import io.github.elytra.movingworld.common.util.MaterialDensity;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -19,6 +16,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
+
+import io.github.elytra.movingworld.MovingWorldMod;
+import io.github.elytra.movingworld.common.config.priority.AssemblePriorityConfig;
+import io.github.elytra.movingworld.common.util.MaterialDensity;
 
 public class MainConfig {
 

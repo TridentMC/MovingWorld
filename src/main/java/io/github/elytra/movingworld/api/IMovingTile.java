@@ -1,8 +1,9 @@
 package io.github.elytra.movingworld.api;
 
+import net.minecraft.util.math.BlockPos;
+
 import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunk;
 import io.github.elytra.movingworld.common.entity.EntityMovingWorld;
-import net.minecraft.util.math.BlockPos;
 
 public interface IMovingTile {
 

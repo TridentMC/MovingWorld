@@ -1,21 +1,26 @@
 package io.github.elytra.movingworld.common.chunk;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Blocks;
+import net.minecraft.util.math.BlockPos;
+
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Locale;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
+
 import io.github.elytra.movingworld.MovingWorldMod;
 import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunk;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
-import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Blocks;
-import net.minecraft.util.math.BlockPos;
-
-import java.io.*;
-import java.util.Collection;
-import java.util.Locale;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 
 public abstract class ChunkIO {
     public static void write(DataOutput out, MobileChunk chunk, Collection<BlockPos> blocks) throws IOException {

@@ -1,21 +1,7 @@
 package io.github.elytra.movingworld.common.entity;
 
 import com.google.common.collect.Lists;
-import io.github.elytra.movingworld.MovingWorldMod;
-import io.github.elytra.movingworld.api.IMovingTile;
-import io.github.elytra.movingworld.common.chunk.ChunkIO;
-import io.github.elytra.movingworld.common.chunk.LocatedBlock;
-import io.github.elytra.movingworld.common.chunk.MovingWorldAssemblyInteractor;
-import io.github.elytra.movingworld.common.chunk.MovingWorldSizeOverflowException;
-import io.github.elytra.movingworld.common.chunk.assembly.AssembleResult;
-import io.github.elytra.movingworld.common.chunk.assembly.ChunkDisassembler;
-import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunk;
-import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunkClient;
-import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunkServer;
-import io.github.elytra.movingworld.common.util.AABBRotator;
-import io.github.elytra.movingworld.common.util.MathHelperMod;
-import io.github.elytra.movingworld.common.util.Vec3dMod;
-import io.netty.buffer.ByteBuf;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -44,9 +30,34 @@ import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
+
 import javax.annotation.Nullable;
-import java.io.*;
-import java.util.*;
+
+import io.github.elytra.movingworld.MovingWorldMod;
+import io.github.elytra.movingworld.api.IMovingTile;
+import io.github.elytra.movingworld.common.chunk.ChunkIO;
+import io.github.elytra.movingworld.common.chunk.LocatedBlock;
+import io.github.elytra.movingworld.common.chunk.MovingWorldAssemblyInteractor;
+import io.github.elytra.movingworld.common.chunk.MovingWorldSizeOverflowException;
+import io.github.elytra.movingworld.common.chunk.assembly.AssembleResult;
+import io.github.elytra.movingworld.common.chunk.assembly.ChunkDisassembler;
+import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunk;
+import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunkClient;
+import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunkServer;
+import io.github.elytra.movingworld.common.util.AABBRotator;
+import io.github.elytra.movingworld.common.util.MathHelperMod;
+import io.github.elytra.movingworld.common.util.Vec3dMod;
+import io.netty.buffer.ByteBuf;
 
 /**
  * All moving sections of blocks extend from this class.

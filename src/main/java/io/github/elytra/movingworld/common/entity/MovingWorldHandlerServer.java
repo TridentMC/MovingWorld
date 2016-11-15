@@ -1,10 +1,5 @@
 package io.github.elytra.movingworld.common.entity;
 
-import io.github.elytra.movingworld.MovingWorldMod;
-import io.github.elytra.movingworld.common.chunk.ChunkIO;
-import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunkServer;
-import io.github.elytra.movingworld.common.network.MovingWorldNetworking;
-import io.github.elytra.movingworld.common.tile.TileMovingMarkingBlock;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -12,6 +7,12 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+
+import io.github.elytra.movingworld.MovingWorldMod;
+import io.github.elytra.movingworld.common.chunk.ChunkIO;
+import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunkServer;
+import io.github.elytra.movingworld.common.network.MovingWorldNetworking;
+import io.github.elytra.movingworld.common.tile.TileMovingMarkingBlock;
 
 public abstract class MovingWorldHandlerServer extends MovingWorldHandlerCommon {
     protected boolean firstChunkUpdate;

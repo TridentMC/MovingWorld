@@ -1,13 +1,14 @@
 package io.github.elytra.movingworld.common.util;
 
-import io.github.elytra.movingworld.common.chunk.LocatedBlock;
-import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunk;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+
+import io.github.elytra.movingworld.common.chunk.LocatedBlock;
+import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunk;
 
 /**
  * Flood fill algorithm for finding if something is water tight.
