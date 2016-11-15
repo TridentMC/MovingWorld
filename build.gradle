@@ -57,7 +57,7 @@ repositories {
 }
 
 dependencies {
-    compile('org.spongepowered:mixin:0.5.11-SNAPSHOT') {
+    compile('org.spongepowered:mixin:0.6-SNAPSHOT') {
         exclude module: 'launchwrapper'
         exclude module: 'guava'
     }
