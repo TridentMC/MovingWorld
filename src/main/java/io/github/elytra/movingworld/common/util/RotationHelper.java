@@ -37,21 +37,21 @@ public class RotationHelper {
     }
 
     public static int rotateInteger(int integer, int min, int max, boolean ccw) {
-        int retVal = integer;
+        int result = integer;
 
         if (!ccw) {
-            if (retVal + 1 > max)
-                retVal = min;
+            if (result + 1 > max)
+                result = min;
             else
-                retVal = retVal + 1;
+                result = result + 1;
         } else {
-            if (retVal - 1 < min)
-                retVal = max;
+            if (result - 1 < min)
+                result = max;
             else
-                retVal = retVal - 1;
+                result = result - 1;
         }
 
-        return retVal;
+        return result;
     }
 
     public static Vec3i getDirectionVec(EnumFacing facing) {
