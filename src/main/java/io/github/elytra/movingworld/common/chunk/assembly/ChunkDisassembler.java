@@ -112,34 +112,41 @@ public class ChunkDisassembler {
         TileEntity tileentity;
         IBlockState blockState;
         BlockPos pos;
-        for (int i = chunk.minX(); i < chunk.maxX(); i++) {
-            for (int j = chunk.minY(); j < chunk.maxY(); j++) {
-                for (int k = chunk.minZ(); k < chunk.maxZ(); k++) {
-                    blockState = chunk.getBlockState(new BlockPos(i, j, k));
-                    if (blockState.getBlock() == Blocks.AIR) {
-                        if (blockState.getBlock().getMetaFromState(blockState) == 1) continue;
-                    } else if (blockState.getBlock().isAir(blockState, world, new BlockPos(i, j, k)))
-                        continue;
-                    tileentity = chunk.getTileEntity(new BlockPos(i, j, k));
+        try {
+            for (int i = chunk.minX(); i < chunk.maxX(); i++) {
+                for (int j = chunk.minY(); j < chunk.maxY(); j++) {
+                    for (int k = chunk.minZ(); k < chunk.maxZ(); k++) {
+                        blockState = chunk.getBlockState(new BlockPos(i, j, k));
+                        if (blockState.getBlock() == Blocks.AIR) {
+                            if (blockState.getBlock().getMetaFromState(blockState) == 1) continue;
+                        } else if (blockState.getBlock().isAir(blockState, world, new BlockPos(i, j, k)))
+                            continue;
+                        tileentity = chunk.getTileEntity(new BlockPos(i, j, k));
 
-                    vec = new Vec3dMod(i + ox, j + oy, k + oz);
-                    vec = vec.rotateAroundY(yaw);
+                        vec = new Vec3dMod(i + ox, j + oy, k + oz);
+                        vec = vec.rotateAroundY(yaw);
 
-                    pos = new BlockPos(MathHelperMod.round_double(vec.xCoord + movingWorld.posX),
-                            MathHelperMod.round_double(vec.yCoord + movingWorld.posY),
-                            MathHelperMod.round_double(vec.zCoord + movingWorld.posZ));
+                        pos = new BlockPos(MathHelperMod.round_double(vec.xCoord + movingWorld.posX),
+                                MathHelperMod.round_double(vec.yCoord + movingWorld.posY),
+                                MathHelperMod.round_double(vec.zCoord + movingWorld.posZ));
 
-                    lbList.add(new LocatedBlock(blockState, tileentity, pos, new BlockPos(i, j, k)));
+                        lbList.add(new LocatedBlock(blockState, tileentity, pos, new BlockPos(i, j, k)));
+                    }
                 }
             }
-        }
 
-        ArrayList<LocatedBlockList> separatedLbLists = lbList.getSortedDisassemblyBlocks();
+            ArrayList<LocatedBlockList> separatedLbLists = lbList.getSortedDisassemblyBlocks();
 
-        for (LocatedBlockList locatedBlockList : separatedLbLists) {
-            if (locatedBlockList != null && !locatedBlockList.isEmpty()) {
-                postList = processLocatedBlockList(world, locatedBlockList, postList, assemblyInteractor, fillableBlocks, currentRot);
+            for (LocatedBlockList locatedBlockList : separatedLbLists) {
+                if (locatedBlockList != null && !locatedBlockList.isEmpty()) {
+                    postList = processLocatedBlockList(world, locatedBlockList, postList, assemblyInteractor, fillableBlocks, currentRot);
+                }
             }
+        } catch (Exception exception) {
+            world.getGameRules().setOrCreateGameRule("doTileDrops", String.valueOf(flag));
+            MovingWorldMod.LOG.error("Exception while disassembling, reverting doTileDrops... ", exception);
+            this.result.resultType = AssembleResult.ResultType.RESULT_ERROR_OCCURED;
+            return this.result;
         }
 
         world.getGameRules().setOrCreateGameRule("doTileDrops", String.valueOf(flag));
