@@ -31,7 +31,6 @@ public abstract class MovingWorldCapabilities {
     }
 
     public void onChunkBlockAdded(IBlockState blockState, BlockPos pos) {
-        System.out.println("OnChunkBlockAdded");
         blockCount++;
         if (autoCalcMass)
             mass += MaterialDensity.getDensity(blockState);

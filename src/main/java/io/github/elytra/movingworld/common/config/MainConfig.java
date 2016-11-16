@@ -1,8 +1,5 @@
 package io.github.elytra.movingworld.common.config;
 
-import io.github.elytra.movingworld.MovingWorldMod;
-import io.github.elytra.movingworld.common.config.priority.AssemblePriorityConfig;
-import io.github.elytra.movingworld.common.util.MaterialDensity;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -19,6 +16,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
+
+import io.github.elytra.movingworld.MovingWorldMod;
+import io.github.elytra.movingworld.common.config.priority.AssemblePriorityConfig;
+import io.github.elytra.movingworld.common.util.MaterialDensity;
 
 public class MainConfig {
 
@@ -121,7 +122,7 @@ public class MainConfig {
             s = s.replace("\"", "");
             String[] pair = splitpattern.split(s);
             if (pair.length != 2) {
-                MovingWorldMod.logger.warn("Invalid key-value pair at block_densities[" + i + "]");
+                MovingWorldMod.LOG.warn("Invalid key-value pair at block_densities[" + i + "]");
                 continue;
             }
             String key = pair[0];
@@ -129,12 +130,12 @@ public class MainConfig {
             try {
                 density = Float.parseFloat(pair[1]);
             } catch (NumberFormatException e) {
-                MovingWorldMod.logger.warn("Cannot parse value " + pair[1] + " to floating point at block_densities[" + i + "]");
+                MovingWorldMod.LOG.warn("Cannot parse value " + pair[1] + " to floating point at block_densities[" + i + "]");
                 continue;
             }
             Block block = Block.getBlockFromName(key);
             if (block == null) {
-                MovingWorldMod.logger.warn("No block found for " + key + " at block_densities[" + i + "]");
+                MovingWorldMod.LOG.warn("No block found for " + key + " at block_densities[" + i + "]");
                 continue;
             }
 
@@ -146,7 +147,7 @@ public class MainConfig {
             s = s.replace("\"", "");
             String[] pair = splitpattern.split(s);
             if (pair.length != 2) {
-                MovingWorldMod.logger.warn("Invalid key-value pair at material_densities[" + i + "]");
+                MovingWorldMod.LOG.warn("Invalid key-value pair at material_densities[" + i + "]");
                 continue;
             }
             String key = pair[0];
@@ -154,12 +155,12 @@ public class MainConfig {
             try {
                 density = Float.parseFloat(pair[1]);
             } catch (NumberFormatException e) {
-                MovingWorldMod.logger.warn("Cannot parse value " + pair[1] + " to floating point at material_densities[" + i + "]");
+                MovingWorldMod.LOG.warn("Cannot parse value " + pair[1] + " to floating point at material_densities[" + i + "]");
                 continue;
             }
             Block block = Block.getBlockFromName(key);
             if (block == null) {
-                MovingWorldMod.logger.warn("No block found for " + key + " at material_densities[" + i + "]");
+                MovingWorldMod.LOG.warn("No block found for " + key + " at material_densities[" + i + "]");
                 continue;
             }
 

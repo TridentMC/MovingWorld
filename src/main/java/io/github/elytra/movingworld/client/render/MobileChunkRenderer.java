@@ -1,11 +1,13 @@
 package io.github.elytra.movingworld.client.render;
 
-import io.github.elytra.movingworld.MovingWorldMod;
-import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunk;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.BlockRendererDispatcher;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -17,7 +19,10 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
 import org.lwjgl.opengl.GL11;
+
+import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunk;
 
 @SideOnly(Side.CLIENT)
 public class MobileChunkRenderer {
@@ -28,7 +33,6 @@ public class MobileChunkRenderer {
     public boolean isRemoved;
 
     private MobileChunk chunk;
-    private int glRenderList = 0;
 
     public MobileChunkRenderer(MobileChunk mobilechunk) {
         chunk = mobilechunk;
@@ -45,7 +49,6 @@ public class MobileChunkRenderer {
         Tessellator tessellator = Tessellator.getInstance();
         VertexBuffer vertexBuffer = tessellator.getBuffer();
 
-        GlStateManager.pushMatrix();
         RenderHelper.disableStandardItemLighting();
         GlStateManager.blendFunc(770, 771);
         GlStateManager.enableBlend();
@@ -79,6 +82,8 @@ public class MobileChunkRenderer {
         }
         vertexBuffer.setTranslation(0.0D, 0.0D, 0.0D);
         tessellator.draw();
+        GlStateManager.disableBlend();
+        GlStateManager.disableCull();
         RenderHelper.enableStandardItemLighting();
 
         GlStateManager.pushMatrix();
@@ -103,7 +108,6 @@ public class MobileChunkRenderer {
         }
         TileEntityRendererDispatcher.instance.setWorld(tesrDispatchWorld);
         GlStateManager.popMatrix();
-        GlStateManager.popMatrix();
     }
 
     public void dispatchBlockRender(IBlockState blockState, BlockPos blockPos, VertexBuffer vertexBuffer) {
@@ -118,15 +122,5 @@ public class MobileChunkRenderer {
 
     public void markRemoved() {
         isRemoved = true;
-
-        try {
-            if (glRenderList != 0) {
-                MovingWorldMod.logger.debug("Deleting mobile chunk display list " + glRenderList);
-                GLAllocation.deleteDisplayLists(glRenderList);
-                glRenderList = 0;
-            }
-        } catch (Exception e) {
-            MovingWorldMod.logger.error("Failed to destroy mobile chunk display list", e);
-        }
     }
 }

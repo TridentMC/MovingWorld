@@ -1,10 +1,5 @@
 package io.github.elytra.movingworld;
 
-import io.github.elytra.movingworld.client.ClientProxy;
-import io.github.elytra.movingworld.common.CommonProxy;
-import io.github.elytra.movingworld.common.config.MainConfig;
-import io.github.elytra.movingworld.common.mrot.MetaRotations;
-import io.github.elytra.movingworld.common.network.MovingWorldNetworking;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
@@ -12,9 +7,15 @@ import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
+
+import io.github.elytra.movingworld.client.ClientProxy;
+import io.github.elytra.movingworld.common.CommonProxy;
+import io.github.elytra.movingworld.common.config.MainConfig;
+import io.github.elytra.movingworld.common.network.MovingWorldNetworking;
 
 @Mod(modid = MovingWorldMod.MOD_ID, name = MovingWorldMod.MOD_NAME, version = MovingWorldMod.MOD_VERSION, guiFactory = MovingWorldMod.MOD_GUIFACTORY)
 public class MovingWorldMod {
@@ -24,19 +25,16 @@ public class MovingWorldMod {
     public static final String MOD_GUIFACTORY = "io.github.elytra.movingworld.client.gui.MovingWorldGUIFactory";
 
     @Mod.Instance(MOD_ID)
-    public static MovingWorldMod instance;
-
+    public static MovingWorldMod INSTANCE;
     @SidedProxy(clientSide = "io.github.elytra.movingworld.client.ClientProxy", serverSide = "io.github.elytra.movingworld.common.CommonProxy")
-    public static CommonProxy proxy;
+    public static CommonProxy PROXY;
+    public static Logger LOG;
 
-    public static Logger logger;
-
-    public MetaRotations metaRotations;
     private MainConfig localConfig;
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent e) {
-        logger = e.getModLog();
+        LOG = e.getModLog();
         File configFolder = new File(e.getModConfigurationDirectory(), "MovingWorld");
         File mConfigFile = new File(configFolder, "Main.cfg");
         localConfig = new MainConfig(new Configuration(mConfigFile));
@@ -47,7 +45,7 @@ public class MovingWorldMod {
     public void init(FMLInitializationEvent e) {
         localConfig.postLoad();
         MovingWorldNetworking.setupNetwork();
-        proxy.registerRenderers();
+        PROXY.registerRenderers();
         localConfig.getShared().assemblePriorityConfig.loadAndSaveInit();
     }
 
@@ -58,8 +56,8 @@ public class MovingWorldMod {
 
     public MainConfig getNetworkConfig() {
         if (FMLCommonHandler.instance().getSide().isClient()) {
-            if (((ClientProxy) proxy).syncedConfig != null)
-                return ((ClientProxy) proxy).syncedConfig;
+            if (((ClientProxy) PROXY).syncedConfig != null)
+                return ((ClientProxy) PROXY).syncedConfig;
         }
         return localConfig;
     }

@@ -12,13 +12,13 @@ import net.minecraftforge.common.MinecraftForge;
 import java.util.ArrayList;
 
 import io.github.elytra.movingworld.MovingWorldMod;
+import io.github.elytra.movingworld.api.IMovingTile;
 import io.github.elytra.movingworld.common.chunk.LocatedBlock;
 import io.github.elytra.movingworld.common.chunk.MovingWorldAssemblyInteractor;
 import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunk;
 import io.github.elytra.movingworld.common.entity.EntityMovingWorld;
 import io.github.elytra.movingworld.common.event.DisassembleBlockEvent;
-import io.github.elytra.movingworld.api.IMovingWorldTileEntity;
-import io.github.elytra.movingworld.common.tile.TileMovingWorldMarkingBlock;
+import io.github.elytra.movingworld.common.tile.TileMovingMarkingBlock;
 import io.github.elytra.movingworld.common.util.FloodFiller;
 import io.github.elytra.movingworld.common.util.LocatedBlockList;
 import io.github.elytra.movingworld.common.util.MathHelperMod;
@@ -31,7 +31,7 @@ public class ChunkDisassembler {
 
     private AssembleResult result;
     private LocatedBlockList removedFluidBlocks;
-    private TileMovingWorldMarkingBlock tileMarker;
+    private TileMovingMarkingBlock tileMarker;
 
     public ChunkDisassembler(EntityMovingWorld EntityMovingWorld) {
         movingWorld = EntityMovingWorld;
@@ -82,8 +82,8 @@ public class ChunkDisassembler {
 
     public AssembleResult doDisassemble(MovingWorldAssemblyInteractor assemblyInteractor) {
         tileMarker = null;
-        if (movingWorld.getMobileChunk().marker != null && movingWorld.getMobileChunk().marker.tileEntity != null && movingWorld.getMobileChunk().marker.tileEntity instanceof TileMovingWorldMarkingBlock)
-            tileMarker = (TileMovingWorldMarkingBlock) movingWorld.getMobileChunk().marker.tileEntity;
+        if (movingWorld.getMobileChunk().marker != null && movingWorld.getMobileChunk().marker.tileEntity != null && movingWorld.getMobileChunk().marker.tileEntity instanceof TileMovingMarkingBlock)
+            tileMarker = (TileMovingMarkingBlock) movingWorld.getMobileChunk().marker.tileEntity;
 
         removedFluidBlocks = new LocatedBlockList();
         World world = movingWorld.getEntityWorld();
@@ -112,34 +112,41 @@ public class ChunkDisassembler {
         TileEntity tileentity;
         IBlockState blockState;
         BlockPos pos;
-        for (int i = chunk.minX(); i < chunk.maxX(); i++) {
-            for (int j = chunk.minY(); j < chunk.maxY(); j++) {
-                for (int k = chunk.minZ(); k < chunk.maxZ(); k++) {
-                    blockState = chunk.getBlockState(new BlockPos(i, j, k));
-                    if (blockState.getBlock() == Blocks.AIR) {
-                        if (blockState.getBlock().getMetaFromState(blockState) == 1) continue;
-                    } else if (blockState.getBlock().isAir(blockState, world, new BlockPos(i, j, k)))
-                        continue;
-                    tileentity = chunk.getTileEntity(new BlockPos(i, j, k));
+        try {
+            for (int i = chunk.minX(); i < chunk.maxX(); i++) {
+                for (int j = chunk.minY(); j < chunk.maxY(); j++) {
+                    for (int k = chunk.minZ(); k < chunk.maxZ(); k++) {
+                        blockState = chunk.getBlockState(new BlockPos(i, j, k));
+                        if (blockState.getBlock() == Blocks.AIR) {
+                            if (blockState.getBlock().getMetaFromState(blockState) == 1) continue;
+                        } else if (blockState.getBlock().isAir(blockState, world, new BlockPos(i, j, k)))
+                            continue;
+                        tileentity = chunk.getTileEntity(new BlockPos(i, j, k));
 
-                    vec = new Vec3dMod(i + ox, j + oy, k + oz);
-                    vec = vec.rotateAroundY(yaw);
+                        vec = new Vec3dMod(i + ox, j + oy, k + oz);
+                        vec = vec.rotateAroundY(yaw);
 
-                    pos = new BlockPos(MathHelperMod.round_double(vec.xCoord + movingWorld.posX),
-                            MathHelperMod.round_double(vec.yCoord + movingWorld.posY),
-                            MathHelperMod.round_double(vec.zCoord + movingWorld.posZ));
+                        pos = new BlockPos(MathHelperMod.round_double(vec.xCoord + movingWorld.posX),
+                                MathHelperMod.round_double(vec.yCoord + movingWorld.posY),
+                                MathHelperMod.round_double(vec.zCoord + movingWorld.posZ));
 
-                    lbList.add(new LocatedBlock(blockState, tileentity, pos, new BlockPos(i, j, k)));
+                        lbList.add(new LocatedBlock(blockState, tileentity, pos, new BlockPos(i, j, k)));
+                    }
                 }
             }
-        }
 
-        ArrayList<LocatedBlockList> separatedLbLists = lbList.getSortedDisassemblyBlocks();
+            ArrayList<LocatedBlockList> separatedLbLists = lbList.getSortedDisassemblyBlocks();
 
-        for (LocatedBlockList locatedBlockList : separatedLbLists) {
-            if (locatedBlockList != null && !locatedBlockList.isEmpty()) {
-                postList = processLocatedBlockList(world, locatedBlockList, postList, assemblyInteractor, fillableBlocks, currentRot);
+            for (LocatedBlockList locatedBlockList : separatedLbLists) {
+                if (locatedBlockList != null && !locatedBlockList.isEmpty()) {
+                    postList = processLocatedBlockList(world, locatedBlockList, postList, assemblyInteractor, fillableBlocks, currentRot);
+                }
             }
+        } catch (Exception exception) {
+            world.getGameRules().setOrCreateGameRule("doTileDrops", String.valueOf(flag));
+            MovingWorldMod.LOG.error("Exception while disassembling, reverting doTileDrops... ", exception);
+            this.result.resultType = AssembleResult.ResultType.RESULT_ERROR_OCCURED;
+            return this.result;
         }
 
         world.getGameRules().setOrCreateGameRule("doTileDrops", String.valueOf(flag));
@@ -150,7 +157,7 @@ public class ChunkDisassembler {
             if (pList != null && !pList.isEmpty())
                 for (LocatedBlock locatedBlockInstance : pList) {
                     pos = locatedBlockInstance.blockPos;
-                    MovingWorldMod.logger.debug("Post-rejoining block: " + locatedBlockInstance.toString());
+                    MovingWorldMod.LOG.debug("Post-rejoining block: " + locatedBlockInstance.toString());
                     world.setBlockState(pos, locatedBlockInstance.blockState, 2);
                     assemblyInteractor.blockDisassembled(locatedBlockInstance);
                     DisassembleBlockEvent event = new DisassembleBlockEvent(locatedBlockInstance);
@@ -218,19 +225,18 @@ public class ChunkDisassembler {
             }
             if (tileentity != null) {
                 tileentity.setPos(pos);
-                if (tileentity instanceof IMovingWorldTileEntity) {
-                    ((IMovingWorldTileEntity) tileentity).setParentMovingWorld(new BlockPos(i, j, k), null);
+                if (tileentity instanceof IMovingTile) {
+                    ((IMovingTile) tileentity).setParentMovingWorld(null, new BlockPos(i, j, k));
                 }
                 NBTTagCompound tileTag = new NBTTagCompound();
                 tileentity.writeToNBT(tileTag);
-
                 world.setTileEntity(pos, tileentity);
                 world.getTileEntity(pos).readFromNBT(tileTag);
                 tileentity.validate();
                 tileentity = world.getTileEntity(pos);
 
                 if (tileMarker != null && tileMarker.getPos().equals(tileentity.getPos())) {
-                    tileMarker = (TileMovingWorldMarkingBlock) tileentity;
+                    tileMarker = (TileMovingMarkingBlock) tileentity;
                 }
             }
 

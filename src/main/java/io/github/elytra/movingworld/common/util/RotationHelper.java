@@ -1,13 +1,14 @@
 package io.github.elytra.movingworld.common.util;
 
-import io.github.elytra.movingworld.MovingWorldMod;
-import io.github.elytra.movingworld.api.rotation.IRotationBlock;
-import io.github.elytra.movingworld.api.rotation.IRotationProperty;
-import io.github.elytra.movingworld.common.chunk.LocatedBlock;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.Vec3i;
+
+import io.github.elytra.movingworld.MovingWorldMod;
+import io.github.elytra.movingworld.api.rotation.IRotationBlock;
+import io.github.elytra.movingworld.api.rotation.IRotationProperty;
+import io.github.elytra.movingworld.common.chunk.LocatedBlock;
 
 public class RotationHelper {
 
@@ -24,10 +25,10 @@ public class RotationHelper {
             for (IProperty prop : blockState.getProperties().keySet()) {
                 if (prop instanceof IRotationProperty) {
                     // Custom rotation property found.
-                    MovingWorldMod.logger.debug("Rotate state in " + blockState.getBlock().getLocalizedName() + " " + blockState.getValue(prop));
+                    MovingWorldMod.LOG.debug("Rotate state in " + blockState.getBlock().getLocalizedName() + " " + blockState.getValue(prop));
                     IRotationProperty rotationProperty = (IRotationProperty) prop;
                     blockState = rotationProperty.rotate(blockState, ccw);
-                    MovingWorldMod.logger.debug("Rotate state out " + blockState.getBlock().getLocalizedName() + " " + blockState.getValue(prop));
+                    MovingWorldMod.LOG.debug("Rotate state out " + blockState.getBlock().getLocalizedName() + " " + blockState.getValue(prop));
                 }
             }
         }
@@ -36,21 +37,21 @@ public class RotationHelper {
     }
 
     public static int rotateInteger(int integer, int min, int max, boolean ccw) {
-        int retVal = integer;
+        int result = integer;
 
         if (!ccw) {
-            if (retVal + 1 > max)
-                retVal = min;
+            if (result + 1 > max)
+                result = min;
             else
-                retVal = retVal + 1;
+                result = result + 1;
         } else {
-            if (retVal - 1 < min)
-                retVal = max;
+            if (result - 1 < min)
+                result = max;
             else
-                retVal = retVal - 1;
+                result = result - 1;
         }
 
-        return retVal;
+        return result;
     }
 
     public static Vec3i getDirectionVec(EnumFacing facing) {

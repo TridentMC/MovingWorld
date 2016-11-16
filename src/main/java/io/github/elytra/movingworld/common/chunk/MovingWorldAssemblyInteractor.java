@@ -12,7 +12,7 @@ import io.github.elytra.movingworld.MovingWorldMod;
 import io.github.elytra.movingworld.common.block.BlockMovingWorldMarker;
 import io.github.elytra.movingworld.common.chunk.assembly.AssembleResult;
 import io.github.elytra.movingworld.common.chunk.assembly.CanAssemble;
-import io.github.elytra.movingworld.common.tile.TileMovingWorldMarkingBlock;
+import io.github.elytra.movingworld.common.tile.TileMovingMarkingBlock;
 import io.netty.buffer.ByteBuf;
 
 /**
@@ -30,7 +30,7 @@ public class MovingWorldAssemblyInteractor {
     }
 
     public boolean doDiagonalAssembly() {
-        return MovingWorldMod.instance.getNetworkConfig().getShared().diagonalAssembly;
+        return MovingWorldMod.INSTANCE.getNetworkConfig().getShared().diagonalAssembly;
     }
 
     public void toByteBuf(ByteBuf byteBuf) {
@@ -46,7 +46,8 @@ public class MovingWorldAssemblyInteractor {
      * Called when a block is disassembled from your moving world.
      */
     public void blockDisassembled(LocatedBlock locatedBlock) {
-        if (locatedBlock.tileEntity != null)
+        if (locatedBlock.tileEntity != null && locatedBlock.tileEntity.getWorld() != null
+                && locatedBlock.tileEntity.getWorld().getTileEntity(locatedBlock.blockPos) != null)
             locatedBlock.tileEntity.getWorld().getTileEntity(locatedBlock.blockPos).markDirty();
     }
 
@@ -54,7 +55,7 @@ public class MovingWorldAssemblyInteractor {
      * @return returns if it is an over writable block in the config.
      */
     public boolean canOverwriteState(IBlockState state) {
-        return MovingWorldMod.instance.getNetworkConfig().canOverwriteState(state);
+        return MovingWorldMod.INSTANCE.getNetworkConfig().canOverwriteState(state);
     }
 
     /**
@@ -86,7 +87,7 @@ public class MovingWorldAssemblyInteractor {
         CanAssemble canAssemble = new CanAssemble(false, false);
         IBlockState state = lb.blockState;
 
-        canAssemble.justCancel = !(!state.getMaterial().equals(Material.AIR) && !state.getMaterial().isLiquid() && MovingWorldMod.instance.getNetworkConfig().isStateAllowed(state));
+        canAssemble.justCancel = !(!state.getMaterial().equals(Material.AIR) && !state.getMaterial().isLiquid() && MovingWorldMod.INSTANCE.getNetworkConfig().isStateAllowed(state));
 
         return canAssemble;
     }
@@ -96,7 +97,7 @@ public class MovingWorldAssemblyInteractor {
     }
 
     public boolean isTileMovingWorldMarker(TileEntity tile) {
-        return tile != null && tile instanceof TileMovingWorldMarkingBlock;
+        return tile != null && tile instanceof TileMovingMarkingBlock;
     }
 
     public EnumFacing getFrontDirection(LocatedBlock marker) {

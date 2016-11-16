@@ -1,13 +1,7 @@
 package io.github.elytra.movingworld.common.chunk.mobilechunk;
 
 import com.google.common.collect.HashBiMap;
-import io.github.elytra.movingworld.MovingWorldMod;
-import io.github.elytra.movingworld.api.IMovingWorldTileEntity;
-import io.github.elytra.movingworld.common.chunk.LocatedBlock;
-import io.github.elytra.movingworld.common.chunk.mobilechunk.world.FakeWorld;
-import io.github.elytra.movingworld.common.entity.EntityMovingWorld;
-import io.github.elytra.movingworld.common.util.AABBRotator;
-import io.github.elytra.movingworld.common.util.Vec3dMod;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -32,6 +26,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.github.elytra.movingworld.MovingWorldMod;
+import io.github.elytra.movingworld.api.IMovingTile;
+import io.github.elytra.movingworld.common.chunk.LocatedBlock;
+import io.github.elytra.movingworld.common.chunk.mobilechunk.world.FakeWorld;
+import io.github.elytra.movingworld.common.entity.EntityMovingWorld;
+import io.github.elytra.movingworld.common.util.AABBRotator;
+import io.github.elytra.movingworld.common.util.Vec3dMod;
+
 public abstract class MobileChunk implements IBlockAccess {
     public static final int CHUNK_SIZE = 16;
     public static final int CHUNK_MEMORY_USING = CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE * (4 + 2);    //(16*16*16 shorts and ints)
@@ -43,7 +45,7 @@ public abstract class MobileChunk implements IBlockAccess {
     public boolean isChunkLoaded;
     public boolean isModified;
     public LocatedBlock marker;
-    public ArrayList<IMovingWorldTileEntity> movingWorldTileEntities;
+    public ArrayList<IMovingTile> movingWorldTileEntities;
     private Map<BlockPos, ExtendedBlockStorage> blockStorageMap;
     private boolean boundsInit;
     private BlockPos minBounds;
@@ -62,7 +64,7 @@ public abstract class MobileChunk implements IBlockAccess {
         updatableTiles = new ArrayList<>();
         boundingBoxes = HashBiMap.create();
         chunkBoundingBoxes = HashBiMap.create();
-        movingWorldTileEntities = new ArrayList<IMovingWorldTileEntity>();
+        movingWorldTileEntities = new ArrayList<IMovingTile>();
         marker = null;
 
         isChunkLoaded = false;
@@ -210,8 +212,7 @@ public abstract class MobileChunk implements IBlockAccess {
         Block currentBlock = currentState.getBlock();
         int currentID = Block.getIdFromBlock(currentBlock);
         int currentMeta = currentBlock.getMetaFromState(currentState);
-        MovingWorldMod.logger.info(String.format("Adding block with state: %s, at position %s in a mobile chunk. \n The block id is: %s, and the metadata is: %s", state, pos, id, meta));
-        MovingWorldMod.logger.info(String.format("The current state of the block is %s, the id is %s and the meta is %s", currentState, currentID, currentMeta));
+        MovingWorldMod.LOG.debug(String.format("Adding block with state: %s, at position %s in a mobile chunk. \n The block id is: %s, and the metadata is: %s", state, pos, id, meta));
         if (currentID == id && currentMeta == meta) {
             return false;
         }
@@ -394,7 +395,7 @@ public abstract class MobileChunk implements IBlockAccess {
         if (checkState.getBlock().equals(state.getBlock()) && checkState.getBlock().getMetaFromState(checkState) == state.getBlock().getMetaFromState(state)) {
             return false;
         }
-        if(storage.get(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15) == null){
+        if (storage.get(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15) == null) {
             blockCount++;
         }
 
@@ -502,11 +503,11 @@ public abstract class MobileChunk implements IBlockAccess {
             tileentity.invalidate();
             chunkTileEntityMap.put(chunkPosition, tileentity);
 
-            if (tileentity instanceof IMovingWorldTileEntity) {
+            if (tileentity instanceof IMovingTile) {
                 if (!movingWorldTileEntities.contains(tileentity))
-                    movingWorldTileEntities.add((IMovingWorldTileEntity) tileentity);
-                ((IMovingWorldTileEntity) tileentity).setParentMovingWorld(chunkPosition, entityMovingWorld);
-            } else if (tileentity instanceof ITickable && MovingWorldMod.instance.getNetworkConfig().isTileUpdatable(tileentity.getClass())) {
+                    movingWorldTileEntities.add((IMovingTile) tileentity);
+                ((IMovingTile) tileentity).setParentMovingWorld(entityMovingWorld, chunkPosition);
+            } else if (tileentity instanceof ITickable && MovingWorldMod.INSTANCE.getNetworkConfig().isTileUpdatable(tileentity.getClass())) {
                 updatableTiles.add(tileentity);
             }
         }
@@ -527,12 +528,12 @@ public abstract class MobileChunk implements IBlockAccess {
         if (isChunkLoaded) {
             TileEntity tileentity = chunkTileEntityMap.remove(chunkPosition);
             if (tileentity != null) {
-                if (tileentity instanceof IMovingWorldTileEntity) {
+                if (tileentity instanceof IMovingTile) {
                     if (!movingWorldTileEntities.contains(tileentity))
-                        movingWorldTileEntities.add((IMovingWorldTileEntity) tileentity);
-                    ((IMovingWorldTileEntity) tileentity).setParentMovingWorld(pos, null);
+                        movingWorldTileEntities.add((IMovingTile) tileentity);
+                    ((IMovingTile) tileentity).setParentMovingWorld(null, pos);
                 }
-                if (tileentity instanceof ITickable && MovingWorldMod.instance.getNetworkConfig().isTileUpdatable(tileentity.getClass())) {
+                if (tileentity instanceof ITickable && MovingWorldMod.INSTANCE.getNetworkConfig().isTileUpdatable(tileentity.getClass())) {
                     updatableTiles.remove(tileentity);
                 }
 

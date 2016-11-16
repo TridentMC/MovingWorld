@@ -23,8 +23,11 @@ public abstract class MovingWorldHandlerCommon {
 
     public abstract void setMovingWorld(EntityMovingWorld movingWorld);
 
-    public boolean interact(EntityPlayer player, ItemStack stack, EnumHand hand) {
-        return false;
+    public boolean processInitialInteract(EntityPlayer player, ItemStack stack, EnumHand hand) {
+        if (player.isSneaking())
+            return false;
+        else
+            return true;
     }
 
     public void onChunkUpdate() {
@@ -48,7 +51,7 @@ public abstract class MovingWorldHandlerCommon {
         try {
             getMovingWorld().fillAirBlocks(new HashSet<BlockPos>(), new BlockPos(-1, -1, -1));
         } catch (StackOverflowError e) {
-            MovingWorldMod.logger.error("Failure during moving world post-initialization", e);
+            MovingWorldMod.LOG.error("Failure during moving world post-initialization", e);
         }
 
         getMovingWorld().setLayeredBlockVolumeCount(new int[chunk.maxY() - chunk.minY()]);
@@ -64,7 +67,7 @@ public abstract class MovingWorldHandlerCommon {
                 }
             }
         }
-        getMovingWorld().isFlying = getMovingWorld().getCapabilities().canFly();
+        getMovingWorld().setFlying(getMovingWorld().getCapabilities().canFly());
         getMovingWorld().getCapabilities().postBlockAdding();
     }
 }

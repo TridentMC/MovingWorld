@@ -1,21 +1,26 @@
 package io.github.elytra.movingworld.common.chunk;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Blocks;
+import net.minecraft.util.math.BlockPos;
+
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Locale;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
+
 import io.github.elytra.movingworld.MovingWorldMod;
 import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunk;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
-import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Blocks;
-import net.minecraft.util.math.BlockPos;
-
-import java.io.*;
-import java.util.Collection;
-import java.util.Locale;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 
 public abstract class ChunkIO {
     public static void write(DataOutput out, MobileChunk chunk, Collection<BlockPos> blocks) throws IOException {
@@ -37,7 +42,7 @@ public abstract class ChunkIO {
                 }
             }
         }
-        MovingWorldMod.logger.debug("Writing mobile chunk data: " + count + " blocks");
+        MovingWorldMod.LOG.debug("Writing mobile chunk data: " + count + " blocks");
 
         out.writeShort(count);
         for (int i = chunk.minX(); i < chunk.maxX(); i++) {
@@ -70,7 +75,7 @@ public abstract class ChunkIO {
     public static void read(DataInput in, MobileChunk chunk) throws IOException {
         int count = in.readShort();
 
-        MovingWorldMod.logger.debug("Reading mobile chunk data: " + count + " blocks");
+        MovingWorldMod.LOG.debug("Reading mobile chunk data: " + count + " blocks");
 
         int x, y, z;
         int id;
@@ -91,7 +96,7 @@ public abstract class ChunkIO {
         try {
             ChunkIO.writeCompressed(buffer, chunk, blocks);
         } catch (IOException e) {
-            MovingWorldMod.logger.error(e);
+            MovingWorldMod.LOG.error(e);
         }
 
         return buffer.array();
@@ -121,10 +126,10 @@ public abstract class ChunkIO {
 
         int byteswritten = data.writerIndex();
         float f = (float) byteswritten / (count * 9);
-        MovingWorldMod.logger.debug(String.format(Locale.ENGLISH, "%d blocks written. Efficiency: %d/%d = %.2f", count, byteswritten, count * 9, f));
+        MovingWorldMod.LOG.debug(String.format(Locale.ENGLISH, "%d blocks written. Efficiency: %d/%d = %.2f", count, byteswritten, count * 9, f));
 
         if (byteswritten > 32000) {
-            MovingWorldMod.logger.warn("Ship probably contains too many blocks");
+            MovingWorldMod.LOG.warn("MobileChunk probably contains too many blocks");
         }
     }
 

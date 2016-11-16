@@ -12,7 +12,7 @@ import net.minecraft.world.World;
 
 import java.util.UUID;
 
-import io.github.elytra.movingworld.api.IMovingWorldTileEntity;
+import io.github.elytra.movingworld.api.IMovingTile;
 import io.github.elytra.movingworld.common.chunk.LocatedBlock;
 import io.github.elytra.movingworld.common.chunk.MovingWorldAssemblyInteractor;
 import io.github.elytra.movingworld.common.chunk.assembly.AssembleResult;
@@ -24,13 +24,13 @@ import io.github.elytra.movingworld.common.util.LocatedBlockList;
 import static io.github.elytra.movingworld.common.chunk.assembly.AssembleResult.ResultType.RESULT_INCONSISTENT;
 import static io.github.elytra.movingworld.common.chunk.assembly.AssembleResult.ResultType.RESULT_OK_WITH_WARNINGS;
 
-public abstract class TileMovingWorldMarkingBlock extends TileEntity implements IMovingWorldTileEntity {
+public abstract class TileMovingMarkingBlock extends TileEntity implements IMovingTile {
 
     public LocatedBlockList removedFluidBlocks; // A list of fluid blocks that were destroyed last disassemble, used to fill back in when we reassemble.
     private AssembleResult assembleResult, prevResult;
 
 
-    public TileMovingWorldMarkingBlock() {
+    public TileMovingMarkingBlock() {
         super();
         setParentMovingWorld(null);
         assembleResult = prevResult = null;
@@ -63,7 +63,7 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
     }
 
     /**
-     * For getting a new instance of your ship type to create.
+     * For getting a new INSTANCE of your ship type to create.
      */
     public abstract EntityMovingWorld getMovingWorld(World worldObj);
 
@@ -113,10 +113,6 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
         //No Implementation.
     }
 
-    public enum MountStage {
-        PREMSG, PRERIDE, POSTRIDE
-    }
-
     public boolean mountMovingWorld(EntityPlayer player, EntityMovingWorld movingWorld) {
         if (!worldObj.isRemote) {
             if (assembleResult != null && assembleResult.isOK()) {
@@ -146,7 +142,6 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
         }
         return false;
     }
-
 
     public void undoCompilation(EntityPlayer player) {
         assembleResult = prevResult;
@@ -263,6 +258,10 @@ public abstract class TileMovingWorldMarkingBlock extends TileEntity implements 
             assembleResult.assemblyInteractor.writeNBTMetadata(comp);
             tag.setTag("res", comp);
         }
+    }
+
+    public enum MountStage {
+        PREMSG, PRERIDE, POSTRIDE
     }
 
 }

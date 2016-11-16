@@ -1,22 +1,7 @@
 package io.github.elytra.movingworld.common.entity;
 
-import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
-import io.github.elytra.movingworld.MovingWorldMod;
-import io.github.elytra.movingworld.api.IMovingWorldTileEntity;
-import io.github.elytra.movingworld.common.chunk.ChunkIO;
-import io.github.elytra.movingworld.common.chunk.LocatedBlock;
-import io.github.elytra.movingworld.common.chunk.MovingWorldAssemblyInteractor;
-import io.github.elytra.movingworld.common.chunk.MovingWorldSizeOverflowException;
-import io.github.elytra.movingworld.common.chunk.assembly.AssembleResult;
-import io.github.elytra.movingworld.common.chunk.assembly.ChunkDisassembler;
-import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunk;
-import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunkClient;
-import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunkServer;
-import io.github.elytra.movingworld.common.util.AABBRotator;
-import io.github.elytra.movingworld.common.util.MathHelperMod;
-import io.github.elytra.movingworld.common.util.Vec3dMod;
-import io.netty.buffer.ByteBuf;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -45,22 +30,47 @@ import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+
+import javax.annotation.Nullable;
+
+import io.github.elytra.movingworld.MovingWorldMod;
+import io.github.elytra.movingworld.api.IMovingTile;
+import io.github.elytra.movingworld.common.chunk.ChunkIO;
+import io.github.elytra.movingworld.common.chunk.LocatedBlock;
+import io.github.elytra.movingworld.common.chunk.MovingWorldAssemblyInteractor;
+import io.github.elytra.movingworld.common.chunk.MovingWorldSizeOverflowException;
+import io.github.elytra.movingworld.common.chunk.assembly.AssembleResult;
+import io.github.elytra.movingworld.common.chunk.assembly.ChunkDisassembler;
+import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunk;
+import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunkClient;
+import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunkServer;
+import io.github.elytra.movingworld.common.util.AABBRotator;
+import io.github.elytra.movingworld.common.util.MathHelperMod;
+import io.github.elytra.movingworld.common.util.Vec3dMod;
+import io.netty.buffer.ByteBuf;
 
 /**
  * All moving sections of blocks extend from this class.
  */
 public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdditionalSpawnData {
 
+    public static final DataParameter<Boolean> IS_FLYING = EntityDataManager.createKey(EntityMovingWorld.class, DataSerializers.BOOLEAN);
     private static final DataParameter<Integer> THIRTY = EntityDataManager.<Integer>createKey(EntityMovingWorld.class, DataSerializers.VARINT);
+    public EntityPlayer controllingPassenger;
 
     public float motionYaw;
     public EnumFacing frontDirection;
     public BlockPos riderDestination;
-    public boolean isFlying;
     public Entity prevRiddenByEntity;
     protected float groundFriction, horFriction, vertFriction;
     protected int[] layeredBlockVolumeCount;
@@ -99,7 +109,6 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
         prevRiddenByEntity = null;
 
-        isFlying = false;
         ignoreFrustumCheck = true;
     }
 
@@ -135,6 +144,12 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
         return false;
     }
+
+    @Override
+    protected boolean canFitPassenger(Entity passenger) {
+        return controllingPassenger == null;
+    }
+
 
     public double getControlX() {
         return controlX;
@@ -182,6 +197,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     @Override
     protected void entityInit() {
         dataManager.register(THIRTY, 0);
+        dataManager.register(IS_FLYING, false);
         initMovingWorld();
     }
 
@@ -226,7 +242,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     @Override
     public boolean processInitialInteract(EntityPlayer entityplayer, ItemStack stack, EnumHand hand) {
-        return getHandler().interact(entityplayer, stack, hand);
+        return getHandler().processInitialInteract(entityplayer, stack, hand);
     }
 
     @Override
@@ -360,8 +376,10 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             controlPosRotationIncrements--;
             setPosition(dx, dy, dz);
             setRotation(rotationYaw, rotationPitch);
+            this.worldObj.updateEntityWithOptionalForce(this, false);
         } else {
             setPosition(posX + motionX, posY + motionY, posZ + motionZ);
+            this.worldObj.updateEntityWithOptionalForce(this, false);
 
             if (onGround) {
                 motionX *= groundFriction;
@@ -379,7 +397,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     protected void handleServerUpdate(double horvel) {
         if (getMobileChunk() != null) {
             if (!getMobileChunk().movingWorldTileEntities.isEmpty())
-                for (IMovingWorldTileEntity movingWorldTileEntity : getMobileChunk().movingWorldTileEntities) {
+                for (IMovingTile movingWorldTileEntity : getMobileChunk().movingWorldTileEntities) {
                     movingWorldTileEntity.tick(getMobileChunk());
                 }
             if (!getMobileChunk().updatableTiles.isEmpty()) {
@@ -440,10 +458,6 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         // dis mai code i do wut i wan
     }
 
-    public void updatePassengers() {
-        getPassengers().forEach(entity -> updatePassengerPosition(entity, riderDestination, 1));
-    }
-
     @Override
     public void updatePassenger(Entity passenger) {
         if (this.isPassenger(passenger))
@@ -451,13 +465,15 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     }
 
     @Override
+    public boolean isPassenger(Entity entity) {
+        return Objects.equals(this.controllingPassenger, entity);
+    }
+
+    @Override
     public void removePassengers() {
-        if (getPassengers() != null && !getPassengers().isEmpty()) {
-            getPassengers().forEach(entity -> {
-                updatePassengerPosition(entity, riderDestination, 1);
-            });
-        }
-        super.removePassengers();
+        updatePassengerPosition(controllingPassenger, riderDestination, 1);
+        if (controllingPassenger != null)
+            controllingPassenger.dismountRidingEntity();
     }
 
     public void updatePassengerPosition(Entity passenger, BlockPos riderDestination, int flags) {
@@ -516,32 +532,35 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     @Override
     protected void applyYawToEntity(Entity entityToUpdate) {
-        int frontDirIndex = frontDirection.getHorizontalIndex();
+    }
 
-        float modifiedRotationYaw = -this.rotationYaw;
-        EnumFacing frontDirEnumFacing = EnumFacing.getHorizontal(frontDirIndex);
-        switch (frontDirEnumFacing) {
-            case NORTH: {
-                modifiedRotationYaw -= 180;
-            }
-            case SOUTH: {
-                modifiedRotationYaw -= 90;
-            }
-            case WEST: {
-                modifiedRotationYaw -= 180;
-            }
-            case EAST: {
-                modifiedRotationYaw -= 90;
-            }
+    @Nullable
+    @Override
+    public Entity getControllingPassenger() {
+        return controllingPassenger;
+    }
+
+    @Override
+    public List<Entity> getPassengers() {
+        if (controllingPassenger != null) return Lists.newArrayList(controllingPassenger);
+        else return Collections.emptyList();
+    }
+
+    @Override
+    protected void removePassenger(Entity passenger) {
+        if (passenger.equals(controllingPassenger)) {
+            controllingPassenger = null;
         }
+    }
 
-
-        entityToUpdate.setRenderYawOffset(modifiedRotationYaw);
-        float f = MathHelper.wrapDegrees(entityToUpdate.rotationYaw - modifiedRotationYaw);
-        float f1 = MathHelper.clamp_float(f, -105.0F, 105.0F);
-        entityToUpdate.prevRotationYaw += f1 - f;
-        entityToUpdate.rotationYaw += f1 - f;
-        entityToUpdate.setRotationYawHead(entityToUpdate.rotationYaw);
+    @Override
+    protected void addPassenger(Entity passenger) {
+        if (passenger.getRidingEntity() != this) {
+            throw new IllegalStateException("Use x.startRiding(y), not y.addPassenger(x)");
+        } else {
+            if (controllingPassenger == null && passenger != null && passenger instanceof EntityPlayer)
+                controllingPassenger = (EntityPlayer) passenger;
+        }
     }
 
     private boolean handleCollision(double cPosX, double cPosY, double cPosZ) {
@@ -551,7 +570,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             if (list != null && !list.isEmpty()) {
                 didCollide = true;
                 for (Entity entity : list) {
-                    if (!Objects.equal(entity, getControllingPassenger()) && entity.canBePushed()) {
+                    if (!Objects.equals(entity, getControllingPassenger()) && entity.canBePushed()) {
                         if (entity instanceof EntityMovingWorld) {
                             entity.applyEntityCollision(this);
                         } else if (entity instanceof EntityBoat) {
@@ -617,7 +636,11 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     }
 
     public boolean isFlying() {
-        return getCapabilities().canFly() && isFlying;
+        return getCapabilities().canFly() && dataManager.get(IS_FLYING);
+    }
+
+    public void setFlying(boolean isFlying) {
+        dataManager.set(IS_FLYING, isFlying);
     }
 
     public abstract boolean isBraking();
@@ -865,7 +888,6 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         if (tag.hasKey("owner")) {
             info.setOwner(UUID.fromString(tag.getString("owner")));
         }
-        System.out.println(tag.toString());
         readMovingWorldNBT(tag);
     }
 
@@ -891,7 +913,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             e.printStackTrace();
         } catch (MovingWorldSizeOverflowException ssoe) {
             disassemble(false);
-            MovingWorldMod.logger.warn("Ship is too large to be sent");
+            MovingWorldMod.LOG.warn("Ship is too large to be sent");
         }
         writeMovingWorldSpawnData(data);
     }

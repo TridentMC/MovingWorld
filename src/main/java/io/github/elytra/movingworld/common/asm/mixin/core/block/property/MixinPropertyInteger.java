@@ -5,8 +5,8 @@ import net.minecraft.block.state.IBlockState;
 
 import org.spongepowered.asm.mixin.Mixin;
 
-import io.github.elytra.movingworld.common.util.RotationHelper;
 import io.github.elytra.movingworld.api.rotation.IRotationProperty;
+import io.github.elytra.movingworld.common.util.RotationHelper;
 
 @Mixin(PropertyInteger.class)
 public class MixinPropertyInteger implements IRotationProperty {
