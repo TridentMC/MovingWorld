@@ -136,17 +136,24 @@ public abstract class MobileChunk implements IBlockAccess {
         return axisAlignedBB;
     }
 
-    public ExtendedBlockStorage getBlockStorage(BlockPos pos) {
-        ExtendedBlockStorage storage = blockStorageMap.get(new BlockPos(pos.getX() >> 4, pos.getY() >> 4, pos.getZ() >> 4));
-        return storage;
+    public BlockPos shiftToStorageMapPos(BlockPos blockPosition) {
+        return new BlockPos(blockPosition.getX() >> 4, blockPosition.getY() >> 4, blockPosition.getZ() >> 4);
     }
 
-    public ExtendedBlockStorage getBlockStorageOrCreate(BlockPos pos) {
-        pos = new BlockPos(pos.getX() >> 4, pos.getY() >> 4, pos.getZ() >> 4);
-        ExtendedBlockStorage storage = blockStorageMap.get(pos);
+    public BlockPos shiftToInternalStoragePos(BlockPos blockPosition) {
+        return new BlockPos(blockPosition.getX() & 15, blockPosition.getY() & 15, blockPosition.getZ() & 15);
+    }
+
+    public ExtendedBlockStorage getBlockStorage(BlockPos pos) {
+        return blockStorageMap.get(shiftToStorageMapPos(pos));
+    }
+
+    public ExtendedBlockStorage getBlockStorageOrCreate(BlockPos blockPos) {
+        BlockPos shiftedPos = shiftToStorageMapPos(blockPos);
+        ExtendedBlockStorage storage = blockStorageMap.get(shiftedPos);
         if (storage != null) return storage;
-        storage = new ExtendedBlockStorage(pos.getY(), false);
-        blockStorageMap.put(pos, storage);
+        storage = new ExtendedBlockStorage(shiftedPos.getY(), false);
+        blockStorageMap.put(shiftedPos, storage);
         return storage;
     }
 
@@ -204,11 +211,9 @@ public abstract class MobileChunk implements IBlockAccess {
         if (block == null) return false;
 
         ExtendedBlockStorage storage = getBlockStorageOrCreate(pos);
-        int i = pos.getX() & 15;
-        int j = pos.getY() & 15;
-        int k = pos.getZ() & 15;
+        BlockPos internalStoragePos = shiftToInternalStoragePos(pos);
 
-        IBlockState currentState = storage.get(i, j, k);
+        IBlockState currentState = storage.get(internalStoragePos.getX(), internalStoragePos.getY(), internalStoragePos.getZ());
         Block currentBlock = currentState.getBlock();
         int currentID = Block.getIdFromBlock(currentBlock);
         int currentMeta = currentBlock.getMetaFromState(currentState);
@@ -217,7 +222,7 @@ public abstract class MobileChunk implements IBlockAccess {
             return false;
         }
 
-        storage.set(i, j, k, state);
+        storage.set(internalStoragePos.getX(), internalStoragePos.getY(), internalStoragePos.getZ(), state);
 
         if (boundsInit) {
             int minX = Math.min(minBounds.getX(), pos.getX());
@@ -391,16 +396,18 @@ public abstract class MobileChunk implements IBlockAccess {
         ExtendedBlockStorage storage = getBlockStorage(pos);
         if (storage == null) return addBlockWithState(pos, state);
 
-        IBlockState checkState = getBlockState(new BlockPos(pos.getX(), pos.getY() & 15, pos.getZ()));
+        IBlockState checkState = getBlockState(pos);
         if (checkState.getBlock().equals(state.getBlock()) && checkState.getBlock().getMetaFromState(checkState) == state.getBlock().getMetaFromState(state)) {
             return false;
         }
-        if (storage.get(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15) == null) {
+        BlockPos internalStoragePos = shiftToInternalStoragePos(pos);
+
+        if (storage.get(internalStoragePos.getX(), internalStoragePos.getY(), internalStoragePos.getZ()) == null) {
             blockCount++;
         }
 
-        storage.set(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15, state);
-        state = storage.get(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);
+        storage.set(internalStoragePos.getX(), internalStoragePos.getY(), internalStoragePos.getZ(), state);
+        state = storage.get(internalStoragePos.getX(), internalStoragePos.getY(), internalStoragePos.getZ());
         Block block = state.getBlock();
 
         if (block != null && block.hasTileEntity(state)) {
@@ -443,13 +450,14 @@ public abstract class MobileChunk implements IBlockAccess {
         ExtendedBlockStorage storage = getBlockStorage(pos);
         if (storage == null) return true;
 
-        IBlockState state = getBlockState(new BlockPos(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15));
+        IBlockState state = getBlockState(pos);
         Block block = state.getBlock();
         if (block == Blocks.AIR && block.getMetaFromState(state) == 1) {
             return true;
         }
         if (block == null || state.getMaterial().equals(Material.AIR)) {
-            storage.set(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15, Blocks.AIR.getDefaultState());
+            BlockPos internalStoragePos = shiftToInternalStoragePos(pos);
+            storage.set(internalStoragePos.getX(), internalStoragePos.getY(), internalStoragePos.getZ(), Blocks.AIR.getDefaultState());
             return true;
         }
         return false;
@@ -589,8 +597,10 @@ public abstract class MobileChunk implements IBlockAccess {
 
     @Override
     public IBlockState getBlockState(BlockPos pos) {
+        BlockPos internalStoragePos = shiftToInternalStoragePos(pos);
         ExtendedBlockStorage storage = getBlockStorage(pos);
-        IBlockState state = storage != null ? storage.get(pos.getX(), pos.getY(), pos.getZ()) : null;
+        IBlockState state = storage != null ?
+                storage.get(internalStoragePos.getX(), internalStoragePos.getY(), internalStoragePos.getZ()) : null;
         if (state == null || storage == null)
             return Blocks.AIR.getDefaultState();
         return state;
