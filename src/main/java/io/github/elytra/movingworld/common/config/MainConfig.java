@@ -1,8 +1,11 @@
 package io.github.elytra.movingworld.common.config;
 
+import com.google.gson.Gson;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
@@ -269,6 +272,23 @@ public class MainConfig {
 
         private String[] loadedBlockDensities;
         private String[] loadedMaterialDensities;
+
+        public NBTTagCompound serialize() {
+            NBTTagCompound tag = new NBTTagCompound();
+
+            tag.setBoolean("iterativeAlgorithm", iterativeAlgorithm);
+            tag.setBoolean("diagonalAssembly", diagonalAssembly);
+            tag.setBoolean("useWhitelist", useWhitelist);
+
+
+            return tag;
+        }
+
+        public SharedConfig deserialize(NBTTagCompound tag) {
+            SharedConfig sharedConfig = new SharedConfig();
+
+            return sharedConfig;
+        }
     }
 
 

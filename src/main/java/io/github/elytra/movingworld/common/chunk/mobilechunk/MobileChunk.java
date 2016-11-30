@@ -499,33 +499,29 @@ public abstract class MobileChunk implements IBlockAccess {
     /**
      * Sets the TileEntity for a given block in this chunk
      */
-    private void setChunkBlockTileEntity(BlockPos pos, TileEntity tileentity) {
+    private void setChunkBlockTileEntity(BlockPos pos, TileEntity newTile) {
         BlockPos chunkPosition = new BlockPos(pos.getX(), pos.getY(), pos.getZ());
-        tileentity.setPos(pos);
-        tileentity.setWorldObj(getFakeWorld());
+        newTile.setPos(pos);
+        newTile.setWorldObj(getFakeWorld());
 
         IBlockState blockState = getBlockState(pos);
         Block block = blockState.getBlock();
         if (block != null && block.hasTileEntity(blockState)) {
-            tileentity.blockMetadata = block.getMetaFromState(blockState);
-            tileentity.invalidate();
-            chunkTileEntityMap.put(chunkPosition, tileentity);
+            if (chunkTileEntityMap.containsKey(chunkPosition)) {
+                chunkTileEntityMap.get(chunkPosition).invalidate(); //RIP
+            }
 
-            if (tileentity instanceof IMovingTile) {
-                if (!movingWorldTileEntities.contains(tileentity))
-                    movingWorldTileEntities.add((IMovingTile) tileentity);
-                ((IMovingTile) tileentity).setParentMovingWorld(entityMovingWorld, chunkPosition);
-            } else if (tileentity instanceof ITickable && MovingWorldMod.INSTANCE.getNetworkConfig().isTileUpdatable(tileentity.getClass())) {
-                updatableTiles.add(tileentity);
+            newTile.blockMetadata = block.getMetaFromState(blockState);
+            chunkTileEntityMap.put(chunkPosition, newTile);
+
+            if (newTile instanceof IMovingTile) {
+                if (!movingWorldTileEntities.contains(newTile))
+                    movingWorldTileEntities.add((IMovingTile) newTile);
+                ((IMovingTile) newTile).setParentMovingWorld(entityMovingWorld, chunkPosition);
+            } else if (newTile instanceof ITickable && MovingWorldMod.INSTANCE.getNetworkConfig().isTileUpdatable(newTile.getClass())) {
+                updatableTiles.add(newTile);
             }
         }
-    }
-
-    /**
-     * Adds a TileEntity to a chunk
-     */
-    public void addTileEntity(TileEntity tileentity) {
-        setChunkBlockTileEntity(tileentity.getPos(), tileentity);
     }
 
     /**

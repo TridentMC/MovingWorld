@@ -22,6 +22,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import org.lwjgl.opengl.GL11;
 
+import io.github.elytra.movingworld.MovingWorldMod;
 import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunk;
 
 @SideOnly(Side.CLIENT)
@@ -41,7 +42,12 @@ public class MobileChunkRenderer {
 
     public void render(float partialTicks) {
         if (needsUpdate) {
-            updateSimpleRender(partialTicks);
+            try{
+                updateSimpleRender(partialTicks);
+            }
+            catch(Exception e) {
+                MovingWorldMod.LOG.error("Exception when rendering a MobileChunk! ", e);
+            }
         }
     }
 

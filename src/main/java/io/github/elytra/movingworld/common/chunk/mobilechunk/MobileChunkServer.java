@@ -1,6 +1,7 @@
 package io.github.elytra.movingworld.common.chunk.mobilechunk;
 
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -47,6 +48,19 @@ public class MobileChunkServer extends MobileChunk {
         return false;
     }
 
+    @Override
+    public void setTileEntity(BlockPos pos, TileEntity tileentity) {
+        tileQueue.add(pos);
+        super.setTileEntity(pos, tileentity);
+    }
+
+    @Override
+    public void removeChunkBlockTileEntity(BlockPos pos) {
+        tileQueue.add(pos);
+        super.removeChunkBlockTileEntity(pos);
+    }
+
+    @Override
     public void markTileDirty(BlockPos pos) {
         tileQueue.add(pos);
         super.markTileDirty(pos);
