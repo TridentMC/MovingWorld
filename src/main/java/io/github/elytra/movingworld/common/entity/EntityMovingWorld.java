@@ -6,6 +6,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.MoverType;
 import net.minecraft.entity.item.EntityBoat;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -113,12 +114,12 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     }
 
     public static boolean isAABBInLiquidNotFall(World world, AxisAlignedBB aabb) {
-        int i = MathHelper.floor_double(aabb.minX);
-        int j = MathHelper.floor_double(aabb.maxX + 1D);
-        int k = MathHelper.floor_double(aabb.minY);
-        int l = MathHelper.floor_double(aabb.maxY + 1D);
-        int i1 = MathHelper.floor_double(aabb.minZ);
-        int j1 = MathHelper.floor_double(aabb.maxZ + 1D);
+        int i = MathHelper.floor(aabb.minX);
+        int j = MathHelper.floor(aabb.maxX + 1D);
+        int k = MathHelper.floor(aabb.minY);
+        int l = MathHelper.floor(aabb.maxY + 1D);
+        int i1 = MathHelper.floor(aabb.minZ);
+        int j1 = MathHelper.floor(aabb.maxZ + 1D);
 
         for (int x = i; x < j; ++x) {
             for (int y = k; y < l; ++y) {
@@ -185,12 +186,12 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     @SideOnly(Side.CLIENT)
     private void initClient() {
-        mobileChunk = new MobileChunkClient(worldObj, this);
+        mobileChunk = new MobileChunkClient(world, this);
         initMovingWorldClient();
     }
 
     private void initCommon() {
-        mobileChunk = new MobileChunkServer(worldObj, this);
+        mobileChunk = new MobileChunkServer(world, this);
         initMovingWorldCommon();
     }
 
@@ -241,8 +242,8 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     }
 
     @Override
-    public boolean processInitialInteract(EntityPlayer entityplayer, ItemStack stack, EnumHand hand) {
-        return getHandler().processInitialInteract(entityplayer, stack, hand);
+    public boolean processInitialInteract(EntityPlayer entityplayer, EnumHand hand) {
+        return getHandler().processInitialInteract(entityplayer, hand);
     }
 
     @Override
@@ -349,11 +350,11 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         prevPosZ = posZ;
 
         double horvel = Math.sqrt(motionX * motionX + motionZ * motionZ);
-        if (worldObj.isRemote) {
+        if (world.isRemote) {
             spawnParticles(horvel);
         }
 
-        if (worldObj.isRemote && (noControl || syncPosWithServer)) {
+        if (world.isRemote && (noControl || syncPosWithServer)) {
             handleClientUpdate();
             if (controlPosRotationIncrements == 0) {
                 syncPosWithServer = false;
@@ -376,10 +377,10 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             controlPosRotationIncrements--;
             setPosition(dx, dy, dz);
             setRotation(rotationYaw, rotationPitch);
-            this.worldObj.updateEntityWithOptionalForce(this, false);
+            this.world.updateEntityWithOptionalForce(this, false);
         } else {
             setPosition(posX + motionX, posY + motionY, posZ + motionZ);
-            this.worldObj.updateEntityWithOptionalForce(this, false);
+            this.world.updateEntityWithOptionalForce(this, false);
 
             if (onGround) {
                 motionX *= groundFriction;
@@ -402,9 +403,9 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
                 }
             if (!getMobileChunk().updatableTiles.isEmpty()) {
                 for (TileEntity tickable : Lists.newArrayList(getMobileChunk().updatableTiles)) {
-                    tickable.setWorldObj(mobileChunk.getFakeWorld());
+                    tickable.setWorld(mobileChunk.getFakeWorld());
                     ((ITickable) tickable).update();
-                    tickable.setWorldObj(mobileChunk.worldObj);
+                    tickable.setWorld(mobileChunk.world);
                 }
             }
         }
@@ -439,8 +440,8 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         motionYaw *= 0.7F;
         rotationYaw += motionYaw;
         setRotatedBoundingBox();
-        moveEntity(motionX, motionY, motionZ);
-        posY = Math.min(posY, worldObj.getHeight());
+        move(MoverType.SELF, motionX, motionY, motionZ);
+        posY = Math.min(posY, world.getHeight());
         motionX *= horFriction;
         motionY *= vertFriction;
         motionZ *= horFriction;
@@ -495,7 +496,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
                     x1 -= 1;
                 }
 
-                IBlockState state = mobileChunk.getBlockState(new BlockPos(x1, MathHelper.floor_double(y1 + getMountedYOffset() + passenger.getYOffset()), z1));
+                IBlockState state = mobileChunk.getBlockState(new BlockPos(x1, MathHelper.floor(y1 + getMountedYOffset() + passenger.getYOffset()), z1));
                 if (state.isOpaqueCube()) {
                     x1 = riderDestination.getX();
                     y1 = riderDestination.getY();
@@ -565,8 +566,8 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     private boolean handleCollision(double cPosX, double cPosY, double cPosZ) {
         boolean didCollide = false;
-        if (!worldObj.isRemote) {
-            List<Entity> list = worldObj.getEntitiesWithinAABBExcludingEntity(this, getEntityBoundingBox().expand(0.2D, 0.0D, 0.2D));
+        if (!world.isRemote) {
+            List<Entity> list = world.getEntitiesWithinAABBExcludingEntity(this, getEntityBoundingBox().expand(0.2D, 0.0D, 0.2D));
             if (list != null && !list.isEmpty()) {
                 didCollide = true;
                 for (Entity entity : list) {
@@ -576,10 +577,10 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
                         } else if (entity instanceof EntityBoat) {
                             double d0 = cPosX - entity.posX;
                             double d1 = cPosZ - entity.posZ;
-                            double d2 = MathHelper.abs_max(d0, d1);
+                            double d2 = MathHelper.absMax(d0, d1);
 
                             if (d2 >= 0.01D) {
-                                d2 = MathHelper.sqrt_double(d2);
+                                d2 = MathHelper.sqrt(d2);
                                 d0 /= d2;
                                 d1 /= d2;
                                 double d3 = 1.0D / d2;
@@ -602,19 +603,19 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             }
 
             for (int l = 0; l < 4; ++l) {
-                int i1 = MathHelper.floor_double(cPosX + ((l % 2) - 0.5D) * 0.8D);
-                int j1 = MathHelper.floor_double(cPosZ + ((l / 2) - 0.5D) * 0.8D);
+                int i1 = MathHelper.floor(cPosX + ((l % 2) - 0.5D) * 0.8D);
+                int j1 = MathHelper.floor(cPosZ + ((l / 2) - 0.5D) * 0.8D);
 
                 for (int k1 = 0; k1 < 2; ++k1) {
-                    int l1 = MathHelper.floor_double(cPosY) + k1;
-                    IBlockState blockState = worldObj.getBlockState(new BlockPos(i1, l1, j1));
+                    int l1 = MathHelper.floor(cPosY) + k1;
+                    IBlockState blockState = world.getBlockState(new BlockPos(i1, l1, j1));
                     Block block = blockState.getBlock();
 
                     if (block == Blocks.SNOW) {
-                        worldObj.setBlockToAir(new BlockPos(i1, l1, j1));
+                        world.setBlockToAir(new BlockPos(i1, l1, j1));
                         isCollidedHorizontally = false;
                     } else if (block == Blocks.WATERLILY) {
-                        worldObj.destroyBlock(new BlockPos(i1, l1, j1), true);
+                        world.destroyBlock(new BlockPos(i1, l1, j1), true);
                         isCollidedHorizontally = false;
                     } else {
                         didCollide = true;
@@ -714,7 +715,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     }
 
     public boolean disassemble(boolean overwrite) {
-        if (worldObj.isRemote) return true;
+        if (world.isRemote) return true;
 
         updatePassenger(this.getControllingPassenger());
 
@@ -751,7 +752,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
                     blockState = mobileChunk.getBlockState(new BlockPos(i, j, k));
 
                     if (blockState.getBlock() != Blocks.AIR) {
-                        blockState.getBlock().dropBlockAsItem(worldObj, new BlockPos(MathHelper.floor_double(posX), MathHelper.floor_double(posY), MathHelper.floor_double(posZ)), blockState, 0);
+                        blockState.getBlock().dropBlockAsItem(world, new BlockPos(MathHelper.floor(posX), MathHelper.floor(posY), MathHelper.floor(posZ)), blockState, 0);
                     }
                 }
             }
@@ -827,8 +828,8 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     @Override
     protected void readEntityFromNBT(NBTTagCompound tag) {
         if (mobileChunk == null) {
-            if (worldObj != null) {
-                if (worldObj.isRemote) {
+            if (world != null) {
+                if (world.isRemote) {
                     initClient();
                 } else {
                     initCommon();
@@ -924,7 +925,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
      */
     @Override
     protected void resetHeight() {
-        float sqrtMotion = MathHelper.sqrt_double(this.motionX * this.motionX * 0.20000000298023224D + this.motionY * this.motionY + this.motionZ * this.motionZ * 0.20000000298023224D) * 0.2F;
+        float sqrtMotion = MathHelper.sqrt(this.motionX * this.motionX * 0.20000000298023224D + this.motionY * this.motionY + this.motionZ * this.motionZ * 0.20000000298023224D) * 0.2F;
         sqrtMotion = sqrtMotion > 1.0F ? 1.0F : sqrtMotion;
         this.playSound(this.getSplashSound(), sqrtMotion, 1.0F + (this.rand.nextFloat() - this.rand.nextFloat()) * 0.4F);
     }

@@ -38,7 +38,7 @@ public abstract class MobileChunk implements IBlockAccess {
     public static final int CHUNK_SIZE = 16;
     public static final int CHUNK_MEMORY_USING = CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE * (4 + 2);    //(16*16*16 shorts and ints)
 
-    public final World worldObj;
+    public final World world;
     protected final EntityMovingWorld entityMovingWorld;
     public Map<BlockPos, TileEntity> chunkTileEntityMap;
     public List<TileEntity> updatableTiles;
@@ -57,7 +57,7 @@ public abstract class MobileChunk implements IBlockAccess {
     private FakeWorld fakeWorld;
 
     public MobileChunk(World world, EntityMovingWorld entitymovingWorld) {
-        worldObj = world;
+        this.world = world;
         entityMovingWorld = entitymovingWorld;
         blockStorageMap = new HashMap<BlockPos, ExtendedBlockStorage>(1);
         chunkTileEntityMap = new HashMap<BlockPos, TileEntity>(2);
@@ -478,7 +478,7 @@ public abstract class MobileChunk implements IBlockAccess {
                 return null;
             }
 
-            tileentity = block.createTileEntity(worldObj, blockState);
+            tileentity = block.createTileEntity(world, blockState);
             setTileEntity(pos, tileentity);
 
             tileentity = chunkTileEntityMap.get(pos);
@@ -502,7 +502,7 @@ public abstract class MobileChunk implements IBlockAccess {
     private void setChunkBlockTileEntity(BlockPos pos, TileEntity newTile) {
         BlockPos chunkPosition = new BlockPos(pos.getX(), pos.getY(), pos.getZ());
         newTile.setPos(pos);
-        newTile.setWorldObj(getFakeWorld());
+        newTile.setWorld(getFakeWorld());
 
         IBlockState blockState = getBlockState(pos);
         Block block = blockState.getBlock();
@@ -551,7 +551,7 @@ public abstract class MobileChunk implements IBlockAccess {
      */
     public void onChunkLoad() {
         isChunkLoaded = true;
-        worldObj.addTileEntities(chunkTileEntityMap.values());
+        world.addTileEntities(chunkTileEntityMap.values());
     }
 
     /**
@@ -614,7 +614,7 @@ public abstract class MobileChunk implements IBlockAccess {
 
     @Override
     public WorldType getWorldType() {
-        return worldObj.getWorldType();
+        return world.getWorldType();
     }
 
     @Override

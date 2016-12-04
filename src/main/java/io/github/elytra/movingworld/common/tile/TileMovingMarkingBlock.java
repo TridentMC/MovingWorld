@@ -70,9 +70,9 @@ public abstract class TileMovingMarkingBlock extends TileEntity implements IMovi
     public boolean assembleMovingWorld(EntityPlayer player) {
         boolean returnVal = false;
 
-        if (!worldObj.isRemote) {
+        if (!world.isRemote) {
             prevResult = assembleResult;
-            ChunkAssembler assembler = new ChunkAssembler(worldObj, pos, getMaxBlocks());
+            ChunkAssembler assembler = new ChunkAssembler(world, pos, getMaxBlocks());
             MovingWorldAssemblyInteractor interactor = getNewAssemblyInteractor();
             assembleResult = assembler.doAssemble(interactor);
 
@@ -83,25 +83,25 @@ public abstract class TileMovingMarkingBlock extends TileEntity implements IMovi
             switch (assembleResult.getType()) {
                 case RESULT_OK:
                     c = new TextComponentString("Assembled " + getInfo().getName() + "!");
-                    player.addChatMessage(c);
+                    player.sendStatusMessage(c, true);
                     break;
                 case RESULT_OK_WITH_WARNINGS:
                     returnVal = true;
                 case RESULT_BLOCK_OVERFLOW:
                     c = new TextComponentString("Cannot create moving world with more than " + getMaxBlocks() + " blocks");
-                    player.addChatMessage(c);
+                    player.sendStatusMessage(c, true);
                     break;
                 case RESULT_MISSING_MARKER:
                     c = new TextComponentString("Cannot create moving world with no moving world marker");
-                    player.addChatMessage(c);
+                    player.sendStatusMessage(c, true);
                     break;
                 case RESULT_ERROR_OCCURED:
                     c = new TextComponentString("An error occured while assembling moving world. See console log for details.");
-                    player.addChatMessage(c);
+                    player.sendStatusMessage(c, true);
                     break;
                 case RESULT_NONE:
                     c = new TextComponentString("Nothing was assembled");
-                    player.addChatMessage(c);
+                    player.sendStatusMessage(c, true);
                     break;
                 default:
             }
@@ -114,24 +114,24 @@ public abstract class TileMovingMarkingBlock extends TileEntity implements IMovi
     }
 
     public boolean mountMovingWorld(EntityPlayer player, EntityMovingWorld movingWorld) {
-        if (!worldObj.isRemote) {
+        if (!world.isRemote) {
             if (assembleResult != null && assembleResult.isOK()) {
-                assembleResult.checkConsistent(worldObj);
+                assembleResult.checkConsistent(world);
                 mountedMovingWorld(player, movingWorld, MountStage.PREMSG);
                 if (assembleResult.getType() == RESULT_INCONSISTENT) {
                     return false;
                 }
                 if (assembleResult.getType() == RESULT_OK_WITH_WARNINGS) {
                     ITextComponent c = new TextComponentString("Moving world contains changes");
-                    player.addChatMessage(c);
+                    player.sendStatusMessage(c, true);
                 }
 
                 mountedMovingWorld(player, movingWorld, MountStage.PRERIDE);
 
-                EntityMovingWorld entity = assembleResult.getEntity(worldObj, movingWorld);
+                EntityMovingWorld entity = assembleResult.getEntity(world, movingWorld);
                 if (entity != null) {
                     entity.setInfo(getInfo());
-                    if (worldObj.spawnEntityInWorld(entity)) {
+                    if (world.spawnEntity(entity)) {
                         player.startRiding(entity);
                         assembleResult = null;
                         return true;
@@ -180,16 +180,16 @@ public abstract class TileMovingMarkingBlock extends TileEntity implements IMovi
             getInfo().setOwner(UUID.fromString(tag.getString("owner")));
         }
         blockMetadata = tag.getInteger("meta");
-        if (tag.hasKey("ship") && worldObj != null) {
+        if (tag.hasKey("ship") && world != null) {
             int id = tag.getInteger("ship");
-            Entity entity = worldObj.getEntityByID(id);
+            Entity entity = world.getEntityByID(id);
             if (entity instanceof EntityMovingWorld) {
                 setParentMovingWorld((EntityMovingWorld) entity);
             }
         }
         if (tag.hasKey("res")) {
-            assembleResult = new AssembleResult(tag.getCompoundTag("res"), worldObj);
-            assembleResult.assemblyInteractor = getNewAssemblyInteractor().fromNBT(tag.getCompoundTag("res"), worldObj);
+            assembleResult = new AssembleResult(tag.getCompoundTag("res"), world);
+            assembleResult.assemblyInteractor = getNewAssemblyInteractor().fromNBT(tag.getCompoundTag("res"), world);
         }
         if (tag.hasKey("removedFluidCompounds")) {
             removedFluidBlocks = new LocatedBlockList();
@@ -198,7 +198,7 @@ public abstract class TileMovingMarkingBlock extends TileEntity implements IMovi
 
             while (removedFluidCompound.hasKey("block#" + tagIndex)) {
                 NBTTagCompound lbTag = removedFluidCompound.getCompoundTag("block#" + tagIndex);
-                LocatedBlock locatedBlock = new LocatedBlock(lbTag, worldObj);
+                LocatedBlock locatedBlock = new LocatedBlock(lbTag, world);
 
                 removedFluidBlocks.add(locatedBlock);
                 tagIndex++;

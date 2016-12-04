@@ -23,7 +23,7 @@ public abstract class MovingWorldHandlerServer extends MovingWorldHandlerCommon 
     }
 
     @Override
-    public boolean processInitialInteract(EntityPlayer player, ItemStack stack, EnumHand hand) {
+    public boolean processInitialInteract(EntityPlayer player, EnumHand hand) {
         return false;
     }
 
@@ -41,10 +41,10 @@ public abstract class MovingWorldHandlerServer extends MovingWorldHandlerCommon 
             if (!firstChunkUpdate) {
                 if (!getMobileChunkServer().getBlockQueue().isEmpty()) {
                     MovingWorldNetworking.NETWORK.send().packet("ChunkBlockUpdateMessage")
-                            .with("dimID", getMovingWorld().worldObj.provider.getDimension())
+                            .with("dimID", getMovingWorld().world.provider.getDimension())
                             .with("entityID", getMovingWorld().getEntityId())
                             .with("chunk", ChunkIO.writeCompressed(getMovingWorld().getMobileChunk(), getMobileChunkServer().getBlockQueue()))
-                            .toAllAround(getMovingWorld().worldObj, getMovingWorld(), 64D);
+                            .toAllAround(getMovingWorld().world, getMovingWorld(), 64D);
 
                     MovingWorldMod.LOG.debug("MobileChunk block change detected, sending packet to all within 64 blocks of " + getMovingWorld().toString());
                 }
@@ -70,7 +70,7 @@ public abstract class MovingWorldHandlerServer extends MovingWorldHandlerCommon 
                             .with("dimID", getMovingWorld().dimension)
                             .with("entityID", getMovingWorld().getEntityId())
                             .with("tagCompound", tagCompound)
-                            .toAllAround(getMovingWorld().worldObj, getMovingWorld(), 64D);
+                            .toAllAround(getMovingWorld().world, getMovingWorld(), 64D);
                     MovingWorldMod.LOG.debug("MobileChunk tile change detected, sending packet to all within 64 blocks of " + getMovingWorld().toString());
                 }
             }

@@ -15,20 +15,15 @@ public abstract class MovingWorldHandlerClient extends MovingWorldHandlerCommon 
     }
 
     @Override
-    public boolean processInitialInteract(EntityPlayer player, ItemStack stack, EnumHand hand) {
+    public boolean processInitialInteract(EntityPlayer player, EnumHand hand) {
         if (player.getDistanceSqToEntity(getMovingWorld()) >= 36D) {
             PendingPacket packet = MovingWorldNetworking.NETWORK.send().packet("FarInteractMessage")
-                    .with("dimID", getMovingWorld().worldObj.provider.getDimension())
+                    .with("dimID", getMovingWorld().world.provider.getDimension())
                     .with("entityID", getMovingWorld().getEntityId())
                     .with("hand", hand.ordinal());
-            if (stack != null) {
-                packet = packet.with("stack", stack.serializeNBT());
-            } else {
-                packet = packet.with("stack", new ItemStack(Blocks.AIR).serializeNBT());
-            }
             packet.toServer();
         }
 
-        return super.processInitialInteract(player, stack, hand);
+        return super.processInitialInteract(player, hand);
     }
 }

@@ -52,10 +52,8 @@ public class MovingWorldNetworking {
                             EntityMovingWorld movingWorld = (EntityMovingWorld) unCast;
                             EnumHand hand = EnumHand.values()[token.getInt("hand")];
                             ItemStack stack = null;
-                            if (token.getNBT("stack") != null)
-                                stack = ItemStack.loadItemStackFromNBT(token.getNBT("stack"));
 
-                            entityPlayer.interact(movingWorld, stack, hand);
+                            entityPlayer.interactOn(movingWorld, hand);
                         }
                     }
                 });

@@ -93,7 +93,7 @@ public class MobileChunkRenderer {
         RenderHelper.enableStandardItemLighting();
 
         GlStateManager.pushMatrix();
-        World tesrDispatchWorld = TileEntityRendererDispatcher.instance.worldObj;
+        World tesrDispatchWorld = TileEntityRendererDispatcher.instance.world;
         TileEntityRendererDispatcher.instance.setWorld(chunk.getFakeWorld());
         for (int y = chunk.minY(); y < chunk.maxY(); ++y) {
             for (int z = chunk.minZ(); z < chunk.maxZ(); ++z) {
@@ -101,13 +101,13 @@ public class MobileChunkRenderer {
                     BlockPos pos = new BlockPos(x, y, z);
                     TileEntity tile = chunk.getTileEntity(pos);
                     if (tile != null) {
-                        tile.setWorldObj(chunk.getFakeWorld());
+                        tile.setWorld(chunk.getFakeWorld());
                         TileEntitySpecialRenderer renderer = TileEntityRendererDispatcher.instance.getSpecialRenderer(tile);
 
                         if (renderer != null && tile.shouldRenderInPass(MinecraftForgeClient.getRenderPass())) {
                             TileEntityRendererDispatcher.instance.renderTileEntityAt(tile, tile.getPos().getX(), tile.getPos().getY(), tile.getPos().getZ(), partialTicks);
                         }
-                        tile.setWorldObj(chunk.worldObj);
+                        tile.setWorld(chunk.world);
                     }
                 }
             }

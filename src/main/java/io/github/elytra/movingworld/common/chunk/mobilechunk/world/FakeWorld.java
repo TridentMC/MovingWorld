@@ -25,7 +25,7 @@ public class FakeWorld extends World {
     }
 
     public static FakeWorld getFakeWorld(MobileChunk chunk) {
-        FakeWorld retVal = new FakeWorld(chunk.worldObj.isRemote, chunk.worldObj);
+        FakeWorld retVal = new FakeWorld(chunk.world.isRemote, chunk.world);
         retVal.mobileChunk = chunk;
         return retVal;
     }
@@ -99,12 +99,12 @@ public class FakeWorld extends World {
 
     @Override
     public long getTotalWorldTime() {
-        return mobileChunk.worldObj.getTotalWorldTime();
+        return mobileChunk.world.getTotalWorldTime();
     }
 
     @Override
     public long getWorldTime() {
-        return mobileChunk.worldObj.getWorldTime();
+        return mobileChunk.world.getWorldTime();
     }
 
     @SideOnly(Side.CLIENT)

@@ -175,9 +175,9 @@ public class ChunkCollisionHelper {
         entity.isCollidedVertically = d7 != y;
         entity.onGround = entity.isCollidedVertically && d7 < 0.0D;
         entity.isCollided = entity.isCollidedHorizontally || entity.isCollidedVertically;
-        int i = MathHelper.floor_double(entityChunkPosX);
-        int j = MathHelper.floor_double(entityChunkPosY - 0.20000000298023224D);
-        int k = MathHelper.floor_double(entityChunkPosZ);
+        int i = MathHelper.floor(entityChunkPosX);
+        int j = MathHelper.floor(entityChunkPosY - 0.20000000298023224D);
+        int k = MathHelper.floor(entityChunkPosZ);
         BlockPos blockPos = new BlockPos(i, j, k);
         IBlockState blockState = mobileChunk.getBlockState(blockPos);
         Block block = blockState.getBlock();
@@ -213,8 +213,8 @@ public class ChunkCollisionHelper {
             if (block != Blocks.LADDER) {
                 d16 = 0.0D;
             }
-            entity.distanceWalkedModified = (float) ((double) entity.distanceWalkedModified + (double) MathHelper.sqrt_double(d15 * d15 + d17 * d17) * 0.6D);
-            entity.distanceWalkedOnStepModified = (float) ((double) entity.distanceWalkedOnStepModified + (double) MathHelper.sqrt_double(d15 * d15 + d16 * d16 + d17 * d17) * 0.6D);
+            entity.distanceWalkedModified = (float) ((double) entity.distanceWalkedModified + (double) MathHelper.sqrt(d15 * d15 + d17 * d17) * 0.6D);
+            entity.distanceWalkedOnStepModified = (float) ((double) entity.distanceWalkedOnStepModified + (double) MathHelper.sqrt(d15 * d15 + d16 * d16 + d17 * d17) * 0.6D);
 
             if (entity.distanceWalkedOnStepModified > (float) mixinEntity.getNextStepDistance() && blockState.getMaterial() != Material.AIR) {
                 mixinEntity.setNextStepDistance((int) entity.distanceWalkedOnStepModified + 1);

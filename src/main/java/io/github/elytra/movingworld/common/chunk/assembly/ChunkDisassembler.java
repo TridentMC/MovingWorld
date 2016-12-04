@@ -42,7 +42,7 @@ public class ChunkDisassembler {
         if (overwrite) {
             return true;
         }
-        World world = movingWorld.worldObj;
+        World world = movingWorld.world;
         MobileChunk chunk = movingWorld.getMobileChunk();
         float yaw = Math.round(movingWorld.rotationYaw / 90F) * 90F;
         yaw = (float) Math.toRadians(yaw);
