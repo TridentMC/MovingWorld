@@ -156,32 +156,28 @@ public class AssembleResult {
                 }
                 setAirState2.add(lb);
 
-                TileEntity tileClone = tileentity;
-                entityMovingWorld.getMobileChunk().setTileEntity(iPos, tileClone);
+                entityMovingWorld.getMobileChunk().setTileEntity(iPos, tileentity);
             }
         }
 
         for (LocatedBlock lb : setAirState2) {
-            world.setBlockState(lb.blockPos, Blocks.AIR.getDefaultState(), 2);
             world.removeTileEntity(lb.blockPos);
+            world.setBlockState(lb.blockPos, Blocks.AIR.getDefaultState(), 2);
         }
 
         for (LocatedBlock lb : locatedBlocks) {
+            world.removeTileEntity(lb.blockPos);
             world.setBlockToAir(lb.blockPos);
         }
 
         if (setFluids) {
-            for (LocatedBlock fluid : ((TileMovingMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks) {
-                if (fluid != null && world.isAirBlock(fluid.blockPos)) {
-                    world.setBlockState(fluid.blockPos, fluid.blockState, 2);
-                }
-            }
+            ((TileMovingMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks.stream().filter(fluid -> fluid != null && world.isAirBlock(fluid.blockPos)).forEach(fluid -> {
+                world.setBlockState(fluid.blockPos, fluid.blockState, 2);
+            });
 
-            for (LocatedBlock fluid : ((TileMovingMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks) {
-                if (fluid != null && world.isAirBlock(fluid.blockPos)) {
-                    world.setBlockState(fluid.blockPos, fluid.blockState, 3);
-                }
-            }
+            ((TileMovingMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks.stream().filter(fluid -> fluid != null && world.isAirBlock(fluid.blockPos)).forEach(fluid -> {
+                world.setBlockState(fluid.blockPos, fluid.blockState, 3);
+            });
         }
 
 
@@ -254,7 +250,7 @@ public class AssembleResult {
         tag.setInteger("zO", offset.getZ());
     }
 
-    public ByteBuf toByteBuf(ByteBuf buf) {
+     public ByteBuf toByteBuf(ByteBuf buf) {
         buf.writeByte(getType().toByte());
         buf.writeInt(getBlockCount());
         buf.writeInt(getTileEntityCount());
