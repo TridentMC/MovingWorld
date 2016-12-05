@@ -23,7 +23,7 @@ apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'idea'
 
-version = '1.10.2-0004'
+version = '1.10.2-0005'
 group = "io.github.elytra.movingworld"
 archivesBaseName = "movingworld"
 
