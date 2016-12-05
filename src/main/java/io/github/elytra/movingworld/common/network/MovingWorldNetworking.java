@@ -42,7 +42,6 @@ public class MovingWorldNetworking {
                 .with(DataType.INT, "dimID")
                 .with(DataType.INT, "entityID")
                 .with(DataType.INT, "hand")
-                .with(DataType.NBT_COMPOUND, "stack")
                 .handledBy((entityPlayer, token) -> {
                     World world = DimensionManager.getWorld(token.getInt("dimID"));
                     if (world != null) {
@@ -51,8 +50,6 @@ public class MovingWorldNetworking {
                         if (unCast != null && unCast instanceof EntityMovingWorld) {
                             EntityMovingWorld movingWorld = (EntityMovingWorld) unCast;
                             EnumHand hand = EnumHand.values()[token.getInt("hand")];
-                            ItemStack stack = null;
-
                             entityPlayer.interactOn(movingWorld, hand);
                         }
                     }
