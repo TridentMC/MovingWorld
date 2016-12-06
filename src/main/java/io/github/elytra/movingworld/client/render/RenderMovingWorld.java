@@ -55,7 +55,7 @@ public class RenderMovingWorld extends Render<EntityMovingWorld> {
 
     @Override
     public boolean shouldRender(EntityMovingWorld entity, ICamera camera, double camX, double camY, double camZ) {
-        return true;
+        return entity.isInRangeToRender3d(camX, camY, camZ);
     }
 
 }
