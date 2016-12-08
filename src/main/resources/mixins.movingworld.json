@@ -4,7 +4,6 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "movingworld.mixin.refmap.json",
   "mixins": [
-    "world.MixinWorld",
     "entity.MixinEntity",
     "block.property.MixinPropertyEnum",
     "block.property.MixinPropertyInteger",
