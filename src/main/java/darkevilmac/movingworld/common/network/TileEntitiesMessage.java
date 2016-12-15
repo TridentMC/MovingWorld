@@ -69,6 +69,7 @@ public class TileEntitiesMessage extends EntityMovingWorldMessage {
 
     @Override
     public void decodeInto(ChannelHandlerContext ctx, ByteBuf buf, EntityPlayer player, Side side) {
+        super.decodeInto(ctx, buf, player, side);
         if (movingWorld != null) {
             DataInputStream in = new DataInputStream(new ByteBufInputStream(buf));
             try {
