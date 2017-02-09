@@ -10,6 +10,7 @@ import java.util.HashMap;
  */
 public class RegionPool {
 
+    // Pools sorted by dimension id.
     public static final HashMap<Integer, RegionPool> POOLS = new HashMap<>();
 
     public final HashMap<ChunkPos, MobileRegion> regions = new HashMap<>();

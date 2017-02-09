@@ -90,7 +90,7 @@ public abstract class ChunkIO {
         }
     }
 
-    public static byte[] writeCompressed(MobileChunk chunk, Collection<BlockPos> blocks) {
+    public static ByteBuf writeCompressed(MobileChunk chunk, Collection<BlockPos> blocks) {
         ByteBuf buffer = Unpooled.buffer();
 
         try {
@@ -99,7 +99,7 @@ public abstract class ChunkIO {
             MovingWorldMod.LOG.error(e);
         }
 
-        return buffer.array();
+        return buffer;
     }
 
     public static void writeCompressed(ByteBuf buf, MobileChunk chunk, Collection<BlockPos> blocks) throws IOException {

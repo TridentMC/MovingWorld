@@ -1,7 +1,21 @@
 package io.github.elytra.movingworld.common.entity;
 
 import com.google.common.collect.Lists;
-
+import io.github.elytra.movingworld.MovingWorldMod;
+import io.github.elytra.movingworld.api.IMovingTile;
+import io.github.elytra.movingworld.common.chunk.ChunkIO;
+import io.github.elytra.movingworld.common.chunk.LocatedBlock;
+import io.github.elytra.movingworld.common.chunk.MovingWorldAssemblyInteractor;
+import io.github.elytra.movingworld.common.chunk.MovingWorldSizeOverflowException;
+import io.github.elytra.movingworld.common.chunk.assembly.AssembleResult;
+import io.github.elytra.movingworld.common.chunk.assembly.ChunkDisassembler;
+import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunk;
+import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunkClient;
+import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunkServer;
+import io.github.elytra.movingworld.common.util.AABBRotator;
+import io.github.elytra.movingworld.common.util.MathHelperMod;
+import io.github.elytra.movingworld.common.util.Vec3dMod;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -31,42 +45,19 @@ import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
-
 import javax.annotation.Nullable;
-
-import io.github.elytra.movingworld.MovingWorldMod;
-import io.github.elytra.movingworld.api.IMovingTile;
-import io.github.elytra.movingworld.common.chunk.ChunkIO;
-import io.github.elytra.movingworld.common.chunk.LocatedBlock;
-import io.github.elytra.movingworld.common.chunk.MovingWorldAssemblyInteractor;
-import io.github.elytra.movingworld.common.chunk.MovingWorldSizeOverflowException;
-import io.github.elytra.movingworld.common.chunk.assembly.AssembleResult;
-import io.github.elytra.movingworld.common.chunk.assembly.ChunkDisassembler;
-import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunk;
-import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunkClient;
-import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunkServer;
-import io.github.elytra.movingworld.common.util.AABBRotator;
-import io.github.elytra.movingworld.common.util.MathHelperMod;
-import io.github.elytra.movingworld.common.util.Vec3dMod;
-import io.netty.buffer.ByteBuf;
+import java.io.*;
+import java.util.*;
 
 /**
  * All moving sections of blocks extend from this class.
  */
 public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdditionalSpawnData {
 
-    public static final DataParameter<Boolean> IS_FLYING = EntityDataManager.createKey(EntityMovingWorld.class, DataSerializers.BOOLEAN);
-    private static final DataParameter<Integer> THIRTY = EntityDataManager.<Integer>createKey(EntityMovingWorld.class, DataSerializers.VARINT);
+    public static final DataParameter<Boolean> IS_FLYING = EntityDataManager
+            .createKey(EntityMovingWorld.class, DataSerializers.BOOLEAN);
+    private static final DataParameter<Integer> THIRTY = EntityDataManager.<Integer>createKey(
+            EntityMovingWorld.class, DataSerializers.VARINT);
     public EntityPlayer controllingPassenger;
 
     public float motionYaw;
@@ -127,7 +118,8 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
                     IBlockState blockState = world.getBlockState(new BlockPos(x, y, z));
                     Block block = blockState.getBlock();
 
-                    if (block != null && (blockState.getMaterial() == Material.WATER || blockState.getMaterial() == Material.LAVA)) {
+                    if (block != null && (blockState.getMaterial() == Material.WATER
+                            || blockState.getMaterial() == Material.LAVA)) {
                         int j2 = block.getMetaFromState(blockState);
                         double d0;
 
@@ -236,8 +228,9 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     }
 
     public void setInfo(MovingWorldInfo movingWorldInfo) {
-        if (movingWorldInfo == null)
+        if (movingWorldInfo == null) {
             throw new NullPointerException("Cannot set null moving world info");
+        }
         info = movingWorldInfo;
     }
 
@@ -270,10 +263,14 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     public void setRotatedBoundingBox() {
         if (mobileChunk == null) {
             float hw = width / 2F;
-            setEntityBoundingBox(new AxisAlignedBB(posX - hw, posY, posZ - hw, posX + hw, posY + height, posZ + hw));
+            setEntityBoundingBox(
+                    new AxisAlignedBB(posX - hw, posY, posZ - hw, posX + hw, posY + height, posZ + hw));
         } else {
-            setEntityBoundingBox(new AxisAlignedBB(posX - mobileChunk.getCenterX(), posY, posZ - mobileChunk.getCenterZ(), posX + mobileChunk.getCenterX(), posY + height, posZ + mobileChunk.getCenterZ()));
-            setEntityBoundingBox(AABBRotator.rotateAABBAroundY(getEntityBoundingBox(), posX, posZ, (float) Math.toRadians(rotationYaw)));
+            setEntityBoundingBox(
+                    new AxisAlignedBB(posX - mobileChunk.getCenterX(), posY, posZ - mobileChunk.getCenterZ(),
+                            posX + mobileChunk.getCenterX(), posY + height, posZ + mobileChunk.getCenterZ()));
+            setEntityBoundingBox(AABBRotator.rotateAABBAroundY(getEntityBoundingBox(), posX, posZ,
+                    (float) Math.toRadians(rotationYaw)));
         }
     }
 
@@ -283,13 +280,15 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             width = w;
             height = h;
             float hw = w / 2F;
-            setEntityBoundingBox(new AxisAlignedBB(posX - hw, posY, posZ - hw, posX + hw, posY + height, posZ + hw));
+            setEntityBoundingBox(
+                    new AxisAlignedBB(posX - hw, posY, posZ - hw, posX + hw, posY + height, posZ + hw));
         }
     }
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void setPositionAndRotationDirect(double x, double y, double z, float yaw, float pitch, int inc, boolean control) {
+    public void setPositionAndRotationDirect(double x, double y, double z, float yaw, float pitch,
+                                             int inc, boolean control) {
         if (control && this.getControllingPassenger() != null) {
             this.prevPosX = this.posX = x;
             this.prevPosY = this.posY = y;
@@ -373,7 +372,8 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             double dz = posZ + (controlZ - posZ) / controlPosRotationIncrements;
             double ang = MathHelper.wrapDegrees(controlYaw - rotationYaw);
             rotationYaw = (float) (rotationYaw + ang / controlPosRotationIncrements);
-            rotationPitch = (float) (rotationPitch + (controlPitch - rotationPitch) / controlPosRotationIncrements);
+            rotationPitch = (float) (rotationPitch
+                    + (controlPitch - rotationPitch) / controlPosRotationIncrements);
             controlPosRotationIncrements--;
             setPosition(dx, dy, dz);
             setRotation(rotationYaw, rotationPitch);
@@ -397,10 +397,11 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     protected void handleServerUpdate(double horvel) {
         if (getMobileChunk() != null) {
-            if (!getMobileChunk().movingWorldTileEntities.isEmpty())
+            if (!getMobileChunk().movingWorldTileEntities.isEmpty()) {
                 for (IMovingTile movingWorldTileEntity : getMobileChunk().movingWorldTileEntities) {
                     movingWorldTileEntity.tick(getMobileChunk());
                 }
+            }
             if (!getMobileChunk().updatableTiles.isEmpty()) {
                 for (TileEntity tickable : Lists.newArrayList(getMobileChunk().updatableTiles)) {
                     tickable.setWorld(mobileChunk.getFakeWorld());
@@ -436,7 +437,8 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             motionY *= groundFriction;
             motionZ *= groundFriction;
         }
-        rotationPitch = rotationPitch + (motionYaw * getCapabilities().getBankingMultiplier() - rotationPitch) * 0.15f;
+        rotationPitch = rotationPitch
+                + (motionYaw * getCapabilities().getBankingMultiplier() - rotationPitch) * 0.15f;
         motionYaw *= 0.7F;
         rotationYaw += motionYaw;
         setRotatedBoundingBox();
@@ -461,8 +463,9 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     @Override
     public void updatePassenger(Entity passenger) {
-        if (this.isPassenger(passenger))
+        if (this.isPassenger(passenger)) {
             updatePassengerPosition(passenger, riderDestination, 1);
+        }
     }
 
     @Override
@@ -473,8 +476,9 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     @Override
     public void removePassengers() {
         updatePassengerPosition(controllingPassenger, riderDestination, 1);
-        if (controllingPassenger != null)
+        if (controllingPassenger != null) {
             controllingPassenger.dismountRidingEntity();
+        }
     }
 
     public void updatePassengerPosition(Entity passenger, BlockPos riderDestination, int flags) {
@@ -496,7 +500,9 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
                     x1 -= 1;
                 }
 
-                IBlockState state = mobileChunk.getBlockState(new BlockPos(x1, MathHelper.floor(y1 + getMountedYOffset() + passenger.getYOffset()), z1));
+                IBlockState state = mobileChunk.getBlockState(
+                        new BlockPos(x1, MathHelper.floor(y1 + getMountedYOffset() + passenger.getYOffset()),
+                                z1));
                 if (state.isOpaqueCube()) {
                     x1 = riderDestination.getX();
                     y1 = riderDestination.getY();
@@ -505,7 +511,8 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             }
 
             double yOff = (flags & 2) == 2 ? 0d : getMountedYOffset();
-            Vec3dMod vec = new Vec3dMod(x1 - mobileChunk.getCenterX() + 0.5d, y1 - mobileChunk.minY() + yOff, z1 - mobileChunk.getCenterZ() + 0.5d);
+            Vec3dMod vec = new Vec3dMod(x1 - mobileChunk.getCenterX() + 0.5d,
+                    y1 - mobileChunk.minY() + yOff, z1 - mobileChunk.getCenterZ() + 0.5d);
             switch (frontDir) {
                 case 0:
                     vec = vec.rotateAroundZ(-pitch);
@@ -522,10 +529,12 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             }
             vec = vec.rotateAroundY(yaw);
 
-            if ((flags & 1) == 1)
+            if ((flags & 1) == 1) {
                 vec.addVector(0, 0.25, 0);
+            }
 
-            passenger.setPosition(posX + vec.xCoord, posY + vec.yCoord + passenger.getYOffset(), posZ + vec.zCoord);
+            passenger.setPosition(posX + vec.xCoord, posY + vec.yCoord + passenger.getYOffset(),
+                    posZ + vec.zCoord);
 
             this.applyYawToEntity(passenger);
         }
@@ -543,8 +552,11 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     @Override
     public List<Entity> getPassengers() {
-        if (controllingPassenger != null) return Lists.newArrayList(controllingPassenger);
-        else return Collections.emptyList();
+        if (controllingPassenger != null) {
+            return Lists.newArrayList(controllingPassenger);
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     @Override
@@ -559,15 +571,18 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         if (passenger.getRidingEntity() != this) {
             throw new IllegalStateException("Use x.startRiding(y), not y.addPassenger(x)");
         } else {
-            if (controllingPassenger == null && passenger != null && passenger instanceof EntityPlayer)
+            if (controllingPassenger == null && passenger != null
+                    && passenger instanceof EntityPlayer) {
                 controllingPassenger = (EntityPlayer) passenger;
+            }
         }
     }
 
     private boolean handleCollision(double cPosX, double cPosY, double cPosZ) {
         boolean didCollide = false;
         if (!world.isRemote) {
-            List<Entity> list = world.getEntitiesWithinAABBExcludingEntity(this, getEntityBoundingBox().expand(0.2D, 0.0D, 0.2D));
+            List<Entity> list = world.getEntitiesWithinAABBExcludingEntity(this,
+                    getEntityBoundingBox().expand(0.2D, 0.0D, 0.2D));
             if (list != null && !list.isEmpty()) {
                 didCollide = true;
                 for (Entity entity : list) {
@@ -700,7 +715,8 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         rotationYaw = Math.round(rotationYaw / 90F) * 90F;
         rotationPitch = 0F;
 
-        Vec3d vec = new Vec3d(-mobileChunk.getCenterX(), -mobileChunk.minY(), -mobileChunk.getCenterZ());
+        Vec3d vec = new Vec3d(-mobileChunk.getCenterX(), -mobileChunk.minY(),
+                -mobileChunk.getCenterZ());
         vec = vec.rotateYaw((float) Math.toRadians(rotationYaw));
 
         int ix = MathHelperMod.round_double(vec.xCoord + posX);
@@ -715,7 +731,9 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     }
 
     public boolean disassemble(boolean overwrite) {
-        if (world.isRemote) return true;
+        if (world.isRemote) {
+            return true;
+        }
 
         updatePassenger(this.getControllingPassenger());
 
@@ -752,7 +770,9 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
                     blockState = mobileChunk.getBlockState(new BlockPos(i, j, k));
 
                     if (blockState.getBlock() != Blocks.AIR) {
-                        blockState.getBlock().dropBlockAsItem(world, new BlockPos(MathHelper.floor(posX), MathHelper.floor(posY), MathHelper.floor(posZ)), blockState, 0);
+                        blockState.getBlock().dropBlockAsItem(world,
+                                new BlockPos(MathHelper.floor(posX), MathHelper.floor(posY),
+                                        MathHelper.floor(posZ)), blockState, 0);
                     }
                 }
             }
@@ -760,9 +780,14 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     }
 
     protected void fillAirBlocks(Set<BlockPos> set, BlockPos pos) {
-        if (pos.getX() < mobileChunk.minX() - 1 || pos.getX() > mobileChunk.maxX() || pos.getY() < mobileChunk.minY() - 1 || pos.getY() > mobileChunk.maxY() || pos.getZ() < mobileChunk.minZ() - 1 || pos.getZ() > mobileChunk.maxZ())
+        if (pos.getX() < mobileChunk.minX() - 1 || pos.getX() > mobileChunk.maxX()
+                || pos.getY() < mobileChunk.minY() - 1 || pos.getY() > mobileChunk.maxY()
+                || pos.getZ() < mobileChunk.minZ() - 1 || pos.getZ() > mobileChunk.maxZ()) {
             return;
-        if (set.contains(pos)) return;
+        }
+        if (set.contains(pos)) {
+            return;
+        }
 
         set.add(pos);
         if (mobileChunk.setBlockAsFilledAir(pos)) {
@@ -881,7 +906,8 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
                     markerComp.getInteger("markerPosY"),
                     markerComp.getInteger("markerPosZ"));
 
-            mobileChunk.marker = new LocatedBlock(mobileChunk.getBlockState(markerPos), mobileChunk.getTileEntity(markerPos), markerPos);
+            mobileChunk.marker = new LocatedBlock(mobileChunk.getBlockState(markerPos),
+                    mobileChunk.getTileEntity(markerPos), markerPos);
         }
 
         info = new MovingWorldInfo();
@@ -925,9 +951,12 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
      */
     @Override
     protected void resetHeight() {
-        float sqrtMotion = MathHelper.sqrt(this.motionX * this.motionX * 0.20000000298023224D + this.motionY * this.motionY + this.motionZ * this.motionZ * 0.20000000298023224D) * 0.2F;
+        float sqrtMotion = MathHelper.sqrt(
+                this.motionX * this.motionX * 0.20000000298023224D + this.motionY * this.motionY
+                        + this.motionZ * this.motionZ * 0.20000000298023224D) * 0.2F;
         sqrtMotion = sqrtMotion > 1.0F ? 1.0F : sqrtMotion;
-        this.playSound(this.getSplashSound(), sqrtMotion, 1.0F + (this.rand.nextFloat() - this.rand.nextFloat()) * 0.4F);
+        this.playSound(this.getSplashSound(), sqrtMotion,
+                1.0F + (this.rand.nextFloat() - this.rand.nextFloat()) * 0.4F);
     }
 
     public abstract void writeMovingWorldSpawnData(ByteBuf data);

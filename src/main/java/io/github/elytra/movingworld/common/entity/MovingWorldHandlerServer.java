@@ -1,18 +1,17 @@
 package io.github.elytra.movingworld.common.entity;
 
+import io.github.elytra.movingworld.MovingWorldMod;
+import io.github.elytra.movingworld.common.chunk.ChunkIO;
+import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunkServer;
+import io.github.elytra.movingworld.common.network.message.MovingWorldBlockChangeMessage;
+import io.github.elytra.movingworld.common.network.message.MovingWorldTileChangeMessage;
+import io.github.elytra.movingworld.common.tile.TileMovingMarkingBlock;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
-
-import io.github.elytra.movingworld.MovingWorldMod;
-import io.github.elytra.movingworld.common.chunk.ChunkIO;
-import io.github.elytra.movingworld.common.chunk.mobilechunk.MobileChunkServer;
-import io.github.elytra.movingworld.common.network.MovingWorldNetworking;
-import io.github.elytra.movingworld.common.tile.TileMovingMarkingBlock;
 
 public abstract class MovingWorldHandlerServer extends MovingWorldHandlerCommon {
     protected boolean firstChunkUpdate;
@@ -40,13 +39,10 @@ public abstract class MovingWorldHandlerServer extends MovingWorldHandlerCommon 
         if (getMobileChunkServer() != null) {
             if (!firstChunkUpdate) {
                 if (!getMobileChunkServer().getBlockQueue().isEmpty()) {
-                    MovingWorldNetworking.NETWORK.send().packet("ChunkBlockUpdateMessage")
-                            .with("dimID", getMovingWorld().world.provider.getDimension())
-                            .with("entityID", getMovingWorld().getEntityId())
-                            .with("chunk", ChunkIO.writeCompressed(getMovingWorld().getMobileChunk(), getMobileChunkServer().getBlockQueue()))
-                            .toAllAround(getMovingWorld().world, getMovingWorld(), 64D);
+                    new MovingWorldBlockChangeMessage(getMovingWorld(),
+                            ChunkIO.writeCompressed(getMovingWorld().getMobileChunk(), getMobileChunkServer().getBlockQueue())).sendToAllWatching(getMovingWorld());
 
-                    MovingWorldMod.LOG.debug("MobileChunk block change detected, sending packet to all within 64 blocks of " + getMovingWorld().toString());
+                    MovingWorldMod.LOG.debug("MobileChunk block change detected, sending packet to all players watching " + getMovingWorld().toString());
                 }
                 if (!getMobileChunkServer().getTileQueue().isEmpty()) {
                     NBTTagCompound tagCompound = new NBTTagCompound();
@@ -66,12 +62,8 @@ public abstract class MovingWorldHandlerServer extends MovingWorldHandlerCommon 
                     }
                     tagCompound.setTag("list", list);
 
-                    MovingWorldNetworking.NETWORK.send().packet("TileEntitiesMessage")
-                            .with("dimID", getMovingWorld().dimension)
-                            .with("entityID", getMovingWorld().getEntityId())
-                            .with("tagCompound", tagCompound)
-                            .toAllAround(getMovingWorld().world, getMovingWorld(), 64D);
-                    MovingWorldMod.LOG.debug("MobileChunk tile change detected, sending packet to all within 64 blocks of " + getMovingWorld().toString());
+                    new MovingWorldTileChangeMessage(getMovingWorld(), tagCompound).sendToAllWatching(getMovingWorld());
+                    MovingWorldMod.LOG.debug("MobileChunk tile change detected, sending packet to all players watching " + getMovingWorld().toString());
                 }
             }
             getMobileChunkServer().getTileQueue().clear();

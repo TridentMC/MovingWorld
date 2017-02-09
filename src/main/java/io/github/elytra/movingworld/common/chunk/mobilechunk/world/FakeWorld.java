@@ -21,7 +21,7 @@ public class FakeWorld extends World {
     MobileChunk mobileChunk;
 
     private FakeWorld(boolean remote, World parentWorld) {
-        super(parentWorld.getSaveHandler(), parentWorld.getWorldInfo(), parentWorld.provider, parentWorld.theProfiler, remote);
+        super(parentWorld.getSaveHandler(), parentWorld.getWorldInfo(), parentWorld.provider, parentWorld.profiler, remote);
     }
 
     public static FakeWorld getFakeWorld(MobileChunk chunk) {
