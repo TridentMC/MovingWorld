@@ -22,11 +22,11 @@ public class MovingWorldMod {
     public static final String MOD_ID = "movingworld";
     public static final String MOD_VERSION = "@MOVINGWORLDVER@";
     public static final String MOD_NAME = "Moving World";
-    public static final String MOD_GUIFACTORY = "io.github.elytra.movingworld.client.gui.MovingWorldGUIFactory";
+    public static final String MOD_GUIFACTORY = "com.elytradev.movingworld.client.gui.MovingWorldGUIFactory";
 
     @Mod.Instance(MOD_ID)
     public static MovingWorldMod INSTANCE;
-    @SidedProxy(clientSide = "io.github.elytra.movingworld.client.ClientProxy", serverSide = "io.github.elytra.movingworld.common.CommonProxy")
+    @SidedProxy(clientSide = "com.elytradev.movingworld.client.ClientProxy", serverSide = "com.elytradev.movingworld.common.CommonProxy")
     public static CommonProxy PROXY;
     public static Logger LOG;
 

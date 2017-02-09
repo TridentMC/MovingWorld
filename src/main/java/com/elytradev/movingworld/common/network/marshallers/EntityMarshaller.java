@@ -8,7 +8,7 @@ import net.minecraftforge.common.DimensionManager;
 
 public class EntityMarshaller implements Marshaller<Entity> {
 
-    public static final String MARSHALLER_NAME = "io.github.elytra.movingworld.common.network.marshallers.EntityMarshaller";
+    public static final String MARSHALLER_NAME = "com.elytradev.movingworld.common.network.marshallers.EntityMarshaller";
     public static final EntityMarshaller INSTANCE = new EntityMarshaller();
 
     @Override
