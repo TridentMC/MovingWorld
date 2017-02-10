@@ -1,4 +1,4 @@
-package com.elytradev.movingworld.client.expirements;
+package com.elytradev.movingworld.client.experiments;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;

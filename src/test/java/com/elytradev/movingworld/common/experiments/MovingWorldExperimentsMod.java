@@ -52,11 +52,15 @@ public class MovingWorldExperimentsMod {
     public void onWorldLoad(WorldEvent.Load loadEvent) {
         Integer loadedDimensionID = loadEvent.getWorld().provider.getDimension();
 
-        if (registeredDimensions.containsKey(loadedDimensionID) || registeredDimensions.containsValue(loadedDimensionID))
+        if (registeredDimensions.containsKey(loadedDimensionID) || registeredDimensions.containsValue(loadedDimensionID)) {
             return;
+        }
 
         try {
-            DimensionManager.registerDimension(activeDimID, DimensionType.register("MovingWorld", "movingworld", activeDimID, MovingWorldProvider.class, true));
+            registeredDimensions.put(loadedDimensionID, activeDimID);
+            DimensionManager.registerDimension(activeDimID,
+                    DimensionType.register("MovingWorld|P" + loadedDimensionID + "|C" + activeDimID,
+                    "movingworld", activeDimID, MovingWorldProvider.class, true));
             DimensionManager.initDimension(activeDimID);
             activeDimID++;
         } catch (Exception e) {
