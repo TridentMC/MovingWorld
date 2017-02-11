@@ -1,19 +1,20 @@
 package com.elytradev.movingworld.common.network.message;
 
-import io.github.elytra.concrete.Message;
-import io.github.elytra.concrete.NetworkContext;
-import io.github.elytra.concrete.annotation.field.MarshalledAs;
-import io.github.elytra.concrete.annotation.type.ReceivedOn;
 import com.elytradev.movingworld.common.chunk.mobilechunk.MobileChunkClient;
 import com.elytradev.movingworld.common.entity.EntityMovingWorld;
 import com.elytradev.movingworld.common.network.MovingWorldNetworking;
 import com.elytradev.movingworld.common.network.marshallers.EntityMarshaller;
+import io.github.elytra.concrete.Message;
+import io.github.elytra.concrete.NetworkContext;
+import io.github.elytra.concrete.annotation.field.MarshalledAs;
+import io.github.elytra.concrete.annotation.type.ReceivedOn;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
  * Sends tile entity data in a MobileChunk to clients.
@@ -36,8 +37,10 @@ public class MovingWorldTileChangeMessage extends Message {
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     protected void handle(EntityPlayer sender) {
-        if (movingWorld == null && tileData == null && movingWorld.getMobileChunk() == null)
+        if (movingWorld == null || tileData == null
+                || movingWorld.getMobileChunk() == null || !(movingWorld.getMobileChunk() instanceof MobileChunkClient))
             return;
 
         NBTTagList list = tileData.getTagList("list", 10);

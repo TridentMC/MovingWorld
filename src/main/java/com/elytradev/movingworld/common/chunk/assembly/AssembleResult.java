@@ -2,6 +2,13 @@ package com.elytradev.movingworld.common.chunk.assembly;
 
 
 import com.elytradev.movingworld.MovingWorldMod;
+import com.elytradev.movingworld.common.chunk.LocatedBlock;
+import com.elytradev.movingworld.common.chunk.MovingWorldAssemblyInteractor;
+import com.elytradev.movingworld.common.entity.EntityMovingWorld;
+import com.elytradev.movingworld.common.tile.TileMovingMarkingBlock;
+import com.elytradev.movingworld.common.util.LocatedBlockList;
+import com.elytradev.movingworld.common.util.MaterialDensity;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -13,14 +20,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
-
-import com.elytradev.movingworld.common.chunk.LocatedBlock;
-import com.elytradev.movingworld.common.chunk.MovingWorldAssemblyInteractor;
-import com.elytradev.movingworld.common.entity.EntityMovingWorld;
-import com.elytradev.movingworld.common.tile.TileMovingMarkingBlock;
-import com.elytradev.movingworld.common.util.LocatedBlockList;
-import com.elytradev.movingworld.common.util.MaterialDensity;
-import io.netty.buffer.ByteBuf;
 
 public class AssembleResult {
 
@@ -256,7 +255,8 @@ public class AssembleResult {
         buf.writeInt(getBlockCount());
         buf.writeInt(getTileEntityCount());
         buf.writeFloat(getMass());
-        assemblyInteractor.toByteBuf(buf);
+        if (assemblyInteractor != null)
+            assemblyInteractor.toByteBuf(buf);
 
         return buf;
     }

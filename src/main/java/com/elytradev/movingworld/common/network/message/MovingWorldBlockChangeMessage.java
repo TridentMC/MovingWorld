@@ -2,13 +2,14 @@ package com.elytradev.movingworld.common.network.message;
 
 import com.elytradev.movingworld.MovingWorldMod;
 import com.elytradev.movingworld.common.chunk.ChunkIO;
+import com.elytradev.movingworld.common.entity.EntityMovingWorld;
+import com.elytradev.movingworld.common.network.MovingWorldNetworking;
+import com.elytradev.movingworld.common.network.marshallers.ByteBufMarshaller;
+import com.elytradev.movingworld.common.network.marshallers.EntityMarshaller;
 import io.github.elytra.concrete.Message;
 import io.github.elytra.concrete.NetworkContext;
 import io.github.elytra.concrete.annotation.field.MarshalledAs;
 import io.github.elytra.concrete.annotation.type.ReceivedOn;
-import com.elytradev.movingworld.common.entity.EntityMovingWorld;
-import com.elytradev.movingworld.common.network.MovingWorldNetworking;
-import com.elytradev.movingworld.common.network.marshallers.EntityMarshaller;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.relauncher.Side;
@@ -23,6 +24,7 @@ public class MovingWorldBlockChangeMessage extends Message {
 
     @MarshalledAs(EntityMarshaller.MARSHALLER_NAME)
     public EntityMovingWorld movingWorld;
+    @MarshalledAs(ByteBufMarshaller.MARSHALLER_NAME)
     public ByteBuf compressedChunkData;
 
     public MovingWorldBlockChangeMessage(NetworkContext ctx) {
