@@ -1,6 +1,5 @@
 package com.elytradev.movingworld.common.experiments;
 
-import com.google.common.collect.Lists;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;

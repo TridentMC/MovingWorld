@@ -1,6 +1,8 @@
 package com.elytradev.movingworld.common.experiments.newassembly;
 
+import com.elytradev.movingworld.common.experiments.MobileRegion;
 import com.elytradev.movingworld.common.experiments.MovingWorldExperimentsMod;
+import com.elytradev.movingworld.common.experiments.RegionPool;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.minecraft.block.state.IBlockState;
@@ -65,12 +67,13 @@ public class WorldReader {
         // The following code shifts the position of the blocks found with our flood fill,
         // we need it shifted so the collection will be placed in the center of our MobileRegion.
         BlockPos invertedStart = new BlockPos(start.getX() * -1, 0, start.getZ() * -1);
-
         World subWorld = DimensionManager.getWorld(MovingWorldExperimentsMod.registeredDimensions.get(world.provider.getDimension()));
+        MobileRegion region = RegionPool.getPool(world.provider.getDimension()).nextRegion(false);
 
         Map<BlockPos, Tuple<IBlockState, TileEntity>> shiftedCollected = Maps.newHashMap();
         collected.entrySet().stream().forEach(blockPosTupleEntry -> {
             BlockPos shiftedPos = blockPosTupleEntry.getKey().add(invertedStart);
+            shiftedPos = shiftedPos.add(region.centeredBlockPos());
             TileEntity shiftedTile = blockPosTupleEntry.getValue().getSecond();
             shiftedTile.setPos(shiftedPos);
 
@@ -81,19 +84,41 @@ public class WorldReader {
         int maxX = 0, maxZ = 0;
 
         for (BlockPos pos : shiftedCollected.keySet()) {
-            if(minX > pos.getX()){
+            if (minX > pos.getX()) {
                 minX = pos.getX();
             }
-            if(maxX < pos.getX()){
+            if (maxX < pos.getX()) {
                 maxX = pos.getX();
             }
-            if(minZ > pos.getZ()){
+            if (minZ > pos.getZ()) {
                 minZ = pos.getZ();
             }
-            if(maxZ < pos.getZ()){
+            if (maxZ < pos.getZ()) {
                 maxZ = pos.getZ();
             }
         }
+
+        int avgX = Math.round((minX + maxX) / 2);
+        int avgZ = Math.round((minZ + maxZ) / 2);
+        BlockPos avg = new BlockPos(avgX, 0, avgZ);
+
+        // Shift again to be centered with our center. (that was awful to say)
+        Map<BlockPos, Tuple<IBlockState, TileEntity>> reshiftedCollection = Maps.newHashMap();
+        shiftedCollected.entrySet().forEach(blockPosTupleEntry -> {
+            BlockPos shiftedPos = blockPosTupleEntry.getKey().add(avg);
+            TileEntity shiftedTile = blockPosTupleEntry.getValue().getSecond();
+            shiftedTile.setPos(shiftedPos);
+
+            reshiftedCollection.put(shiftedPos, new Tuple<>(blockPosTupleEntry.getValue().getFirst(), shiftedTile));
+        });
+
+        // Now set them to the actual child world
+        reshiftedCollection.forEach((blockPos, iBlockStateTileEntityTuple) -> {
+            subWorld.setBlockState(blockPos, iBlockStateTileEntityTuple.getFirst());
+            if (iBlockStateTileEntityTuple.getSecond() != null) {
+                subWorld.setTileEntity(blockPos, iBlockStateTileEntityTuple.getSecond());
+            }
+        });
     }
 
 }

@@ -14,10 +14,10 @@ import java.util.stream.Collectors;
 public class RegionPool {
 
     // +- 29999984 is the max and min coords for a world according to the Minecraft wiki.
-    public static final int startX = -(29999984 / 16);
-    public static final int startZ = -(29999984 / 16);
-    public static final int maxX = +(29999984 / 16);
-    public static final int maxZ = +(29999984 / 16);
+    public static final int startX = -(29999984 >> 4);
+    public static final int startZ = -(29999984 >> 4);
+    public static final int maxX = +(29999984 >> 4);
+    public static final int maxZ = +(29999984 >> 4);
     public static final int regionSize = 8;
     public static final int regionBuffer = 8;
     // Pools sorted by dimension id.

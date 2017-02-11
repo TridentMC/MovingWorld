@@ -1,9 +1,9 @@
 package com.elytradev.movingworld.client.experiments;
 
+import com.elytradev.movingworld.common.experiments.MobileRegion;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSetMultimap;
-import com.elytradev.movingworld.common.experiments.MobileRegion;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;

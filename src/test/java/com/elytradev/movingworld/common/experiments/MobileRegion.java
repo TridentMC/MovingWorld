@@ -1,10 +1,7 @@
 package com.elytradev.movingworld.common.experiments;
 
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,11 +69,26 @@ public class MobileRegion {
     }
 
     public BlockPos minBlockPos() {
-        return new BlockPos(regionMin.getXStart(), 0, regionMin.getZStart());
+        return new BlockPos(regionMin.getXStart() << 4, 0, regionMin.getZStart() << 4);
+    }
+
+    /**
+     * the blockbop of the center of the chunk
+     *
+     * @return
+     */
+    public BlockPos centeredBlockPos() {
+        BlockPos centeredPos = new BlockPos(0, 0, 0);
+
+        BlockPos maxMin = new BlockPos(maxBlockPos()).subtract(minBlockPos());
+        maxMin = new BlockPos(Math.round(maxMin.getX() / 2), 0, Math.round(maxMin.getZ() / 2));
+        centeredPos = maxMin.add(minBlockPos());
+
+        return centeredPos;
     }
 
     public BlockPos maxBlockPos() {
-        return new BlockPos(regionMax.getXEnd(), 256 - 1, regionMax.getZEnd());
+        return new BlockPos((regionMax.getXEnd() << 4) + 15, 256 - 1, (regionMax.getZEnd() << 4) + 15);
     }
 
     /**
@@ -98,8 +110,10 @@ public class MobileRegion {
         BlockPos minBlockPos = BlockPos.fromLong(tagCompound.getLong("MinPos"));
         BlockPos maxBlockPos = BlockPos.fromLong(tagCompound.getLong("MaxPos"));
 
-        regionMin = new ChunkPos(minBlockPos.getX(), minBlockPos.getZ());
-        regionMax = new ChunkPos(maxBlockPos.getX(), maxBlockPos.getZ());
+        maxBlockPos.subtract(new Vec3i(15, 0, 15));
+
+        regionMin = new ChunkPos(minBlockPos.getX() >> 4, minBlockPos.getZ() >> 4);
+        regionMax = new ChunkPos(maxBlockPos.getX() >> 4, maxBlockPos.getZ() >> 4);
         dimension = tagCompound.getInteger("DimensionID");
     }
 
