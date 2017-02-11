@@ -29,6 +29,7 @@ public class RegionPool {
 
     /**
      * Gets a region pool corresponding to a dimension id, creates one if needed.
+     *
      * @param dimension
      * @return the found or created pool
      */
@@ -39,8 +40,13 @@ public class RegionPool {
         return POOLS.get(dimension);
     }
 
+    public static boolean generatedPoolForDimension(int dimension) {
+        return POOLS.containsKey(dimension);
+    }
+
     /**
      * Writes all region pools to an NBTTagCompound
+     *
      * @return
      */
     public static NBTTagCompound writeAllToCompound() {
@@ -53,6 +59,7 @@ public class RegionPool {
 
     /**
      * Reads all region pools from a previously generated NBTTagCompound
+     *
      * @param tagCompound
      */
     public static void readAllFromCompound(NBTTagCompound tagCompound) {
@@ -68,6 +75,7 @@ public class RegionPool {
 
     /**
      * Gets the next available MobileRegion in this pool.
+     *
      * @param simulate if true, don't change the result for the next call
      * @return the next available region
      */
@@ -98,6 +106,7 @@ public class RegionPool {
 
     /**
      * Writes this pool to an NBTTagCompound
+     *
      * @return the NBTTagCompound for this pool
      */
     public NBTTagCompound writePoolToCompound() {
@@ -127,6 +136,7 @@ public class RegionPool {
 
     /**
      * Reads the information provided into this pool.
+     *
      * @param tagCompound
      */
     public void readPoolFromCompound(NBTTagCompound tagCompound) {
