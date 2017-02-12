@@ -112,8 +112,8 @@ public class MobileRegion {
 
         maxBlockPos.subtract(new Vec3i(15, 0, 15));
 
-        regionMin = new ChunkPos(minBlockPos.getX() / 16, minBlockPos.getZ() /16);
-        regionMax = new ChunkPos(maxBlockPos.getX() / 16, maxBlockPos.getZ() /16);
+        regionMin = new ChunkPos(minBlockPos.getX() / 16, minBlockPos.getZ() / 16);
+        regionMax = new ChunkPos(maxBlockPos.getX() / 16, maxBlockPos.getZ() / 16);
         dimension = tagCompound.getInteger("DimensionID");
     }
 
