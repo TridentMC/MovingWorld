@@ -1,6 +1,8 @@
 package com.elytradev.movingworld.common.experiments;
 
 import com.google.common.collect.Maps;
+import net.minecraft.block.material.MapColor;
+import net.minecraft.block.material.Material;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.DimensionType;
@@ -10,6 +12,7 @@ import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.*;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 
 import java.io.File;
 import java.util.Map;
@@ -28,6 +31,8 @@ public class MovingWorldExperimentsMod {
     @Mod.EventHandler
     public void onPreInit(FMLPreInitializationEvent e) {
         MinecraftForge.EVENT_BUS.register(this);
+
+        GameRegistry.registerWithItem(new BlockDebug(Material.TNT, MapColor.TNT));
     }
 
     @Mod.EventHandler

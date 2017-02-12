@@ -13,6 +13,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,12 +48,13 @@ public class WorldReader {
     }
 
     private void readBlock(BlockPos pos) {
+        if (collected.containsKey(pos))
+            return;
+
         IBlockState readState = world.getBlockState(pos);
 
         if (readState != null && readState.getBlock() != Blocks.AIR) {
-            if (!collected.containsKey(pos)) {
-                collected.put(pos, new Tuple<>(readState, world.getTileEntity(pos)));
-            }
+            collected.put(pos, new Tuple<>(readState, world.getTileEntity(pos)));
 
             stack.add(pos.add(1, 0, 0));
             stack.add(pos.add(0, 1, 0));
@@ -66,17 +68,20 @@ public class WorldReader {
     public void moveToSubWorld() {
         // The following code shifts the position of the blocks found with our flood fill,
         // we need it shifted so the collection will be placed in the center of our MobileRegion.
-        BlockPos invertedStart = new BlockPos(start.getX() * -1, 0, start.getZ() * -1);
+        BlockPos invertedStart = new BlockPos(start.getX(), 0, start.getZ());
         World subWorld = DimensionManager.getWorld(MovingWorldExperimentsMod.registeredDimensions.get(world.provider.getDimension()));
-        MobileRegion region = RegionPool.getPool(world.provider.getDimension()).nextRegion(false);
+        RegionPool regionPool = RegionPool.getPool(world.provider.getDimension());
+        MobileRegion region = regionPool.nextRegion(false);
 
         Map<BlockPos, Tuple<IBlockState, TileEntity>> shiftedCollected = Maps.newHashMap();
         collected.entrySet().stream().forEach(blockPosTupleEntry -> {
-            BlockPos shiftedPos = blockPosTupleEntry.getKey().add(invertedStart);
+            BlockPos shiftedPos = blockPosTupleEntry.getKey().subtract(invertedStart);
             shiftedPos = shiftedPos.add(region.centeredBlockPos());
             TileEntity shiftedTile = blockPosTupleEntry.getValue().getSecond();
-            shiftedTile.setPos(shiftedPos);
+            if (shiftedTile != null)
+                shiftedTile.setPos(shiftedPos);
 
+            System.out.println(MessageFormat.format("Shifted {0}, to {1}", blockPosTupleEntry.getKey(), shiftedPos));
             shiftedCollected.put(shiftedPos, new Tuple<>(blockPosTupleEntry.getValue().getFirst(), shiftedTile));
         });
 
@@ -103,17 +108,19 @@ public class WorldReader {
         BlockPos avg = new BlockPos(avgX, 0, avgZ);
 
         // Shift again to be centered with our center. (that was awful to say)
-        Map<BlockPos, Tuple<IBlockState, TileEntity>> reshiftedCollection = Maps.newHashMap();
+        Map<BlockPos, Tuple<IBlockState, TileEntity>> reshifted = Maps.newHashMap();
         shiftedCollected.entrySet().forEach(blockPosTupleEntry -> {
             BlockPos shiftedPos = blockPosTupleEntry.getKey().add(avg);
             TileEntity shiftedTile = blockPosTupleEntry.getValue().getSecond();
-            shiftedTile.setPos(shiftedPos);
+            if (shiftedTile != null)
+                shiftedTile.setPos(shiftedPos);
 
-            reshiftedCollection.put(shiftedPos, new Tuple<>(blockPosTupleEntry.getValue().getFirst(), shiftedTile));
+            System.out.println(MessageFormat.format("Reshifted {0}, to {1}", blockPosTupleEntry.getKey(), shiftedPos));
+            reshifted.put(shiftedPos, new Tuple<>(blockPosTupleEntry.getValue().getFirst(), shiftedTile));
         });
 
-        // Now set them to the actual child world
-        reshiftedCollection.forEach((blockPos, iBlockStateTileEntityTuple) -> {
+        // Now set them to the actual child
+        reshifted.forEach((blockPos, iBlockStateTileEntityTuple) -> {
             subWorld.setBlockState(blockPos, iBlockStateTileEntityTuple.getFirst());
             if (iBlockStateTileEntityTuple.getSecond() != null) {
                 subWorld.setTileEntity(blockPos, iBlockStateTileEntityTuple.getSecond());

@@ -17,6 +17,8 @@ import net.minecraft.world.World;
 public class BlockDebug extends Block {
     public BlockDebug(Material blockMaterialIn, MapColor blockMapColorIn) {
         super(blockMaterialIn, blockMapColorIn);
+        setRegistryName("movingworld-experiments", "debug");
+        setUnlocalizedName("debug");
     }
 
     @Override

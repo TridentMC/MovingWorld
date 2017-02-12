@@ -69,7 +69,7 @@ public class MobileRegion {
     }
 
     public BlockPos minBlockPos() {
-        return new BlockPos(regionMin.getXStart() << 4, 0, regionMin.getZStart() << 4);
+        return new BlockPos(regionMin.getXStart(), 0, regionMin.getZStart());
     }
 
     /**
@@ -78,7 +78,7 @@ public class MobileRegion {
      * @return
      */
     public BlockPos centeredBlockPos() {
-        BlockPos centeredPos = new BlockPos(0, 0, 0);
+        BlockPos centeredPos;
 
         BlockPos maxMin = new BlockPos(maxBlockPos()).subtract(minBlockPos());
         maxMin = new BlockPos(Math.round(maxMin.getX() / 2), 0, Math.round(maxMin.getZ() / 2));
@@ -88,7 +88,7 @@ public class MobileRegion {
     }
 
     public BlockPos maxBlockPos() {
-        return new BlockPos((regionMax.getXEnd() << 4) + 15, 256 - 1, (regionMax.getZEnd() << 4) + 15);
+        return new BlockPos((regionMax.getXEnd()), 256 - 1, (regionMax.getZEnd()));
     }
 
     /**
@@ -112,8 +112,8 @@ public class MobileRegion {
 
         maxBlockPos.subtract(new Vec3i(15, 0, 15));
 
-        regionMin = new ChunkPos(minBlockPos.getX() >> 4, minBlockPos.getZ() >> 4);
-        regionMax = new ChunkPos(maxBlockPos.getX() >> 4, maxBlockPos.getZ() >> 4);
+        regionMin = new ChunkPos(minBlockPos.getX() / 16, minBlockPos.getZ() /16);
+        regionMax = new ChunkPos(maxBlockPos.getX() / 16, maxBlockPos.getZ() /16);
         dimension = tagCompound.getInteger("DimensionID");
     }
 
