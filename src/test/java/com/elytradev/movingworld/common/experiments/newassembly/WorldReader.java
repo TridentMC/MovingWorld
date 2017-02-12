@@ -111,7 +111,7 @@ public class WorldReader {
         shiftedCollected.entrySet().forEach(blockPosTupleEntry -> {
             BlockPos shiftedPos = blockPosTupleEntry.getKey().add(avg);
             System.out.println(MessageFormat.format("Reshifted {0}, to {1}", blockPosTupleEntry.getKey(), shiftedPos));
-            shiftedPos.add(region.centeredBlockPos());
+            shiftedPos = shiftedPos.add(region.centeredBlockPos());
             System.out.println(MessageFormat.format("Final shifted {0}, to {1}", blockPosTupleEntry.getKey(), shiftedPos));
             TileEntity shiftedTile = blockPosTupleEntry.getValue().getSecond();
             if (shiftedTile != null)
