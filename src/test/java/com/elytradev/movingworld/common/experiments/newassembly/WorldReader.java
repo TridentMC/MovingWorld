@@ -25,6 +25,7 @@ public class WorldReader {
 
     public final BlockPos start;
     public final World world;
+    public final Out out = new Out();
 
     private List<BlockPos> stack = Lists.newArrayList();
     private HashMap<BlockPos, Tuple<IBlockState, TileEntity>> collected = Maps.newHashMap();
@@ -127,6 +128,43 @@ public class WorldReader {
                 subWorld.setTileEntity(blockPos, iBlockStateTileEntityTuple.getSecond());
             }
         });
+
+        out.setPool(regionPool);
+        out.setRegion(region);
+        out.setSubWorld(subWorld);
+    }
+
+    /**
+     * Stores output data of the WorldReader after moving things to a subworld.
+     */
+    public class Out {
+        private MobileRegion region;
+        private RegionPool pool;
+        private World subWorld;
+
+        public MobileRegion getRegion() {
+            return region;
+        }
+
+        public void setRegion(MobileRegion region) {
+            this.region = region;
+        }
+
+        public RegionPool getPool() {
+            return pool;
+        }
+
+        public void setPool(RegionPool pool) {
+            this.pool = pool;
+        }
+
+        public World getSubWorld() {
+            return subWorld;
+        }
+
+        public void setSubWorld(World subWorld) {
+            this.subWorld = subWorld;
+        }
     }
 
 }
