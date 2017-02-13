@@ -70,7 +70,7 @@ public class WorldReader {
         // we need it shifted so the collection will be placed in the center of our MobileRegion.
         BlockPos invertedStart = new BlockPos(start.getX(), 0, start.getZ());
         World subWorld = DimensionManager.getWorld(MovingWorldExperimentsMod.registeredDimensions.get(world.provider.getDimension()));
-        RegionPool regionPool = RegionPool.getPool(world.provider.getDimension());
+        RegionPool regionPool = RegionPool.getPool(subWorld.provider.getDimension(), true);
         MobileRegion region = regionPool.nextRegion(false);
 
         Map<BlockPos, Tuple<IBlockState, TileEntity>> shiftedCollected = Maps.newHashMap();

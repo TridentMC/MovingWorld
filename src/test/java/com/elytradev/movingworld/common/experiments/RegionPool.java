@@ -27,22 +27,33 @@ public class RegionPool {
     private int regionCursorX = startX;
     private int regionCursorZ = startZ;
 
+    private RegionPool(int dimension) {
+        this.dimension = dimension;
+    }
+
+    private RegionPool() {
+    }
+
     /**
      * Gets a region pool corresponding to a dimension id, creates one if needed.
      *
      * @param dimension
      * @return the found or created pool
      */
-    public static RegionPool getPool(int dimension) {
-        if (!POOLS.containsKey(dimension))
-            POOLS.put(dimension, new RegionPool());
+    public static RegionPool getPool(int dimension, boolean generate) {
+        if (POOLS.containsKey(new Integer(dimension))) {
+            return POOLS.get(new Integer(dimension));
+        }
 
-        return POOLS.get(dimension);
+        if (generate) {
+            POOLS.put(new Integer(dimension), new RegionPool(dimension));
+        } else {
+            return null;
+        }
+
+        return POOLS.get(new Integer(dimension));
     }
 
-    public static boolean generatedPoolForDimension(int dimension) {
-        return POOLS.containsKey(dimension);
-    }
 
     /**
      * Writes all region pools to an NBTTagCompound

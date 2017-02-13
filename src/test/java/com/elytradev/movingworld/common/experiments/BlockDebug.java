@@ -23,7 +23,7 @@ public class BlockDebug extends Block {
 
     @Override
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-        if (worldIn == null || worldIn.isRemote || RegionPool.generatedPoolForDimension(worldIn.provider.getDimension()))
+        if (worldIn == null || worldIn.isRemote || RegionPool.getPool(worldIn.provider.getDimension(), false) != null)
             return false;
 
         WorldReader worldReader = new WorldReader(pos, worldIn);

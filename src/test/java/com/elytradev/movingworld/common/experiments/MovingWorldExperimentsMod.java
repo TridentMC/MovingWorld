@@ -96,7 +96,8 @@ public class MovingWorldExperimentsMod {
     public void onWorldLoad(WorldEvent.Load e) {
         Integer loadedDimensionID = e.getWorld().provider.getDimension();
 
-        if (registeredDimensions.containsKey(loadedDimensionID) || registeredDimensions.containsValue(loadedDimensionID)) {
+        if (registeredDimensions.containsKey(loadedDimensionID)
+                || registeredDimensions.containsValue(loadedDimensionID)) {
             return;
         }
 
@@ -106,7 +107,7 @@ public class MovingWorldExperimentsMod {
                     DimensionType.register("MovingWorld|P" + loadedDimensionID + "|C" + activeDimID,
                             "movingworld", activeDimID, MovingWorldProvider.class, true));
             DimensionManager.initDimension(activeDimID);
-            RegionPool.getPool(activeDimID);
+            RegionPool.getPool(activeDimID, true);
 
             activeDimID++;
         } catch (Exception exception) {
