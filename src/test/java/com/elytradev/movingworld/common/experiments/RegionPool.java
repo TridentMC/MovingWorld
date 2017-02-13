@@ -41,17 +41,17 @@ public class RegionPool {
      * @return the found or created pool
      */
     public static RegionPool getPool(int dimension, boolean generate) {
-        if (POOLS.containsKey(new Integer(dimension))) {
-            return POOLS.get(new Integer(dimension));
+        if (POOLS.containsKey(dimension)) {
+            return POOLS.get(dimension);
         }
 
         if (generate) {
-            POOLS.put(new Integer(dimension), new RegionPool(dimension));
+            POOLS.put(dimension, new RegionPool(dimension));
         } else {
             return null;
         }
 
-        return POOLS.get(new Integer(dimension));
+        return POOLS.get(dimension);
     }
 
 
