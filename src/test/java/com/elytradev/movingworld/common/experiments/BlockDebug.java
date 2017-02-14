@@ -1,5 +1,6 @@
 package com.elytradev.movingworld.common.experiments;
 
+import com.elytradev.movingworld.common.experiments.entity.EntityMobileRegion;
 import com.elytradev.movingworld.common.experiments.newassembly.WorldReader;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.MapColor;
@@ -30,6 +31,10 @@ public class BlockDebug extends Block {
 
         worldReader.readAll();
         worldReader.moveToSubWorld();
+
+        EntityMobileRegion entityMobileRegion = new EntityMobileRegion(worldIn, worldReader.out.getRegion());
+        entityMobileRegion.setPosition(pos.getX(), pos.getY() + 15, pos.getZ());
+        worldIn.spawnEntity(entityMobileRegion);
 
         return super.onBlockActivated(worldIn, pos, state, playerIn, hand, facing, hitX, hitY, hitZ);
     }

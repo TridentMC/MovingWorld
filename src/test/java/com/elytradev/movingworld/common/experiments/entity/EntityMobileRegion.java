@@ -21,19 +21,21 @@ public class EntityMobileRegion extends Entity {
 
     public EntityMobileRegion(World worldIn, MobileRegion region) {
         super(worldIn);
+
         this.region = region;
+        if (world.isRemote) {
+            initClient();
+        } else {
+            initCommon();
+        }
     }
 
     @Override
     protected void entityInit() {
-        if (world.isRemote) {
-            entityInitClient();
-        } else {
-            entityInitCommon();
-        }
+       // nah
     }
 
-    protected void entityInitCommon() {
+    protected void initCommon() {
         this.mobileRegionWorld = new MobileRegionWorldServer(getParentWorld().getMinecraftServer(),
                 getParentWorld().getSaveHandler(),
                 getParentWorld().getWorldInfo(),
@@ -41,7 +43,7 @@ public class EntityMobileRegion extends Entity {
     }
 
     @SideOnly(Side.CLIENT)
-    protected void entityInitClient() {
+    protected void initClient() {
         this.mobileRegionWorld = new MobileRegionWorldClient(null, genWorldSettings(),
                 region.dimension, getParentWorld().getDifficulty(), getParentWorld().profiler);
 
