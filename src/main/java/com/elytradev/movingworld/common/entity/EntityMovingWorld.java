@@ -56,8 +56,6 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     public static final DataParameter<Boolean> IS_FLYING = EntityDataManager
             .createKey(EntityMovingWorld.class, DataSerializers.BOOLEAN);
-    private static final DataParameter<Integer> THIRTY = EntityDataManager.<Integer>createKey(
-            EntityMovingWorld.class, DataSerializers.VARINT);
     public EntityPlayer controllingPassenger;
 
     public float motionYaw;
@@ -189,7 +187,6 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     @Override
     protected void entityInit() {
-        dataManager.register(THIRTY, 0);
         dataManager.register(IS_FLYING, false);
         initMovingWorld();
     }
