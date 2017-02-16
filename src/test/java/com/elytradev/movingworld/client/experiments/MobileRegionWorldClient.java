@@ -58,8 +58,11 @@ public class MobileRegionWorldClient extends WorldClient {
 
     public MobileRegion region;
 
-    public MobileRegionWorldClient(NetHandlerPlayClient netHandler, WorldSettings settings, int dimension, EnumDifficulty difficulty, Profiler profilerIn) {
+    public MobileRegionWorldClient(NetHandlerPlayClient netHandler, WorldSettings settings, int dimension, EnumDifficulty difficulty, Profiler profilerIn, World world, World parentWorld, MobileRegion region) {
         super(netHandler, settings, dimension, difficulty, profilerIn);
+        this.realWorld = realWorld;
+        this.parentWorld = (WorldClient) parentWorld;
+        this.region = region;
     }
 
     public boolean isPosWithinRegion(BlockPos pos) {

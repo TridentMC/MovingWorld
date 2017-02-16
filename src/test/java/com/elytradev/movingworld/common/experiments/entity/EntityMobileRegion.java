@@ -32,20 +32,19 @@ public class EntityMobileRegion extends Entity {
 
     @Override
     protected void entityInit() {
-       // nah
+        // nah
     }
 
     protected void initCommon() {
         this.mobileRegionWorld = new MobileRegionWorldServer(getParentWorld().getMinecraftServer(),
-                getParentWorld().getSaveHandler(),
-                getParentWorld().getWorldInfo(),
-                region.dimension, getParentWorld().profiler);
+                region.dimension, getParentWorld().profiler, world, getParentWorld(), region);
     }
 
     @SideOnly(Side.CLIENT)
     protected void initClient() {
         this.mobileRegionWorld = new MobileRegionWorldClient(null, genWorldSettings(),
-                region.dimension, getParentWorld().getDifficulty(), getParentWorld().profiler);
+                region.dimension, getParentWorld().getDifficulty(), getParentWorld().profiler,
+                world, getParentWorld(), region);
 
         // TODO: Request data from server or make the server figure it out itself. Not sure yet.
     }

@@ -39,6 +39,7 @@ import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.MapStorage;
 import net.minecraft.world.storage.WorldInfo;
 import net.minecraft.world.storage.loot.LootTableManager;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
@@ -52,15 +53,27 @@ import java.util.stream.Collectors;
 /**
  * Created by darkevilmac on 2/3/2017.
  */
-public class MobileRegionWorldServer extends WorldServer {
+public class MobileRegionWorldServer extends WorldServer implements IWorldMixin {
 
     public WorldServer realWorld;
     public WorldServer parentWorld;
 
     public MobileRegion region;
 
-    public MobileRegionWorldServer(MinecraftServer server, ISaveHandler saveHandlerIn, WorldInfo info, int dimensionId, Profiler profilerIn) {
-        super(server, saveHandlerIn, info, dimensionId, profilerIn);
+    public MobileRegionWorldServer(MinecraftServer server, int dimensionId, Profiler profilerIn, World realWorld, World parentWorld, MobileRegion region) {
+        super(server, parentWorld.getSaveHandler(), parentWorld.getWorldInfo(), dimensionId, profilerIn);
+        this.region = region;
+    }
+
+    @Override
+    public void onInstantiate(int dimension) {
+        System.out.println("OnInstantiate was called! Hallelujah!");
+
+        World parentWorld = DimensionManager.getWorld(dimension);
+        World realWorld = DimensionManager.getWorld(MovingWorldExperimentsMod.registeredDimensions.inverse().get(dimension));
+
+        this.realWorld = (WorldServer) realWorld;
+        this.parentWorld = (WorldServer) parentWorld;
     }
 
     public boolean isPosWithinRegion(BlockPos pos) {
@@ -69,7 +82,10 @@ public class MobileRegionWorldServer extends WorldServer {
 
     @Override
     public IChunkProvider createChunkProvider() {
-        return parentWorld.createChunkProvider();
+        if (parentWorld != null)
+            return parentWorld.createChunkProvider();
+        else
+            return null;
     }
 
     @Override
@@ -194,7 +210,10 @@ public class MobileRegionWorldServer extends WorldServer {
     @Nullable
     @Override
     public MinecraftServer getMinecraftServer() {
-        return parentWorld.getMinecraftServer();
+        if (parentWorld != null)
+            return parentWorld.getMinecraftServer();
+        else
+            return mcServer;
     }
 
     @Override
@@ -497,7 +516,10 @@ public class MobileRegionWorldServer extends WorldServer {
 
     @Override
     public int calculateSkylightSubtracted(float partialTicks) {
-        return parentWorld.calculateSkylightSubtracted(partialTicks);
+        if (parentWorld != null)
+            return parentWorld.calculateSkylightSubtracted(partialTicks);
+        else
+            return super.calculateSkylightSubtracted(partialTicks);
     }
 
     @Override
@@ -513,7 +535,10 @@ public class MobileRegionWorldServer extends WorldServer {
 
     @Override
     public float getSunBrightnessFactor(float partialTicks) {
-        return realWorld.getSunBrightnessFactor(partialTicks);
+        if (realWorld != null)
+            return realWorld.getSunBrightnessFactor(partialTicks);
+        else
+            return super.getSunBrightnessFactor(partialTicks);
     }
 
     @Override
@@ -538,7 +563,9 @@ public class MobileRegionWorldServer extends WorldServer {
 
     @Override
     public float getCelestialAngle(float partialTicks) {
-        return realWorld.getCelestialAngle(partialTicks);
+        if (realWorld != null)
+            return realWorld.getCelestialAngle(partialTicks);
+        else return super.getCelestialAngle(partialTicks);
     }
 
     @Override
@@ -748,7 +775,10 @@ public class MobileRegionWorldServer extends WorldServer {
 
     @Override
     public void calculateInitialSkylight() {
-        parentWorld.calculateInitialSkylight();
+        if (parentWorld != null)
+            parentWorld.calculateInitialSkylight();
+        else
+            super.calculateInitialSkylight();
     }
 
     @Override
@@ -758,12 +788,20 @@ public class MobileRegionWorldServer extends WorldServer {
 
     @Override
     public void calculateInitialWeather() {
-        parentWorld.calculateInitialWeather();
+        if (parentWorld != null)
+            parentWorld.calculateInitialWeather();
+        else
+            super.calculateInitialWeather();
+
     }
 
     @Override
     public void calculateInitialWeatherBody() {
-        parentWorld.calculateInitialWeatherBody();
+        if (parentWorld != null)
+            parentWorld.calculateInitialWeatherBody();
+        else
+            super.calculateInitialWeatherBody();
+
     }
 
     @Override
@@ -1061,7 +1099,10 @@ public class MobileRegionWorldServer extends WorldServer {
 
     @Override
     public long getSeed() {
-        return parentWorld.getSeed();
+        if (parentWorld != null)
+            return parentWorld.getSeed();
+        else
+            return super.getSeed();
     }
 
     @Override
@@ -1129,7 +1170,10 @@ public class MobileRegionWorldServer extends WorldServer {
 
     @Override
     public WorldInfo getWorldInfo() {
-        return parentWorld.getWorldInfo();
+        if (parentWorld != null)
+            return parentWorld.getWorldInfo();
+        else
+            return worldInfo;
     }
 
     @Override
@@ -1144,7 +1188,10 @@ public class MobileRegionWorldServer extends WorldServer {
 
     @Override
     public float getThunderStrength(float delta) {
-        return realWorld.getThunderStrength(delta);
+        if (realWorld != null)
+            return realWorld.getThunderStrength(delta);
+        else
+            return super.getThunderStrength(delta);
     }
 
     @Override
@@ -1154,7 +1201,10 @@ public class MobileRegionWorldServer extends WorldServer {
 
     @Override
     public float getRainStrength(float delta) {
-        return realWorld.getRainStrength(delta);
+        if (realWorld != null)
+            return realWorld.getRainStrength(delta);
+        else
+            return super.getRainStrength(delta);
     }
 
     @Override
@@ -1301,7 +1351,10 @@ public class MobileRegionWorldServer extends WorldServer {
 
     @Override
     public WorldBorder getWorldBorder() {
-        return parentWorld.getWorldBorder();
+        if (parentWorld != null)
+            return parentWorld.getWorldBorder();
+        else
+            return super.getWorldBorder();
     }
 
     @Override
@@ -1500,7 +1553,10 @@ public class MobileRegionWorldServer extends WorldServer {
 
     @Override
     public File getChunkSaveLocation() {
-        return parentWorld.getChunkSaveLocation();
+        if (parentWorld != null)
+            return parentWorld.getChunkSaveLocation();
+        else
+            return DimensionManager.getWorld(provider.getDimension()).getChunkSaveLocation();
     }
 
     @Override
@@ -1535,7 +1591,10 @@ public class MobileRegionWorldServer extends WorldServer {
 
     @Override
     public ChunkProviderServer getChunkProvider() {
-        return parentWorld.getChunkProvider();
+        if (parentWorld != null)
+            return parentWorld.getChunkProvider();
+        else
+            return super.getChunkProvider();
     }
 
     @Override
@@ -1552,4 +1611,5 @@ public class MobileRegionWorldServer extends WorldServer {
     public void sendPacketWithinDistance(EntityPlayerMP player, boolean longDistance, double x, double y, double z, Packet<?> packetIn) {
         parentWorld.sendPacketWithinDistance(player, longDistance, x, y, z, packetIn);
     }
+
 }

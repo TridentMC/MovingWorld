@@ -13,7 +13,7 @@ public class MovingWorldModContainer extends DummyModContainer {
         super(new ModMetadata());
 
         ModMetadata meta = getMetadata();
-        meta.modId = "io.github.elytra.movingworld.common.asm.coremod";
+        meta.modId = "com.elytradev.movingworld.common.asm.coremod";
         meta.name = "MovingWorld CORE";
         meta.authorList = Lists.newArrayList("Darkevilmac");
     }

@@ -1,6 +1,6 @@
 package com.elytradev.movingworld.common.experiments;
 
-import com.google.common.collect.Maps;
+import com.google.common.collect.HashBiMap;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
 import net.minecraft.nbt.CompressedStreamTools;
@@ -15,7 +15,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
 import java.io.File;
-import java.util.Map;
 
 /**
  * Created by darkevilmac on 2/9/2017.
@@ -23,7 +22,7 @@ import java.util.Map;
 @Mod(modid = "movingworld-experiments", name = "MovingWorld Experiments", version = "-1")
 public class MovingWorldExperimentsMod {
 
-    public static Map<Integer, Integer> registeredDimensions = Maps.newHashMap();
+    public static HashBiMap<Integer, Integer> registeredDimensions = HashBiMap.create();
 
     public static int startingDimID = 50;
     public static int activeDimID = startingDimID;
@@ -31,7 +30,6 @@ public class MovingWorldExperimentsMod {
     @Mod.EventHandler
     public void onPreInit(FMLPreInitializationEvent e) {
         MinecraftForge.EVENT_BUS.register(this);
-
         GameRegistry.registerWithItem(new BlockDebug(Material.TNT, MapColor.TNT));
     }
 

@@ -13,6 +13,7 @@ public class MovingWorldCoreMod implements IFMLLoadingPlugin {
     public MovingWorldCoreMod() {
         MixinBootstrap.init();
         Mixins.addConfiguration("mixins.movingworld.json");
+        Mixins.addConfiguration("mixins.movingworld.experiments.json");
     }
 
     @Override
@@ -22,7 +23,7 @@ public class MovingWorldCoreMod implements IFMLLoadingPlugin {
 
     @Override
     public String getModContainerClass() {
-        return "io.github.elytra.movingworld.common.asm.coremod.MovingWorldModContainer";
+        return "com.elytradev.movingworld.common.asm.coremod.MovingWorldModContainer";
     }
 
     @Override
@@ -36,7 +37,7 @@ public class MovingWorldCoreMod implements IFMLLoadingPlugin {
 
     @Override
     public String getAccessTransformerClass() {
-        return "io.github.elytra.movingworld.common.asm.coremod.MovingWorldAccessTransformer";
+        return "com.elytradev.movingworld.common.asm.coremod.MovingWorldAccessTransformer";
     }
 
 }
