@@ -10,6 +10,7 @@ import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.*;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
@@ -21,6 +22,9 @@ import java.io.File;
  */
 @Mod(modid = "movingworld-experiments", name = "MovingWorld Experiments", version = "-1")
 public class MovingWorldExperimentsMod {
+
+    @SidedProxy(modId = "movingworld-experiments", clientSide = "com.elytradev.movingworld.client.experiments.ClientProxy", serverSide = "com.elytradev.movingworld.common.experiments.CommonProxy")
+    public CommonProxy modProxy;
 
     public static HashBiMap<Integer, Integer> registeredDimensions = HashBiMap.create();
 
@@ -35,7 +39,7 @@ public class MovingWorldExperimentsMod {
 
     @Mod.EventHandler
     public void onInit(FMLInitializationEvent e) {
-
+        modProxy.registerRenders();
     }
 
     @Mod.EventHandler
