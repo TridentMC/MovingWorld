@@ -1,10 +1,12 @@
 package com.elytradev.movingworld.common.experiments;
 
+import com.elytradev.movingworld.common.experiments.entity.EntityMobileRegion;
 import com.google.common.collect.HashBiMap;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.DimensionType;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
@@ -13,6 +15,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.*;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
 import java.io.File;
@@ -20,8 +23,12 @@ import java.io.File;
 /**
  * Created by darkevilmac on 2/9/2017.
  */
-@Mod(modid = "movingworld-experiments", name = "MovingWorld Experiments", version = "-1")
+@Mod(modid = MovingWorldExperimentsMod.MOD_ID, name = MovingWorldExperimentsMod.MOD_NAME, version = MovingWorldExperimentsMod.MOD_VERSION)
 public class MovingWorldExperimentsMod {
+
+    public static final String MOD_ID = "movingworld-experiments";
+    public static final String MOD_VERSION = "-1";
+    public static final String MOD_NAME = "MovingWorld Experiments";
 
     @SidedProxy(modId = "movingworld-experiments", clientSide = "com.elytradev.movingworld.client.experiments.ClientProxy", serverSide = "com.elytradev.movingworld.common.experiments.CommonProxy")
     public static CommonProxy modProxy;
@@ -39,6 +46,7 @@ public class MovingWorldExperimentsMod {
 
     @Mod.EventHandler
     public void onInit(FMLInitializationEvent e) {
+        EntityRegistry.registerModEntity(new ResourceLocation(MOD_ID, "mobileregion"), EntityMobileRegion.class, "mobileregion", 1, this, 64, 5, true);
         modProxy.registerRenders();
     }
 

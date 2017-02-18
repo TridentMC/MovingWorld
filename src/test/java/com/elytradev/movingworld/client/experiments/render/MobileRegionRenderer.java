@@ -2,6 +2,7 @@ package com.elytradev.movingworld.client.experiments.render;
 
 import com.elytradev.movingworld.common.experiments.entity.EntityMobileRegion;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.culling.ICamera;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.util.ResourceLocation;
@@ -13,7 +14,7 @@ import javax.annotation.Nullable;
  */
 public class MobileRegionRenderer extends Render<EntityMobileRegion> {
 
-    protected MobileRegionRenderer(RenderManager renderManager) {
+    public MobileRegionRenderer(RenderManager renderManager) {
         super(renderManager);
     }
 
@@ -35,5 +36,8 @@ public class MobileRegionRenderer extends Render<EntityMobileRegion> {
         return null;
     }
 
-
+    @Override
+    public boolean shouldRender(EntityMobileRegion livingEntity, ICamera camera, double camX, double camY, double camZ) {
+        return true; // :)
+    }
 }

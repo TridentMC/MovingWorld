@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.BlockRendererDispatcher;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.tileentity.TileEntity;
@@ -58,6 +59,7 @@ public class RegionRenderer {
         GlStateManager.pushMatrix();
         GlStateManager.translate(region.minBlockPos().getX() * -1, 0, region.minBlockPos().getZ() * -1);
         Minecraft mc = Minecraft.getMinecraft();
+        mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
         BlockRendererDispatcher dispatcher = mc.getBlockRendererDispatcher();
 
         // Blocks.

@@ -30,6 +30,10 @@ public class EntityMobileRegion extends Entity {
         }
     }
 
+    public EntityMobileRegion(World worldIn) {
+        super(worldIn);
+    }
+
     @Override
     protected void entityInit() {
         // nah
@@ -49,6 +53,14 @@ public class EntityMobileRegion extends Entity {
         // TODO: Request data from server or make the server figure it out itself. Not sure yet.
     }
 
+    @Override
+    public void onEntityUpdate() {
+        super.onEntityUpdate();
+
+        if (world
+                .isRemote)
+            System.out.println("Update");
+    }
 
     private WorldSettings genWorldSettings() {
         WorldSettings settings = new WorldSettings(0L,
