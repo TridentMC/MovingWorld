@@ -45,7 +45,6 @@ public class MovingWorldMod {
     public void init(FMLInitializationEvent e) {
         localConfig.postLoad();
         MovingWorldNetworking.setupNetwork();
-        PROXY.registerRenderers();
         localConfig.getShared().assemblePriorityConfig.loadAndSaveInit();
     }
 

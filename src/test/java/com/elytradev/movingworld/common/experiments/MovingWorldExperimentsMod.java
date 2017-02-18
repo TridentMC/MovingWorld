@@ -24,7 +24,7 @@ import java.io.File;
 public class MovingWorldExperimentsMod {
 
     @SidedProxy(modId = "movingworld-experiments", clientSide = "com.elytradev.movingworld.client.experiments.ClientProxy", serverSide = "com.elytradev.movingworld.common.experiments.CommonProxy")
-    public CommonProxy modProxy;
+    public static CommonProxy modProxy;
 
     public static HashBiMap<Integer, Integer> registeredDimensions = HashBiMap.create();
 
