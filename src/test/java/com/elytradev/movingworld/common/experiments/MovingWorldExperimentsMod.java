@@ -1,6 +1,7 @@
 package com.elytradev.movingworld.common.experiments;
 
 import com.elytradev.movingworld.common.experiments.entity.EntityMobileRegion;
+import com.elytradev.movingworld.common.experiments.network.MovingWorldExperimentsNetworking;
 import com.google.common.collect.HashBiMap;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
@@ -46,6 +47,7 @@ public class MovingWorldExperimentsMod {
 
     @Mod.EventHandler
     public void onInit(FMLInitializationEvent e) {
+        MovingWorldExperimentsNetworking.init();
         EntityRegistry.registerModEntity(new ResourceLocation(MOD_ID, "mobileregion"), EntityMobileRegion.class, "mobileregion", 1, this, 64, 5, true);
         modProxy.registerRenders();
     }

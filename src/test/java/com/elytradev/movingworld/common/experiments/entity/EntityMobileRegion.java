@@ -3,18 +3,20 @@ package com.elytradev.movingworld.common.experiments.entity;
 import com.elytradev.movingworld.client.experiments.MobileRegionWorldClient;
 import com.elytradev.movingworld.common.experiments.MobileRegion;
 import com.elytradev.movingworld.common.experiments.MobileRegionWorldServer;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSettings;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
  * Experimental MobileRegion entity.
  */
-public class EntityMobileRegion extends Entity {
+public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawnData {
 
     public MobileRegion region;
     public World mobileRegionWorld;
@@ -56,10 +58,7 @@ public class EntityMobileRegion extends Entity {
     @Override
     public void onEntityUpdate() {
         super.onEntityUpdate();
-
-        if (world
-                .isRemote)
-            System.out.println("Update");
+        // stub for debug output.
     }
 
     private WorldSettings genWorldSettings() {
@@ -83,6 +82,15 @@ public class EntityMobileRegion extends Entity {
 
     @Override
     protected void writeEntityToNBT(NBTTagCompound compound) {
+
+    }
+
+    @Override
+    public void writeSpawnData(ByteBuf buffer) {
+    }
+
+    @Override
+    public void readSpawnData(ByteBuf additionalData) {
 
     }
 }
