@@ -5,6 +5,7 @@ import net.minecraft.util.math.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public class MobileRegion {
@@ -26,7 +27,7 @@ public class MobileRegion {
     }
 
     /**
-     * Get a region with the given information, find from list if present, if not create a new region
+     * Get a region with the given information, find from list if present, if not creates a new region.
      *
      * @param dimension the id of the dimension this region is in
      * @param regionMin the minimum chunk position of the region
@@ -47,12 +48,25 @@ public class MobileRegion {
         }
     }
 
+    /**
+     * Creates a region with information gathered from the given NBTTagCompound if it's not already present,
+     * otherwise returns an already existing region.
+     *
+     * @param tagCompound the serialized information about the region.
+     * @return the created or found region.
+     */
     public static MobileRegion getRegionFor(NBTTagCompound tagCompound) {
         MobileRegion deserializedRegion = new MobileRegion(tagCompound);
 
         return getRegionFor(deserializedRegion.dimension, deserializedRegion.regionMin, deserializedRegion.regionMax);
     }
 
+    /**
+     * Checks if a position is within the block bounds of the region.
+     *
+     * @param pos the position to check.
+     * @return true if within bounds, false otherwise.
+     */
     public boolean isPosWithinBounds(BlockPos pos) {
         BlockPos min = minBlockPos();
         BlockPos max = maxBlockPos();
@@ -63,19 +77,31 @@ public class MobileRegion {
         return withinMin && withinMax;
     }
 
+    /**
+     * Checks if the given chunk coordinates are within the region.
+     *
+     * @param x chunk xPos
+     * @param z chunk zPos
+     * @return true if the chunk is within the region, false otherwise.
+     */
     public boolean isChunkInRegion(int x, int z) {
         return x >= regionMin.chunkXPos && x <= regionMax.chunkXPos
                 && z >= regionMin.chunkZPos && z <= regionMax.chunkZPos;
     }
 
+    /**
+     * Get the BlockPos of the minimum position of the chunk
+     *
+     * @return the minimum BlockPos.
+     */
     public BlockPos minBlockPos() {
         return new BlockPos(regionMin.getXStart(), 0, regionMin.getZStart());
     }
 
     /**
-     * the blockbop of the center of the chunk
+     * Get the BlockPos of the center of the chunk
      *
-     * @return
+     * @return the center BlockPos, rounded.
      */
     public BlockPos centeredBlockPos() {
         BlockPos centeredPos;
@@ -87,6 +113,11 @@ public class MobileRegion {
         return centeredPos;
     }
 
+    /**
+     * Get the BlockPos of the maximum position of the chunk
+     *
+     * @return the maximum BlockPos.
+     */
     public BlockPos maxBlockPos() {
         return new BlockPos((regionMax.getXEnd()), 256 - 1, (regionMax.getZEnd()));
     }
@@ -106,6 +137,11 @@ public class MobileRegion {
         return tagCompound;
     }
 
+    /**
+     * Reads the given information into the region.
+     *
+     * @param tagCompound the serialized region.
+     */
     public void readFromCompound(NBTTagCompound tagCompound) {
         BlockPos minBlockPos = BlockPos.fromLong(tagCompound.getLong("MinPos"));
         BlockPos maxBlockPos = BlockPos.fromLong(tagCompound.getLong("MaxPos"));
@@ -145,18 +181,36 @@ public class MobileRegion {
         return adjustedPosition;
     }
 
+    /**
+     * Converts a given block position from internal positioning of the region to the equivalent position in the real world.
+     *
+     * @param pos the internal position to convert.
+     * @return the position in the real world.
+     */
     public BlockPos convertRegionPosToRealWorld(BlockPos pos) {
         Vec3d vec3DPos = new Vec3d(pos.getX(), pos.getY(), pos.getZ());
         vec3DPos = convertRegionPosToRealWorld(vec3DPos);
         return new BlockPos(Math.round(vec3DPos.xCoord), Math.round(vec3DPos.yCoord), Math.round(vec3DPos.zCoord));
     }
 
+    /**
+     * Converts a given block position from the real world to the equivalent position in this region.
+     *
+     * @param pos the real world position to convert.
+     * @return the position in this region.
+     */
     public BlockPos convertRealWorldPosToRegion(BlockPos pos) {
         Vec3d vec3DPos = new Vec3d(pos.getX(), pos.getY(), pos.getZ());
         vec3DPos = convertRealWorldPosToRegion(vec3DPos);
         return new BlockPos(Math.round(vec3DPos.xCoord), Math.round(vec3DPos.yCoord), Math.round(vec3DPos.zCoord));
     }
 
+    /**
+     * Converts a given bb from internal positioning of the region to the equivalent bb in the real world.
+     *
+     * @param regionBB the internal bb to convert.
+     * @return the bb in the real world.
+     */
     public AxisAlignedBB convertRegionBBToRealWorld(AxisAlignedBB regionBB) {
         Vec3d min = convertRegionPosToRealWorld(new Vec3d(regionBB.minX, regionBB.minY, regionBB.minZ));
         Vec3d max = convertRegionPosToRealWorld(new Vec3d(regionBB.maxX, regionBB.maxY, regionBB.maxZ));
@@ -164,4 +218,21 @@ public class MobileRegion {
         return new AxisAlignedBB(min.xCoord, min.yCoord, min.zCoord, max.xCoord, max.yCoord, max.zCoord);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MobileRegion region = (MobileRegion) o;
+        return Double.compare(region.x, x) == 0 &&
+                Double.compare(region.y, y) == 0 &&
+                Double.compare(region.z, z) == 0 &&
+                dimension == region.dimension &&
+                Objects.equals(regionMin, region.regionMin) &&
+                Objects.equals(regionMax, region.regionMax);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(x, y, z, dimension, regionMin, regionMax);
+    }
 }

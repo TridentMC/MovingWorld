@@ -1,8 +1,7 @@
 package com.elytradev.movingworld.common.experiments.network;
 
 import com.elytradev.movingworld.common.experiments.MovingWorldExperimentsMod;
-import com.elytradev.movingworld.common.experiments.network.messages.client.MessageRequestRegionData;
-import com.elytradev.movingworld.common.experiments.network.messages.server.MessagePoolChange;
+import com.elytradev.movingworld.common.experiments.network.messages.server.MessageFullPoolData;
 import com.elytradev.movingworld.common.experiments.network.messages.server.MessageRegionData;
 import io.github.elytra.concrete.NetworkContext;
 
@@ -21,7 +20,7 @@ public class MovingWorldExperimentsNetworking {
 
         // Register packets bound to client.
         networkContext.register(MessageRegionData.class);
-        networkContext.register(MessagePoolChange.class);
+        networkContext.register(MessageFullPoolData.class);
     }
 
 }

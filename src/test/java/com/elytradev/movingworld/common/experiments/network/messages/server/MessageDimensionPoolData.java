@@ -7,11 +7,11 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.relauncher.Side;
 
 /**
- * Created by darkevilmac on 2/18/2017.
+ * Sends data about a specific pool when a player changes dimensions.
  */
 @ReceivedOn(Side.CLIENT)
-public class MessagePoolChange extends Message {
-    public MessagePoolChange(NetworkContext ctx) {
+public class MessageDimensionPoolData extends Message {
+    public MessageDimensionPoolData(NetworkContext ctx) {
         super(ctx);
     }
 

@@ -1,5 +1,6 @@
 package com.elytradev.movingworld.common.experiments;
 
+import com.elytradev.movingworld.common.experiments.network.messages.server.MessageRegionData;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.ChunkPos;
 
@@ -20,8 +21,10 @@ public class RegionPool {
     public static final int maxZ = +(29999984 >> 4);
     public static final int regionSize = 8;
     public static final int regionBuffer = 8;
+
     // Pools sorted by dimension id.
     private static final HashMap<Integer, RegionPool> POOLS = new HashMap<>();
+
     public final HashMap<ChunkPos, MobileRegion> regions = new HashMap<>();
     public int dimension;
     private int regionCursorX = startX;
@@ -85,7 +88,7 @@ public class RegionPool {
     }
 
     /**
-     * Gets the next available MobileRegion in this pool.
+     * Gets the next available MobileRegion in this pool and adjusts the cursor.
      *
      * @param simulate if true, don't change the result for the next call
      * @return the next available region
@@ -106,13 +109,39 @@ public class RegionPool {
             throw new RegionOverflowException();
         }
         if (!simulate) {
-            for (int x = regionMin.chunkXPos; x <= regionMax.chunkXPos; x++) {
-                for (int z = regionMin.chunkZPos; z <= regionMax.chunkZPos; z++) {
-                    regions.put(new ChunkPos(x, z), mobileRegion);
+            for (int chunkX = regionMin.chunkXPos; chunkX <= regionMax.chunkXPos; chunkX++) {
+                for (int chunkZ = regionMin.chunkZPos; chunkZ <= regionMax.chunkZPos; chunkZ++) {
+                    regions.put(new ChunkPos(chunkX, chunkZ), mobileRegion);
                 }
             }
+
+            // Send new pool data to clients.
+            new MessageRegionData(dimension, mobileRegion.writeToCompound()).sendToEveryone();
         }
+
         return mobileRegion;
+    }
+
+    /**
+     * Adds a region to the pool if there's no regions matching it already present.
+     *
+     * @param addRegion the region to add.
+     * @return the region that is already present if found, or the region added.
+     */
+    public MobileRegion addRegionIfNotPresent(MobileRegion addRegion) {
+        MobileRegion region = addRegion;
+
+        if (!regions.values().stream().anyMatch(testRegion -> testRegion.equals(addRegion))) {
+            for (int chunkX = addRegion.regionMin.chunkXPos; chunkX <= addRegion.regionMax.chunkXPos; chunkX++) {
+                for (int chunkZ = addRegion.regionMin.chunkZPos; chunkZ <= addRegion.regionMax.chunkZPos; chunkZ++) {
+                    regions.put(new ChunkPos(chunkX, chunkZ), addRegion);
+                }
+            }
+
+            return addRegion;
+        }
+
+        return region;
     }
 
     /**

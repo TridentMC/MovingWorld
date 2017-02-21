@@ -2,6 +2,7 @@ package com.elytradev.movingworld.common.experiments;
 
 import com.elytradev.movingworld.common.experiments.entity.EntityMobileRegion;
 import com.elytradev.movingworld.common.experiments.network.MovingWorldExperimentsNetworking;
+import com.elytradev.movingworld.common.experiments.network.messages.server.MessageFullPoolData;
 import com.google.common.collect.HashBiMap;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
@@ -16,6 +17,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.*;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
@@ -125,6 +127,13 @@ public class MovingWorldExperimentsMod {
         } catch (Exception exception) {
             System.out.println("Everything went fine don't worry it's good.");
             exception.printStackTrace();
+        }
+    }
+
+    @SubscribeEvent
+    public void onConnection(PlayerEvent.PlayerLoggedInEvent e) {
+        if (!e.isCanceled() && e.player != null) {
+            new MessageFullPoolData(RegionPool.writeAllToCompound()).sendTo(e.player);
         }
     }
 }
