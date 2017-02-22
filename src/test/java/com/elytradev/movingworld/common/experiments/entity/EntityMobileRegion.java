@@ -49,7 +49,7 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
 
     @SideOnly(Side.CLIENT)
     protected void initClient() {
-        new MessageRequestData().sendToServer();
+        new MessageRequestData(this).sendToServer();
     }
 
     @Override

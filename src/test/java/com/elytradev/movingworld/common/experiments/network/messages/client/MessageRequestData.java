@@ -1,5 +1,6 @@
 package com.elytradev.movingworld.common.experiments.network.messages.client;
 
+import com.elytradev.movingworld.common.experiments.network.MovingWorldExperimentsNetworking;
 import com.elytradev.movingworld.common.experiments.network.messages.server.MessageBlockData;
 import com.elytradev.movingworld.common.network.marshallers.EntityMarshaller;
 import io.github.elytra.concrete.Message;
@@ -21,6 +22,11 @@ public class MessageRequestData extends Message {
 
     public MessageRequestData(NetworkContext ctx) {
         super(ctx);
+    }
+
+    public MessageRequestData(Entity regionEntity) {
+        super(MovingWorldExperimentsNetworking.networkContext);
+        this.regionEntity = regionEntity;
     }
 
     @Override

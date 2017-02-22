@@ -1,5 +1,6 @@
 package com.elytradev.movingworld.common.experiments.network.messages.server;
 
+import com.elytradev.movingworld.common.experiments.network.ChunkData;
 import com.elytradev.movingworld.common.experiments.network.MovingWorldExperimentsNetworking;
 import com.elytradev.movingworld.common.network.marshallers.EntityMarshaller;
 import io.github.elytra.concrete.Message;
@@ -10,10 +11,10 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 
 public class MessageBlockData extends Message {
+
     @MarshalledAs(EntityMarshaller.MARSHALLER_NAME)
     public Entity regionEntity;
-
-    public ByteBuf data;
+    public ChunkData data;
 
     public MessageBlockData(NetworkContext ctx) {
         super(ctx);

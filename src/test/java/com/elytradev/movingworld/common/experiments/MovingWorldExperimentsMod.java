@@ -33,6 +33,7 @@ public class MovingWorldExperimentsMod {
     public static final String MOD_ID = "movingworld-experiments";
     public static final String MOD_VERSION = "-1";
     public static final String MOD_NAME = "MovingWorld Experiments";
+    public static final String NETWORK_CHANNEL_NAME = "MVW-EXP";
 
     @SidedProxy(modId = "movingworld-experiments", clientSide = "com.elytradev.movingworld.client.experiments.ClientProxy", serverSide = "com.elytradev.movingworld.common.experiments.CommonProxy")
     public static CommonProxy modProxy;

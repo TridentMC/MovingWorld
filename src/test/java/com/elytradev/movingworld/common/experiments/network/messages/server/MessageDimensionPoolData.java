@@ -4,6 +4,7 @@ import com.elytradev.movingworld.common.experiments.RegionPool;
 import com.elytradev.movingworld.common.experiments.network.MovingWorldExperimentsNetworking;
 import io.github.elytra.concrete.Message;
 import io.github.elytra.concrete.NetworkContext;
+import io.github.elytra.concrete.annotation.field.MarshalledAs;
 import io.github.elytra.concrete.annotation.type.ReceivedOn;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -15,6 +16,7 @@ import net.minecraftforge.fml.relauncher.Side;
 @ReceivedOn(Side.CLIENT)
 public class MessageDimensionPoolData extends Message {
 
+    @MarshalledAs("u16")
     public int dimension;
     public NBTTagCompound poolData;
 

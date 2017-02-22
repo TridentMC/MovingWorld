@@ -9,15 +9,13 @@ import com.elytradev.movingworld.common.experiments.network.messages.server.Mess
 import io.github.elytra.concrete.NetworkContext;
 
 /**
- * Created by darkevilmac on 2/18/2017.
+ * Stores networking information
  */
 public class MovingWorldExperimentsNetworking {
 
-    public static NetworkContext networkContext;
+    public static final NetworkContext networkContext = NetworkContext.forChannel(MovingWorldExperimentsMod.NETWORK_CHANNEL_NAME);
 
     public static void init() {
-        networkContext = NetworkContext.forChannel(MovingWorldExperimentsMod.MOD_ID);
-
         // Register packets bound to server.
         networkContext.register(MessageRequestData.class);
 
