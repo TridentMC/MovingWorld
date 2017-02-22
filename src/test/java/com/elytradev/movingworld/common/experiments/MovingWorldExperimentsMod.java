@@ -2,6 +2,7 @@ package com.elytradev.movingworld.common.experiments;
 
 import com.elytradev.movingworld.common.experiments.entity.EntityMobileRegion;
 import com.elytradev.movingworld.common.experiments.network.MovingWorldExperimentsNetworking;
+import com.elytradev.movingworld.common.experiments.network.messages.server.MessageDimensionPoolData;
 import com.elytradev.movingworld.common.experiments.network.messages.server.MessageFullPoolData;
 import com.google.common.collect.HashBiMap;
 import net.minecraft.block.material.MapColor;
@@ -132,8 +133,15 @@ public class MovingWorldExperimentsMod {
 
     @SubscribeEvent
     public void onConnection(PlayerEvent.PlayerLoggedInEvent e) {
-        if (!e.isCanceled() && e.player != null) {
+        if (!e.isCanceled() && e.player != null && !e.player.world.isRemote) {
             new MessageFullPoolData(RegionPool.writeAllToCompound()).sendTo(e.player);
+        }
+    }
+
+    @SubscribeEvent
+    public void onDimChange(PlayerEvent.PlayerChangedDimensionEvent e) {
+        if (!e.isCanceled() && e.player != null && !e.player.world.isRemote) {
+            new MessageDimensionPoolData(e.toDim, RegionPool.getPool(e.toDim, true).writePoolToCompound()).sendTo(e.player);
         }
     }
 }

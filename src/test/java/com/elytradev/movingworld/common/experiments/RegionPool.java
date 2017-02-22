@@ -180,6 +180,10 @@ public class RegionPool {
      * @param tagCompound
      */
     public void readPoolFromCompound(NBTTagCompound tagCompound) {
+        if (!regions.isEmpty()) {
+            regions.clear();
+        }
+
         dimension = tagCompound.getInteger("DimensionID");
         int regionCount = tagCompound.getInteger("RegionCount");
 

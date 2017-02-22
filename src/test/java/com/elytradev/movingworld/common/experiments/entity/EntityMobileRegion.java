@@ -1,14 +1,15 @@
 package com.elytradev.movingworld.common.experiments.entity;
 
-import com.elytradev.movingworld.client.experiments.MobileRegionWorldClient;
 import com.elytradev.movingworld.common.experiments.MobileRegion;
 import com.elytradev.movingworld.common.experiments.MobileRegionWorldServer;
+import com.elytradev.movingworld.common.experiments.network.messages.client.MessageRequestData;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSettings;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -48,11 +49,7 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
 
     @SideOnly(Side.CLIENT)
     protected void initClient() {
-        this.mobileRegionWorld = new MobileRegionWorldClient(null, genWorldSettings(),
-                region.dimension, getParentWorld().getDifficulty(), getParentWorld().profiler,
-                world, getParentWorld(), region);
-
-        // TODO: Request data from server or make the server figure it out itself. Not sure yet.
+        new MessageRequestData().sendToServer();
     }
 
     @Override
@@ -87,10 +84,13 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
 
     @Override
     public void writeSpawnData(ByteBuf buffer) {
+        ByteBufUtils.writeTag(buffer, region.writeToCompound());
     }
 
     @Override
     public void readSpawnData(ByteBuf additionalData) {
+        NBTTagCompound regionCompound = ByteBufUtils.readTag(additionalData);
 
+        region = MobileRegion.getRegionFor(regionCompound);
     }
 }

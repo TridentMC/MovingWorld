@@ -10,6 +10,7 @@ import java.util.Optional;
 
 public class MobileRegion {
 
+    // All known regions.
     private static List<MobileRegion> REGIONS = new ArrayList<>();
     public double x, y, z;
     public int dimension;

@@ -57,7 +57,6 @@ public abstract class ChunkIO {
         }
 
         return count;
-
     }
 
     public static void writeBlock(DataOutput out, MobileChunk chunk, BlockPos pos) throws IOException {
