@@ -1,5 +1,6 @@
 package com.elytradev.movingworld.common.experiments.entity;
 
+import com.elytradev.movingworld.client.experiments.MobileRegionWorldClient;
 import com.elytradev.movingworld.common.experiments.MobileRegion;
 import com.elytradev.movingworld.common.experiments.MobileRegionWorldServer;
 import com.elytradev.movingworld.common.experiments.network.messages.client.MessageRequestData;
@@ -21,6 +22,8 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
 
     public MobileRegion region;
     public World mobileRegionWorld;
+
+    public boolean receivedData = false;
 
     public EntityMobileRegion(World worldIn, MobileRegion region) {
         super(worldIn);
@@ -50,6 +53,14 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
     @SideOnly(Side.CLIENT)
     protected void initClient() {
         new MessageRequestData(this).sendToServer();
+    }
+
+    public void setupClientForData() {
+        if (!receivedData) {
+            //mobileRegionWorld = new MobileRegionWorldClient(null, genWorldSettings(), region.dimension, world.getDifficulty(), null);
+
+            receivedData = !receivedData;
+        }
     }
 
     @Override

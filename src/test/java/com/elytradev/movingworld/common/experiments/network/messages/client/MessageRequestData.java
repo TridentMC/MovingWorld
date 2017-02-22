@@ -1,5 +1,6 @@
 package com.elytradev.movingworld.common.experiments.network.messages.client;
 
+import com.elytradev.movingworld.common.experiments.entity.EntityMobileRegion;
 import com.elytradev.movingworld.common.experiments.network.MovingWorldExperimentsNetworking;
 import com.elytradev.movingworld.common.experiments.network.messages.server.MessageBlockData;
 import com.elytradev.movingworld.common.network.marshallers.EntityMarshaller;
@@ -18,13 +19,13 @@ import net.minecraftforge.fml.relauncher.Side;
 public class MessageRequestData extends Message {
 
     @MarshalledAs(EntityMarshaller.MARSHALLER_NAME)
-    public Entity regionEntity;
+    public EntityMobileRegion regionEntity;
 
     public MessageRequestData(NetworkContext ctx) {
         super(ctx);
     }
 
-    public MessageRequestData(Entity regionEntity) {
+    public MessageRequestData(EntityMobileRegion regionEntity) {
         super(MovingWorldExperimentsNetworking.networkContext);
         this.regionEntity = regionEntity;
     }

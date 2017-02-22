@@ -46,6 +46,9 @@ public class MovingWorldExperimentsMod {
     @Mod.EventHandler
     public void onPreInit(FMLPreInitializationEvent e) {
         MinecraftForge.EVENT_BUS.register(this);
+        modProxy.setupDB();
+
+        //noinspection deprecation
         GameRegistry.registerWithItem(new BlockDebug(Material.TNT, MapColor.TNT));
     }
 
