@@ -3,13 +3,15 @@ package com.elytradev.movingworld.common.experiments.entity;
 import com.elytradev.movingworld.client.experiments.MobileRegionWorldClient;
 import com.elytradev.movingworld.common.experiments.MobileRegion;
 import com.elytradev.movingworld.common.experiments.MobileRegionWorldServer;
+import com.elytradev.movingworld.common.experiments.MovingWorldExperimentsMod;
 import com.elytradev.movingworld.common.experiments.network.messages.client.MessageRequestData;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.profiler.Profiler;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSettings;
-import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.relauncher.Side;
@@ -57,7 +59,11 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
 
     public void setupClientForData() {
         if (!receivedData) {
-            //mobileRegionWorld = new MobileRegionWorldClient(null, genWorldSettings(), region.dimension, world.getDifficulty(), null);
+            // generate the client world if needed.
+            MovingWorldExperimentsMod.modProxy.getDB().addWorldForDim(region.dimension, world);
+            WorldClient parentWorld = (WorldClient) MovingWorldExperimentsMod.modProxy.getDB().getWorldFromDim(region.dimension);
+
+            mobileRegionWorld = new MobileRegionWorldClient(parentWorld.connection, genWorldSettings(), region.dimension, world.getDifficulty(), new Profiler(), parentWorld, region);
 
             receivedData = !receivedData;
         }
@@ -80,7 +86,7 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
     }
 
     public World getParentWorld() {
-        return DimensionManager.getWorld(region.dimension);
+        return MovingWorldExperimentsMod.modProxy.getDB().getWorldFromDim(region.dimension);
     }
 
     @Override

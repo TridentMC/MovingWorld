@@ -9,6 +9,7 @@ import io.github.elytra.concrete.Message;
 import io.github.elytra.concrete.NetworkContext;
 import io.github.elytra.concrete.annotation.field.MarshalledAs;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.chunk.Chunk;
 
 public class MessageBlockData extends Message {
 
@@ -32,7 +33,8 @@ public class MessageBlockData extends Message {
             regionEntity.setupClientForData();
 
             for (BlockData blockData : data.getBlockData()) {
-
+                Chunk chunkAtPos = regionEntity.getParentWorld().getChunkFromBlockCoords(blockData.getPos());
+                chunkAtPos.setBlockState(blockData.getPos(), blockData.getState());
             }
         }
     }

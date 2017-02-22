@@ -58,7 +58,7 @@ public class MobileRegionWorldClient extends WorldClient {
 
     public MobileRegion region;
 
-    public MobileRegionWorldClient(NetHandlerPlayClient netHandler, WorldSettings settings, int dimension, EnumDifficulty difficulty, Profiler profilerIn, World world, World parentWorld, MobileRegion region) {
+    public MobileRegionWorldClient(NetHandlerPlayClient netHandler, WorldSettings settings, int dimension, EnumDifficulty difficulty, Profiler profilerIn, World parentWorld, MobileRegion region) {
         super(netHandler, settings, dimension, difficulty, profilerIn);
         this.realWorld = realWorld;
         this.parentWorld = (WorldClient) parentWorld;

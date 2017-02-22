@@ -8,7 +8,6 @@ import io.github.elytra.concrete.Message;
 import io.github.elytra.concrete.NetworkContext;
 import io.github.elytra.concrete.annotation.field.MarshalledAs;
 import io.github.elytra.concrete.annotation.type.ReceivedOn;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.relauncher.Side;
 
