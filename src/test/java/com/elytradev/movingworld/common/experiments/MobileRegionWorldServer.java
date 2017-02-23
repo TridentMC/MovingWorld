@@ -1,5 +1,7 @@
 package com.elytradev.movingworld.common.experiments;
 
+import com.elytradev.concrete.reflect.invoker.Invoker;
+import com.elytradev.concrete.reflect.invoker.Invokers;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSetMultimap;
@@ -54,6 +56,8 @@ import java.util.stream.Collectors;
  * Created by darkevilmac on 2/3/2017.
  */
 public class MobileRegionWorldServer extends WorldServer implements IWorldMixin {
+
+    private Invoker initCapabilities;
 
     public WorldServer realWorld;
     public WorldServer parentWorld;
@@ -774,6 +778,11 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
     }
 
     @Override
+    public void setAllowedSpawnTypes(boolean hostile, boolean peaceful) {
+        parentWorld.setAllowedSpawnTypes(hostile, peaceful);
+    }
+
+    @Override
     public void calculateInitialSkylight() {
         if (parentWorld != null)
             parentWorld.calculateInitialSkylight();
@@ -782,17 +791,11 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
     }
 
     @Override
-    public void setAllowedSpawnTypes(boolean hostile, boolean peaceful) {
-        parentWorld.setAllowedSpawnTypes(hostile, peaceful);
-    }
-
-    @Override
     public void calculateInitialWeather() {
         if (parentWorld != null)
             parentWorld.calculateInitialWeather();
         else
             super.calculateInitialWeather();
-
     }
 
     @Override
@@ -801,7 +804,6 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
             parentWorld.calculateInitialWeatherBody();
         else
             super.calculateInitialWeatherBody();
-
     }
 
     @Override
@@ -1424,13 +1426,10 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
 
     @Override
     public void initCapabilities() {
-        try {
-            ReflectionHelper.findMethod(WorldServer.class, parentWorld, new String[]{"initCapabilities"}, Void.class).invoke(null);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        }
+        if(initCapabilities == null)
+            initCapabilities = Invokers.findMethod(World.class, this, new String[]{"initCapabilities"});
+
+        initCapabilities.invoke(null);
     }
 
     @Override

@@ -1,8 +1,8 @@
 package com.elytradev.movingworld.common.network;
 
+import com.elytradev.concrete.NetworkContext;
 import com.elytradev.movingworld.MovingWorldMod;
 import com.elytradev.movingworld.common.network.message.*;
-import io.github.elytra.concrete.NetworkContext;
 
 public class MovingWorldNetworking {
 

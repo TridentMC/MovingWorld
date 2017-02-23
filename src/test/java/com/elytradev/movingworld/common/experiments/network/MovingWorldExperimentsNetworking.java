@@ -6,7 +6,7 @@ import com.elytradev.movingworld.common.experiments.network.messages.server.Mess
 import com.elytradev.movingworld.common.experiments.network.messages.server.MessageDimensionPoolData;
 import com.elytradev.movingworld.common.experiments.network.messages.server.MessageFullPoolData;
 import com.elytradev.movingworld.common.experiments.network.messages.server.MessageRegionData;
-import io.github.elytra.concrete.NetworkContext;
+import com.elytradev.concrete.NetworkContext;
 
 /**
  * Stores networking information

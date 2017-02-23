@@ -34,8 +34,7 @@ public class BlockDebug extends Block {
 
         EntityMobileRegion entityMobileRegion = new EntityMobileRegion(worldIn, worldReader.out.getRegion());
         entityMobileRegion.setPosition(pos.getX(), pos.getY() + 15, pos.getZ());
-        boolean spawnResult = worldIn.spawnEntity(entityMobileRegion);
-        System.out.println("Spawn Result " + spawnResult);
+        worldIn.spawnEntity(entityMobileRegion);
 
         return super.onBlockActivated(worldIn, pos, state, playerIn, hand, facing, hitX, hitY, hitZ);
     }

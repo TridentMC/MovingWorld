@@ -17,12 +17,13 @@ public class ClientProxy extends CommonProxy {
     }
 
     @Override
-    public void setupDB() {
+    public void setupDBS() {
+        super.setupDBS();
         clientDatabase = new MovingWorldClientDatabase();
     }
 
     @Override
-    public IMovingWorldDB getDB() {
+    public IMovingWorldDB getClientDB() {
         return clientDatabase;
     }
 }

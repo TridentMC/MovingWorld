@@ -18,9 +18,11 @@ public interface IMovingWorldDB {
     /**
      * Adds a world to the db if not already present, return true if added, false if was present.
      *
-     * @param dim   the dimension id of the world.
+     * @param dim the dimension id of the world.
      * @return true if added, false if already present.
      */
-    boolean addWorldForDim(int dim, World parent);
+    default boolean addWorldForDim(int dim, World parent) {
+        return false;
+    }
 
 }

@@ -1,5 +1,7 @@
 package com.elytradev.movingworld.client.experiments;
 
+import com.elytradev.concrete.reflect.invoker.Invoker;
+import com.elytradev.concrete.reflect.invoker.Invokers;
 import com.elytradev.movingworld.common.experiments.MobileRegion;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -41,10 +43,8 @@ import net.minecraft.world.storage.WorldInfo;
 import net.minecraft.world.storage.loot.LootTableManager;
 import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 import javax.annotation.Nullable;
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -55,8 +55,8 @@ public class MobileRegionWorldClient extends WorldClient {
 
     public WorldClient realWorld;
     public WorldClient parentWorld;
-
     public MobileRegion region;
+    private Invoker initCapabilities;
 
     public MobileRegionWorldClient(NetHandlerPlayClient netHandler, WorldSettings settings, int dimension, EnumDifficulty difficulty, Profiler profilerIn, World parentWorld, MobileRegion region) {
         super(netHandler, settings, dimension, difficulty, profilerIn);
@@ -71,18 +71,18 @@ public class MobileRegionWorldClient extends WorldClient {
 
     @Override
     public void initCapabilities() {
-        try {
-            ReflectionHelper.findMethod(WorldClient.class, parentWorld, new String[]{"initCapabilities"}, Void.class).invoke(null);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        }
+        if (initCapabilities == null)
+            initCapabilities = Invokers.findMethod(World.class, this, new String[]{"initCapabilities"});
+
+        initCapabilities.invoke(null);
     }
 
     @Override
     public IChunkProvider createChunkProvider() {
-        return parentWorld.createChunkProvider();
+        if (parentWorld != null)
+            return parentWorld.createChunkProvider();
+        else
+            return null;
     }
 
     @Override
@@ -574,7 +574,10 @@ public class MobileRegionWorldClient extends WorldClient {
 
     @Override
     public int calculateSkylightSubtracted(float partialTicks) {
-        return parentWorld.calculateSkylightSubtracted(partialTicks);
+        if (parentWorld != null)
+            return parentWorld.calculateSkylightSubtracted(partialTicks);
+        else
+            return super.calculateSkylightSubtracted(partialTicks);
     }
 
     @Override
@@ -590,8 +593,12 @@ public class MobileRegionWorldClient extends WorldClient {
 
     @Override
     public float getSunBrightnessFactor(float partialTicks) {
-        return realWorld.getSunBrightnessFactor(partialTicks);
+        if (realWorld != null)
+            return realWorld.getSunBrightnessFactor(partialTicks);
+        else
+            return super.getSunBrightnessFactor(partialTicks);
     }
+
 
     @Override
     public float getSunBrightness(float partialTicks) {
@@ -615,7 +622,9 @@ public class MobileRegionWorldClient extends WorldClient {
 
     @Override
     public float getCelestialAngle(float partialTicks) {
-        return realWorld.getCelestialAngle(partialTicks);
+        if (realWorld != null)
+            return realWorld.getCelestialAngle(partialTicks);
+        else return super.getCelestialAngle(partialTicks);
     }
 
     @Override
@@ -824,23 +833,32 @@ public class MobileRegionWorldClient extends WorldClient {
     }
 
     @Override
-    public void calculateInitialSkylight() {
-        parentWorld.calculateInitialSkylight();
-    }
-
-    @Override
     public void setAllowedSpawnTypes(boolean hostile, boolean peaceful) {
         parentWorld.setAllowedSpawnTypes(hostile, peaceful);
     }
 
     @Override
+    public void calculateInitialSkylight() {
+        if (parentWorld != null)
+            parentWorld.calculateInitialSkylight();
+        else
+            super.calculateInitialSkylight();
+    }
+
+    @Override
     public void calculateInitialWeather() {
-        parentWorld.calculateInitialWeather();
+        if (parentWorld != null)
+            parentWorld.calculateInitialWeather();
+        else
+            super.calculateInitialWeather();
     }
 
     @Override
     public void calculateInitialWeatherBody() {
-        parentWorld.calculateInitialWeatherBody();
+        if (parentWorld != null)
+            parentWorld.calculateInitialWeatherBody();
+        else
+            super.calculateInitialWeatherBody();
     }
 
     @Override
@@ -1168,7 +1186,8 @@ public class MobileRegionWorldClient extends WorldClient {
 
     @Override
     public void setSpawnPoint(BlockPos pos) {
-        parentWorld.setSpawnPoint(pos);
+        if (parentWorld != null)
+            parentWorld.setSpawnPoint(pos);
     }
 
     @Override
@@ -1206,7 +1225,10 @@ public class MobileRegionWorldClient extends WorldClient {
 
     @Override
     public WorldInfo getWorldInfo() {
-        return parentWorld.getWorldInfo();
+        if (parentWorld != null)
+            return parentWorld.getWorldInfo();
+        else
+            return worldInfo;
     }
 
     @Override
@@ -1221,7 +1243,10 @@ public class MobileRegionWorldClient extends WorldClient {
 
     @Override
     public float getThunderStrength(float delta) {
-        return realWorld.getThunderStrength(delta);
+        if (realWorld != null)
+            return realWorld.getThunderStrength(delta);
+        else
+            return super.getThunderStrength(delta);
     }
 
     @Override
@@ -1231,7 +1256,10 @@ public class MobileRegionWorldClient extends WorldClient {
 
     @Override
     public float getRainStrength(float delta) {
-        return realWorld.getRainStrength(delta);
+        if (realWorld != null)
+            return realWorld.getRainStrength(delta);
+        else
+            return super.getRainStrength(delta);
     }
 
     @Override

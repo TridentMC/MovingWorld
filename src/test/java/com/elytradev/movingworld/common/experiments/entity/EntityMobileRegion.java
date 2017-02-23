@@ -25,7 +25,8 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
     public MobileRegion region;
     public World mobileRegionWorld;
 
-    public boolean receivedData = false;
+    private boolean requestData = true;
+    private boolean receivedData = false;
 
     public EntityMobileRegion(World worldIn, MobileRegion region) {
         super(worldIn);
@@ -39,7 +40,7 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
     }
 
     public EntityMobileRegion(World worldIn) {
-        super(worldIn);
+        this(worldIn, null);
     }
 
     @Override
@@ -50,18 +51,21 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
     protected void initCommon() {
         this.mobileRegionWorld = new MobileRegionWorldServer(getParentWorld().getMinecraftServer(),
                 region.dimension, getParentWorld().profiler, world, getParentWorld(), region);
+
+        requestData = false;
     }
 
     @SideOnly(Side.CLIENT)
     protected void initClient() {
-        new MessageRequestData(this).sendToServer();
     }
 
     public void setupClientForData() {
         if (!receivedData) {
+            if (!world.isRemote)
+                return;
             // generate the client world if needed.
-            MovingWorldExperimentsMod.modProxy.getDB().addWorldForDim(region.dimension, world);
-            WorldClient parentWorld = (WorldClient) MovingWorldExperimentsMod.modProxy.getDB().getWorldFromDim(region.dimension);
+            MovingWorldExperimentsMod.modProxy.getClientDB().addWorldForDim(region.dimension, world);
+            WorldClient parentWorld = (WorldClient) MovingWorldExperimentsMod.modProxy.getClientDB().getWorldFromDim(region.dimension);
 
             mobileRegionWorld = new MobileRegionWorldClient(parentWorld.connection, genWorldSettings(), region.dimension, world.getDifficulty(), new Profiler(), parentWorld, region);
 
@@ -72,7 +76,14 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
     @Override
     public void onEntityUpdate() {
         super.onEntityUpdate();
-        // stub for debug output.
+        if (requestData) {
+            new MessageRequestData(this).sendToServer();
+            requestData = false;
+        }
+
+        region.x = this.posX;
+        region.y = this.posY;
+        region.z = this.posZ;
     }
 
     private WorldSettings genWorldSettings() {
@@ -86,7 +97,11 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
     }
 
     public World getParentWorld() {
-        return MovingWorldExperimentsMod.modProxy.getDB().getWorldFromDim(region.dimension);
+        if (world.isRemote) {
+            return MovingWorldExperimentsMod.modProxy.getClientDB().getWorldFromDim(region.dimension);
+        } else {
+            return MovingWorldExperimentsMod.modProxy.getCommonDB().getWorldFromDim(region.dimension);
+        }
     }
 
     @Override

@@ -11,7 +11,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.common.DimensionManager;
 
 import java.text.MessageFormat;
 import java.util.HashMap;
@@ -70,7 +69,7 @@ public class WorldReader {
         // The following code shifts the position of the blocks found with our flood fill,
         // we need it shifted so the collection will be placed in the center of our MobileRegion.
         BlockPos invertedStart = new BlockPos(start.getX(), 0, start.getZ());
-        World subWorld = DimensionManager.getWorld(MovingWorldExperimentsMod.registeredDimensions.get(world.provider.getDimension()));
+        World subWorld = MovingWorldExperimentsMod.modProxy.getCommonDB().getWorldFromDim(MovingWorldExperimentsMod.registeredDimensions.get(world.provider.getDimension()));
         RegionPool regionPool = RegionPool.getPool(subWorld.provider.getDimension(), true);
         MobileRegion region = regionPool.nextRegion(false);
 

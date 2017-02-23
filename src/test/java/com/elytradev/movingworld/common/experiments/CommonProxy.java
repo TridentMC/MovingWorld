@@ -1,17 +1,21 @@
 package com.elytradev.movingworld.common.experiments;
 
-public class CommonProxy {
+import net.minecraft.world.World;
+import net.minecraftforge.common.DimensionManager;
 
-    private MovingWorldCommonDatabase commonDatabase;
+public class CommonProxy {
 
     public void registerRenders() {
     }
 
-    public void setupDB(){
-        commonDatabase = new MovingWorldCommonDatabase();
+    public void setupDBS() {
     }
 
-    public IMovingWorldDB getDB() {
-        return commonDatabase;
+    public IMovingWorldDB getCommonDB() {
+        return DimensionManager::getWorld;
+    }
+
+    public IMovingWorldDB getClientDB() {
+        return null;
     }
 }

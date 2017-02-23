@@ -46,7 +46,7 @@ public class MovingWorldExperimentsMod {
     @Mod.EventHandler
     public void onPreInit(FMLPreInitializationEvent e) {
         MinecraftForge.EVENT_BUS.register(this);
-        modProxy.setupDB();
+        modProxy.setupDBS();
 
         //noinspection deprecation
         GameRegistry.registerWithItem(new BlockDebug(Material.TNT, MapColor.TNT));
@@ -128,6 +128,7 @@ public class MovingWorldExperimentsMod {
             DimensionManager.initDimension(activeDimID);
             RegionPool.getPool(activeDimID, true);
 
+            System.out.println(modProxy.getCommonDB().getWorldFromDim(activeDimID));
             activeDimID++;
         } catch (Exception exception) {
             System.out.println("Everything went fine don't worry it's good.");

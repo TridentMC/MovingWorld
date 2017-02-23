@@ -4,16 +4,20 @@ import com.elytradev.movingworld.common.experiments.BlockData;
 import com.elytradev.movingworld.common.experiments.entity.EntityMobileRegion;
 import com.elytradev.movingworld.common.experiments.network.ChunkData;
 import com.elytradev.movingworld.common.experiments.network.MovingWorldExperimentsNetworking;
+import com.elytradev.movingworld.common.experiments.network.marshallers.ClientEntityMarshaller;
 import com.elytradev.movingworld.common.network.marshallers.EntityMarshaller;
-import io.github.elytra.concrete.Message;
-import io.github.elytra.concrete.NetworkContext;
-import io.github.elytra.concrete.annotation.field.MarshalledAs;
+import com.elytradev.concrete.Message;
+import com.elytradev.concrete.NetworkContext;
+import com.elytradev.concrete.annotation.field.MarshalledAs;
+import com.elytradev.concrete.annotation.type.ReceivedOn;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraftforge.fml.relauncher.Side;
 
+@ReceivedOn(Side.CLIENT)
 public class MessageBlockData extends Message {
 
-    @MarshalledAs(EntityMarshaller.MARSHALLER_NAME)
+    @MarshalledAs(ClientEntityMarshaller.MARSHALLER_NAME)
     public EntityMobileRegion regionEntity;
     public ChunkData data;
 
@@ -25,6 +29,7 @@ public class MessageBlockData extends Message {
         super(MovingWorldExperimentsNetworking.networkContext);
 
         this.regionEntity = regionEntity;
+        this.data = new ChunkData(regionEntity.getParentWorld(), regionEntity.region);
     }
 
     @Override

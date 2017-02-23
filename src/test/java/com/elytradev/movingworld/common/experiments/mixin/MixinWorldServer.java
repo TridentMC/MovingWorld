@@ -21,14 +21,10 @@ public class MixinWorldServer implements IWorldMixin {
 
     @Redirect(method = WORLD_SERVER_CONSTRUCTOR, at = @At(value = "INVOKE", target = DIM_MANAGER_SETWORLD))
     private void setDimensionManagerWorld(int dimensionId, WorldServer world, MinecraftServer mcServer) {
-        String result = "skipped.";
-
         if (RegionPool.getPool(dimensionId, false) == null) {
             DimensionManager.setWorld(dimensionId, world, mcServer);
-            result = "done.";
         }
 
-        System.out.println("Set dimension from WorldServer instantiation, " + result);
     }
 
     @Redirect(method = WORLD_SERVER_CONSTRUCTOR,

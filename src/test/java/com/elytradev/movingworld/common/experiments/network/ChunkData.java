@@ -4,7 +4,7 @@ import com.elytradev.movingworld.common.chunk.mobilechunk.MobileChunk;
 import com.elytradev.movingworld.common.experiments.BlockData;
 import com.elytradev.movingworld.common.experiments.MobileRegion;
 import com.google.common.collect.Lists;
-import io.github.elytra.concrete.Marshallable;
+import com.elytradev.concrete.Marshallable;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
@@ -30,6 +30,9 @@ public class ChunkData implements Marshallable {
     private World world;
     private MobileRegion region;
     private List<BlockData> blockDatas = Lists.newArrayList();
+
+    public ChunkData() {
+    }
 
     public ChunkData(World world, MobileRegion region) {
         this.world = world;

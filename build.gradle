@@ -52,7 +52,7 @@ repositories {
         url 'https://repo.spongepowered.org/maven/'
     }
     maven {
-        url = 'http://unascribed.com/maven/releases'
+        url = 'http://repo.elytradev.com/'
     }
 }
 
@@ -62,14 +62,14 @@ dependencies {
         exclude module: 'guava'
     }
 
-    compile 'io.github.elytra:concrete:0.0.6'
-    shadow 'io.github.elytra:concrete:0.0.6'
+    compile 'com.elytradev:concrete:0.1.0'
+    shadow 'com.elytradev:concrete:0.1.0'
 }
 
 shadowJar {
     exclude 'dummyThing'
 
-	relocate 'io.github.elytra.concrete', "com.elytradev.movingworld.repackage.io.github.elytra.concrete"
+	relocate 'com.elytradev.concrete', "com.elytradev.movingworld.repackage.com.elytradev.concrete"
     dependencies {
         include(dependency('org.spongepowered:mixin'))
     }

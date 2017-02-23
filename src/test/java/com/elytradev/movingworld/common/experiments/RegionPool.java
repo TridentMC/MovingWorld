@@ -80,9 +80,9 @@ public class RegionPool {
         int[] poolIDS = tagCompound.getIntArray("PoolIDS");
 
         for (int i : poolIDS) {
-            NBTTagCompound poolComound = tagCompound.getCompoundTag("Pool#" + i);
+            NBTTagCompound poolCompound = tagCompound.getCompoundTag("Pool#" + i);
             RegionPool pool = new RegionPool();
-            pool.readPoolFromCompound(poolComound);
+            pool.readPoolFromCompound(poolCompound);
             POOLS.put(i, pool);
         }
     }
