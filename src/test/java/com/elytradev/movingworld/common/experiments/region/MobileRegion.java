@@ -1,4 +1,4 @@
-package com.elytradev.movingworld.common.experiments;
+package com.elytradev.movingworld.common.experiments.region;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.*;

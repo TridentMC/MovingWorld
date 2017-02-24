@@ -1,8 +1,8 @@
 package com.elytradev.movingworld.common.experiments.entity;
 
 import com.elytradev.movingworld.client.experiments.MobileRegionWorldClient;
-import com.elytradev.movingworld.common.experiments.MobileRegion;
-import com.elytradev.movingworld.common.experiments.MobileRegionWorldServer;
+import com.elytradev.movingworld.common.experiments.region.MobileRegion;
+import com.elytradev.movingworld.common.experiments.world.MobileRegionWorldServer;
 import com.elytradev.movingworld.common.experiments.MovingWorldExperimentsMod;
 import com.elytradev.movingworld.common.experiments.network.messages.client.MessageRequestData;
 import io.netty.buffer.ByteBuf;

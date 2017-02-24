@@ -1,7 +1,7 @@
 package com.elytradev.movingworld.common.experiments.mixin;
 
 import com.elytradev.movingworld.common.experiments.IWorldMixin;
-import com.elytradev.movingworld.common.experiments.RegionPool;
+import com.elytradev.movingworld.common.experiments.region.RegionPool;
 import net.minecraft.entity.EntityTracker;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldServer;

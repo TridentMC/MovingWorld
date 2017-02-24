@@ -1,5 +1,6 @@
-package com.elytradev.movingworld.common.experiments;
+package com.elytradev.movingworld.common.experiments.debug;
 
+import com.elytradev.movingworld.common.experiments.region.RegionPool;
 import com.elytradev.movingworld.common.experiments.entity.EntityMobileRegion;
 import com.elytradev.movingworld.common.experiments.newassembly.WorldReader;
 import net.minecraft.block.Block;

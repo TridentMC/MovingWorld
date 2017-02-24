@@ -1,4 +1,4 @@
-package com.elytradev.movingworld.common.experiments;
+package com.elytradev.movingworld.common.experiments.world;
 
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.WorldProvider;

@@ -2,8 +2,7 @@ package com.elytradev.movingworld.common.experiments.network;
 
 import com.elytradev.concrete.Marshallable;
 import com.elytradev.movingworld.common.chunk.mobilechunk.MobileChunk;
-import com.elytradev.movingworld.common.experiments.BlockData;
-import com.elytradev.movingworld.common.experiments.MobileRegion;
+import com.elytradev.movingworld.common.experiments.region.MobileRegion;
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;

@@ -1,7 +1,7 @@
 package com.elytradev.movingworld.client.experiments.render;
 
 import com.elytradev.movingworld.client.experiments.MobileRegionWorldClient;
-import com.elytradev.movingworld.common.experiments.MobileRegion;
+import com.elytradev.movingworld.common.experiments.region.MobileRegion;
 import com.elytradev.movingworld.common.experiments.entity.EntityMobileRegion;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;

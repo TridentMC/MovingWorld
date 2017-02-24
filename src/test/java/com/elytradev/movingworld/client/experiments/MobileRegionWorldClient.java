@@ -2,7 +2,7 @@ package com.elytradev.movingworld.client.experiments;
 
 import com.elytradev.concrete.reflect.invoker.Invoker;
 import com.elytradev.concrete.reflect.invoker.Invokers;
-import com.elytradev.movingworld.common.experiments.MobileRegion;
+import com.elytradev.movingworld.common.experiments.region.MobileRegion;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSetMultimap;

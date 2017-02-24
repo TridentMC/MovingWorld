@@ -1,4 +1,4 @@
-package com.elytradev.movingworld.common.experiments;
+package com.elytradev.movingworld.common.experiments.region;
 
 /**
  * Created by darkevilmac on 11/15/2016.

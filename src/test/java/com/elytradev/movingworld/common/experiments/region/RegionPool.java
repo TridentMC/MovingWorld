@@ -1,4 +1,4 @@
-package com.elytradev.movingworld.common.experiments;
+package com.elytradev.movingworld.common.experiments.region;
 
 import com.elytradev.movingworld.common.experiments.network.messages.server.MessageRegionData;
 import net.minecraft.nbt.NBTTagCompound;

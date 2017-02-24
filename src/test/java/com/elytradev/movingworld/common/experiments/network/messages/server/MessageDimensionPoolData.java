@@ -1,11 +1,11 @@
 package com.elytradev.movingworld.common.experiments.network.messages.server;
 
-import com.elytradev.movingworld.common.experiments.RegionPool;
-import com.elytradev.movingworld.common.experiments.network.MovingWorldExperimentsNetworking;
 import com.elytradev.concrete.Message;
 import com.elytradev.concrete.NetworkContext;
 import com.elytradev.concrete.annotation.field.MarshalledAs;
 import com.elytradev.concrete.annotation.type.ReceivedOn;
+import com.elytradev.movingworld.common.experiments.region.RegionPool;
+import com.elytradev.movingworld.common.experiments.network.MovingWorldExperimentsNetworking;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.Side;
