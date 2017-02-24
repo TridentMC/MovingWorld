@@ -26,7 +26,6 @@ public class MobileRegionRenderer extends Render<EntityMobileRegion> {
         GlStateManager.translate(x, y, z);
         RegionRenderer regionRenderer = new RegionRenderer(entity);
         regionRenderer.renderAll(partialTicks);
-
         GlStateManager.popMatrix();
     }
 

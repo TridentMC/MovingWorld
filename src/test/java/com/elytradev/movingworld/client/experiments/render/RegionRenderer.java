@@ -12,15 +12,16 @@ import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.opengl.GL11;
 
-import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * just bad
@@ -55,34 +56,40 @@ public class RegionRenderer {
         // if you're reading this
         // please send help
 
+        if (worldClient == null)
+            return true;
+
         // Okay, back to actual comments. Adjust GL position to compensate for the odd coords our chunk contains.
         GlStateManager.pushMatrix();
-        GlStateManager.translate(region.minBlockPos().getX() * -1, 0, region.minBlockPos().getZ() * -1);
         Minecraft mc = Minecraft.getMinecraft();
         mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
         BlockRendererDispatcher dispatcher = mc.getBlockRendererDispatcher();
 
         // Blocks.
-        Arrays.stream(BlockRenderLayer.values()).forEach(layer -> {
-            Tessellator tessellator = Tessellator.getInstance();
-            VertexBuffer vertexBuffer = tessellator.getBuffer();
-            vertexBuffer.begin(7, DefaultVertexFormats.BLOCK);
+        Tessellator tess = Tessellator.getInstance();
+        VertexBuffer vertexBuffer = tess.getBuffer();
+        vertexBuffer.setTranslation(0, 0, 0);
+        vertexBuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
 
-            ForgeHooksClient.setRenderLayer(layer);
-            for (BlockPos pos : BlockPos.getAllInBox(region.minBlockPos(), region.maxBlockPos())) {
-                IBlockState state = worldClient.getBlockState(pos);
-                if (state == null)
-                    continue;
+        for (int cX = worldClient.region.regionMin.chunkXPos; cX <= worldClient.region.regionMax.chunkXPos; cX++) {
+            for (int cZ = worldClient.region.regionMin.chunkZPos; cZ <= worldClient.region.regionMax.chunkZPos; cZ++) {
+                ChunkPos chunkPos = new ChunkPos(cX, cZ);
 
-                if (state.getBlock().canRenderInLayer(state, layer)) {
+                for (BlockPos pos : BlockPos.getAllInBox(new BlockPos(chunkPos.getXStart(), 0, chunkPos.getZStart()),
+                        new BlockPos(chunkPos.getXEnd(), worldClient.getActualHeight(), chunkPos.getZEnd()))) {
+                    IBlockState state = worldClient.getBlockState(pos);
+
+                    if (state == null || Objects.equals(state.getBlock(), Blocks.AIR))
+                        continue;
+
+                    BlockPos shiftPos = new BlockPos(pos).subtract(region.minBlockPos());
+                    vertexBuffer.setTranslation(shiftPos.getX(), shiftPos.getY(), shiftPos.getZ());
                     dispatcher.renderBlock(state, pos, worldClient, vertexBuffer);
                 }
             }
-            ForgeHooksClient.setRenderLayer(null);
+        }
 
-            tessellator.draw();
-        });
-
+        tess.draw();
 
         //Tiles.
         TileEntityRendererDispatcher tileRenderDispatcher = TileEntityRendererDispatcher.instance;

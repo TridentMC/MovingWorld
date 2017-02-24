@@ -44,11 +44,9 @@ import net.minecraft.world.storage.loot.LootTableManager;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 import javax.annotation.Nullable;
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -57,12 +55,10 @@ import java.util.stream.Collectors;
  */
 public class MobileRegionWorldServer extends WorldServer implements IWorldMixin {
 
-    private Invoker initCapabilities;
-
     public WorldServer realWorld;
     public WorldServer parentWorld;
-
     public MobileRegion region;
+    private Invoker initCapabilities;
 
     public MobileRegionWorldServer(MinecraftServer server, int dimensionId, Profiler profilerIn, World realWorld, World parentWorld, MobileRegion region) {
         super(server, parentWorld.getSaveHandler(), parentWorld.getWorldInfo(), dimensionId, profilerIn);
@@ -71,8 +67,6 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
 
     @Override
     public void onInstantiate(int dimension) {
-        System.out.println("OnInstantiate was called! Hallelujah!");
-
         World parentWorld = DimensionManager.getWorld(dimension);
         World realWorld = DimensionManager.getWorld(MovingWorldExperimentsMod.registeredDimensions.inverse().get(dimension));
 
@@ -1426,10 +1420,14 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
 
     @Override
     public void initCapabilities() {
-        if(initCapabilities == null)
-            initCapabilities = Invokers.findMethod(World.class, this, new String[]{"initCapabilities"});
+        if (initCapabilities == null) {
+            initCapabilities = Invokers.findMethod(World.class, null, new String[]{"initCapabilities"});
+        }
 
-        initCapabilities.invoke(null);
+        if (parentWorld != null)
+            initCapabilities.invoke(parentWorld);
+        else
+            super.initCapabilities();
     }
 
     @Override

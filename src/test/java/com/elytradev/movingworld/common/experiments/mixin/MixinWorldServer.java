@@ -24,7 +24,6 @@ public class MixinWorldServer implements IWorldMixin {
         if (RegionPool.getPool(dimensionId, false) == null) {
             DimensionManager.setWorld(dimensionId, world, mcServer);
         }
-
     }
 
     @Redirect(method = WORLD_SERVER_CONSTRUCTOR,
@@ -37,7 +36,6 @@ public class MixinWorldServer implements IWorldMixin {
 
     @Override
     public void onInstantiate(int dimension) {
-
     }
 
     public WorldServer thisWorld() {

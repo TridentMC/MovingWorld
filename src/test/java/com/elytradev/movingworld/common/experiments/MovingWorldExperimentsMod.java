@@ -47,6 +47,7 @@ public class MovingWorldExperimentsMod {
     public void onPreInit(FMLPreInitializationEvent e) {
         MinecraftForge.EVENT_BUS.register(this);
         modProxy.setupDBS();
+        modProxy.registerRenders();
 
         //noinspection deprecation
         GameRegistry.registerWithItem(new BlockDebug(Material.TNT, MapColor.TNT));
@@ -56,7 +57,6 @@ public class MovingWorldExperimentsMod {
     public void onInit(FMLInitializationEvent e) {
         MovingWorldExperimentsNetworking.init();
         EntityRegistry.registerModEntity(new ResourceLocation(MOD_ID, "mobileregion"), EntityMobileRegion.class, "mobileregion", 1, this, 64, 5, true);
-        modProxy.registerRenders();
     }
 
     @Mod.EventHandler

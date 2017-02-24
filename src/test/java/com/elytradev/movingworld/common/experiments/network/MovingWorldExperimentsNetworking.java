@@ -1,12 +1,9 @@
 package com.elytradev.movingworld.common.experiments.network;
 
+import com.elytradev.concrete.NetworkContext;
 import com.elytradev.movingworld.common.experiments.MovingWorldExperimentsMod;
 import com.elytradev.movingworld.common.experiments.network.messages.client.MessageRequestData;
-import com.elytradev.movingworld.common.experiments.network.messages.server.MessageBlockData;
-import com.elytradev.movingworld.common.experiments.network.messages.server.MessageDimensionPoolData;
-import com.elytradev.movingworld.common.experiments.network.messages.server.MessageFullPoolData;
-import com.elytradev.movingworld.common.experiments.network.messages.server.MessageRegionData;
-import com.elytradev.concrete.NetworkContext;
+import com.elytradev.movingworld.common.experiments.network.messages.server.*;
 
 /**
  * Stores networking information
@@ -24,6 +21,7 @@ public class MovingWorldExperimentsNetworking {
         networkContext.register(MessageFullPoolData.class);
         networkContext.register(MessageDimensionPoolData.class);
         networkContext.register(MessageBlockData.class);
+        networkContext.register(MessageChunkData.class);
     }
 
 }

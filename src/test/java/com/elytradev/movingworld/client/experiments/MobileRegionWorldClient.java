@@ -71,10 +71,14 @@ public class MobileRegionWorldClient extends WorldClient {
 
     @Override
     public void initCapabilities() {
-        if (initCapabilities == null)
-            initCapabilities = Invokers.findMethod(World.class, this, new String[]{"initCapabilities"});
+        if (initCapabilities == null) {
+            initCapabilities = Invokers.findMethod(World.class, null, new String[]{"initCapabilities"});
+        }
 
-        initCapabilities.invoke(null);
+        if (parentWorld != null)
+            initCapabilities.invoke(parentWorld);
+        else
+            super.initCapabilities();
     }
 
     @Override

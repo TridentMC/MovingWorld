@@ -1,10 +1,10 @@
 package com.elytradev.movingworld.common.experiments.network;
 
+import com.elytradev.concrete.Marshallable;
 import com.elytradev.movingworld.common.chunk.mobilechunk.MobileChunk;
 import com.elytradev.movingworld.common.experiments.BlockData;
 import com.elytradev.movingworld.common.experiments.MobileRegion;
 import com.google.common.collect.Lists;
-import com.elytradev.concrete.Marshallable;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
@@ -48,9 +48,9 @@ public class ChunkData implements Marshallable {
     }
 
     private void writeBlock(DataOutput out, IBlockState state, BlockPos pos) throws IOException {
-        out.writeByte(pos.getX());
-        out.writeByte(pos.getY());
-        out.writeByte(pos.getZ());
+        out.writeInt(pos.getX());
+        out.writeInt(pos.getY());
+        out.writeInt(pos.getZ());
         out.writeShort(Block.getIdFromBlock(state.getBlock()));
         out.writeInt(state.getBlock().getMetaFromState(state));
     }
@@ -70,8 +70,8 @@ public class ChunkData implements Marshallable {
                 countedBlocks++;
             }
         }
-        dataOut.writeInt(countedBlocks);
 
+        dataOut.writeInt(countedBlocks);
         for (BlockPos pos : BlockPos.getAllInBox(region.minBlockPos(), region.maxBlockPos())) {
             IBlockState stateAtPos = world.getBlockState(pos);
             if (stateAtPos != null && !Objects.equals(stateAtPos.getBlock(), Blocks.AIR)) {
@@ -109,7 +109,7 @@ public class ChunkData implements Marshallable {
 
     @SuppressWarnings("deprecation")
     private void read(DataInput in) throws IOException {
-        int count = in.readShort();
+        int count = in.readInt();
 
         //MovingWorldMod.LOG.debug("Reading mobile chunk data: " + count + " blocks");
 
@@ -117,9 +117,9 @@ public class ChunkData implements Marshallable {
         int id;
         IBlockState state;
         for (int i = 0; i < count; i++) {
-            x = in.readByte();
-            y = in.readByte();
-            z = in.readByte();
+            x = in.readInt();
+            y = in.readInt();
+            z = in.readInt();
             id = in.readShort();
             state = Block.getBlockById(id).getStateFromMeta(in.readInt());
             blockDatas.add(new BlockData(new BlockPos(x, y, z), state));
