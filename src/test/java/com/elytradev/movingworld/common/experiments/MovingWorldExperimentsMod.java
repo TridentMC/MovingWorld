@@ -14,6 +14,7 @@ import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.DimensionType;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
@@ -24,8 +25,10 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 import java.io.File;
+import java.lang.reflect.Field;
 
 /**
  * Created by darkevilmac on 2/9/2017.
@@ -129,8 +132,11 @@ public class MovingWorldExperimentsMod {
                     DimensionType.register("MovingWorld|P" + loadedDimensionID + "|C" + activeDimID,
                             "movingworld", activeDimID, MovingWorldProvider.class, true));
             DimensionManager.initDimension(activeDimID);
+            WorldServer worldServer = DimensionManager.getWorld(activeDimID);
+            Field playerChunkMap = ReflectionHelper.findField(WorldServer.class, "playerChunkMap", "field_73063_M");
+            playerChunkMap.setAccessible(true);
+            playerChunkMap.set(worldServer, new MWPlayerChunkMap(worldServer));
             RegionPool.getPool(activeDimID, true);
-
             System.out.println(modProxy.getCommonDB().getWorldFromDim(activeDimID));
             activeDimID++;
         } catch (Exception exception) {
