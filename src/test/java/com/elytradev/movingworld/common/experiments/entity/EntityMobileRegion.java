@@ -1,10 +1,10 @@
 package com.elytradev.movingworld.common.experiments.entity;
 
 import com.elytradev.movingworld.client.experiments.MobileRegionWorldClient;
-import com.elytradev.movingworld.common.experiments.region.MobileRegion;
-import com.elytradev.movingworld.common.experiments.world.MobileRegionWorldServer;
 import com.elytradev.movingworld.common.experiments.MovingWorldExperimentsMod;
 import com.elytradev.movingworld.common.experiments.network.messages.client.MessageRequestData;
+import com.elytradev.movingworld.common.experiments.region.MobileRegion;
+import com.elytradev.movingworld.common.experiments.world.MobileRegionWorldServer;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.Entity;
@@ -78,6 +78,7 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
         super.onEntityUpdate();
         if (requestData) {
             new MessageRequestData(this).sendToServer();
+            this.setupClientForData();
             requestData = false;
         }
 

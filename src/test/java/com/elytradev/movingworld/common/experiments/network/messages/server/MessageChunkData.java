@@ -5,9 +5,7 @@ import com.elytradev.concrete.NetworkContext;
 import com.elytradev.concrete.annotation.field.MarshalledAs;
 import com.elytradev.concrete.annotation.type.ReceivedOn;
 import com.elytradev.movingworld.common.experiments.MovingWorldExperimentsMod;
-import com.elytradev.movingworld.common.experiments.entity.EntityMobileRegion;
 import com.elytradev.movingworld.common.experiments.network.MovingWorldExperimentsNetworking;
-import com.elytradev.movingworld.common.experiments.network.marshallers.ClientEntityMarshaller;
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -34,9 +32,6 @@ import java.util.Objects;
 @ReceivedOn(Side.CLIENT)
 public class MessageChunkData extends Message {
 
-    @MarshalledAs(ClientEntityMarshaller.MARSHALLER_NAME)
-    private EntityMobileRegion mobileRegion;
-
     @MarshalledAs("u16")
     private int dimension;
 
@@ -56,10 +51,9 @@ public class MessageChunkData extends Message {
         super(ctx);
     }
 
-    public MessageChunkData(EntityMobileRegion mobileRegion, Chunk chunkIn, int changedSectionFilter) {
+    public MessageChunkData(int dimension, Chunk chunkIn, int changedSectionFilter) {
         super(MovingWorldExperimentsNetworking.networkContext);
 
-        this.mobileRegion = mobileRegion;
         this.dimension = chunkIn.getWorld().provider.getDimension();
         this.chunkX = chunkIn.xPosition;
         this.chunkZ = chunkIn.zPosition;
@@ -88,8 +82,6 @@ public class MessageChunkData extends Message {
 
     @Override
     protected void handle(EntityPlayer sender) {
-        mobileRegion.setupClientForData();
-
         WorldClient worldClient = (WorldClient) MovingWorldExperimentsMod.modProxy.getClientDB().getWorldFromDim(dimension);
 
         if (loadChunk) {

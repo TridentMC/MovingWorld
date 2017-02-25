@@ -35,7 +35,7 @@ public class MessageRequestData extends Message {
             // return to sender, address unknown.
             for (int cX = regionEntity.region.regionMin.chunkXPos; cX < regionEntity.region.regionMax.chunkXPos; cX++) {
                 for (int cZ = regionEntity.region.regionMin.chunkZPos; cZ < regionEntity.region.regionMax.chunkZPos; cZ++) {
-                    new MessageChunkData(regionEntity, regionEntity.getParentWorld().getChunkFromChunkCoords(cX, cZ), 65535).sendTo(sender);
+                    new MessageChunkData(regionEntity.dimension, regionEntity.getParentWorld().getChunkFromChunkCoords(cX, cZ), 65535).sendTo(sender);
                 }
             }
         }
