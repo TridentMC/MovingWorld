@@ -1,7 +1,7 @@
 package com.elytradev.movingworld.common.experiments.newassembly;
 
-import com.elytradev.movingworld.common.experiments.region.MobileRegion;
 import com.elytradev.movingworld.common.experiments.MovingWorldExperimentsMod;
+import com.elytradev.movingworld.common.experiments.region.MobileRegion;
 import com.elytradev.movingworld.common.experiments.region.RegionPool;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;

@@ -76,6 +76,10 @@ public class MessageChunkData extends Message {
         }
     }
 
+    public MessageChunkData(Chunk chunk, int changedSectionFilter) {
+        this(chunk.getWorld().provider.getDimension(), chunk, changedSectionFilter);
+    }
+
     public PacketBuffer getReadBuffer() {
         return new PacketBuffer(Unpooled.wrappedBuffer(this.buffer));
     }

@@ -1,8 +1,8 @@
 package com.elytradev.movingworld.common.experiments.debug;
 
-import com.elytradev.movingworld.common.experiments.region.RegionPool;
 import com.elytradev.movingworld.common.experiments.entity.EntityMobileRegion;
 import com.elytradev.movingworld.common.experiments.newassembly.WorldReader;
+import com.elytradev.movingworld.common.experiments.region.RegionPool;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
