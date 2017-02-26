@@ -8,9 +8,11 @@ import com.elytradev.movingworld.common.experiments.world.MobileRegionWorldServe
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.profiler.Profiler;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraft.world.WorldSettings;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
@@ -125,5 +127,15 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
         NBTTagCompound regionCompound = ByteBufUtils.readTag(additionalData);
 
         region = MobileRegion.getRegionFor(regionCompound);
+    }
+
+    @Override
+    public void removeTrackingPlayer(EntityPlayerMP player) {
+        for (int cX = region.regionMin.chunkXPos; cX < region.regionMax.chunkXPos; cX++) {
+            for (int cZ = region.regionMin.chunkZPos; cZ < region.regionMax.chunkZPos; cZ++) {
+                WorldServer worldServer = ((WorldServer) getParentWorld());
+                worldServer.playerChunkMap.getOrCreateEntry(cX, cZ).removePlayer(player);
+            }
+        }
     }
 }
