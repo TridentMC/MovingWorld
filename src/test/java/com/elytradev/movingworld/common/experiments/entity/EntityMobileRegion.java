@@ -109,12 +109,15 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
 
     @Override
     protected void readEntityFromNBT(NBTTagCompound compound) {
+        region = MobileRegion.getRegionFor(compound.getCompoundTag("Region"));
 
+        if (mobileRegionWorld == null)
+            initCommon();
     }
 
     @Override
     protected void writeEntityToNBT(NBTTagCompound compound) {
-
+        compound.setTag("Region", region.writeToCompound());
     }
 
     @Override
