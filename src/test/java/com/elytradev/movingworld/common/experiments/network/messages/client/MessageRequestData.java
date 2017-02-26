@@ -6,14 +6,13 @@ import com.elytradev.concrete.annotation.field.MarshalledAs;
 import com.elytradev.concrete.annotation.type.ReceivedOn;
 import com.elytradev.movingworld.common.experiments.entity.EntityMobileRegion;
 import com.elytradev.movingworld.common.experiments.network.MovingWorldExperimentsNetworking;
-import com.elytradev.movingworld.common.experiments.network.messages.server.MessageChunkData;
 import com.elytradev.movingworld.common.network.marshallers.EntityMarshaller;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.relauncher.Side;
 
-/**
- * Created by darkevilmac on 2/21/2017.
- */
+
 @ReceivedOn(Side.SERVER)
 public class MessageRequestData extends Message {
 
@@ -35,7 +34,8 @@ public class MessageRequestData extends Message {
             // return to sender, address unknown.
             for (int cX = regionEntity.region.regionMin.chunkXPos; cX < regionEntity.region.regionMax.chunkXPos; cX++) {
                 for (int cZ = regionEntity.region.regionMin.chunkZPos; cZ < regionEntity.region.regionMax.chunkZPos; cZ++) {
-                    new MessageChunkData(regionEntity.dimension, regionEntity.getParentWorld().getChunkFromChunkCoords(cX, cZ), 65535).sendTo(sender);
+                    WorldServer worldServer = ((WorldServer) regionEntity.getParentWorld());
+                    worldServer.playerChunkMap.getOrCreateEntry(cX, cZ).addPlayer((EntityPlayerMP) sender);
                 }
             }
         }

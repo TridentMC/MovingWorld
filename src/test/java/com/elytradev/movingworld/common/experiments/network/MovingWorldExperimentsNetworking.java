@@ -17,10 +17,13 @@ public class MovingWorldExperimentsNetworking {
         networkContext.register(MessageRequestData.class);
 
         // Register packets bound to client.
+        networkContext.register(MessageBlockChange.class);
+        networkContext.register(MessageMultiBlockChange.class);
+        networkContext.register(MessageUnloadChunk.class);
+        networkContext.register(MessageUpdateTile.class);
         networkContext.register(MessageRegionData.class);
         networkContext.register(MessageFullPoolData.class);
         networkContext.register(MessageDimensionPoolData.class);
-        networkContext.register(MessageBlockData.class);
         networkContext.register(MessageChunkData.class);
     }
 

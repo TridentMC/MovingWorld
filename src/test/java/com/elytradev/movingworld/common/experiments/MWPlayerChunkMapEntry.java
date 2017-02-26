@@ -3,11 +3,8 @@ package com.elytradev.movingworld.common.experiments;
 import com.elytradev.concrete.Message;
 import com.elytradev.concrete.reflect.accessor.Accessor;
 import com.elytradev.concrete.reflect.accessor.Accessors;
-import com.elytradev.movingworld.common.experiments.network.messages.server.MessageBlockChange;
-import com.elytradev.movingworld.common.experiments.network.messages.server.MessageChunkData;
+import com.elytradev.movingworld.common.experiments.network.messages.server.*;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.network.play.server.SPacketUnloadChunk;
-import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.server.management.PlayerChunkMap;
 import net.minecraft.server.management.PlayerChunkMapEntry;
 import net.minecraft.tileentity.TileEntity;
@@ -63,8 +60,7 @@ public class MWPlayerChunkMapEntry extends PlayerChunkMapEntry {
             }
 
             if (this.sentToPlayers) {
-                //TODO: MessageUnloadChunk
-                player.connection.sendPacket(new SPacketUnloadChunk(this.pos.chunkXPos, this.pos.chunkZPos));
+                sendToAllPlayers(new MessageUnloadChunk(this.getChunk().getWorld().provider.getDimension(), this.pos.chunkXPos, this.pos.chunkZPos));
             }
 
             this.players.remove(player);
@@ -125,7 +121,7 @@ public class MWPlayerChunkMapEntry extends PlayerChunkMapEntry {
                 } else if (this.changes >= net.minecraftforge.common.ForgeModContainer.clumpingThreshold) {
                     this.sendToAllPlayers(new MessageChunkData(this.chunk, this.changedSectionFilter));
                 } else {
-                    // TODO: MessageMultiBlockChange this.sendToAllPlayers(new SPacketMultiBlockChange(this.changes, this.changedBlocks, this.chunk));
+                    this.sendToAllPlayers(new MessageMultiBlockChange(this.changes, this.changedBlocks, this.chunk));
                     for (int l = 0; l < this.changes; ++l) {
                         int i1 = (this.changedBlocks[l] >> 12 & 15) + this.pos.chunkXPos * 16;
                         int j1 = this.changedBlocks[l] & 255;
@@ -148,11 +144,9 @@ public class MWPlayerChunkMapEntry extends PlayerChunkMapEntry {
     @Override
     public void sendBlockEntity(@Nullable TileEntity be) {
         if (be != null) {
-            // TODO: MessageUpdateTileEntity
-            SPacketUpdateTileEntity spacketupdatetileentity = be.getUpdatePacket();
-
-            if (spacketupdatetileentity != null) {
-                this.sendPacket(spacketupdatetileentity);
+            if (be.getUpdatePacket() != null) {
+                MessageUpdateTile tileUpdate = new MessageUpdateTile(be.getUpdatePacket());
+                sendToAllPlayers(tileUpdate);
             }
         }
     }
