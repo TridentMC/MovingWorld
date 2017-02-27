@@ -17,7 +17,7 @@ import net.minecraftforge.fml.relauncher.Side;
 @ReceivedOn(Side.CLIENT)
 public class MessageRegionData extends Message {
 
-    @MarshalledAs("u16")
+    @MarshalledAs("varint")
     public int pool;
     public NBTTagCompound data;
 

@@ -16,11 +16,11 @@ import net.minecraftforge.fml.relauncher.Side;
 @ReceivedOn(Side.CLIENT)
 public class MessageUnloadChunk extends Message {
 
-    @MarshalledAs("int")
+    @MarshalledAs("varint")
     public int x;
-    @MarshalledAs("int")
+    @MarshalledAs("varint")
     public int z;
-    @MarshalledAs("u16")
+    @MarshalledAs("varint")
     public int dimension;
 
     public MessageUnloadChunk(NetworkContext ctx) {

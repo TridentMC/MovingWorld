@@ -27,6 +27,7 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
     public MobileRegion region;
     public World mobileRegionWorld;
 
+    private MessageRequestData requestedData;
     private boolean requestData = true;
     private boolean receivedData = false;
 
@@ -78,8 +79,10 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
     @Override
     public void onEntityUpdate() {
         super.onEntityUpdate();
-        if (requestData) {
-            new MessageRequestData(this).sendToServer();
+        if (region == null || world == null)
+            return;
+
+        if (world.isRemote && requestData) {
             this.setupClientForData();
             requestData = false;
         }
@@ -111,8 +114,12 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
     protected void readEntityFromNBT(NBTTagCompound compound) {
         region = MobileRegion.getRegionFor(compound.getCompoundTag("Region"));
 
-        if (mobileRegionWorld == null)
-            initCommon();
+        if (mobileRegionWorld == null) {
+            if (!world.isRemote)
+                initCommon();
+            else
+                initClient();
+        }
     }
 
     @Override
@@ -133,11 +140,25 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
     }
 
     @Override
-    public void removeTrackingPlayer(EntityPlayerMP player) {
+    public void addTrackingPlayer(EntityPlayerMP player) {
+        super.addTrackingPlayer(player);
+
         for (int cX = region.regionMin.chunkXPos; cX < region.regionMax.chunkXPos; cX++) {
             for (int cZ = region.regionMin.chunkZPos; cZ < region.regionMax.chunkZPos; cZ++) {
                 WorldServer worldServer = ((WorldServer) getParentWorld());
-                worldServer.playerChunkMap.getOrCreateEntry(cX, cZ).removePlayer(player);
+                worldServer.playerChunkMap.getOrCreateEntry(cX, cZ).addPlayer(player);
+            }
+        }
+    }
+
+    @Override
+    public void removeTrackingPlayer(EntityPlayerMP player) {
+        super.removeTrackingPlayer(player);
+
+        for (int cX = region.regionMin.chunkXPos; cX < region.regionMax.chunkXPos; cX++) {
+            for (int cZ = region.regionMin.chunkZPos; cZ < region.regionMax.chunkZPos; cZ++) {
+                WorldServer worldServer = ((WorldServer) getParentWorld());
+                worldServer.playerChunkMap.getEntry(cX, cZ).removePlayer(player);
             }
         }
     }

@@ -27,12 +27,12 @@ import java.util.List;
 @ReceivedOn(Side.CLIENT)
 public class MessageMultiBlockChange extends Message {
 
-    @MarshalledAs("u16")
+    @MarshalledAs("varint")
     public int dimension;
 
-    @MarshalledAs("i8")
+    @MarshalledAs("varint")
     public int chunkX;
-    @MarshalledAs("i8")
+    @MarshalledAs("varint")
     public int chunkZ;
     @MarshalledAs(BlockUpdateDataMarshaller.MARSHALLER_NAME + "-list")
     public List<BlockUpdateData> changedBlocks;

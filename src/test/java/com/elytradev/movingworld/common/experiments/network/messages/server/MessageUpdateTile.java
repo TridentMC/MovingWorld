@@ -20,7 +20,7 @@ import net.minecraftforge.fml.relauncher.Side;
 @ReceivedOn(Side.CLIENT)
 public class MessageUpdateTile extends Message {
 
-    @MarshalledAs("u16")
+    @MarshalledAs("varint")
     public int dimension;
 
     private BlockPos blockPos;

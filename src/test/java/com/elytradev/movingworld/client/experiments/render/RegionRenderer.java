@@ -3,7 +3,6 @@ package com.elytradev.movingworld.client.experiments.render;
 import com.elytradev.movingworld.client.experiments.MobileRegionWorldClient;
 import com.elytradev.movingworld.common.experiments.entity.EntityMobileRegion;
 import com.elytradev.movingworld.common.experiments.region.MobileRegion;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
 import net.minecraft.client.renderer.GlStateManager;
@@ -17,11 +16,10 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
-
-import java.util.Objects;
 
 /**
  * just bad
@@ -75,16 +73,23 @@ public class RegionRenderer {
             for (int cZ = worldClient.region.regionMin.chunkZPos; cZ <= worldClient.region.regionMax.chunkZPos; cZ++) {
                 ChunkPos chunkPos = new ChunkPos(cX, cZ);
 
-                for (BlockPos pos : BlockPos.getAllInBox(new BlockPos(chunkPos.getXStart(), 0, chunkPos.getZStart()),
-                        new BlockPos(chunkPos.getXEnd(), worldClient.getActualHeight(), chunkPos.getZEnd()))) {
-                    IBlockState state = worldClient.getBlockState(pos);
+                Chunk theChunk = worldClient.parentWorld.getChunkFromChunkCoords(cX, cZ);
+                if (theChunk == null)
+                    continue;
 
-                    if (state == null || Objects.equals(state.getBlock(), Blocks.AIR))
-                        continue;
+                for (ExtendedBlockStorage e : theChunk.getBlockStorageArray()) {
+                    for (int x = 0; x < 16; x++) {
+                        for (int z = 0; z < 16; z++) {
+                            for (int y = 0; y < 16; y++) {
+                                if (e == null)
+                                    continue;
 
-                    BlockPos shiftPos = new BlockPos(pos).subtract(region.minBlockPos());
-                    vertexBuffer.setTranslation(shiftPos.getX(), shiftPos.getY(), shiftPos.getZ());
-                    dispatcher.renderBlock(state, pos, worldClient, vertexBuffer);
+                                if (e.get(x, y, z) == null || e.get(x, y, z).getBlock() == Blocks.AIR)
+                                    continue;
+                                System.out.println("Block E Data for Render... " + e.get(x, y, z));
+                            }
+                        }
+                    }
                 }
             }
         }

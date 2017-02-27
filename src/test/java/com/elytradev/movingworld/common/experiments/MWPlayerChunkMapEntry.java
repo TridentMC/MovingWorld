@@ -85,10 +85,7 @@ public class MWPlayerChunkMapEntry extends PlayerChunkMapEntry {
             this.sentToPlayers = true;
 
             MessageChunkData msg = new MessageChunkData(getChunk().getWorld().provider.getDimension(), this.chunk, 65535);
-
-            for (EntityPlayerMP entityplayermp : this.players) {
-                msg.sendTo(entityplayermp);
-            }
+            sendToAllPlayers(msg);
 
             return true;
         }

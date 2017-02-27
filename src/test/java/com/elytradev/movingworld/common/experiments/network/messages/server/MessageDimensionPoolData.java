@@ -16,7 +16,7 @@ import net.minecraftforge.fml.relauncher.Side;
 @ReceivedOn(Side.CLIENT)
 public class MessageDimensionPoolData extends Message {
 
-    @MarshalledAs("u16")
+    @MarshalledAs("varint")
     public int dimension;
     public NBTTagCompound poolData;
 

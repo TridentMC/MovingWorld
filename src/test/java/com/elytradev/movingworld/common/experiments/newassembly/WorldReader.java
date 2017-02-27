@@ -80,7 +80,6 @@ public class WorldReader {
             if (shiftedTile != null)
                 shiftedTile.setPos(shiftedPos);
 
-            System.out.println(MessageFormat.format("Shifted {0}, to {1}", blockPosTupleEntry.getKey(), shiftedPos));
             shiftedCollected.put(shiftedPos, new Tuple<>(blockPosTupleEntry.getValue().getFirst(), shiftedTile));
         });
 
@@ -110,9 +109,7 @@ public class WorldReader {
         Map<BlockPos, Tuple<IBlockState, TileEntity>> reshifted = Maps.newHashMap();
         shiftedCollected.entrySet().forEach(blockPosTupleEntry -> {
             BlockPos shiftedPos = blockPosTupleEntry.getKey().add(avg);
-            System.out.println(MessageFormat.format("Reshifted {0}, to {1}", blockPosTupleEntry.getKey(), shiftedPos));
             shiftedPos = shiftedPos.add(region.centeredBlockPos());
-            System.out.println(MessageFormat.format("Final shifted {0}, to {1}", blockPosTupleEntry.getKey(), shiftedPos));
             TileEntity shiftedTile = blockPosTupleEntry.getValue().getSecond();
             if (shiftedTile != null)
                 shiftedTile.setPos(shiftedPos);

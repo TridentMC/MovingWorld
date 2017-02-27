@@ -9,7 +9,6 @@ import com.elytradev.movingworld.common.experiments.network.MovingWorldExperimen
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -22,9 +21,9 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 import net.minecraftforge.fml.relauncher.Side;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * SPacketChunkData, modified for use with Concrete and subworlds.
@@ -32,14 +31,14 @@ import java.util.Objects;
 @ReceivedOn(Side.CLIENT)
 public class MessageChunkData extends Message {
 
-    @MarshalledAs("u16")
+    @MarshalledAs("varint")
     private int dimension;
 
-    @MarshalledAs("i8")
+    @MarshalledAs("varint")
     private int chunkX;
-    @MarshalledAs("i8")
+    @MarshalledAs("varint")
     private int chunkZ;
-    @MarshalledAs("i8")
+    @MarshalledAs("varint")
     private int availableSections;
     private boolean loadChunk;
 
@@ -54,7 +53,7 @@ public class MessageChunkData extends Message {
     public MessageChunkData(int dimension, Chunk chunkIn, int changedSectionFilter) {
         super(MovingWorldExperimentsNetworking.networkContext);
 
-        this.dimension = chunkIn.getWorld().provider.getDimension();
+        this.dimension = dimension;
         this.chunkX = chunkIn.xPosition;
         this.chunkZ = chunkIn.zPosition;
         this.loadChunk = changedSectionFilter == 65535;
@@ -110,17 +109,22 @@ public class MessageChunkData extends Message {
             }
         }
 
-        for (int x = chunk.getPos().getXStart(); x < chunk.getPos().getXEnd(); x++) {
-            for (int z = chunk.getPos().getZStart(); z < chunk.getPos().getZEnd(); z++) {
-                for (int y = 0; y < chunk.getWorld().getHeight(); y++) {
-                    IBlockState state = chunk.getBlockState(x, y, z);
-                    if (state == null || Objects.equals(state.getBlock(), Blocks.AIR))
-                        continue;
+        for (ExtendedBlockStorage e : chunk.getBlockStorageArray()) {
+            for (int x = 0; x < 16; x++) {
+                for (int z = 0; z < 16; z++) {
+                    for (int y = 0; y < 16; y++) {
+                        if (e == null)
+                            continue;
 
-                    System.out.println(state);
+                        if (e.get(x, y, z) == null || e.get(x, y, z).getBlock() == Blocks.AIR)
+                            continue;
+                        System.out.println("Block O Data " + e.get(x, y, z));
+                    }
                 }
             }
         }
+        System.out.println(MessageFormat.format("Got chunk data for cX {0} cZ {1}", chunkX, chunkZ));
+        System.out.println("END PACKET\n\n\n\n\n\n\n");
     }
 
     public int extractChunkData(PacketBuffer buf, Chunk chunkIn, boolean writeSkylight, int changedSectionFilter) {

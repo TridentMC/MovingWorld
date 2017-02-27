@@ -17,7 +17,7 @@ import net.minecraftforge.fml.relauncher.Side;
 @ReceivedOn(Side.CLIENT)
 public class MessageBlockChange extends Message {
 
-    @MarshalledAs("u16")
+    @MarshalledAs("varint")
     public int dimension;
     public BlockPos pos;
     @MarshalledAs(BlockStateMarshaller.MARSHALLER_NAME)
