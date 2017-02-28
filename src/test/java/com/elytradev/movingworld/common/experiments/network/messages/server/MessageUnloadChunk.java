@@ -38,6 +38,6 @@ public class MessageUnloadChunk extends Message {
     protected void handle(EntityPlayer sender) {
         WorldClient worldClient = (WorldClient) MovingWorldExperimentsMod.modProxy.getClientDB().getWorldFromDim(dimension);
 
-        worldClient.doPreChunk(x, z, false);
+        //worldClient.doPreChunk(x, z, false);
     }
 }

@@ -1,5 +1,6 @@
 package com.elytradev.movingworld.common.experiments.region;
 
+import net.minecraft.client.renderer.Vector3d;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.*;
 
@@ -114,6 +115,19 @@ public class MobileRegion {
         return centeredPos;
     }
 
+    public Vector3d centerPos() {
+        Vector3d centeredPos;
+
+        BlockPos size = new BlockPos(maxBlockPos()).subtract(minBlockPos());
+        Vec3d mmIn = new Vec3d(size.getX() / 2D, 0D, size.getZ() / 2D).addVector(minBlockPos().getX(), 0, minBlockPos().getZ());
+        centeredPos = new Vector3d();
+        centeredPos.x = mmIn.xCoord;
+        centeredPos.y = mmIn.yCoord;
+        centeredPos.z = mmIn.zCoord;
+
+        return centeredPos;
+    }
+
     /**
      * Get the BlockPos of the maximum position of the chunk
      *
@@ -161,9 +175,9 @@ public class MobileRegion {
      * @return
      */
     public Vec3d convertRegionPosToRealWorld(Vec3d regionPos) {
-        Vec3d adjustedPosition = new Vec3d(regionPos.xCoord - regionMin.getXStart() + x,
+        Vec3d adjustedPosition = new Vec3d(regionPos.xCoord - centerPos().x + x,
                 regionPos.yCoord + y,
-                regionPos.zCoord - regionMin.getZStart() + z);
+                regionPos.zCoord - centerPos().z + z);
 
         return adjustedPosition;
     }
@@ -175,9 +189,9 @@ public class MobileRegion {
      * @return
      */
     public Vec3d convertRealWorldPosToRegion(Vec3d realWorldPos) {
-        Vec3d adjustedPosition = new Vec3d(realWorldPos.xCoord + regionMin.getXStart() - x,
+        Vec3d adjustedPosition = new Vec3d(realWorldPos.xCoord + centerPos().x - x,
                 realWorldPos.yCoord - y,
-                realWorldPos.zCoord + regionMin.getZStart() - z);
+                realWorldPos.zCoord + centerPos().z - z);
 
         return adjustedPosition;
     }

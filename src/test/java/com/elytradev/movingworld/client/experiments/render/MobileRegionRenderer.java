@@ -23,7 +23,6 @@ public class MobileRegionRenderer extends Render<EntityMobileRegion> {
         super.doRender(entity, x, y, z, entityYaw, partialTicks);
 
         GlStateManager.pushMatrix();
-        GlStateManager.translate(x, y, z);
         RegionRenderer regionRenderer = new RegionRenderer(entity);
         regionRenderer.renderAll(partialTicks);
         GlStateManager.popMatrix();
