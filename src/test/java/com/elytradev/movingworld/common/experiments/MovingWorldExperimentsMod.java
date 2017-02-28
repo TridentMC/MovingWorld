@@ -73,7 +73,7 @@ public class MovingWorldExperimentsMod {
     @Mod.EventHandler
     public void onServerStopped(FMLServerStoppedEvent e) {
         registeredDimensions.forEach((parent, child) -> DimensionManager.unregisterDimension(child));
-        registeredDimensions.clear();
+        registeredDimensions = HashBiMap.create();
 
         activeDimID = startingDimID;
     }

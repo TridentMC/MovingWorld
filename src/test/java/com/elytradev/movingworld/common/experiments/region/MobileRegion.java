@@ -1,8 +1,8 @@
 package com.elytradev.movingworld.common.experiments.region;
 
-import net.minecraft.client.renderer.Vector3d;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.*;
+import org.lwjgl.util.vector.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -115,15 +115,11 @@ public class MobileRegion {
         return centeredPos;
     }
 
-    public Vector3d centerPos() {
-        Vector3d centeredPos;
+    public Vector3f centerPos() {
+        Vector3f centeredPos;
 
         BlockPos size = new BlockPos(maxBlockPos()).subtract(minBlockPos());
-        Vec3d mmIn = new Vec3d(size.getX() / 2D, 0D, size.getZ() / 2D).addVector(minBlockPos().getX(), 0, minBlockPos().getZ());
-        centeredPos = new Vector3d();
-        centeredPos.x = mmIn.xCoord;
-        centeredPos.y = mmIn.yCoord;
-        centeredPos.z = mmIn.zCoord;
+        centeredPos = Vector3f.add(new Vector3f(size.getX() / 2F, 0F, size.getZ() / 2F), new Vector3f(minBlockPos().getX(), 0, minBlockPos().getZ()), null);
 
         return centeredPos;
     }

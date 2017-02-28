@@ -14,14 +14,19 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.WorldType;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,15 +40,17 @@ public class RegionRenderer {
 
     MobileRegion region;
     MobileRegionWorldClient worldClient;
+    OffsetAccess offsetAccess;
 
     private Accessor<Boolean> chunkIsModified;
 
     private List<TileEntity> tiles;
-    private Map<BlockRenderLayer, BlockData> blocks;
+    private Map<BlockRenderLayer, List<BlockData>> blocks;
 
     public RegionRenderer(EntityMobileRegion region) {
         this.region = region.region;
         this.worldClient = (MobileRegionWorldClient) region.mobileRegionWorld;
+        this.offsetAccess = new OffsetAccess();
 
         chunkIsModified = Accessors.findField(Chunk.class, "isModified", "field_76643_l");
         constructData();
@@ -52,6 +59,10 @@ public class RegionRenderer {
     private void constructData() {
         blocks = new HashMap<>();
         tiles = new ArrayList<>();
+
+        for (BlockRenderLayer renderLayer : BlockRenderLayer.values()) {
+            blocks.put(renderLayer, new ArrayList<>());
+        }
 
         for (int cX = worldClient.region.regionMin.chunkXPos; cX <= worldClient.region.regionMax.chunkXPos; cX++) {
             for (int cZ = worldClient.region.regionMin.chunkZPos; cZ <= worldClient.region.regionMax.chunkZPos; cZ++) {
@@ -74,7 +85,7 @@ public class RegionRenderer {
 
                                 for (BlockRenderLayer layer : BlockRenderLayer.values()) {
                                     if (stateAtPos.getBlock().canRenderInLayer(stateAtPos, layer)) {
-                                        blocks.put(layer, new BlockData(new BlockPos(x, y, z).add(chunkPos.getXStart(), e.getYLocation(), chunkPos.getZStart()), stateAtPos));
+                                        blocks.get(layer).add(new BlockData(new BlockPos(x, y, z).add(chunkPos.getXStart(), e.getYLocation(), chunkPos.getZStart()), stateAtPos));
                                     }
                                 }
                             }
@@ -105,11 +116,12 @@ public class RegionRenderer {
 
         return false;
     }
+
     public boolean renderAll(float partialTicks) {
         if (worldClient == null)
             return true;
 
-        if(hasChanges()){
+        if (hasChanges()) {
             constructData();
         }
 
@@ -130,8 +142,10 @@ public class RegionRenderer {
 
         vertexBuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
 
-        for (Map.Entry e : blocks.entrySet()) {
-
+        for (BlockRenderLayer renderLayer : BlockRenderLayer.values()) {
+            for (BlockData blockData : blocks.get(renderLayer)) {
+                dispatchBlock(vertexBuffer, rendererDispatcher, blockData);
+            }
         }
 
         vertexBuffer.setTranslation(0.0D, 0.0D, 0.0D);
@@ -143,8 +157,53 @@ public class RegionRenderer {
         return true;
     }
 
-    public void dispatchBlock(VertexBuffer vertexBuffer, BlockRendererDispatcher rendererDispatcher, ChunkPos chunkPos, ExtendedBlockStorage storage, IBlockState state, BlockPos pos) {
-
+    public void dispatchBlock(VertexBuffer vertexBuffer, BlockRendererDispatcher rendererDispatcher, BlockData data) {
+        GlStateManager.pushMatrix();
+        GlStateManager.color(1, 1, 1, 1);
+        rendererDispatcher.renderBlock(data.getState(), data.getPos().subtract(region.minBlockPos()), offsetAccess, vertexBuffer);
+        GlStateManager.popMatrix();
     }
 
+    public class OffsetAccess implements IBlockAccess {
+        @Nullable
+        @Override
+        public TileEntity getTileEntity(BlockPos pos) {
+            return worldClient.parentWorld.getTileEntity(pos.add(region.minBlockPos()));
+        }
+
+        @Override
+        public int getCombinedLight(BlockPos pos, int lightValue) {
+            return worldClient.parentWorld.getCombinedLight(pos.add(region.minBlockPos()), lightValue);
+        }
+
+        @Override
+        public IBlockState getBlockState(BlockPos pos) {
+            return worldClient.parentWorld.getBlockState(pos.add(region.minBlockPos()));
+        }
+
+        @Override
+        public boolean isAirBlock(BlockPos pos) {
+            return worldClient.parentWorld.isAirBlock(pos.add(region.minBlockPos()));
+        }
+
+        @Override
+        public Biome getBiome(BlockPos pos) {
+            return worldClient.parentWorld.getBiome(pos.add(region.minBlockPos()));
+        }
+
+        @Override
+        public int getStrongPower(BlockPos pos, EnumFacing direction) {
+            return worldClient.parentWorld.getStrongPower(pos.add(region.minBlockPos()), direction);
+        }
+
+        @Override
+        public WorldType getWorldType() {
+            return worldClient.parentWorld.getWorldType();
+        }
+
+        @Override
+        public boolean isSideSolid(BlockPos pos, EnumFacing side, boolean _default) {
+            return worldClient.parentWorld.isSideSolid(pos.add(region.minBlockPos()), side, _default);
+        }
+    }
 }
