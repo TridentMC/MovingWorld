@@ -9,7 +9,6 @@ import com.elytradev.movingworld.common.experiments.MovingWorldExperimentsMod;
 import com.elytradev.movingworld.common.experiments.network.MovingWorldExperimentsNetworking;
 import com.elytradev.movingworld.common.experiments.network.marshallers.BlockStateMarshaller;
 import com.elytradev.movingworld.common.experiments.network.marshallers.BlockUpdateDataMarshaller;
-import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.multiplayer.WorldClient;
@@ -18,7 +17,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.fml.relauncher.Side;
-import scala.actors.threadpool.Arrays;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,6 +46,7 @@ public class MessageMultiBlockChange extends Message {
 
         this.chunkX = chunk.xPosition;
         this.chunkZ = chunk.zPosition;
+        this.dimension = chunk.getWorld().provider.getDimension();
         BlockUpdateData[] updateDataArray = new BlockUpdateData[changeCount];
 
         for (int i = 0; i < updateDataArray.length; ++i) {
