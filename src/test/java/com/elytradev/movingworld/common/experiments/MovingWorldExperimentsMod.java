@@ -1,21 +1,28 @@
 package com.elytradev.movingworld.common.experiments;
 
+import com.elytradev.movingworld.client.experiments.MovingWorldClientDatabase;
 import com.elytradev.movingworld.common.experiments.debug.BlockDebug;
 import com.elytradev.movingworld.common.experiments.entity.EntityMobileRegion;
 import com.elytradev.movingworld.common.experiments.network.MovingWorldExperimentsNetworking;
 import com.elytradev.movingworld.common.experiments.network.messages.server.MessageDimensionPoolData;
 import com.elytradev.movingworld.common.experiments.network.messages.server.MessageFullPoolData;
+import com.elytradev.movingworld.common.experiments.region.MobileRegion;
 import com.elytradev.movingworld.common.experiments.region.RegionPool;
 import com.elytradev.movingworld.common.experiments.world.MovingWorldProvider;
 import com.google.common.collect.HashBiMap;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.DimensionType;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -23,12 +30,15 @@ import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.*;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by darkevilmac on 2/9/2017.
@@ -44,6 +54,9 @@ public class MovingWorldExperimentsMod {
     @SidedProxy(modId = "movingworld-experiments", clientSide = "com.elytradev.movingworld.client.experiments.ClientProxy", serverSide = "com.elytradev.movingworld.common.experiments.CommonProxy")
     public static CommonProxy modProxy;
 
+    @Mod.Instance(MOD_ID)
+    public static MovingWorldExperimentsMod instance;
+
     public static HashBiMap<Integer, Integer> registeredDimensions = HashBiMap.create();
 
     public static int startingDimID = 50;
@@ -55,6 +68,20 @@ public class MovingWorldExperimentsMod {
         modProxy.setupDBS();
         modProxy.registerRenders();
 
+        ForgeChunkManager.setForcedChunkLoadingCallback(instance, new ForgeChunkManager.LoadingCallback() {
+            @Override
+            public void ticketsLoaded(List<ForgeChunkManager.Ticket> tickets, World world) {
+                for (ForgeChunkManager.Ticket t : tickets) {
+                    MobileRegion region = MobileRegion.getRegionFor(t.getModData().getCompoundTag("Region"));
+
+                    for (int cX = region.regionMin.chunkXPos; cX < region.regionMax.chunkXPos; cX++) {
+                        for (int cZ = region.regionMin.chunkZPos; cZ < region.regionMax.chunkZPos; cZ++) {
+                            ForgeChunkManager.forceChunk(t, new ChunkPos(cX, cZ));
+                        }
+                    }
+                }
+            }
+        });
         //noinspection deprecation
         GameRegistry.registerWithItem(new BlockDebug(Material.TNT, MapColor.TNT));
     }
@@ -156,6 +183,21 @@ public class MovingWorldExperimentsMod {
     public void onDimChange(PlayerEvent.PlayerChangedDimensionEvent e) {
         if (!e.isCanceled() && e.player != null && !e.player.world.isRemote) {
             new MessageDimensionPoolData(e.toDim, RegionPool.getPool(e.toDim, true).writePoolToCompound()).sendTo(e.player);
+        }
+    }
+
+    @SubscribeEvent
+    public void onClientTick(TickEvent.ClientTickEvent e) {
+        if (e.phase == TickEvent.Phase.START) {
+            MovingWorldClientDatabase cDB = (MovingWorldClientDatabase) modProxy.getClientDB();
+
+            if (Minecraft.getMinecraft().isGamePaused())
+                return;
+
+            for (HashMap.Entry<Integer, WorldClient> mapEntry : cDB.worlds.entrySet()) {
+                mapEntry.getValue().updateEntities();
+                mapEntry.getValue().tick();
+            }
         }
     }
 }

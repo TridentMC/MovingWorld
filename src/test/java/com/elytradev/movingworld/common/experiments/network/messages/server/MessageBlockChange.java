@@ -10,8 +10,10 @@ import com.elytradev.movingworld.common.experiments.network.marshallers.BlockSta
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.relauncher.Side;
 
 @ReceivedOn(Side.CLIENT)
@@ -29,9 +31,13 @@ public class MessageBlockChange extends Message {
 
     public MessageBlockChange(World world, BlockPos pos) {
         super(MovingWorldExperimentsNetworking.networkContext);
-        this.blockState = world.getBlockState(pos);
+        WorldServer wServer = (WorldServer) MovingWorldExperimentsMod.modProxy.getCommonDB().getWorldFromDim(world.provider.getDimension());
         this.pos = pos;
-        this.dimension = world.provider.getDimension();
+        this.dimension = wServer.provider.getDimension();
+
+        this.blockState = wServer.getBlockState(pos);
+        if (blockState.getBlock() == Blocks.UNPOWERED_COMPARATOR || blockState.getBlock() == Blocks.POWERED_COMPARATOR)
+            System.out.println(blockState.toString() + " " + wServer.getTotalWorldTime() + " SEND");
     }
 
     @SuppressWarnings("deprecation")
@@ -39,5 +45,6 @@ public class MessageBlockChange extends Message {
     protected void handle(EntityPlayer sender) {
         WorldClient worldClient = (WorldClient) MovingWorldExperimentsMod.modProxy.getClientDB().getWorldFromDim(dimension);
         worldClient.invalidateRegionAndSetBlock(pos, blockState);
+        worldClient.setBlockState(pos, blockState, 2);
     }
 }

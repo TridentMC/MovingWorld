@@ -1,18 +1,20 @@
 package com.elytradev.movingworld.common.experiments.newassembly;
 
 import com.elytradev.movingworld.common.experiments.MovingWorldExperimentsMod;
+import com.elytradev.movingworld.common.experiments.network.BlockData;
 import com.elytradev.movingworld.common.experiments.region.MobileRegion;
 import com.elytradev.movingworld.common.experiments.region.RegionPool;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,12 +76,13 @@ public class WorldReader {
         MobileRegion region = regionPool.nextRegion(false);
 
         Map<BlockPos, Tuple<IBlockState, TileEntity>> shiftedCollected = Maps.newHashMap();
-        collected.entrySet().stream().forEach(blockPosTupleEntry -> {
+        collected.entrySet().forEach(blockPosTupleEntry -> {
             BlockPos shiftedPos = blockPosTupleEntry.getKey().subtract(invertedStart);
             TileEntity shiftedTile = blockPosTupleEntry.getValue().getSecond();
-            if (shiftedTile != null)
+            if (shiftedTile != null) {
+                world.removeTileEntity(shiftedTile.getPos());
                 shiftedTile.setPos(shiftedPos);
-
+            }
             shiftedCollected.put(shiftedPos, new Tuple<>(blockPosTupleEntry.getValue().getFirst(), shiftedTile));
         });
 
@@ -117,13 +120,27 @@ public class WorldReader {
             reshifted.put(shiftedPos, new Tuple<>(blockPosTupleEntry.getValue().getFirst(), shiftedTile));
         });
 
+        List<BlockData> failedPlacements = new ArrayList<>();
         // Now set them to the actual child
         reshifted.forEach((blockPos, iBlockStateTileEntityTuple) -> {
-            subWorld.setBlockState(blockPos, iBlockStateTileEntityTuple.getFirst());
+            if (!subWorld.setBlockState(blockPos, iBlockStateTileEntityTuple.getFirst(), 2)) {
+                failedPlacements.add(new BlockData(blockPos, iBlockStateTileEntityTuple.getFirst()));
+            }
             if (iBlockStateTileEntityTuple.getSecond() != null) {
-                subWorld.setTileEntity(blockPos, iBlockStateTileEntityTuple.getSecond());
+                NBTTagCompound preMoveData = iBlockStateTileEntityTuple.getSecond().writeToNBT(new NBTTagCompound());
+                subWorld.setTileEntity(blockPos, TileEntity.create(subWorld, preMoveData));
+                TileEntity postSet = subWorld.getTileEntity(blockPos);
+                System.out.println("PostSet " + postSet.toString());
             }
         });
+
+        List<BlockData> finalPass = new ArrayList<>();
+        failedPlacements.forEach(data -> {
+            if (!subWorld.setBlockState(data.getPos(), data.getState(), 2))
+                finalPass.add(data);
+        });
+
+        finalPass.forEach(data -> subWorld.setBlockState(data.getPos(), data.getState(), 2));
 
         out.setPool(regionPool);
         out.setRegion(region);

@@ -51,6 +51,7 @@ import java.util.stream.Collectors;
 /**
  * A wrapper for a MobileRegion and it's associated world,
  */
+@SuppressWarnings("deprecation")
 public class MobileRegionWorldClient extends WorldClient {
 
     public WorldClient realWorld;

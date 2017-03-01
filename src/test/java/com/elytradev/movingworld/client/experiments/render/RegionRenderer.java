@@ -53,7 +53,8 @@ public class RegionRenderer {
         this.offsetAccess = new OffsetAccess();
 
         chunkIsModified = Accessors.findField(Chunk.class, "isModified", "field_76643_l");
-        constructData();
+        if (region != null && worldClient != null)
+            constructData();
     }
 
     private void constructData() {

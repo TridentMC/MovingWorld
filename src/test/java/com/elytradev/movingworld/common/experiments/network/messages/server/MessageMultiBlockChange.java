@@ -18,8 +18,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.fml.relauncher.Side;
+import scala.actors.threadpool.Arrays;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by darkevilmac on 2/25/2017.
@@ -46,11 +48,12 @@ public class MessageMultiBlockChange extends Message {
 
         this.chunkX = chunk.xPosition;
         this.chunkZ = chunk.zPosition;
-        this.changedBlocks = Lists.newArrayListWithCapacity(changeCount);
+        BlockUpdateData[] updateDataArray = new BlockUpdateData[changeCount];
 
-        for (int i = 0; i < this.changedBlocks.size(); ++i) {
-            changedBlocks.add(i, new BlockUpdateData(offsets[i], chunk));
+        for (int i = 0; i < updateDataArray.length; ++i) {
+            updateDataArray[i] = new BlockUpdateData(offsets[i], chunk);
         }
+        this.changedBlocks = java.util.Arrays.stream(updateDataArray).collect(Collectors.toList());
     }
 
     @SuppressWarnings("deprecation")

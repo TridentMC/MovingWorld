@@ -11,9 +11,12 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.profiler.Profiler;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.WorldSettings;
+import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.relauncher.Side;
@@ -26,6 +29,7 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
 
     public MobileRegion region;
     public World mobileRegionWorld;
+    public ForgeChunkManager.Ticket chunkTicket;
 
     private MessageRequestData requestedData;
     private boolean requestData = true;
@@ -54,6 +58,17 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
     protected void initCommon() {
         this.mobileRegionWorld = new MobileRegionWorldServer(getParentWorld().getMinecraftServer(),
                 region.dimension, getParentWorld().profiler, world, getParentWorld(), region);
+
+        chunkTicket = ForgeChunkManager.requestTicket(MovingWorldExperimentsMod.instance, getParentWorld(), ForgeChunkManager.Type.NORMAL);
+        //chunkTicket.bindEntity(this);
+
+        for (int cX = region.regionMin.chunkXPos; cX < region.regionMax.chunkXPos; cX++) {
+            for (int cZ = region.regionMin.chunkZPos; cZ < region.regionMax.chunkZPos; cZ++) {
+                ForgeChunkManager.forceChunk(chunkTicket, new ChunkPos(cX, cZ));
+            }
+        }
+
+        chunkTicket.getModData().setTag("Region", region.writeToCompound());
 
         requestData = false;
     }
@@ -85,6 +100,10 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
         if (world.isRemote && requestData) {
             this.setupClientForData();
             requestData = false;
+        }
+
+        if (!world.isRemote && world.getTotalWorldTime() % 1 == 0) {
+            //System.out.println(getParentWorld().getBlockState(new BlockPos(-29999913, 6, -29999908)) + " " + world.getTotalWorldTime());
         }
 
         region.x = this.posX;
