@@ -1,6 +1,7 @@
 package com.elytradev.movingworld.client.experiments.render;
 
 import com.elytradev.movingworld.common.experiments.entity.EntityMobileRegion;
+import com.elytradev.movingworld.common.experiments.region.RegionPool;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.culling.ICamera;
 import net.minecraft.client.renderer.entity.Render;
@@ -26,17 +27,14 @@ public class MobileRegionRenderer extends Render<EntityMobileRegion> {
     @Override
     public void doRender(EntityMobileRegion entity, double x, double y, double z, float entityYaw, float partialTicks) {
         super.doRender(entity, x, y, z, entityYaw, partialTicks);
-
         GlStateManager.pushMatrix();
         GlStateManager.translate(x, y, z);
-        BlockPos size = new BlockPos(entity.region.maxBlockPos()).subtract(entity.region.minBlockPos());
-
-        System.out.println("EntityPos " + entity.getPosition().toString());
+        BlockPos size = new BlockPos(RegionPool.regionSize << 4, 0, RegionPool.regionSize << 4);
 
         float fx = size.getX() / 2;
         float fz = size.getZ() / 2;
         GlStateManager.translate(-fx, -0, -fz); //minY is always 0
-        if (!regionRenderers.containsKey(entity))
+        if (!regionRenderers.containsKey(entity) || regionRenderers.get(entity).worldClient == null)
             regionRenderers.put(entity, new RegionRenderer(entity));
         regionRenderers.get(entity).renderAll(partialTicks);
         GlStateManager.popMatrix();

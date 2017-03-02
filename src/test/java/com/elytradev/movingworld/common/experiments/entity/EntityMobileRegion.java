@@ -102,7 +102,7 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
         }
 
         if (!world.isRemote && world.getTotalWorldTime() % 1 == 0) {
-            //System.out.println(getParentWorld().getBlockState(new BlockPos(-29999913, 6, -29999908)) + " " + world.getTotalWorldTime());
+
         }
 
         region.x = this.posX;

@@ -45,7 +45,7 @@ public class RegionRenderer {
     private Accessor<Boolean> chunkIsModified;
 
     private List<TileEntity> tiles;
-    private Map<BlockRenderLayer, List<BlockData>> blocks;
+    private Map<BlockRenderLayer, Map<BlockPos, BlockData>> blocks;
 
     public RegionRenderer(EntityMobileRegion region) {
         this.region = region.region;
@@ -62,7 +62,7 @@ public class RegionRenderer {
         tiles = new ArrayList<>();
 
         for (BlockRenderLayer renderLayer : BlockRenderLayer.values()) {
-            blocks.put(renderLayer, new ArrayList<>());
+            blocks.put(renderLayer, new HashMap<>());
         }
 
         for (int cX = worldClient.region.regionMin.chunkXPos; cX <= worldClient.region.regionMax.chunkXPos; cX++) {
@@ -86,7 +86,8 @@ public class RegionRenderer {
 
                                 for (BlockRenderLayer layer : BlockRenderLayer.values()) {
                                     if (stateAtPos.getBlock().canRenderInLayer(stateAtPos, layer)) {
-                                        blocks.get(layer).add(new BlockData(new BlockPos(x, y, z).add(chunkPos.getXStart(), e.getYLocation(), chunkPos.getZStart()), stateAtPos));
+                                        BlockData data = new BlockData(new BlockPos(x, y, z).add(chunkPos.getXStart(), e.getYLocation(), chunkPos.getZStart()), stateAtPos);
+                                        blocks.get(layer).put(new BlockPos(x, y, z), data);
                                     }
                                 }
                             }
@@ -124,9 +125,9 @@ public class RegionRenderer {
         if (worldClient == null)
             return true;
 
-        if (hasChanges()) {
-            constructData();
-        }
+        //if (hasChanges()) {
+        constructData();
+        //}
 
         BlockRendererDispatcher rendererDispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
         Tessellator tessellator = Tessellator.getInstance();
@@ -146,7 +147,7 @@ public class RegionRenderer {
         vertexBuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
 
         for (BlockRenderLayer renderLayer : BlockRenderLayer.values()) {
-            for (BlockData blockData : blocks.get(renderLayer)) {
+            for (BlockData blockData : blocks.get(renderLayer).values()) {
                 dispatchBlock(vertexBuffer, rendererDispatcher, blockData);
             }
         }
@@ -163,7 +164,6 @@ public class RegionRenderer {
     public void dispatchBlock(VertexBuffer vertexBuffer, BlockRendererDispatcher rendererDispatcher, BlockData data) {
         GlStateManager.pushMatrix();
         GlStateManager.color(1, 1, 1, 1);
-        System.out.println("Rendering at ");
         rendererDispatcher.renderBlock(data.getState(), data.getPos().subtract(region.minBlockPos()), offsetAccess, vertexBuffer);
         GlStateManager.popMatrix();
     }

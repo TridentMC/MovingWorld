@@ -36,8 +36,6 @@ public class MessageBlockChange extends Message {
         this.dimension = wServer.provider.getDimension();
 
         this.blockState = wServer.getBlockState(pos);
-        if (blockState.getBlock() == Blocks.UNPOWERED_COMPARATOR || blockState.getBlock() == Blocks.POWERED_COMPARATOR)
-            System.out.println(blockState.toString() + " " + wServer.getTotalWorldTime() + " SEND");
     }
 
     @SuppressWarnings("deprecation")

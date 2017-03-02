@@ -35,6 +35,7 @@ import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -57,6 +58,7 @@ public class MovingWorldExperimentsMod {
 
     @Mod.Instance(MOD_ID)
     public static MovingWorldExperimentsMod instance;
+    public static Logger logger;
 
     public static HashBiMap<Integer, Integer> registeredDimensions = HashBiMap.create();
 
@@ -65,6 +67,7 @@ public class MovingWorldExperimentsMod {
 
     @Mod.EventHandler
     public void onPreInit(FMLPreInitializationEvent e) {
+        logger = e.getModLog();
         MinecraftForge.EVENT_BUS.register(this);
         modProxy.setupDBS();
         modProxy.registerRenders();
@@ -103,8 +106,8 @@ public class MovingWorldExperimentsMod {
         registeredDimensions.forEach((parent, child) -> DimensionManager.unregisterDimension(child));
         registeredDimensions = HashBiMap.create();
 
-        if(e.getSide() == Side.CLIENT){
-            ((MovingWorldClientDatabase)modProxy.getClientDB()).worlds.clear();
+        if (e.getSide() == Side.CLIENT) {
+            ((MovingWorldClientDatabase) modProxy.getClientDB()).worlds.clear();
         }
 
         activeDimID = startingDimID;
@@ -124,7 +127,7 @@ public class MovingWorldExperimentsMod {
                 regionPool = new File(saveDir, "movingworld-regionpools.dat");
                 CompressedStreamTools.write(poolCompound, regionPool);
             } catch (Exception exception) {
-                System.out.println("Something went wrong when saving region pools....");
+                logger.error("Something went wrong when saving region pools....");
                 exception.printStackTrace();
             }
         }
@@ -143,7 +146,7 @@ public class MovingWorldExperimentsMod {
                     RegionPool.readAllFromCompound(poolCompound);
                 }
             } catch (Exception exception) {
-                System.out.println("Something went wrong when loading region pools....");
+                logger.error("Something went wrong when loading region pools...");
                 exception.printStackTrace();
             }
         }
@@ -172,7 +175,7 @@ public class MovingWorldExperimentsMod {
             System.out.println(modProxy.getCommonDB().getWorldFromDim(activeDimID));
             activeDimID++;
         } catch (Exception exception) {
-            System.out.println("Everything went fine don't worry it's good.");
+            logger.error("Everything went fine don't worry it's good.");
             exception.printStackTrace();
         }
     }

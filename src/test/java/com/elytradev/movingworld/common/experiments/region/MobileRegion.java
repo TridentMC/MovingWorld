@@ -2,7 +2,6 @@ package com.elytradev.movingworld.common.experiments.region;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.*;
-import org.lwjgl.util.vector.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -108,18 +107,18 @@ public class MobileRegion {
     public BlockPos centeredBlockPos() {
         BlockPos centeredPos;
 
-        BlockPos maxMin = new BlockPos(maxBlockPos()).subtract(minBlockPos());
+        BlockPos maxMin = new BlockPos(RegionPool.regionSize << 4, 0, RegionPool.regionSize << 4);
         maxMin = new BlockPos(Math.round(maxMin.getX() / 2), 0, Math.round(maxMin.getZ() / 2));
         centeredPos = maxMin.add(minBlockPos());
 
         return centeredPos;
     }
 
-    public Vector3f centerPos() {
-        Vector3f centeredPos;
+    public Vec3d centerPos() {
+        Vec3d centeredPos;
 
-        BlockPos size = new BlockPos(maxBlockPos()).subtract(minBlockPos());
-        centeredPos = Vector3f.add(new Vector3f(size.getX() / 2F, 0F, size.getZ() / 2F), new Vector3f(minBlockPos().getX(), 0, minBlockPos().getZ()), null);
+        BlockPos size = new BlockPos(RegionPool.regionSize << 4, 0, RegionPool.regionSize << 4);
+        centeredPos = new Vec3d(size.getX() / 2, 0, size.getZ() / 2).addVector(minBlockPos().getX(), 0, minBlockPos().getZ());
 
         return centeredPos;
     }
@@ -130,7 +129,7 @@ public class MobileRegion {
      * @return the maximum BlockPos.
      */
     public BlockPos maxBlockPos() {
-        return new BlockPos((regionMax.getXEnd()), 256 - 1, (regionMax.getZEnd()));
+        return new BlockPos((regionMax.getXEnd()), 255, (regionMax.getZEnd()));
     }
 
     /**
@@ -171,10 +170,9 @@ public class MobileRegion {
      * @return
      */
     public Vec3d convertRegionPosToRealWorld(Vec3d regionPos) {
-        Vec3d adjustedPosition = new Vec3d(regionPos.xCoord - centerPos().x + x,
-                regionPos.yCoord + y,
-                regionPos.zCoord - centerPos().z + z);
-
+        Vec3d adjustedPosition = new Vec3d(regionPos.xCoord, regionPos.yCoord, regionPos.zCoord);
+        adjustedPosition = adjustedPosition.subtract(centerPos());
+        adjustedPosition = adjustedPosition.add(new Vec3d(x, y, z));
         return adjustedPosition;
     }
 
@@ -185,9 +183,9 @@ public class MobileRegion {
      * @return
      */
     public Vec3d convertRealWorldPosToRegion(Vec3d realWorldPos) {
-        Vec3d adjustedPosition = new Vec3d(realWorldPos.xCoord + centerPos().x - x,
+        Vec3d adjustedPosition = new Vec3d(realWorldPos.xCoord + centerPos().xCoord - x,
                 realWorldPos.yCoord - y,
-                realWorldPos.zCoord + centerPos().z - z);
+                realWorldPos.zCoord + centerPos().zCoord - z);
 
         return adjustedPosition;
     }
