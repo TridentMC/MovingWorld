@@ -1,12 +1,12 @@
 package com.elytradev.movingworld.client.experiments.render;
 
 import com.elytradev.movingworld.common.experiments.entity.EntityMobileRegion;
-import com.elytradev.movingworld.common.experiments.region.RegionPool;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.culling.ICamera;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -29,8 +29,12 @@ public class MobileRegionRenderer extends Render<EntityMobileRegion> {
 
         GlStateManager.pushMatrix();
         GlStateManager.translate(x, y, z);
-        float fx = RegionPool.regionSize * 16 / 2;
-        float fz = RegionPool.regionSize * 16 / 2;
+        BlockPos size = new BlockPos(entity.region.maxBlockPos()).subtract(entity.region.minBlockPos());
+
+        System.out.println("EntityPos " + entity.getPosition().toString());
+
+        float fx = size.getX() / 2;
+        float fz = size.getZ() / 2;
         GlStateManager.translate(-fx, -0, -fz); //minY is always 0
         if (!regionRenderers.containsKey(entity))
             regionRenderers.put(entity, new RegionRenderer(entity));

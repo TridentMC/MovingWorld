@@ -104,18 +104,20 @@ public class RegionRenderer {
     }
 
     public boolean hasChanges() {
-        for (int cX = worldClient.region.regionMin.chunkXPos; cX <= worldClient.region.regionMax.chunkXPos; cX++) {
-            for (int cZ = worldClient.region.regionMin.chunkZPos; cZ <= worldClient.region.regionMax.chunkZPos; cZ++) {
-                ChunkPos chunkPos = new ChunkPos(cX, cZ);
-                Chunk theChunk = worldClient.getChunkFromChunkCoords(cX, cZ);
+        return true;
 
-                if (chunkIsModified.get(theChunk)) {
-                    return true;
-                }
-            }
-        }
+        //for (int cX = worldClient.region.regionMin.chunkXPos; cX <= worldClient.region.regionMax.chunkXPos; cX++) {
+        //    for (int cZ = worldClient.region.regionMin.chunkZPos; cZ <= worldClient.region.regionMax.chunkZPos; cZ++) {
+        //        ChunkPos chunkPos = new ChunkPos(cX, cZ);
+        //        Chunk theChunk = worldClient.getChunkFromChunkCoords(cX, cZ);
 
-        return false;
+        //        if (chunkIsModified.get(theChunk)) {
+        //            return true;
+        //        }
+        //    }
+        //}
+
+        //return false;
     }
 
     public boolean renderAll(float partialTicks) {
@@ -161,6 +163,7 @@ public class RegionRenderer {
     public void dispatchBlock(VertexBuffer vertexBuffer, BlockRendererDispatcher rendererDispatcher, BlockData data) {
         GlStateManager.pushMatrix();
         GlStateManager.color(1, 1, 1, 1);
+        System.out.println("Rendering at ");
         rendererDispatcher.renderBlock(data.getState(), data.getPos().subtract(region.minBlockPos()), offsetAccess, vertexBuffer);
         GlStateManager.popMatrix();
     }

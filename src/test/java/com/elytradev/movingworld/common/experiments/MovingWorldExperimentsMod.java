@@ -34,6 +34,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import net.minecraftforge.fml.relauncher.Side;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -101,6 +102,10 @@ public class MovingWorldExperimentsMod {
     public void onServerStopped(FMLServerStoppedEvent e) {
         registeredDimensions.forEach((parent, child) -> DimensionManager.unregisterDimension(child));
         registeredDimensions = HashBiMap.create();
+
+        if(e.getSide() == Side.CLIENT){
+            ((MovingWorldClientDatabase)modProxy.getClientDB()).worlds.clear();
+        }
 
         activeDimID = startingDimID;
     }

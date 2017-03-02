@@ -39,4 +39,13 @@ public class BlockData {
     public boolean hasTile() {
         return tileEntity != null;
     }
+
+    @Override
+    public String toString() {
+        return "BlockData{" +
+                "pos=" + pos +
+                ", state=" + state +
+                ", tileEntity=" + tileEntity +
+                '}';
+    }
 }

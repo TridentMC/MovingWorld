@@ -10,14 +10,14 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Used to read from a world into a collection.
@@ -28,12 +28,17 @@ public class WorldReader {
     public final World world;
     public final Out out = new Out();
 
+    public BlockPos.MutableBlockPos min, max;
+
     private List<BlockPos> stack = Lists.newArrayList();
-    private HashMap<BlockPos, Tuple<IBlockState, TileEntity>> collected = Maps.newHashMap();
+    private HashMap<BlockPos, BlockData> collected = Maps.newHashMap();
 
     public WorldReader(BlockPos start, World world) {
         this.start = start;
         this.world = world;
+
+        this.min = new BlockPos.MutableBlockPos(start);
+        this.max = new BlockPos.MutableBlockPos(start);
     }
 
     public boolean readAll() {
@@ -56,7 +61,8 @@ public class WorldReader {
         IBlockState readState = world.getBlockState(pos);
 
         if (readState != null && readState.getBlock() != Blocks.AIR) {
-            collected.put(pos, new Tuple<>(readState, world.getTileEntity(pos)));
+            collected.put(pos, new BlockData(pos, readState, world.getTileEntity(pos)));
+            recalculateMinMax(pos);
 
             stack.add(pos.add(1, 0, 0));
             stack.add(pos.add(0, 1, 0));
@@ -67,80 +73,96 @@ public class WorldReader {
         }
     }
 
+    public void recalculateMinMax(BlockPos compare) {
+        if (min.getX() > compare.getX()) {
+            min.setPos(compare.getX(), min.getY(), min.getZ());
+        }
+        if (min.getY() > compare.getY()) {
+            min.setPos(min.getX(), compare.getY(), min.getZ());
+        }
+        if (min.getZ() > compare.getZ()) {
+            min.setPos(min.getX(), min.getY(), compare.getZ());
+        }
+
+        if (max.getX() < compare.getX()) {
+            max.setPos(compare.getX(), max.getY(), max.getZ());
+        }
+        if (max.getY() < compare.getY()) {
+            max.setPos(max.getX(), compare.getY(), max.getZ());
+        }
+        if (max.getZ() < compare.getZ()) {
+            max.setPos(max.getX(), max.getY(), compare.getZ());
+        }
+    }
+
+    public BlockData shiftData(BlockData d, MobileRegion region) {
+        BlockPos startPos = new BlockPos(start.getX(), 0, start.getZ());
+        BlockPos shiftedMin = min.subtract(startPos);
+
+        BlockPos newPos = new BlockPos(d.getPos());
+        newPos = newPos.subtract(startPos);
+        newPos = newPos.subtract(new Vec3i(shiftedMin.getX(), 0, shiftedMin.getZ()));
+        BlockPos dimensions = new BlockPos((max.getX() - min.getX()), 0, (max.getZ() - min.getZ()));
+        newPos = region.centeredBlockPos().subtract(new Vec3i(dimensions.getX() / 2, 0, dimensions.getZ() / 2)).add(newPos);
+
+        if (d.hasTile()) {
+            d.getTileEntity().setPos(newPos);
+        }
+        return new BlockData(newPos, d.getState(), d.getTileEntity());
+    }
+
+    /**
+     * Moves all data in the reader into the next available region in the appropriate world.
+     */
     public void moveToSubWorld() {
         // The following code shifts the position of the blocks found with our flood fill,
         // we need it shifted so the collection will be placed in the center of our MobileRegion.
-        BlockPos invertedStart = new BlockPos(start.getX(), 0, start.getZ());
+        BlockPos startPos = new BlockPos(start.getX(), 0, start.getZ());
+        BlockPos shiftedMin = min.subtract(startPos);
+        BlockPos shiftedMax = max.subtract(startPos);
+
         World subWorld = MovingWorldExperimentsMod.modProxy.getCommonDB().getWorldFromDim(MovingWorldExperimentsMod.registeredDimensions.get(world.provider.getDimension()));
         RegionPool regionPool = RegionPool.getPool(subWorld.provider.getDimension(), true);
         MobileRegion region = regionPool.nextRegion(false);
 
-        Map<BlockPos, Tuple<IBlockState, TileEntity>> shiftedCollected = Maps.newHashMap();
-        collected.entrySet().forEach(blockPosTupleEntry -> {
-            BlockPos shiftedPos = blockPosTupleEntry.getKey().subtract(invertedStart);
-            TileEntity shiftedTile = blockPosTupleEntry.getValue().getSecond();
-            if (shiftedTile != null) {
-                world.removeTileEntity(shiftedTile.getPos());
-                shiftedTile.setPos(shiftedPos);
-            }
-            shiftedCollected.put(shiftedPos, new Tuple<>(blockPosTupleEntry.getValue().getFirst(), shiftedTile));
-        });
+        List<BlockData> shiftedData = collected.values().stream().map(data -> shiftData(data, region)).collect(Collectors.toList());
 
-        int minX = 0, minZ = 0;
-        int maxX = 0, maxZ = 0;
+        List<BlockData> secondPass = new ArrayList<>();
+        // Set blocks in region.
+        for (BlockData d : shiftedData) {
+            boolean success = subWorld.setBlockState(d.getPos(), d.getState(), 2);
 
-        for (BlockPos pos : shiftedCollected.keySet()) {
-            if (minX > pos.getX()) {
-                minX = pos.getX();
+            if (!success) {
+                secondPass.add(d);
+                continue;
             }
-            if (maxX < pos.getX()) {
-                maxX = pos.getX();
-            }
-            if (minZ > pos.getZ()) {
-                minZ = pos.getZ();
-            }
-            if (maxZ < pos.getZ()) {
-                maxZ = pos.getZ();
+
+            if (d.hasTile()) {
+                TileEntity tileEntity = d.getTileEntity();
+                tileEntity.setPos(d.getPos());
+                NBTTagCompound tileData = tileEntity.writeToNBT(new NBTTagCompound());
+
+                subWorld.setTileEntity(d.getPos(), TileEntity.create(subWorld, tileData));
             }
         }
 
-        int avgX = Math.round((minX + maxX) / 2);
-        int avgZ = Math.round((minZ + maxZ) / 2);
-        BlockPos avg = new BlockPos(avgX, 0, avgZ);
+        // Second pass in-case of failures.
+        for (BlockData d : secondPass) {
+            boolean success = subWorld.setBlockState(d.getPos(), d.getState(), 2);
 
-        // Shift again to be centered with our center. (that was awful to say)
-        Map<BlockPos, Tuple<IBlockState, TileEntity>> reshifted = Maps.newHashMap();
-        shiftedCollected.entrySet().forEach(blockPosTupleEntry -> {
-            BlockPos shiftedPos = blockPosTupleEntry.getKey().add(avg);
-            shiftedPos = shiftedPos.add(region.centeredBlockPos());
-            TileEntity shiftedTile = blockPosTupleEntry.getValue().getSecond();
-            if (shiftedTile != null)
-                shiftedTile.setPos(shiftedPos);
-
-            reshifted.put(shiftedPos, new Tuple<>(blockPosTupleEntry.getValue().getFirst(), shiftedTile));
-        });
-
-        List<BlockData> failedPlacements = new ArrayList<>();
-        // Now set them to the actual child
-        reshifted.forEach((blockPos, iBlockStateTileEntityTuple) -> {
-            if (!subWorld.setBlockState(blockPos, iBlockStateTileEntityTuple.getFirst(), 2)) {
-                failedPlacements.add(new BlockData(blockPos, iBlockStateTileEntityTuple.getFirst()));
+            if (!success) {
+                System.out.println("Failed to add block to world on second pass... " + d.toString());
+                continue;
             }
-            if (iBlockStateTileEntityTuple.getSecond() != null) {
-                NBTTagCompound preMoveData = iBlockStateTileEntityTuple.getSecond().writeToNBT(new NBTTagCompound());
-                subWorld.setTileEntity(blockPos, TileEntity.create(subWorld, preMoveData));
-                TileEntity postSet = subWorld.getTileEntity(blockPos);
-                System.out.println("PostSet " + postSet.toString());
+
+            if (d.hasTile()) {
+                TileEntity tileEntity = d.getTileEntity();
+                tileEntity.setPos(d.getPos());
+                NBTTagCompound tileData = tileEntity.writeToNBT(new NBTTagCompound());
+
+                subWorld.setTileEntity(d.getPos(), TileEntity.create(subWorld, tileData));
             }
-        });
-
-        List<BlockData> finalPass = new ArrayList<>();
-        failedPlacements.forEach(data -> {
-            if (!subWorld.setBlockState(data.getPos(), data.getState(), 2))
-                finalPass.add(data);
-        });
-
-        finalPass.forEach(data -> subWorld.setBlockState(data.getPos(), data.getState(), 2));
+        }
 
         out.setPool(regionPool);
         out.setRegion(region);
