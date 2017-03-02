@@ -99,11 +99,16 @@ public class WorldReader {
         BlockPos startPos = new BlockPos(start.getX(), 0, start.getZ());
         BlockPos shiftedMin = min.subtract(startPos);
 
+        // Shift so the bottom corner of the blocks collected is 0,y,0
         BlockPos newPos = new BlockPos(d.getPos());
         newPos = newPos.subtract(startPos);
         newPos = newPos.subtract(new Vec3i(shiftedMin.getX(), 0, shiftedMin.getZ()));
-        BlockPos dimensions = new BlockPos((max.getX() - min.getX()), 0, (max.getZ() - min.getZ()));
-        newPos = region.centeredBlockPos().subtract(new Vec3i(dimensions.getX() / 2, 0, dimensions.getZ() / 2)).add(newPos);
+
+        // Convert that to region location, centered.
+        BlockPos collectedAreaSize = new BlockPos(max.subtract(min));
+        collectedAreaSize = collectedAreaSize.subtract(new BlockPos(0, collectedAreaSize.getY(), 0));
+        BlockPos regionCenter = region.centeredBlockPos();
+        newPos = regionCenter.subtract(new BlockPos(collectedAreaSize.getX() / 2, 0, collectedAreaSize.getZ() / 2)).add(newPos);
 
         if (d.hasTile()) {
             d.getTileEntity().setPos(newPos);
