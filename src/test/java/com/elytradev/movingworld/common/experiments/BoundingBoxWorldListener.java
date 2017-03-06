@@ -9,6 +9,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.IWorldEventListener;
 import net.minecraft.world.World;
 
@@ -28,10 +29,140 @@ public class BoundingBoxWorldListener implements IWorldEventListener {
         boolean removed = newState.getBlock().isAir(newState, worldIn, pos);
 
         if (regionForPos.size().isVecInside(new Vec3d(pos))) {
-            if (removed && isPosOnEdge(pos, regionForPos)) {
+            if (removed) {
                 //In region, block was removed.
 
+                // Spaghetti code begins
+                boolean minXInvalidated = false, minXChange = pos.getX() == regionForPos.sizeMin.getX();
+                boolean minYInvalidated = false, minYChange = pos.getY() == regionForPos.sizeMin.getY();
+                boolean minZInvalidated = false, minZChange = pos.getZ() == regionForPos.sizeMin.getZ();
+                boolean maxXInvalidated = false, maxXChange = pos.getX() == regionForPos.sizeMax.getX();
+                boolean maxYInvalidated = false, maxYChange = pos.getY() == regionForPos.sizeMax.getY();
+                boolean maxZInvalidated = false, maxZChange = pos.getZ() == regionForPos.sizeMax.getZ();
 
+                if (minXChange) {
+                    for (int y = regionForPos.sizeMin.getY(); y < regionForPos.sizeMax.getY(); y++) {
+                        for (int z = regionForPos.sizeMin.getZ(); z < regionForPos.sizeMax.getZ(); z++) {
+                            BlockPos curPos = new BlockPos(pos.getX(), y, z);
+                            if (curPos.equals(pos))
+                                continue;
+                            IBlockState stateAtPos = worldIn.getBlockState(curPos);
+                            if (!stateAtPos.getBlock().isAir(stateAtPos, worldIn, curPos)) {
+                                minXInvalidated = true;
+                                break;
+                            }
+                        }
+                        if (minXInvalidated)
+                            break;
+                    }
+                }
+
+                if (minYChange) {
+                    for (int x = regionForPos.sizeMin.getX(); x < regionForPos.sizeMax.getX(); x++) {
+                        for (int z = regionForPos.sizeMin.getZ(); z < regionForPos.sizeMax.getZ(); z++) {
+                            BlockPos curPos = new BlockPos(x, pos.getY(), z);
+                            if (curPos.equals(pos))
+                                continue;
+                            IBlockState stateAtPos = worldIn.getBlockState(curPos);
+                            if (!stateAtPos.getBlock().isAir(stateAtPos, worldIn, curPos)) {
+                                minYInvalidated = true;
+                                break;
+                            }
+                        }
+                        if (minYInvalidated)
+                            break;
+                    }
+                }
+
+                if (minZChange) {
+                    for (int x = regionForPos.sizeMin.getX(); x < regionForPos.sizeMax.getX(); x++) {
+                        for (int y = regionForPos.sizeMin.getY(); y < regionForPos.sizeMax.getY(); y++) {
+                            BlockPos curPos = new BlockPos(x, y, pos.getZ());
+                            if (curPos.equals(pos))
+                                continue;
+                            IBlockState stateAtPos = worldIn.getBlockState(curPos);
+                            if (!stateAtPos.getBlock().isAir(stateAtPos, worldIn, curPos)) {
+                                minZInvalidated = true;
+                                break;
+                            }
+                        }
+                        if (minZInvalidated)
+                            break;
+                    }
+                }
+
+                if (maxXChange) {
+                    for (int y = regionForPos.sizeMin.getY(); y < regionForPos.sizeMax.getY(); y++) {
+                        for (int z = regionForPos.sizeMin.getZ(); z < regionForPos.sizeMax.getZ(); z++) {
+                            BlockPos curPos = new BlockPos(pos.getX(), y, z);
+                            if (curPos.equals(pos))
+                                continue;
+                            IBlockState stateAtPos = worldIn.getBlockState(curPos);
+                            if (!stateAtPos.getBlock().isAir(stateAtPos, worldIn, curPos)) {
+                                maxXInvalidated = true;
+                                break;
+                            }
+                        }
+                        if (maxXInvalidated)
+                            break;
+                    }
+                }
+
+                if (maxYChange) {
+                    for (int x = regionForPos.sizeMin.getX(); x < regionForPos.sizeMax.getX(); x++) {
+                        for (int z = regionForPos.sizeMin.getZ(); z < regionForPos.sizeMax.getZ(); z++) {
+                            BlockPos curPos = new BlockPos(x, pos.getY(), z);
+                            if (curPos.equals(pos))
+                                continue;
+                            IBlockState stateAtPos = worldIn.getBlockState(curPos);
+                            if (!stateAtPos.getBlock().isAir(stateAtPos, worldIn, curPos)) {
+                                maxYInvalidated = true;
+                                break;
+                            }
+                        }
+                        if (maxYInvalidated)
+                            break;
+                    }
+                }
+
+                if (maxZChange) {
+                    for (int x = regionForPos.sizeMin.getX(); x < regionForPos.sizeMax.getX(); x++) {
+                        for (int y = regionForPos.sizeMin.getY(); y < regionForPos.sizeMax.getY(); y++) {
+                            BlockPos curPos = new BlockPos(x, y, pos.getZ());
+                            if (curPos.equals(pos))
+                                continue;
+
+                            IBlockState stateAtPos = worldIn.getBlockState(curPos);
+                            if (!stateAtPos.getBlock().isAir(stateAtPos, worldIn, curPos)) {
+                                maxZInvalidated = true;
+                                break;
+                            }
+                        }
+                        if (maxZInvalidated)
+                            break;
+                    }
+                }
+
+                if (maxXInvalidated) {
+                    regionForPos.sizeMax.subtract(new Vec3i(1, 0, 0));
+                }
+                if (maxYInvalidated) {
+                    regionForPos.sizeMax.subtract(new Vec3i(0, 1, 0));
+                }
+                if (maxZInvalidated) {
+                    regionForPos.sizeMax.subtract(new Vec3i(0, 0, 1));
+                }
+
+                if (minXInvalidated) {
+                    regionForPos.sizeMin.add(new Vec3i(1, 0, 0));
+                }
+                if (minYInvalidated) {
+                    regionForPos.sizeMin.add(new Vec3i(0, 1, 0));
+                }
+                if (minZInvalidated) {
+                    regionForPos.sizeMin.add(new Vec3i(0, 0, 1));
+                }
+                // Spaghetti code ends.
             }
 
             //We can ignore other cases, they don't matter for bounds calculations.

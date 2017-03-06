@@ -9,6 +9,7 @@ public class BlockPosHelper {
 
     /**
      * Takes two positions and returns a position containing the smallest coordinates of the given two.
+     *
      * @param one
      * @param two
      * @return
@@ -20,6 +21,7 @@ public class BlockPosHelper {
 
     /**
      * Takes two positions and returns a position containing the largest coordinates of the given two.
+     *
      * @param one
      * @param two
      * @return
