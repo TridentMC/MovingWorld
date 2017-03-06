@@ -2,6 +2,7 @@ package com.elytradev.movingworld.common.experiments.debug;
 
 import com.elytradev.movingworld.common.experiments.entity.EntityMobileRegion;
 import com.elytradev.movingworld.common.experiments.newassembly.WorldReader;
+import com.elytradev.movingworld.common.experiments.region.MobileRegion;
 import com.elytradev.movingworld.common.experiments.region.RegionPool;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.MapColor;
@@ -10,13 +11,10 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
-/**
- * Created by darkevilmac on 2/10/2017.
- */
 public class BlockDebug extends Block {
     public BlockDebug(Material blockMaterialIn, MapColor blockMapColorIn) {
         super(blockMaterialIn, blockMapColorIn);
@@ -34,13 +32,16 @@ public class BlockDebug extends Block {
         reader.readAll();
         reader.moveToSubWorld();
 
-        EntityMobileRegion entityMobileRegion = new EntityMobileRegion(worldIn, reader.out.getRegion());
-        Vec3d sPos = reader.out.getRegion().centerPos();
-        Vec3d spawnPos = reader.out.getRegion().convertRegionPosToRealWorld(sPos);
-        entityMobileRegion.setPosition(pos.getX(), pos.getY() + 5, pos.getZ());
-        worldIn.spawnEntity(entityMobileRegion);
+        MobileRegion readerRegion = reader.out.getRegion();
+        readerRegion.x = pos.getX();
+        readerRegion.y = 0;
+        readerRegion.z = pos.getZ();
+        BlockPos shiftedMin = readerRegion.convertRegionPosToRealWorld(reader.out.getAddedRegionMin());
+        BlockPos shiftedMax = readerRegion.convertRegionPosToRealWorld(reader.out.getAddedRegionMax());
 
-        System.out.println(spawnPos);
+        EntityMobileRegion entityMobileRegion = new EntityMobileRegion(worldIn, readerRegion, new AxisAlignedBB(shiftedMin.getX(), shiftedMin.getY(), shiftedMin.getZ(), shiftedMax.getX(), shiftedMax.getY(), shiftedMax.getZ()));
+        entityMobileRegion.setPosition(pos.getX(), 0, pos.getZ());
+        worldIn.spawnEntity(entityMobileRegion);
 
         return super.onBlockActivated(worldIn, pos, state, playerIn, hand, facing, hitX, hitY, hitZ);
     }

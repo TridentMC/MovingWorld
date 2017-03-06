@@ -11,6 +11,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.profiler.Profiler;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -29,15 +31,20 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
     public MobileRegion region;
     public World mobileRegionWorld;
     public ForgeChunkManager.Ticket chunkTicket;
+    private AxisAlignedBB boundingBox;
 
     private MessageRequestData requestedData;
     private boolean requestData = true;
     private boolean receivedData = false;
 
-    public EntityMobileRegion(World worldIn, MobileRegion region) {
+    public EntityMobileRegion(World worldIn, MobileRegion region, AxisAlignedBB bb) {
         super(worldIn);
 
         this.region = region;
+
+        if (bb != null) {
+            boundingBox = bb;
+        }
         if (world.isRemote) {
             initClient();
         } else {
@@ -46,12 +53,34 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
     }
 
     public EntityMobileRegion(World worldIn) {
-        this(worldIn, null);
+        this(worldIn, null, null);
+    }
+
+    @Override
+    public void fall(float distance, float damageMultiplier) {
+        // Nah.
+    }
+
+    @Override
+    public void setPosition(double x, double y, double z) {
+        super.setPosition(x, y, z);
+
+        if (region == null)
+            return;
+
+        region.x = x;
+        region.y = y;
+        region.z = z;
     }
 
     @Override
     protected void entityInit() {
-        // nah
+        // Nah.
+    }
+
+    @Override
+    public AxisAlignedBB getEntityBoundingBox() {
+        return boundingBox;
     }
 
     protected void initCommon() {
@@ -59,7 +88,6 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
                 region.dimension, getParentWorld().profiler, world, getParentWorld(), region);
 
         chunkTicket = ForgeChunkManager.requestTicket(MovingWorldExperimentsMod.instance, getParentWorld(), ForgeChunkManager.Type.NORMAL);
-        //chunkTicket.bindEntity(this);
 
         for (int cX = region.regionMin.chunkXPos; cX < region.regionMax.chunkXPos; cX++) {
             for (int cZ = region.regionMin.chunkZPos; cZ < region.regionMax.chunkZPos; cZ++) {
@@ -91,6 +119,11 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
     }
 
     @Override
+    public boolean canBeCollidedWith() {
+        return true;
+    }
+
+    @Override
     public void onEntityUpdate() {
         super.onEntityUpdate();
         if (region == null || world == null)
@@ -101,8 +134,8 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
             requestData = false;
         }
 
-        if (!world.isRemote && world.getTotalWorldTime() % 1 == 0) {
-
+        if (world.getTotalWorldTime() % 15 == 0) {
+            System.out.println(getEntityBoundingBox());
         }
 
         region.x = this.posX;
@@ -148,6 +181,16 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
     @Override
     public void writeSpawnData(ByteBuf buffer) {
         ByteBufUtils.writeTag(buffer, region.writeToCompound());
+
+        // Write initial bounding box.
+        AxisAlignedBB bb = getEntityBoundingBox();
+        buffer.writeDouble(bb.minX);
+        buffer.writeDouble(bb.minY);
+        buffer.writeDouble(bb.minZ);
+
+        buffer.writeDouble(bb.maxX);
+        buffer.writeDouble(bb.maxY);
+        buffer.writeDouble(bb.maxZ);
     }
 
     @Override
@@ -155,6 +198,20 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
         NBTTagCompound regionCompound = ByteBufUtils.readTag(additionalData);
 
         region = MobileRegion.getRegionFor(regionCompound);
+
+        double minX = additionalData.readDouble();
+        double minY = additionalData.readDouble();
+        double minZ = additionalData.readDouble();
+
+        double maxX = additionalData.readDouble();
+        double maxY = additionalData.readDouble();
+        double maxZ = additionalData.readDouble();
+
+        boundingBox = new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
+    }
+
+    public World getMobileRegionWorld() {
+        return mobileRegionWorld;
     }
 
     @Override

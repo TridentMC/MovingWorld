@@ -1,11 +1,14 @@
 package com.elytradev.movingworld.common.experiments.newassembly;
 
+import com.elytradev.movingworld.MovingWorldMod;
+import com.elytradev.movingworld.common.experiments.BlockPosHelper;
 import com.elytradev.movingworld.common.experiments.MovingWorldExperimentsMod;
 import com.elytradev.movingworld.common.experiments.network.BlockData;
 import com.elytradev.movingworld.common.experiments.region.MobileRegion;
 import com.elytradev.movingworld.common.experiments.region.RegionPool;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
@@ -14,9 +17,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -74,33 +75,25 @@ public class WorldReader {
     }
 
     public void recalculateMinMax(BlockPos compare) {
-        if (min.getX() > compare.getX()) {
-            min.setPos(compare.getX(), min.getY(), min.getZ());
-        }
-        if (min.getY() > compare.getY()) {
-            min.setPos(min.getX(), compare.getY(), min.getZ());
-        }
-        if (min.getZ() > compare.getZ()) {
-            min.setPos(min.getX(), min.getY(), compare.getZ());
-        }
-
-        if (max.getX() < compare.getX()) {
-            max.setPos(compare.getX(), max.getY(), max.getZ());
-        }
-        if (max.getY() < compare.getY()) {
-            max.setPos(max.getX(), compare.getY(), max.getZ());
-        }
-        if (max.getZ() < compare.getZ()) {
-            max.setPos(max.getX(), max.getY(), compare.getZ());
-        }
+        min.setPos(BlockPosHelper.min(min, compare));
+        max.setPos(BlockPosHelper.max(min, compare));
     }
 
     public BlockData shiftData(BlockData d, MobileRegion region) {
+        BlockPos newPos = shiftPos(d.getPos(), region);
+
+        if (d.hasTile()) {
+            d.getTileEntity().setPos(newPos);
+        }
+        return new BlockData(newPos, d.getState(), d.getTileEntity());
+    }
+
+    public BlockPos shiftPos(BlockPos posIn, MobileRegion region) {
         BlockPos startPos = new BlockPos(start.getX(), 0, start.getZ());
         BlockPos shiftedMin = min.subtract(startPos);
 
         // Shift so the bottom corner of the blocks collected is 0,y,0
-        BlockPos newPos = new BlockPos(d.getPos());
+        BlockPos newPos = new BlockPos(posIn);
         newPos = newPos.subtract(startPos);
         newPos = newPos.subtract(new Vec3i(shiftedMin.getX(), 0, shiftedMin.getZ()));
 
@@ -110,10 +103,7 @@ public class WorldReader {
         BlockPos regionCenter = region.centeredBlockPos();
         newPos = regionCenter.subtract(new BlockPos(collectedAreaSize.getX() / 2, 0, collectedAreaSize.getZ() / 2)).add(newPos);
 
-        if (d.hasTile()) {
-            d.getTileEntity().setPos(newPos);
-        }
-        return new BlockData(newPos, d.getState(), d.getTileEntity());
+        return newPos;
     }
 
     /**
@@ -131,10 +121,16 @@ public class WorldReader {
         MobileRegion region = regionPool.nextRegion(false);
 
         List<BlockData> shiftedData = collected.values().stream().map(data -> shiftData(data, region)).collect(Collectors.toList());
+        shiftedData.sort(new BlockDataComparator());
+
+        BlockPos addedMin = new BlockPos(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
+        BlockPos addedMax = new BlockPos(Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
 
         List<BlockData> secondPass = new ArrayList<>();
         // Set blocks in region.
         for (BlockData d : shiftedData) {
+            addedMin = BlockPosHelper.min(d.getPos(), addedMin);
+            addedMax = BlockPosHelper.max(d.getPos(), addedMax);
             boolean success = subWorld.setBlockState(d.getPos(), d.getState(), 2);
 
             if (!success) {
@@ -151,12 +147,14 @@ public class WorldReader {
             }
         }
 
+        secondPass.sort(new BlockDataComparator());
+
         // Second pass in-case of failures.
         for (BlockData d : secondPass) {
             boolean success = subWorld.setBlockState(d.getPos(), d.getState(), 2);
 
             if (!success) {
-                System.out.println("Failed to add block to world on second pass... " + d.toString());
+                MovingWorldExperimentsMod.logger.warn("Failed to add block to world on second pass... " + d.toString());
                 continue;
             }
 
@@ -169,6 +167,8 @@ public class WorldReader {
             }
         }
 
+        out.setAddedRegionMin(addedMin);
+        out.setAddedRegionMax(addedMax);
         out.setPool(regionPool);
         out.setRegion(region);
         out.setSubWorld(subWorld);
@@ -181,12 +181,30 @@ public class WorldReader {
         private MobileRegion region;
         private RegionPool pool;
         private World subWorld;
+        private BlockPos addedRegionMin;
+        private BlockPos addedRegionMax;
+
+        public BlockPos getAddedRegionMin() {
+            return addedRegionMin;
+        }
+
+        private void setAddedRegionMin(BlockPos addedRegionMin) {
+            this.addedRegionMin = addedRegionMin;
+        }
+
+        public BlockPos getAddedRegionMax() {
+            return addedRegionMax;
+        }
+
+        private void setAddedRegionMax(BlockPos addedRegionMax) {
+            this.addedRegionMax = addedRegionMax;
+        }
 
         public MobileRegion getRegion() {
             return region;
         }
 
-        public void setRegion(MobileRegion region) {
+        private void setRegion(MobileRegion region) {
             this.region = region;
         }
 
@@ -194,7 +212,7 @@ public class WorldReader {
             return pool;
         }
 
-        public void setPool(RegionPool pool) {
+        private void setPool(RegionPool pool) {
             this.pool = pool;
         }
 
@@ -202,8 +220,34 @@ public class WorldReader {
             return subWorld;
         }
 
-        public void setSubWorld(World subWorld) {
+        private void setSubWorld(World subWorld) {
             this.subWorld = subWorld;
+        }
+    }
+
+    public class BlockDataComparator implements Comparator<BlockData> {
+
+        @Override
+        public int compare(BlockData o1, BlockData o2) {
+            Set<String> highPriority = MovingWorldMod.INSTANCE.getNetworkConfig().getShared().assemblePriorityConfig.getHighPriorityDisassembly();
+            Set<String> lowPriority = MovingWorldMod.INSTANCE.getNetworkConfig().getShared().assemblePriorityConfig.getLowPriorityDisassembly();
+
+            int o1Int = 0;
+            int o2Int = 0;
+
+            if (highPriority.contains(Block.REGISTRY.getNameForObject(o1.getState().getBlock()).toString())) {
+                o1Int = 2;
+            } else if (lowPriority.contains(Block.REGISTRY.getNameForObject(o1.getState().getBlock()).toString())) {
+                o1Int = 1;
+            }
+
+            if (highPriority.contains(Block.REGISTRY.getNameForObject(o2.getState().getBlock()).toString())) {
+                o2Int = 2;
+            } else if (lowPriority.contains(Block.REGISTRY.getNameForObject(o2.getState().getBlock()).toString())) {
+                o2Int = 1;
+            }
+
+            return o1Int - o2Int;
         }
     }
 

@@ -13,6 +13,7 @@ public class MobileRegion {
     // All known regions.
     private static List<MobileRegion> REGIONS = new ArrayList<>();
     public double x, y, z;
+    public BlockPos sizeMin, sizeMax;
     public int dimension;
     public ChunkPos regionMin;
     public ChunkPos regionMax;
@@ -225,6 +226,10 @@ public class MobileRegion {
         Vec3d max = convertRegionPosToRealWorld(new Vec3d(regionBB.maxX, regionBB.maxY, regionBB.maxZ));
 
         return new AxisAlignedBB(min.xCoord, min.yCoord, min.zCoord, max.xCoord, max.yCoord, max.zCoord);
+    }
+
+    public AxisAlignedBB size() {
+        return new AxisAlignedBB(sizeMin.getX(), sizeMin.getY(), sizeMin.getZ(), sizeMax.getX(), sizeMax.getY(), sizeMax.getZ());
     }
 
     @Override
