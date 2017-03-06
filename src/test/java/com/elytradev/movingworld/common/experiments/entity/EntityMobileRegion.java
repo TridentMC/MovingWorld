@@ -134,7 +134,7 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
         }
 
         if (world.getTotalWorldTime() % 15 == 0) {
-            System.out.println(getEntityBoundingBox());
+            //System.out.println(getEntityBoundingBox());
         }
 
         region.x = this.posX;

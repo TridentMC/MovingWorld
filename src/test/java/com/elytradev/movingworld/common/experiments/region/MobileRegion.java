@@ -22,6 +22,9 @@ public class MobileRegion {
         this.dimension = dimension;
         this.regionMin = regionMin;
         this.regionMax = regionMax;
+
+        this.sizeMin = new BlockPos(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
+        this.sizeMax = new BlockPos(Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
     }
 
     private MobileRegion(NBTTagCompound tagCompound) {
@@ -143,6 +146,8 @@ public class MobileRegion {
 
         tagCompound.setLong("MinPos", minBlockPos().toLong());
         tagCompound.setLong("MaxPos", maxBlockPos().toLong());
+        tagCompound.setLong("SizeMin", sizeMin.toLong());
+        tagCompound.setLong("SizeMax", sizeMax.toLong());
         tagCompound.setInteger("DimensionID", dimension);
 
         return tagCompound;
@@ -157,10 +162,14 @@ public class MobileRegion {
         BlockPos minBlockPos = BlockPos.fromLong(tagCompound.getLong("MinPos"));
         BlockPos maxBlockPos = BlockPos.fromLong(tagCompound.getLong("MaxPos"));
 
+        sizeMin = BlockPos.fromLong(tagCompound.getLong("SizeMin"));
+        sizeMax = BlockPos.fromLong(tagCompound.getLong("SizeMax"));
+
         maxBlockPos.subtract(new Vec3i(15, 0, 15));
 
         regionMin = new ChunkPos(minBlockPos.getX() / 16, minBlockPos.getZ() / 16);
         regionMax = new ChunkPos(maxBlockPos.getX() / 16, maxBlockPos.getZ() / 16);
+
         dimension = tagCompound.getInteger("DimensionID");
     }
 

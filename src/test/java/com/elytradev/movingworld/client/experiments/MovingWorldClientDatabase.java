@@ -1,5 +1,6 @@
 package com.elytradev.movingworld.client.experiments;
 
+import com.elytradev.movingworld.common.experiments.BoundingBoxWorldListener;
 import com.elytradev.movingworld.common.experiments.IMovingWorldDB;
 import com.google.common.collect.Maps;
 import net.minecraft.client.multiplayer.WorldClient;
@@ -31,6 +32,7 @@ public class MovingWorldClientDatabase implements IMovingWorldDB {
                         parent.getWorldInfo().isHardcoreModeEnabled(), parent.getWorldType()),
                 dim, parent.getDifficulty(), new Profiler());
 
+        subWorld.addEventListener(new BoundingBoxWorldListener());
         worlds.put(dim, subWorld);
 
         return true;
