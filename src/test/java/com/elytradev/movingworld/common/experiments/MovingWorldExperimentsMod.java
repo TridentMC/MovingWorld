@@ -233,13 +233,15 @@ public class MovingWorldExperimentsMod {
     private void calcMouseOver(EntityMobileRegion entityMobileRegion) {
         Entity renderViewEntity = Minecraft.getMinecraft().getRenderViewEntity();
         float reachMultiplier = PlayerInputHelper.INSTANCE.getBlockReachDistance();
+        if (renderViewEntity == null)
+            return;
         Vec3d lookVector = renderViewEntity.getLookVec();
 
         Vec3d rayStart = renderViewEntity.getPositionEyes(1.0f);
         Vec3d rayEnd = rayStart.addVector(lookVector.xCoord * reachMultiplier, lookVector.yCoord * reachMultiplier, lookVector.zCoord * reachMultiplier);
 
         RayTraceResult traceResult = rayTraceMovingWorld(rayStart, rayEnd, entityMobileRegion);
-        if (traceResult != null && traceResult.typeOfHit != RayTraceResult.Type.MISS){
+        if (traceResult != null && traceResult.typeOfHit != RayTraceResult.Type.MISS) {
             PlayerInputHelper.INSTANCE.currentBlock = new Tuple<>(entityMobileRegion, traceResult.getBlockPos());
         }
     }

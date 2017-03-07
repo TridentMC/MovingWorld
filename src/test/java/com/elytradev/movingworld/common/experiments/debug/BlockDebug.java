@@ -31,16 +31,20 @@ public class BlockDebug extends Block {
 
         reader.readAll();
         reader.moveToSubWorld();
-
         MobileRegion readerRegion = reader.out.getRegion();
-        readerRegion.x = pos.getX();
+
+        BlockPos spawnAt = new BlockPos(reader.min.getX() + ((reader.max.getX() - reader.min.getX()) / 2), 0,
+                reader.min.getZ() + ((reader.max.getZ() - reader.min.getZ()) / 2));
+
+        readerRegion.x = spawnAt.getX();
         readerRegion.y = 0;
-        readerRegion.z = pos.getZ();
+        readerRegion.z = spawnAt.getZ();
         BlockPos shiftedMin = readerRegion.convertRegionPosToRealWorld(reader.out.getAddedRegionMin());
         BlockPos shiftedMax = readerRegion.convertRegionPosToRealWorld(reader.out.getAddedRegionMax());
 
+
         EntityMobileRegion entityMobileRegion = new EntityMobileRegion(worldIn, readerRegion, new AxisAlignedBB(shiftedMin.getX(), shiftedMin.getY(), shiftedMin.getZ(), shiftedMax.getX(), shiftedMax.getY(), shiftedMax.getZ()));
-        entityMobileRegion.setPosition(pos.getX(), 0, pos.getZ());
+        entityMobileRegion.setPosition(spawnAt.getX(), 0, spawnAt.getZ());
         worldIn.spawnEntity(entityMobileRegion);
 
         return super.onBlockActivated(worldIn, pos, state, playerIn, hand, facing, hitX, hitY, hitZ);
