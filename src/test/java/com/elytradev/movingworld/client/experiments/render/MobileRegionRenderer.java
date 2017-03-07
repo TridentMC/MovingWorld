@@ -9,10 +9,11 @@ import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.culling.ICamera;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
-import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -32,32 +33,6 @@ public class MobileRegionRenderer extends Render<EntityMobileRegion> {
     @Override
     public void doRender(EntityMobileRegion entity, double x, double y, double z, float entityYaw, float partialTicks) {
         super.doRender(entity, x, y, z, entityYaw, partialTicks);
-        if (PlayerInputHelper.INSTANCE.currentBlock.getFirst() != null) {
-            PlayerInputHelper inputHelper = PlayerInputHelper.INSTANCE;
-            Entity player = Minecraft.getMinecraft().player;
-            double pX = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks;
-            double pY = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks;
-            double pZ = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks;
-
-            // Collect data to render bb of selected block.
-            BlockPos selectedPos = inputHelper.currentBlock.getSecond();
-            AxisAlignedBB bb = entity.getMobileRegionWorld().getBlockState(selectedPos)
-                    .getSelectedBoundingBox(entity.getMobileRegionWorld(), selectedPos)
-                    .expandXyz(0.002D).offset(-pX, -pY, -pZ);
-            bb = entity.region.convertRegionBBToRealWorld(bb);
-
-            // Actually render.
-            GlStateManager.disableLighting();
-            GlStateManager.disableCull();
-            GlStateManager.pushMatrix();
-            GlStateManager.disableTexture2D();
-            RenderGlobal.drawSelectionBoundingBox(bb,
-                    0, 0, 0, 0.4F);
-            GlStateManager.popMatrix();
-            GlStateManager.enableTexture2D();
-            GlStateManager.enableCull();
-        }
-
         GlStateManager.pushMatrix();
         GlStateManager.translate(x, y, z);
         BlockPos size = new BlockPos(RegionPool.regionSize << 4, 0, RegionPool.regionSize << 4);
@@ -69,6 +44,39 @@ public class MobileRegionRenderer extends Render<EntityMobileRegion> {
             regionRenderers.put(entity, new RegionRenderer(entity));
         regionRenderers.get(entity).renderAll(partialTicks);
         GlStateManager.popMatrix();
+
+        if (PlayerInputHelper.INSTANCE.currentBlock.getFirst() != null) {
+            drawSelectionBox(entity, Minecraft.getMinecraft().player, PlayerInputHelper.INSTANCE.currentBlock.getSecond(), partialTicks);
+        }
+    }
+
+    public void drawSelectionBox(EntityMobileRegion entityMobileRegion, EntityPlayer player, RayTraceResult movingObjectPositionIn, float partialTicks) {
+        if (movingObjectPositionIn.typeOfHit == RayTraceResult.Type.BLOCK) {
+            double pX = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks;
+            double pY = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks;
+            double pZ = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks;
+
+            // Collect data to render bb of selected block.
+            BlockPos selectedPos = PlayerInputHelper.INSTANCE.currentBlock.getSecond().getBlockPos();
+            AxisAlignedBB bb = entityMobileRegion.getMobileRegionWorld().getBlockState(selectedPos)
+                    .getSelectedBoundingBox(entityMobileRegion.getMobileRegionWorld(), selectedPos)
+                    .expandXyz(0.002D).offset(-pX, -pY, -pZ);
+            bb = entityMobileRegion.region.convertRegionBBToRealWorld(bb);
+
+            // Actually render.
+            GlStateManager.pushMatrix();
+            GlStateManager.enableBlend();
+            GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+            GlStateManager.glLineWidth(2.0F);
+            GlStateManager.disableTexture2D();
+
+            RenderGlobal.drawSelectionBoundingBox(bb,
+                    0, 0, 0, 0.4F);
+
+            GlStateManager.enableTexture2D();
+            GlStateManager.disableBlend();
+            GlStateManager.popMatrix();
+        }
     }
 
     @Nullable

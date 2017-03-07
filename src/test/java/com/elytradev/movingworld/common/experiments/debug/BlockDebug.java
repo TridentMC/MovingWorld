@@ -30,7 +30,8 @@ public class BlockDebug extends Block {
         WorldReader reader = new WorldReader(pos, worldIn);
 
         reader.readAll();
-        reader.moveToSubWorld();
+        reader.cloneToSubworld();
+        reader.cleanRealWorld();
         MobileRegion readerRegion = reader.out.getRegion();
 
         BlockPos spawnAt = new BlockPos(reader.min.getX() + ((reader.max.getX() - reader.min.getX()) / 2), 0,

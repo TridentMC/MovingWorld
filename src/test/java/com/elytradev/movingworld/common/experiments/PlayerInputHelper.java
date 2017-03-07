@@ -11,15 +11,21 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.util.*;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameType;
 import net.minecraft.world.World;
+
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by darkevilmac on 3/2/2017.
@@ -27,8 +33,9 @@ import net.minecraft.world.World;
 public class PlayerInputHelper {
 
     public static final PlayerInputHelper INSTANCE = new PlayerInputHelper();
-    public Tuple<EntityMobileRegion, BlockPos> currentBlock = new Tuple<>(null, new BlockPos(-1, -1, -1));
+    public Tuple<EntityMobileRegion, RayTraceResult> currentBlock = new Tuple<>(null, new RayTraceResult(RayTraceResult.Type.MISS, new Vec3d(-1, -1, -1), null, new BlockPos(-1, -1, -1)));
     private Minecraft mc;
+
     /**
      * The Item currently being used to destroy a block
      */
@@ -62,6 +69,79 @@ public class PlayerInputHelper {
         if (!mcIn.world.extinguishFire(mcIn.player, pos, facing)) {
             inputHelper.onPlayerDestroyBlock(pos);
         }
+    }
+
+    public void onClientTick() {
+        findRegionsNearPlayerCalcSelectedBlock();
+    }
+
+    public void findRegionsNearPlayerCalcSelectedBlock() {
+        WorldClient worldClient = Minecraft.getMinecraft().world;
+        Entity renderViewEntity = Minecraft.getMinecraft().getRenderViewEntity();
+        float reachMultiplier = PlayerInputHelper.INSTANCE.getBlockReachDistance();
+        if (renderViewEntity == null)
+            return;
+        Vec3d lookVector = renderViewEntity.getLookVec();
+
+        Vec3d rayStart = renderViewEntity.getPositionEyes(1.0f);
+        Vec3d rayEnd = rayStart.addVector(lookVector.xCoord * reachMultiplier, lookVector.yCoord * reachMultiplier, lookVector.zCoord * reachMultiplier);
+        AxisAlignedBB bb = new AxisAlignedBB(rayStart.xCoord, rayStart.yCoord, rayStart.zCoord, rayEnd.xCoord, rayEnd.yCoord, rayEnd.zCoord).expandXyz(1);
+
+        List<EntityMobileRegion> regionEntities = worldClient.getEntitiesWithinAABB(EntityMobileRegion.class, bb);
+        Optional<Tuple<EntityMobileRegion, RayTraceResult>> result = regionEntities.stream().map(this::calcMouseOver).sorted((o1, o2) -> {
+            RayTraceResult o1Trace = o1.getSecond();
+            RayTraceResult o2Trace = o2.getSecond();
+
+            double o1Distance = Double.MAX_VALUE;
+            double o2Distance = Double.MAX_VALUE;
+
+            if (o1Trace != null && o1Trace.typeOfHit == RayTraceResult.Type.BLOCK) {
+                BlockPos o1PosShift = o1.getFirst().region.convertRegionPosToRealWorld(o1Trace.getBlockPos());
+
+                o1Distance = renderViewEntity.getDistanceSq(o1PosShift);
+            }
+
+            if (o2Trace != null && o2Trace.typeOfHit == RayTraceResult.Type.BLOCK) {
+                BlockPos o2PosShift = o2.getFirst().region.convertRegionPosToRealWorld(o2Trace.getBlockPos());
+
+                o2Distance = renderViewEntity.getDistanceSq(o2PosShift);
+            }
+
+            return (int) (o1Distance - o2Distance);
+        }).findFirst();
+
+        boolean resultFound = result != null;
+        resultFound = resultFound && result.isPresent() && result.get().getSecond() != null;
+        resultFound = resultFound && result.get().getSecond().typeOfHit == RayTraceResult.Type.BLOCK;
+
+        if (resultFound) {
+            currentBlock = new Tuple<>(result.get().getFirst(), result.get().getSecond());
+        } else {
+            currentBlock = new Tuple<>(null, new RayTraceResult(RayTraceResult.Type.MISS, new Vec3d(-1, -1, -1), null, new BlockPos(-1, -1, -1)));
+        }
+    }
+
+    private Tuple<EntityMobileRegion, RayTraceResult> calcMouseOver(EntityMobileRegion entityMobileRegion) {
+        Entity renderViewEntity = Minecraft.getMinecraft().getRenderViewEntity();
+        float reachMultiplier = PlayerInputHelper.INSTANCE.getBlockReachDistance();
+        if (renderViewEntity == null)
+            return null;
+        Vec3d lookVector = renderViewEntity.getLookVec();
+
+        Vec3d rayStart = renderViewEntity.getPositionEyes(1.0f);
+        Vec3d rayEnd = rayStart.addVector(lookVector.xCoord * reachMultiplier, lookVector.yCoord * reachMultiplier, lookVector.zCoord * reachMultiplier);
+
+        RayTraceResult traceResult = rayTraceMovingWorld(rayStart, rayEnd, entityMobileRegion);
+        return new Tuple<>(entityMobileRegion, traceResult);
+    }
+
+    private RayTraceResult rayTraceMovingWorld(Vec3d start, Vec3d end, EntityMobileRegion entityMobileRegion) {
+        Vec3d regionStart = entityMobileRegion.region.convertRealWorldPosToRegion(start);
+        Vec3d regionEnd = entityMobileRegion.region.convertRealWorldPosToRegion(end);
+
+        if (entityMobileRegion.getMobileRegionWorld() != null)
+            return entityMobileRegion.getMobileRegionWorld().rayTraceBlocks(regionStart, regionEnd);
+        else return new RayTraceResult(RayTraceResult.Type.MISS, new Vec3d(-1, -1, -1), null, new BlockPos(-1, -1, -1));
     }
 
     /**
@@ -211,7 +291,7 @@ public class PlayerInputHelper {
                     this.currentItemHittingBlock = this.mc.player.getHeldItemMainhand();
                     this.curBlockDamageMP = 0.0F;
                     this.stepSoundTickCounter = 0.0F;
-                    this.mc.world.sendBlockBreakProgress(this.mc.player.getEntityId(), this.currentBlock.getSecond(), (int) (this.curBlockDamageMP * 10.0F) - 1);
+                    this.mc.world.sendBlockBreakProgress(this.mc.player.getEntityId(), this.currentBlock.getSecond().getBlockPos(), (int) (this.curBlockDamageMP * 10.0F) - 1);
                 }
             }
 
@@ -227,7 +307,7 @@ public class PlayerInputHelper {
             //this.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.ABORT_DESTROY_BLOCK, this.currentBlock, EnumFacing.DOWN));
             this.isHittingBlock = false;
             this.curBlockDamageMP = 0.0F;
-            this.mc.world.sendBlockBreakProgress(this.mc.player.getEntityId(), this.currentBlock.getSecond(), -1);
+            this.mc.world.sendBlockBreakProgress(this.mc.player.getEntityId(), this.currentBlock.getSecond().getBlockPos(), -1);
             this.mc.player.resetCooldown();
         }
     }

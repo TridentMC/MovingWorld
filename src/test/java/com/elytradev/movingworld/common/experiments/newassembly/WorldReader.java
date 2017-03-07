@@ -109,7 +109,7 @@ public class WorldReader {
     /**
      * Moves all data in the reader into the next available region in the appropriate world.
      */
-    public void moveToSubWorld() {
+    public void cloneToSubworld() {
         // The following code shifts the position of the blocks found with our flood fill,
         // we need it shifted so the collection will be placed in the center of our MobileRegion.
         BlockPos startPos = new BlockPos(start.getX(), 0, start.getZ());
@@ -172,6 +172,15 @@ public class WorldReader {
         out.setPool(regionPool);
         out.setRegion(region);
         out.setSubWorld(subWorld);
+    }
+
+    public void cleanRealWorld() {
+        for (Map.Entry<BlockPos, BlockData> data : collected.entrySet()) {
+            if (data.getValue().hasTile()) {
+                world.removeTileEntity(data.getKey());
+            }
+            world.setBlockToAir(data.getKey());
+        }
     }
 
     /**

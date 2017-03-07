@@ -213,45 +213,7 @@ public class MovingWorldExperimentsMod {
                 mapEntry.getValue().tick();
             }
 
-            RayTraceResult result = Minecraft.getMinecraft().objectMouseOver;
-            if (result == null)
-                return;
-
-            //TODO: Minecraft's inconsistent with hitting regions, either need to make region bb's bigger, or manually search world for regions nearby.
-            if (result.typeOfHit == RayTraceResult.Type.ENTITY) {
-                if (result.entityHit != null && result.entityHit instanceof EntityMobileRegion) {
-                    EntityMobileRegion entityHit = (EntityMobileRegion) result.entityHit;
-
-                    calcMouseOver(entityHit);
-                }
-            } else {
-                PlayerInputHelper.INSTANCE.currentBlock = new Tuple<>(null, new BlockPos(-1, -1, -1));
-            }
+            PlayerInputHelper.INSTANCE.onClientTick();
         }
-    }
-
-    private void calcMouseOver(EntityMobileRegion entityMobileRegion) {
-        Entity renderViewEntity = Minecraft.getMinecraft().getRenderViewEntity();
-        float reachMultiplier = PlayerInputHelper.INSTANCE.getBlockReachDistance();
-        if (renderViewEntity == null)
-            return;
-        Vec3d lookVector = renderViewEntity.getLookVec();
-
-        Vec3d rayStart = renderViewEntity.getPositionEyes(1.0f);
-        Vec3d rayEnd = rayStart.addVector(lookVector.xCoord * reachMultiplier, lookVector.yCoord * reachMultiplier, lookVector.zCoord * reachMultiplier);
-
-        RayTraceResult traceResult = rayTraceMovingWorld(rayStart, rayEnd, entityMobileRegion);
-        if (traceResult != null && traceResult.typeOfHit != RayTraceResult.Type.MISS) {
-            PlayerInputHelper.INSTANCE.currentBlock = new Tuple<>(entityMobileRegion, traceResult.getBlockPos());
-        }
-    }
-
-    RayTraceResult rayTraceMovingWorld(Vec3d start, Vec3d end, EntityMobileRegion entityMobileRegion) {
-        Vec3d regionStart = entityMobileRegion.region.convertRealWorldPosToRegion(start);
-        Vec3d regionEnd = entityMobileRegion.region.convertRealWorldPosToRegion(end);
-
-        if (entityMobileRegion.getMobileRegionWorld() != null)
-            return entityMobileRegion.getMobileRegionWorld().rayTraceBlocks(regionStart, regionEnd);
-        else return null;
     }
 }
