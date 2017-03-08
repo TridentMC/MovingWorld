@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableSetMultimap;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ChunkProviderClient;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.network.NetHandlerPlayClient;
@@ -61,7 +62,7 @@ public class MobileRegionWorldClient extends WorldClient {
 
     public MobileRegionWorldClient(NetHandlerPlayClient netHandler, WorldSettings settings, int dimension, EnumDifficulty difficulty, Profiler profilerIn, World parentWorld, MobileRegion region) {
         super(netHandler, settings, dimension, difficulty, profilerIn);
-        this.realWorld = realWorld;
+        this.realWorld = Minecraft.getMinecraft().world;
         this.parentWorld = (WorldClient) parentWorld;
         this.region = region;
     }
@@ -1034,7 +1035,7 @@ public class MobileRegionWorldClient extends WorldClient {
     @Override
     public boolean mayPlace(Block p_190527_1_, BlockPos pos, boolean p_190527_3_, EnumFacing p_190527_4_, @Nullable Entity p_190527_5_) {
         if (isPosWithinRegion(pos))
-            return realWorld.mayPlace(p_190527_1_, pos, p_190527_3_, p_190527_4_, p_190527_5_);
+            return parentWorld.mayPlace(p_190527_1_, pos, p_190527_3_, p_190527_4_, p_190527_5_);
         else
             return false;
     }

@@ -163,7 +163,7 @@ public class MovingWorldPlayerController {
         if (this.getCurrentGameType().isCreative() && !this.mc.player.getHeldItemMainhand().isEmpty() && this.mc.player.getHeldItemMainhand().getItem() instanceof ItemSword) {
             return false;
         } else {
-            World world = this.mc.world;
+            World world = currentHit.getFirst().getParentWorld();
             IBlockState iblockstate = world.getBlockState(pos);
             Block block = iblockstate.getBlock();
 
