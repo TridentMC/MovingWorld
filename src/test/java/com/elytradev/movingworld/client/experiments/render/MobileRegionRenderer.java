@@ -1,6 +1,6 @@
 package com.elytradev.movingworld.client.experiments.render;
 
-import com.elytradev.movingworld.common.experiments.PlayerInputHelper;
+import com.elytradev.movingworld.client.experiments.InputReader;
 import com.elytradev.movingworld.common.experiments.entity.EntityMobileRegion;
 import com.elytradev.movingworld.common.experiments.region.RegionPool;
 import net.minecraft.client.Minecraft;
@@ -45,8 +45,8 @@ public class MobileRegionRenderer extends Render<EntityMobileRegion> {
         regionRenderers.get(entity).renderAll(partialTicks);
         GlStateManager.popMatrix();
 
-        if (PlayerInputHelper.INSTANCE.currentBlock.getFirst() != null) {
-            drawSelectionBox(entity, Minecraft.getMinecraft().player, PlayerInputHelper.INSTANCE.currentBlock.getSecond(), partialTicks);
+        if (InputReader.INSTANCE.controller.currentHit.getFirst() != null) {
+            drawSelectionBox(entity, Minecraft.getMinecraft().player, InputReader.INSTANCE.controller.currentHit.getSecond(), partialTicks);
         }
     }
 
@@ -57,7 +57,7 @@ public class MobileRegionRenderer extends Render<EntityMobileRegion> {
             double pZ = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks;
 
             // Collect data to render bb of selected block.
-            BlockPos selectedPos = PlayerInputHelper.INSTANCE.currentBlock.getSecond().getBlockPos();
+            BlockPos selectedPos = InputReader.INSTANCE.controller.currentHit.getSecond().getBlockPos();
             AxisAlignedBB bb = entityMobileRegion.getMobileRegionWorld().getBlockState(selectedPos)
                     .getSelectedBoundingBox(entityMobileRegion.getMobileRegionWorld(), selectedPos)
                     .expandXyz(0.002D).offset(-pX, -pY, -pZ);

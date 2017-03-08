@@ -1,5 +1,6 @@
 package com.elytradev.movingworld.common.experiments;
 
+import com.elytradev.movingworld.client.experiments.InputReader;
 import com.elytradev.movingworld.client.experiments.MovingWorldClientDatabase;
 import com.elytradev.movingworld.common.experiments.debug.BlockDebug;
 import com.elytradev.movingworld.common.experiments.entity.EntityMobileRegion;
@@ -14,15 +15,10 @@ import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
-import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Tuple;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -203,17 +199,29 @@ public class MovingWorldExperimentsMod {
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent e) {
         if (e.phase == TickEvent.Phase.START) {
+            Minecraft mc = Minecraft.getMinecraft();
             MovingWorldClientDatabase cDB = (MovingWorldClientDatabase) modProxy.getClientDB();
 
-            if (Minecraft.getMinecraft().isGamePaused())
+            if (mc.isGamePaused() || mc.world == null
+                    || mc.player == null) {
+                if ((mc.world == null
+                        || mc.player == null
+                        || mc.playerController == null) && InputReader.INSTANCE != null) {
+                    MinecraftForge.EVENT_BUS.unregister(InputReader.INSTANCE);
+                    InputReader.INSTANCE = null;
+                }
+
                 return;
+            }
+
+            if (InputReader.INSTANCE == null) {
+                InputReader.INSTANCE = new InputReader(mc.playerController);
+            }
 
             for (HashMap.Entry<Integer, WorldClient> mapEntry : cDB.worlds.entrySet()) {
                 mapEntry.getValue().updateEntities();
                 mapEntry.getValue().tick();
             }
-
-            PlayerInputHelper.INSTANCE.onClientTick();
         }
     }
 }

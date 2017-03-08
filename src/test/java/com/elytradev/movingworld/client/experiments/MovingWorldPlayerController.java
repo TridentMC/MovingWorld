@@ -1,6 +1,8 @@
-package com.elytradev.movingworld.common.experiments;
+package com.elytradev.movingworld.client.experiments;
 
 import com.elytradev.movingworld.common.experiments.entity.EntityMobileRegion;
+import com.elytradev.movingworld.common.experiments.network.messages.client.MessagePlayerDigging;
+import com.elytradev.movingworld.common.experiments.network.messages.client.MessageTryUseItemOnBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockCommandBlock;
 import net.minecraft.block.BlockStructure;
@@ -10,12 +12,13 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
+import net.minecraft.network.play.client.CPacketPlayerDigging;
 import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -28,57 +31,42 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Created by darkevilmac on 3/2/2017.
+ * Modified version of PlayerControllerMP, used to handle client input to send to the server.
  */
-public class PlayerInputHelper {
+public class MovingWorldPlayerController {
 
-    public static final PlayerInputHelper INSTANCE = new PlayerInputHelper();
-    public Tuple<EntityMobileRegion, RayTraceResult> currentBlock = new Tuple<>(null, new RayTraceResult(RayTraceResult.Type.MISS, new Vec3d(-1, -1, -1), null, new BlockPos(-1, -1, -1)));
+    public Tuple<EntityMobileRegion, RayTraceResult> currentHit = new Tuple<>(null,
+            new RayTraceResult(RayTraceResult.Type.MISS, new Vec3d(-1, -1, -1),
+                    null, new BlockPos(-1, -1, -1)));
+    private PlayerControllerMP realController;
+
     private Minecraft mc;
-
-    /**
-     * The Item currently being used to destroy a block
-     */
+    private EntityPlayerSP player;
     private ItemStack currentItemHittingBlock = ItemStack.EMPTY;
-    /**
-     * Current block damage (MP)
-     */
     private float curBlockDamageMP;
-    /**
-     * Tick counter, when it hits 4 it resets back to 0 and plays the step sound
-     */
     private float stepSoundTickCounter;
-    /**
-     * Delays the first damage on the block after the first click on the block
-     */
     private int blockHitDelay;
-    /**
-     * Tells if the player is hitting a block
-     */
     private boolean isHittingBlock;
-    /**
-     * Current game type for the player
-     */
-    private GameType currentGameType = GameType.SURVIVAL;
-    /**
-     * Index of the current item held by the player in the inventory hotbar
-     */
     private int currentPlayerItem;
 
-    public static void clickBlockCreative(Minecraft mcIn, PlayerInputHelper inputHelper, BlockPos pos, EnumFacing facing) {
+
+    public MovingWorldPlayerController(PlayerControllerMP playerControllerMP) {
+        this.realController = playerControllerMP;
+
+        this.mc = Minecraft.getMinecraft();
+        this.player = mc.player;
+    }
+
+    public static void clickBlockCreative(Minecraft mcIn, MovingWorldPlayerController inputHelper, BlockPos pos, EnumFacing facing) {
         if (!mcIn.world.extinguishFire(mcIn.player, pos, facing)) {
             inputHelper.onPlayerDestroyBlock(pos);
         }
     }
 
-    public void onClientTick() {
-        findRegionsNearPlayerCalcSelectedBlock();
-    }
-
     public void findRegionsNearPlayerCalcSelectedBlock() {
         WorldClient worldClient = Minecraft.getMinecraft().world;
         Entity renderViewEntity = Minecraft.getMinecraft().getRenderViewEntity();
-        float reachMultiplier = PlayerInputHelper.INSTANCE.getBlockReachDistance();
+        float reachMultiplier = getBlockReachDistance();
         if (renderViewEntity == null)
             return;
         Vec3d lookVector = renderViewEntity.getLookVec();
@@ -115,15 +103,15 @@ public class PlayerInputHelper {
         resultFound = resultFound && result.get().getSecond().typeOfHit == RayTraceResult.Type.BLOCK;
 
         if (resultFound) {
-            currentBlock = new Tuple<>(result.get().getFirst(), result.get().getSecond());
+            currentHit = new Tuple<>(result.get().getFirst(), result.get().getSecond());
         } else {
-            currentBlock = new Tuple<>(null, new RayTraceResult(RayTraceResult.Type.MISS, new Vec3d(-1, -1, -1), null, new BlockPos(-1, -1, -1)));
+            currentHit = new Tuple<>(null, new RayTraceResult(RayTraceResult.Type.MISS, new Vec3d(-1, -1, -1), null, new BlockPos(-1, -1, -1)));
         }
     }
 
     private Tuple<EntityMobileRegion, RayTraceResult> calcMouseOver(EntityMobileRegion entityMobileRegion) {
         Entity renderViewEntity = Minecraft.getMinecraft().getRenderViewEntity();
-        float reachMultiplier = PlayerInputHelper.INSTANCE.getBlockReachDistance();
+        float reachMultiplier = getBlockReachDistance();
         if (renderViewEntity == null)
             return null;
         Vec3d lookVector = renderViewEntity.getLookVec();
@@ -144,38 +132,13 @@ public class PlayerInputHelper {
         else return new RayTraceResult(RayTraceResult.Type.MISS, new Vec3d(-1, -1, -1), null, new BlockPos(-1, -1, -1));
     }
 
-    /**
-     * Sets player capabilities depending on current gametype. params: player
-     */
-    public void setPlayerCapabilities(EntityPlayer player) {
-        this.currentGameType.configurePlayerCapabilities(player.capabilities);
-    }
-
-    /**
-     * None
-     */
-    public boolean isSpectator() {
-        return this.currentGameType == GameType.SPECTATOR;
-    }
-
-    /**
-     * Sets the game type for the player.
-     */
-    public void setGameType(GameType type) {
-        this.currentGameType = type;
-        this.currentGameType.configurePlayerCapabilities(this.mc.player.capabilities);
-    }
-
-    /**
-     * Flips the player around.
-     */
-    public void flipPlayer(EntityPlayer playerIn) {
-        playerIn.rotationYaw = -180.0F;
+    public GameType getCurrentGameType() {
+        return realController.getCurrentGameType();
     }
 
     public boolean onPlayerDestroyBlock(BlockPos pos) {
-        if (this.currentGameType.isAdventure()) {
-            if (this.currentGameType == GameType.SPECTATOR) {
+        if (this.getCurrentGameType().isAdventure()) {
+            if (this.getCurrentGameType() == GameType.SPECTATOR) {
                 return false;
             }
 
@@ -197,7 +160,7 @@ public class PlayerInputHelper {
             return false;
         }
 
-        if (this.currentGameType.isCreative() && !this.mc.player.getHeldItemMainhand().isEmpty() && this.mc.player.getHeldItemMainhand().getItem() instanceof ItemSword) {
+        if (this.getCurrentGameType().isCreative() && !this.mc.player.getHeldItemMainhand().isEmpty() && this.mc.player.getHeldItemMainhand().getItem() instanceof ItemSword) {
             return false;
         } else {
             World world = this.mc.world;
@@ -211,9 +174,10 @@ public class PlayerInputHelper {
             } else {
                 world.playEvent(2001, pos, Block.getStateId(iblockstate));
 
-                //this.currentBlock = new BlockPos(this.currentBlock.getX(), -1, this.currentBlock.getZ());
+                this.currentHit = new Tuple<>(null, new RayTraceResult(RayTraceResult.Type.MISS, new Vec3d(currentHit.getSecond().getBlockPos().getX(), -1, currentHit.getSecond().getBlockPos().getZ()),
+                        null, new BlockPos(currentHit.getSecond().getBlockPos().getX(), -1, currentHit.getSecond().getBlockPos().getZ())));
 
-                if (!this.currentGameType.isCreative()) {
+                if (!this.getCurrentGameType().isCreative()) {
                     ItemStack itemstack1 = this.mc.player.getHeldItemMainhand();
                     ItemStack copyBeforeUse = itemstack1.copy();
 
@@ -241,8 +205,8 @@ public class PlayerInputHelper {
      * Called when the player is hitting a block with an item.
      */
     public boolean clickBlock(BlockPos loc, EnumFacing face) {
-        if (this.currentGameType.isAdventure()) {
-            if (this.currentGameType == GameType.SPECTATOR) {
+        if (this.getCurrentGameType().isAdventure()) {
+            if (this.getCurrentGameType() == GameType.SPECTATOR) {
                 return false;
             }
 
@@ -262,19 +226,19 @@ public class PlayerInputHelper {
         if (!this.mc.world.getWorldBorder().contains(loc)) {
             return false;
         } else {
-            if (this.currentGameType.isCreative()) {
-                //this.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, loc, face));
+            if (this.getCurrentGameType().isCreative()) {
+                new MessagePlayerDigging(currentHit.getFirst(), CPacketPlayerDigging.Action.START_DESTROY_BLOCK, loc, face).sendToServer();
                 if (!net.minecraftforge.common.ForgeHooks.onLeftClickBlock(this.mc.player, loc, face, net.minecraftforge.common.ForgeHooks.rayTraceEyeHitVec(this.mc.player, getBlockReachDistance() + 1)).isCanceled())
                     clickBlockCreative(this.mc, this, loc, face);
                 this.blockHitDelay = 5;
             } else if (!this.isHittingBlock || !this.isHittingPosition(loc)) {
                 if (this.isHittingBlock) {
-                    //this.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.ABORT_DESTROY_BLOCK, this.currentBlock, face));
+                    new MessagePlayerDigging(currentHit.getFirst(), CPacketPlayerDigging.Action.ABORT_DESTROY_BLOCK, currentHit.getSecond().getBlockPos(), face).sendToServer();
                 }
 
-                //this.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, loc, face));
-                net.minecraftforge.event.entity.player.PlayerInteractEvent.LeftClickBlock event = net.minecraftforge.common.ForgeHooks.onLeftClickBlock(this.mc.player, loc, face, net.minecraftforge.common.ForgeHooks.rayTraceEyeHitVec(this.mc.player, getBlockReachDistance() + 1));
+                new MessagePlayerDigging(currentHit.getFirst(), CPacketPlayerDigging.Action.START_DESTROY_BLOCK, loc, face).sendToServer();
 
+                net.minecraftforge.event.entity.player.PlayerInteractEvent.LeftClickBlock event = net.minecraftforge.common.ForgeHooks.onLeftClickBlock(this.mc.player, loc, face, net.minecraftforge.common.ForgeHooks.rayTraceEyeHitVec(this.mc.player, getBlockReachDistance() + 1));
                 IBlockState iblockstate = this.mc.world.getBlockState(loc);
                 boolean flag = iblockstate.getMaterial() != Material.AIR;
 
@@ -283,15 +247,17 @@ public class PlayerInputHelper {
                         iblockstate.getBlock().onBlockClicked(this.mc.world, loc, this.mc.player);
                 }
                 if (event.getUseItem() == net.minecraftforge.fml.common.eventhandler.Event.Result.DENY) return true;
-                if (flag && iblockstate.getPlayerRelativeBlockHardness(this.mc.player, this.mc.player.world, loc) >= 1.0F) {
+                if (flag && iblockstate.getPlayerRelativeBlockHardness(this.mc.player, this.currentHit.getFirst().getMobileRegionWorld(), loc) >= 1.0F) {
                     this.onPlayerDestroyBlock(loc);
                 } else {
                     this.isHittingBlock = true;
-                    //this.currentBlock = loc;
+                    if (currentHit.getSecond().getBlockPos() != loc) {
+                        currentHit = new Tuple<>(currentHit.getFirst(), new RayTraceResult(RayTraceResult.Type.BLOCK, new Vec3d(loc), face, loc));
+                    }
                     this.currentItemHittingBlock = this.mc.player.getHeldItemMainhand();
                     this.curBlockDamageMP = 0.0F;
                     this.stepSoundTickCounter = 0.0F;
-                    this.mc.world.sendBlockBreakProgress(this.mc.player.getEntityId(), this.currentBlock.getSecond().getBlockPos(), (int) (this.curBlockDamageMP * 10.0F) - 1);
+                    this.mc.world.sendBlockBreakProgress(this.mc.player.getEntityId(), this.currentHit.getSecond().getBlockPos(), (int) (this.curBlockDamageMP * 10.0F) - 1);
                 }
             }
 
@@ -304,23 +270,21 @@ public class PlayerInputHelper {
      */
     public void resetBlockRemoving() {
         if (this.isHittingBlock) {
-            //this.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.ABORT_DESTROY_BLOCK, this.currentBlock, EnumFacing.DOWN));
+            new MessagePlayerDigging(currentHit.getFirst(), CPacketPlayerDigging.Action.ABORT_DESTROY_BLOCK, currentHit.getSecond().getBlockPos(), EnumFacing.DOWN).sendToServer();
             this.isHittingBlock = false;
             this.curBlockDamageMP = 0.0F;
-            this.mc.world.sendBlockBreakProgress(this.mc.player.getEntityId(), this.currentBlock.getSecond().getBlockPos(), -1);
+            this.mc.world.sendBlockBreakProgress(this.mc.player.getEntityId(), this.currentHit.getSecond().getBlockPos(), -1);
             this.mc.player.resetCooldown();
         }
     }
 
     public boolean onPlayerDamageBlock(BlockPos posBlock, EnumFacing directionFacing) {
-        this.syncCurrentPlayItem();
-
         if (this.blockHitDelay > 0) {
             --this.blockHitDelay;
             return true;
-        } else if (this.currentGameType.isCreative() && this.mc.world.getWorldBorder().contains(posBlock)) {
+        } else if (this.getCurrentGameType().isCreative() && this.mc.world.getWorldBorder().contains(posBlock)) {
             this.blockHitDelay = 5;
-            //this.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, posBlock, directionFacing));
+            new MessagePlayerDigging(currentHit.getFirst(), CPacketPlayerDigging.Action.START_DESTROY_BLOCK, posBlock, directionFacing).sendToServer();
             clickBlockCreative(this.mc, this, posBlock, directionFacing);
             return true;
         } else if (this.isHittingPosition(posBlock)) {
@@ -331,7 +295,7 @@ public class PlayerInputHelper {
                 this.isHittingBlock = false;
                 return false;
             } else {
-                this.curBlockDamageMP += iblockstate.getPlayerRelativeBlockHardness(this.mc.player, this.mc.player.world, posBlock);
+                this.curBlockDamageMP += iblockstate.getPlayerRelativeBlockHardness(this.mc.player, this.currentHit.getFirst().getMobileRegionWorld(), posBlock);
 
                 if (this.stepSoundTickCounter % 4.0F == 0.0F) {
                     SoundType soundtype = block.getSoundType(iblockstate, mc.world, posBlock, mc.player);
@@ -349,7 +313,7 @@ public class PlayerInputHelper {
                     this.blockHitDelay = 5;
                 }
 
-                //this.mc.world.sendBlockBreakProgress(this.mc.player.getEntityId(), this.currentBlock, (int) (this.curBlockDamageMP * 10.0F) - 1);
+                //this.mc.world.sendBlockBreakProgress(this.mc.player.getEntityId(), this.currentHit, (int) (this.curBlockDamageMP * 10.0F) - 1);
                 return true;
             }
         } else {
@@ -361,9 +325,8 @@ public class PlayerInputHelper {
      * player reach distance = 4F
      */
     public float getBlockReachDistance() {
-        return this.currentGameType.isCreative() ? 5.0F : 4.5F;
+        return realController.getBlockReachDistance();
     }
-
 
     private boolean isHittingPosition(BlockPos pos) {
         ItemStack itemstack = this.mc.player.getHeldItemMainhand();
@@ -373,23 +336,10 @@ public class PlayerInputHelper {
             flag = !net.minecraftforge.client.ForgeHooksClient.shouldCauseBlockBreakReset(this.currentItemHittingBlock, itemstack);
         }
 
-        return pos.equals(this.currentBlock) && flag;
-    }
-
-    /**
-     * Syncs the current player item with the server
-     */
-    private void syncCurrentPlayItem() {
-        int i = this.mc.player.inventory.currentItem;
-
-        if (i != this.currentPlayerItem) {
-            this.currentPlayerItem = i;
-            //this.connection.sendPacket(new CPacketHeldItemChange(this.currentPlayerItem));
-        }
+        return pos.equals(this.currentHit.getSecond().getBlockPos()) && flag;
     }
 
     public EnumActionResult processRightClickBlock(EntityPlayerSP player, WorldClient worldIn, BlockPos stack, EnumFacing pos, Vec3d facing, EnumHand vec) {
-        this.syncCurrentPlayItem();
         ItemStack itemstack = player.getHeldItem(vec);
         float f = (float) (facing.xCoord - (double) stack.getX());
         float f1 = (float) (facing.yCoord - (double) stack.getY());
@@ -403,18 +353,18 @@ public class PlayerInputHelper {
                     .onRightClickBlock(player, vec, stack, pos, net.minecraftforge.common.ForgeHooks.rayTraceEyeHitVec(player, getBlockReachDistance() + 1));
             if (event.isCanceled()) {
                 // Give the server a chance to fire event as well. That way server event is not dependant on client event.
-                //this.connection.sendPacket(new CPacketPlayerTryUseItemOnBlock(stack, pos, vec, f, f1, f2));
+                new MessageTryUseItemOnBlock(currentHit.getFirst(), stack, pos, vec, f, f1, f2).sendToServer();
                 return EnumActionResult.PASS;
             }
             EnumActionResult result = EnumActionResult.PASS;
 
-            if (this.currentGameType != GameType.SPECTATOR) {
+            if (this.getCurrentGameType() != GameType.SPECTATOR) {
                 EnumActionResult ret = itemstack.onItemUseFirst(player, worldIn, stack, vec, pos, f, f1, f2);
                 if (ret != EnumActionResult.PASS) return ret;
 
                 IBlockState iblockstate = worldIn.getBlockState(stack);
                 boolean bypass = true;
-                for (ItemStack s : new ItemStack[]{player.getHeldItemMainhand(), player.getHeldItemOffhand()}) //TODO: Expand to more hands? player.inv.getHands()?
+                for (ItemStack s : new ItemStack[]{player.getHeldItemMainhand(), player.getHeldItemOffhand()})
                     bypass = bypass && (s.isEmpty() || s.getItem().doesSneakBypassUse(s, worldIn, stack, player));
 
                 if ((!player.isSneaking() || bypass || event.getUseBlock() == net.minecraftforge.fml.common.eventhandler.Event.Result.ALLOW)) {
@@ -432,9 +382,9 @@ public class PlayerInputHelper {
                 }
             }
 
-            //this.connection.sendPacket(new CPacketPlayerTryUseItemOnBlock(stack, pos, vec, f, f1, f2));
+            new MessageTryUseItemOnBlock(currentHit.getFirst(), stack, pos, vec, f, f1, f2).sendToServer();
 
-            if (!flag && this.currentGameType != GameType.SPECTATOR || event.getUseItem() == net.minecraftforge.fml.common.eventhandler.Event.Result.ALLOW) {
+            if (!flag && this.getCurrentGameType() != GameType.SPECTATOR || event.getUseItem() == net.minecraftforge.fml.common.eventhandler.Event.Result.ALLOW) {
                 if (itemstack.isEmpty()) {
                     return EnumActionResult.PASS;
                 } else if (player.getCooldownTracker().hasCooldown(itemstack.getItem())) {
@@ -448,7 +398,7 @@ public class PlayerInputHelper {
                         }
                     }
 
-                    if (this.currentGameType.isCreative()) {
+                    if (this.getCurrentGameType().isCreative()) {
                         int i = itemstack.getMetadata();
                         int j = itemstack.getCount();
                         if (event.getUseItem() != net.minecraftforge.fml.common.eventhandler.Event.Result.DENY) {
@@ -472,73 +422,24 @@ public class PlayerInputHelper {
         }
     }
 
-    public EnumActionResult processRightClick(EntityPlayer player, World worldIn, EnumHand stack) {
-        if (this.currentGameType == GameType.SPECTATOR) {
-            return EnumActionResult.PASS;
-        } else {
-            this.syncCurrentPlayItem();
-            //this.connection.sendPacket(new CPacketPlayerTryUseItem(stack));
-            ItemStack itemstack = player.getHeldItem(stack);
-
-            if (player.getCooldownTracker().hasCooldown(itemstack.getItem())) {
-                return EnumActionResult.PASS;
-            } else {
-                if (net.minecraftforge.common.ForgeHooks.onItemRightClick(player, stack))
-                    return net.minecraft.util.EnumActionResult.PASS;
-                int i = itemstack.getCount();
-                ActionResult<ItemStack> actionresult = itemstack.useItemRightClick(worldIn, player, stack);
-                ItemStack itemstack1 = (ItemStack) actionresult.getResult();
-
-                if (itemstack1 != itemstack || itemstack1.getCount() != i) {
-                    player.setHeldItem(stack, itemstack1);
-                    if (itemstack1.isEmpty()) {
-                        net.minecraftforge.event.ForgeEventFactory.onPlayerDestroyItem(player, itemstack, stack);
-                    }
-                }
-
-                return actionresult.getType();
-            }
-        }
-    }
-
-    public boolean gameIsSurvivalOrAdventure() {
-        return this.currentGameType.isSurvivalOrAdventure();
-    }
-
     /**
      * Checks if the player is not creative, used for checking if it should break a block instantly
      */
     public boolean isNotCreative() {
-        return !this.currentGameType.isCreative();
+        return !this.getCurrentGameType().isCreative();
     }
 
     /**
      * returns true if player is in creative mode
      */
     public boolean isInCreativeMode() {
-        return this.currentGameType.isCreative();
-    }
-
-    /**
-     * true for hitting entities far away.
-     */
-    public boolean extendedReach() {
-        return this.currentGameType.isCreative();
-    }
-
-
-    public boolean isSpectatorMode() {
-        return this.currentGameType == GameType.SPECTATOR;
-    }
-
-    public GameType getCurrentGameType() {
-        return this.currentGameType;
+        return this.getCurrentGameType().isCreative();
     }
 
     /**
      * Return isHittingBlock
      */
-    public boolean getIsHittingBlock() {
+    public boolean isHittingBlock() {
         return this.isHittingBlock;
     }
 

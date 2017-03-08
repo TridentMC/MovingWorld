@@ -2,7 +2,9 @@ package com.elytradev.movingworld.common.experiments.network;
 
 import com.elytradev.concrete.NetworkContext;
 import com.elytradev.movingworld.common.experiments.MovingWorldExperimentsMod;
+import com.elytradev.movingworld.common.experiments.network.messages.client.MessagePlayerDigging;
 import com.elytradev.movingworld.common.experiments.network.messages.client.MessageRequestData;
+import com.elytradev.movingworld.common.experiments.network.messages.client.MessageTryUseItemOnBlock;
 import com.elytradev.movingworld.common.experiments.network.messages.server.*;
 
 /**
@@ -15,6 +17,8 @@ public class MovingWorldExperimentsNetworking {
     public static void init() {
         // Register packets bound to server.
         networkContext.register(MessageRequestData.class);
+        networkContext.register(MessageTryUseItemOnBlock.class);
+        networkContext.register(MessagePlayerDigging.class);
 
         // Register packets bound to client.
         networkContext.register(MessageBlockChange.class);
