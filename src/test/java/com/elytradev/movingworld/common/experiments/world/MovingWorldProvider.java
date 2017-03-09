@@ -8,12 +8,12 @@ import net.minecraft.world.chunk.IChunkGenerator;
  * A world provider for all movingworlds, basically makes voids of nothingness.
  */
 public class MovingWorldProvider extends WorldProvider {
+    public IChunkGenerator createChunkGenerator() {
+        return new ChunkProviderEmpty(this.world);
+    }
+
     @Override
     public DimensionType getDimensionType() {
         return DimensionType.getById(getDimension());
-    }
-
-    public IChunkGenerator createChunkGenerator() {
-        return new ChunkProviderEmpty(this.world);
     }
 }

@@ -2,7 +2,6 @@ package com.elytradev.movingworld.common.experiments.newassembly;
 
 import com.elytradev.movingworld.MovingWorldMod;
 import com.elytradev.movingworld.common.experiments.BlockPosHelper;
-import com.elytradev.movingworld.common.experiments.MovingWorldExperimentsMod;
 import com.elytradev.movingworld.common.experiments.network.BlockData;
 import com.elytradev.movingworld.common.experiments.network.messages.server.MessageRegionData;
 import com.elytradev.movingworld.common.experiments.region.MobileRegion;

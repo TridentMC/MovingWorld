@@ -242,6 +242,11 @@ public class MobileRegion {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(x, y, z, dimension, regionMin, regionMax);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -252,10 +257,5 @@ public class MobileRegion {
                 dimension == region.dimension &&
                 Objects.equals(regionMin, region.regionMin) &&
                 Objects.equals(regionMax, region.regionMax);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(x, y, z, dimension, regionMin, regionMax);
     }
 }

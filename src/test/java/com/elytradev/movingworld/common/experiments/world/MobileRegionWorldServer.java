@@ -82,11 +82,49 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
     }
 
     @Override
-    public IChunkProvider createChunkProvider() {
-        if (parentWorld != null)
-            return parentWorld.createChunkProvider();
-        else
-            return null;
+    public World init() {
+        return parentWorld.init();
+    }
+
+    @Override
+    public void tick() {
+        parentWorld.tick();
+    }
+
+    @Nullable
+    @Override
+    public Biome.SpawnListEntry getSpawnListEntryForTypeAt(EnumCreatureType creatureType, BlockPos pos) {
+        return parentWorld.getSpawnListEntryForTypeAt(creatureType, pos);
+    }
+
+    @Override
+    public boolean canCreatureTypeSpawnHere(EnumCreatureType creatureType, Biome.SpawnListEntry spawnListEntry, BlockPos pos) {
+        return parentWorld.canCreatureTypeSpawnHere(creatureType, spawnListEntry, pos);
+    }
+
+    @Override
+    public void updateAllPlayersSleepingFlag() {
+        realWorld.updateAllPlayersSleepingFlag();
+    }
+
+    @Override
+    public void wakeAllPlayers() {
+        parentWorld.wakeAllPlayers();
+    }
+
+    @Override
+    public void resetRainAndThunder() {
+        realWorld.resetRainAndThunder();
+    }
+
+    @Override
+    public boolean areAllPlayersAsleep() {
+        return parentWorld.areAllPlayersAsleep();
+    }
+
+    @Override
+    public void setInitialSpawnLocation() {
+        parentWorld.setInitialSpawnLocation();
     }
 
     @Override
@@ -98,13 +136,8 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
     }
 
     @Override
-    public void updateWeather() {
-        parentWorld.updateWeather();
-    }
-
-    @Override
-    public void playMoodSoundAndCheckLight(int p_147467_1_, int p_147467_2_, Chunk chunkIn) {
-        parentWorld.playMoodSoundAndCheckLight(p_147467_1_, p_147467_2_, chunkIn);
+    public void playerCheckLight() {
+        parentWorld.playerCheckLight();
     }
 
     @Override
@@ -112,12 +145,148 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
     }
 
     @Override
+    public BlockPos adjustPosToNearbyEntity(BlockPos pos) {
+        return parentWorld.adjustPosToNearbyEntity(pos);
+    }
+
+    @Override
+    public boolean isBlockTickPending(BlockPos pos, Block blockType) {
+        return parentWorld.isBlockTickPending(pos, blockType);
+    }    @Override
+    public CrashReportCategory addWorldInfoToCrashReport(CrashReport report) {
+        return parentWorld.addWorldInfoToCrashReport(report);
+    }
+
+    @Override
+    public boolean isUpdateScheduled(BlockPos pos, Block blk) {
+        return parentWorld.isUpdateScheduled(pos, blk);
+    }
+
+    @Override
+    public void scheduleUpdate(BlockPos pos, Block blockIn, int delay) {
+        parentWorld.scheduleUpdate(pos, blockIn, delay);
+    }
+
+    @Override
+    public void updateBlockTick(BlockPos pos, Block blockIn, int delay, int priority) {
+        parentWorld.updateBlockTick(pos, blockIn, delay, priority);
+    }    @Override
+    public void makeFireworks(double x, double y, double z, double motionX, double motionY, double motionZ, @Nullable NBTTagCompound compund) {
+        Vec3d pos = new Vec3d(x, y, z);
+        pos = region.convertRegionPosToRealWorld(pos);
+        parentWorld.makeFireworks(pos.xCoord, pos.yCoord, pos.zCoord, motionX, motionY, motionZ, compund);
+    }
+
+    @Override
+    public void scheduleBlockUpdate(BlockPos pos, Block blockIn, int delay, int priority) {
+        parentWorld.scheduleBlockUpdate(pos, blockIn, delay, priority);
+    }    @Override
+    public void sendPacketToServer(Packet<?> packetIn) {
+        parentWorld.sendPacketToServer(packetIn);
+    }
+
+    @Override
+    public void updateEntities() {
+    }
+
+    @Override
     public void tickPlayers() {
     }
 
     @Override
-    public void tick() {
-        parentWorld.tick();
+    public void resetUpdateEntityTick() {
+        parentWorld.resetUpdateEntityTick();
+    }
+
+    @Override
+    public boolean tickUpdates(boolean runAllPending) {
+        return parentWorld.tickUpdates(runAllPending);
+    }
+
+    @Nullable
+    @Override
+    public List<NextTickListEntry> getPendingBlockUpdates(Chunk chunkIn, boolean p_72920_2_) {
+        return parentWorld.getPendingBlockUpdates(chunkIn, p_72920_2_);
+    }
+
+    @Nullable
+    @Override
+    public List<NextTickListEntry> getPendingBlockUpdates(StructureBoundingBox structureBB, boolean p_175712_2_) {
+        return parentWorld.getPendingBlockUpdates(structureBB, p_175712_2_);
+    }
+
+    @Override
+    public void updateEntityWithOptionalForce(Entity entityIn, boolean forceUpdate) {
+        parentWorld.updateEntityWithOptionalForce(entityIn, forceUpdate);
+    }
+
+    @Override
+    public boolean canSpawnNPCs() {
+        return realWorld.canSpawnNPCs();
+    }
+
+    @Override
+    public boolean canSpawnAnimals() {
+        return realWorld.canSpawnAnimals();
+    }
+
+    @Override
+    public IChunkProvider createChunkProvider() {
+        if (parentWorld != null)
+            return parentWorld.createChunkProvider();
+        else
+            return null;
+    }
+
+    @Override
+    public boolean isBlockModifiable(EntityPlayer player, BlockPos pos) {
+        return parentWorld.isBlockModifiable(player, pos);
+    }
+
+    @Override
+    public boolean canMineBlockBody(EntityPlayer player, BlockPos pos) {
+        return parentWorld.canMineBlockBody(player, pos);
+    }
+
+    @Override
+    public void initialize(WorldSettings settings) {
+        parentWorld.initialize(settings);
+    }
+
+    @Override
+    public void setDebugWorldSettings() {
+        parentWorld.setDebugWorldSettings();
+    }
+
+    @Override
+    public void createSpawnPosition(WorldSettings settings) {
+        parentWorld.createSpawnPosition(settings);
+    }
+
+    @Override
+    public void createBonusChest() {
+        parentWorld.createBonusChest();
+    }
+
+    @Nullable
+    @Override
+    public BlockPos getSpawnCoordinate() {
+        return parentWorld.getSpawnCoordinate();
+    }
+
+    @Override
+    public void saveAllChunks(boolean p_73044_1_, @Nullable IProgressUpdate progressCallback) throws MinecraftException {
+        parentWorld.saveAllChunks(p_73044_1_, progressCallback);
+    }
+
+    @Override
+    public void saveChunkData() {
+        parentWorld.saveChunkData();
+    }
+
+    @Override
+    public void saveLevel() throws MinecraftException {
+        parentWorld.saveLevel();
     }
 
     @Override
@@ -126,8 +295,21 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
     }
 
     @Override
-    public void removeEntity(Entity entityIn) {
-        parentWorld.removeEntity(entityIn);
+    public void loadEntities(Collection<Entity> entityCollection) {
+        Collection<Entity> movedEntityCollection =
+                entityCollection.stream().map(entity -> {
+                    Vec3d entityPos = new Vec3d(entity.posX, entity.posY, entity.posZ);
+                    entityPos = region.convertRegionPosToRealWorld(entityPos);
+                    entity.setPosition(entityPos.xCoord, entityPos.yCoord, entityPos.zCoord);
+                    return entity;
+                }).collect(Collectors.toList());
+
+        realWorld.loadEntities(movedEntityCollection);
+    }
+
+    @Override
+    public boolean canAddEntity(Entity entityIn) {
+        return realWorld.canAddEntity(entityIn);
     }
 
     @Override
@@ -140,50 +322,133 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
         parentWorld.onEntityRemoved(entityIn);
     }
 
+    @Override
+    public boolean addWeatherEffect(Entity entityIn) {
+        return realWorld.addWeatherEffect(entityIn);
+    }
+
+    @Override
+    public void setEntityState(Entity entityIn, byte state) {
+        parentWorld.setEntityState(entityIn, state);
+    }
+
+    @Override
+    public ChunkProviderServer getChunkProvider() {
+        if (parentWorld != null)
+            return parentWorld.getChunkProvider();
+        else
+            return super.getChunkProvider();
+    }
+
+    @Override
+    public Explosion newExplosion(@Nullable Entity entityIn, double x, double y, double z, float strength, boolean isFlaming, boolean isSmoking) {
+        return parentWorld.newExplosion(entityIn, x, y, z, strength, isFlaming, isSmoking);
+    }
+
+    @Override
+    public void addBlockEvent(BlockPos pos, Block blockIn, int eventID, int eventParam) {
+        parentWorld.addBlockEvent(pos, blockIn, eventID, eventParam);
+    }
+
+    @Override
+    public void sendQueuedBlockEvents() {
+        parentWorld.sendQueuedBlockEvents();
+    }
+
+    @Override
+    public boolean fireBlockEvent(BlockEventData event) {
+        return parentWorld.fireBlockEvent(event);
+    }
+
+    @Override
+    public void flush() {
+        parentWorld.flush();
+    }
+
+    @Override
+    public void updateWeather() {
+        parentWorld.updateWeather();
+    }
+
     @Nullable
     @Override
-    public Entity getEntityByID(int id) {
-        return parentWorld.getEntityByID(id);
+    public MinecraftServer getMinecraftServer() {
+        if (parentWorld != null)
+            return parentWorld.getMinecraftServer();
+        else
+            return mcServer;
     }
 
     @Override
-    public void sendQuittingDisconnectingPacket() {
+    public EntityTracker getEntityTracker() {
+        return parentWorld.getEntityTracker();
     }
 
     @Override
-    public CrashReportCategory addWorldInfoToCrashReport(CrashReport report) {
-        return parentWorld.addWorldInfoToCrashReport(report);
+    public PlayerChunkMap getPlayerChunkMap() {
+        return parentWorld.getPlayerChunkMap();
     }
 
     @Override
-    public void playSound(@Nullable EntityPlayer player, double x, double y, double z, SoundEvent soundIn, SoundCategory category, float volume, float pitch) {
-        Vec3d pos = new Vec3d(x, y, z);
+    public Teleporter getDefaultTeleporter() {
+        return parentWorld.getDefaultTeleporter();
+    }
+
+    @Override
+    public TemplateManager getStructureTemplateManager() {
+        return parentWorld.getStructureTemplateManager();
+    }
+
+    @Override
+    public void spawnParticle(EnumParticleTypes particleType, double xCoord, double yCoord, double zCoord, int numberOfParticles, double xOffset, double yOffset, double zOffset, double particleSpeed, int... particleArguments) {
+        parentWorld.spawnParticle(particleType, xCoord, yCoord, zCoord, numberOfParticles, xOffset, yOffset, zOffset, particleSpeed, particleArguments);
+    }
+
+    @Override
+    public void spawnParticle(EnumParticleTypes particleType, boolean longDistance, double xCoord, double yCoord, double zCoord, int numberOfParticles, double xOffset, double yOffset, double zOffset, double particleSpeed, int... particleArguments) {
+        parentWorld.spawnParticle(particleType, longDistance, xCoord, yCoord, zCoord, numberOfParticles, xOffset, yOffset, zOffset, particleSpeed, particleArguments);
+    }
+
+    @Override
+    public void spawnParticle(EntityPlayerMP player, EnumParticleTypes particle, boolean longDistance, double x, double y, double z, int count, double xOffset, double yOffset, double zOffset, double speed, int... arguments) {
+        parentWorld.spawnParticle(player, particle, longDistance, x, y, z, count, xOffset, yOffset, zOffset, speed, arguments);
+    }
+
+    @Override
+    public void sendPacketWithinDistance(EntityPlayerMP player, boolean longDistance, double x, double y, double z, Packet<?> packetIn) {
+        parentWorld.sendPacketWithinDistance(player, longDistance, x, y, z, packetIn);
+    }
+
+    @Nullable
+    @Override
+    public Entity getEntityFromUuid(UUID uuid) {
+        return parentWorld.getEntityFromUuid(uuid);
+    }
+
+    @Override
+    public ListenableFuture<Object> addScheduledTask(Runnable runnableToSchedule) {
+        return parentWorld.addScheduledTask(runnableToSchedule);
+    }
+
+    @Override
+    public boolean isCallingFromMinecraftThread() {
+        return parentWorld.isCallingFromMinecraftThread();
+    }
+
+    @Nullable
+    @Override
+    public BlockPos findNearestStructure(String p_190528_1_, BlockPos pos, boolean p_190528_3_) {
         pos = region.convertRegionPosToRealWorld(pos);
-        parentWorld.playSound(player, pos.xCoord, pos.yCoord, pos.zCoord, soundIn, category, volume, pitch);
+
+        return realWorld.findNearestStructure(p_190528_1_, pos, p_190528_3_);
     }
 
     @Override
-    public void playSound(double x, double y, double z, SoundEvent soundIn, SoundCategory category, float volume, float pitch, boolean distanceDelay) {
-        Vec3d pos = new Vec3d(x, y, z);
-        pos = region.convertRegionPosToRealWorld(pos);
-        parentWorld.playSound(pos.xCoord, pos.yCoord, pos.zCoord, soundIn, category, volume, pitch, distanceDelay);
-    }
-
-    @Override
-    public void makeFireworks(double x, double y, double z, double motionX, double motionY, double motionZ, @Nullable NBTTagCompound compund) {
-        Vec3d pos = new Vec3d(x, y, z);
-        pos = region.convertRegionPosToRealWorld(pos);
-        parentWorld.makeFireworks(pos.xCoord, pos.yCoord, pos.zCoord, motionX, motionY, motionZ, compund);
-    }
-
-    @Override
-    public void sendPacketToServer(Packet<?> packetIn) {
-        parentWorld.sendPacketToServer(packetIn);
-    }
-
-    @Override
-    public World init() {
-        return parentWorld.init();
+    public File getChunkSaveLocation() {
+        if (parentWorld != null)
+            return parentWorld.getChunkSaveLocation();
+        else
+            return DimensionManager.getWorld(provider.getDimension()).getChunkSaveLocation();
     }
 
     @Override
@@ -201,25 +466,6 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
     @Override
     public BiomeProvider getBiomeProvider() {
         return realWorld.getBiomeProvider();
-    }
-
-    @Override
-    public void initialize(WorldSettings settings) {
-        parentWorld.initialize(settings);
-    }
-
-    @Nullable
-    @Override
-    public MinecraftServer getMinecraftServer() {
-        if (parentWorld != null)
-            return parentWorld.getMinecraftServer();
-        else
-            return mcServer;
-    }
-
-    @Override
-    public void setInitialSpawnLocation() {
-        parentWorld.setInitialSpawnLocation();
     }
 
     @Override
@@ -242,6 +488,16 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
         return parentWorld.isBlockLoaded(pos, allowEmpty);
     }
 
+    @Override
+    public boolean isAreaLoaded(int xStart, int yStart, int zStart, int xEnd, int yEnd, int zEnd, boolean allowEmpty) {
+        BlockPos start = new BlockPos(xStart, yStart, zStart);
+        BlockPos end = new BlockPos(xEnd, yEnd, zEnd);
+
+        if (isPosWithinRegion(start) && isPosWithinRegion(end))
+            return parentWorld.isAreaLoaded(xStart, yStart, zStart, xEnd, yEnd, zEnd, allowEmpty);
+        else
+            return false;
+    }
 
     @Override
     public Chunk getChunkFromBlockCoords(BlockPos pos) {
@@ -333,11 +589,6 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
     @Override
     public void observedNeighborChanged(BlockPos pos, Block p_190529_2_, BlockPos p_190529_3_) {
         parentWorld.observedNeighborChanged(pos, p_190529_2_, p_190529_3_);
-    }
-
-    @Override
-    public boolean isBlockTickPending(BlockPos pos, Block blockType) {
-        return parentWorld.isBlockTickPending(pos, blockType);
     }
 
     @Override
@@ -461,6 +712,20 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
     }
 
     @Override
+    public void playSound(@Nullable EntityPlayer player, double x, double y, double z, SoundEvent soundIn, SoundCategory category, float volume, float pitch) {
+        Vec3d pos = new Vec3d(x, y, z);
+        pos = region.convertRegionPosToRealWorld(pos);
+        parentWorld.playSound(player, pos.xCoord, pos.yCoord, pos.zCoord, soundIn, category, volume, pitch);
+    }
+
+    @Override
+    public void playSound(double x, double y, double z, SoundEvent soundIn, SoundCategory category, float volume, float pitch, boolean distanceDelay) {
+        Vec3d pos = new Vec3d(x, y, z);
+        pos = region.convertRegionPosToRealWorld(pos);
+        parentWorld.playSound(pos.xCoord, pos.yCoord, pos.zCoord, soundIn, category, volume, pitch, distanceDelay);
+    }
+
+    @Override
     public void playRecord(BlockPos blockPositionIn, @Nullable SoundEvent soundEventIn) {
         realWorld.playRecord(blockPositionIn, soundEventIn);
     }
@@ -481,8 +746,8 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
     }
 
     @Override
-    public boolean addWeatherEffect(Entity entityIn) {
-        return realWorld.addWeatherEffect(entityIn);
+    public void removeEntity(Entity entityIn) {
+        parentWorld.removeEntity(entityIn);
     }
 
     @Override
@@ -501,11 +766,6 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
     }
 
     @Override
-    public boolean isInsideBorder(WorldBorder worldBorderIn, Entity entityIn) {
-        return parentWorld.isInsideBorder(worldBorderIn, entityIn);
-    }
-
-    @Override
     public void removeEventListener(IWorldEventListener listener) {
         parentWorld.removeEventListener(listener);
     }
@@ -521,17 +781,6 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
             return parentWorld.calculateSkylightSubtracted(partialTicks);
         else
             return super.calculateSkylightSubtracted(partialTicks);
-    }
-
-    @Override
-    public boolean isAreaLoaded(int xStart, int yStart, int zStart, int xEnd, int yEnd, int zEnd, boolean allowEmpty) {
-        BlockPos start = new BlockPos(xStart, yStart, zStart);
-        BlockPos end = new BlockPos(xEnd, yEnd, zEnd);
-
-        if (isPosWithinRegion(start) && isPosWithinRegion(end))
-            return parentWorld.isAreaLoaded(xStart, yStart, zStart, xEnd, yEnd, zEnd, allowEmpty);
-        else
-            return false;
     }
 
     @Override
@@ -625,30 +874,6 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
     }
 
     @Override
-    public boolean isUpdateScheduled(BlockPos pos, Block blk) {
-        return parentWorld.isUpdateScheduled(pos, blk);
-    }
-
-    @Override
-    public void scheduleUpdate(BlockPos pos, Block blockIn, int delay) {
-        parentWorld.scheduleUpdate(pos, blockIn, delay);
-    }
-
-    @Override
-    public void updateBlockTick(BlockPos pos, Block blockIn, int delay, int priority) {
-        parentWorld.updateBlockTick(pos, blockIn, delay, priority);
-    }
-
-    @Override
-    public void scheduleBlockUpdate(BlockPos pos, Block blockIn, int delay, int priority) {
-        parentWorld.scheduleBlockUpdate(pos, blockIn, delay, priority);
-    }
-
-    @Override
-    public void updateEntities() {
-    }
-
-    @Override
     public boolean addTileEntity(TileEntity tile) {
         return parentWorld.addTileEntity(tile);
     }
@@ -661,11 +886,6 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
     @Override
     public void updateEntity(Entity ent) {
         parentWorld.updateEntity(ent);
-    }
-
-    @Override
-    public void updateEntityWithOptionalForce(Entity entityIn, boolean forceUpdate) {
-        parentWorld.updateEntityWithOptionalForce(entityIn, forceUpdate);
     }
 
     @Override
@@ -706,11 +926,6 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
     @Override
     public Explosion createExplosion(@Nullable Entity entityIn, double x, double y, double z, float strength, boolean isSmoking) {
         return parentWorld.createExplosion(entityIn, x, y, z, strength, isSmoking);
-    }
-
-    @Override
-    public Explosion newExplosion(@Nullable Entity entityIn, double x, double y, double z, float strength, boolean isFlaming, boolean isSmoking) {
-        return parentWorld.newExplosion(entityIn, x, y, z, strength, isFlaming, isSmoking);
     }
 
     @Override
@@ -775,16 +990,16 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
     }
 
     @Override
-    public void setAllowedSpawnTypes(boolean hostile, boolean peaceful) {
-        parentWorld.setAllowedSpawnTypes(hostile, peaceful);
-    }
-
-    @Override
     public void calculateInitialSkylight() {
         if (parentWorld != null)
             parentWorld.calculateInitialSkylight();
         else
             super.calculateInitialSkylight();
+    }
+
+    @Override
+    public void setAllowedSpawnTypes(boolean hostile, boolean peaceful) {
+        parentWorld.setAllowedSpawnTypes(hostile, peaceful);
     }
 
     @Override
@@ -806,6 +1021,11 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
     @Override
     public void updateWeatherBody() {
         parentWorld.updateWeatherBody();
+    }
+
+    @Override
+    public void playMoodSoundAndCheckLight(int p_147467_1_, int p_147467_2_, Chunk chunkIn) {
+        parentWorld.playMoodSoundAndCheckLight(p_147467_1_, p_147467_2_, chunkIn);
     }
 
     @Override
@@ -864,6 +1084,12 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
         } else {
             return false;
         }
+    }    @Override
+    public long getSeed() {
+        if (parentWorld != null)
+            return parentWorld.getSeed();
+        else
+            return super.getSeed();
     }
 
     @Override
@@ -872,6 +1098,9 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
             return parentWorld.checkLight(pos);
         else
             return false;
+    }    @Override
+    public long getTotalWorldTime() {
+        return realWorld.getTotalWorldTime();
     }
 
     @Override
@@ -880,43 +1109,52 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
             return parentWorld.checkLightFor(lightType, pos);
         else
             return false;
-    }
-
-    @Override
-    public boolean tickUpdates(boolean runAllPending) {
-        return parentWorld.tickUpdates(runAllPending);
-    }
-
-    @Nullable
-    @Override
-    public List<NextTickListEntry> getPendingBlockUpdates(Chunk chunkIn, boolean p_72920_2_) {
-        return parentWorld.getPendingBlockUpdates(chunkIn, p_72920_2_);
-    }
-
-    @Nullable
-    @Override
-    public List<NextTickListEntry> getPendingBlockUpdates(StructureBoundingBox structureBB, boolean p_175712_2_) {
-        return parentWorld.getPendingBlockUpdates(structureBB, p_175712_2_);
+    }    @Override
+    public void setTotalWorldTime(long worldTime) {
+        realWorld.setTotalWorldTime(worldTime);
     }
 
     @Override
     public List<Entity> getEntitiesWithinAABBExcludingEntity(@Nullable Entity entityIn, AxisAlignedBB bb) {
         return realWorld.getEntitiesWithinAABBExcludingEntity(entityIn, region.convertRegionBBToRealWorld(bb));
+    }    @Override
+    public long getWorldTime() {
+        return realWorld.getWorldTime();
     }
 
     @Override
     public List<Entity> getEntitiesInAABBexcluding(@Nullable Entity entityIn, AxisAlignedBB bb, @Nullable Predicate<? super Entity> predicate) {
         return realWorld.getEntitiesInAABBexcluding(entityIn, region.convertRegionBBToRealWorld(bb), predicate);
+    }    @Override
+    public void setWorldTime(long time) {
+        realWorld.setWorldTime(time);
     }
 
     @Override
     public <T extends Entity> List<T> getEntities(Class<? extends T> entityType, Predicate<? super T> filter) {
         return realWorld.getEntities(entityType, filter);
+    }    @Override
+    public BlockPos getSpawnPoint() {
+        return parentWorld.getSpawnPoint();
     }
 
     @Override
     public <T extends Entity> List<T> getPlayers(Class<? extends T> playerType, Predicate<? super T> filter) {
         return realWorld.getPlayers(playerType, filter);
+    }    @Override
+    public void setSpawnPoint(BlockPos pos) {
+        parentWorld.setSpawnPoint(pos);
+    }
+
+    @Override
+    public <T extends Entity> List<T> getEntitiesWithinAABB(Class<? extends T> classEntity, AxisAlignedBB bb) {
+        return realWorld.getEntitiesWithinAABB(classEntity, region.convertRegionBBToRealWorld(bb));
+    }    @Override
+    public void joinEntityInSurroundings(Entity entityIn) {
+        Vec3d entityPos = new Vec3d(entityIn.posX, entityIn.posY, entityIn.posZ);
+        entityPos = region.convertRegionPosToRealWorld(entityPos);
+        entityIn.setPosition(entityPos.xCoord, entityPos.yCoord, entityPos.zCoord);
+        realWorld.joinEntityInSurroundings(entityIn);
     }
 
     @Override
@@ -924,15 +1162,16 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
         return realWorld.getEntitiesWithinAABB(clazz, region.convertRegionBBToRealWorld(bb), filter);
     }
 
-    @Override
-    public <T extends Entity> List<T> getEntitiesWithinAABB(Class<? extends T> classEntity, AxisAlignedBB bb) {
-        return realWorld.getEntitiesWithinAABB(classEntity, region.convertRegionBBToRealWorld(bb));
-    }
-
     @Nullable
     @Override
     public <T extends Entity> T findNearestEntityWithinAABB(Class<? extends T> entityType, AxisAlignedBB bb, T closestTo) {
         return realWorld.findNearestEntityWithinAABB(entityType, region.convertRegionBBToRealWorld(bb), closestTo);
+    }
+
+    @Nullable
+    @Override
+    public Entity getEntityByID(int id) {
+        return parentWorld.getEntityByID(id);
     }
 
     @Override
@@ -943,29 +1182,28 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
     @Override
     public void markChunkDirty(BlockPos pos, TileEntity unusedTileEntity) {
         parentWorld.markChunkDirty(pos, unusedTileEntity);
+    }    @Override
+    public ISaveHandler getSaveHandler() {
+        return parentWorld.getSaveHandler();
     }
 
     @Override
     public int countEntities(Class<?> entityType) {
         return realWorld.countEntities(entityType);
-    }
-
-    @Override
-    public void loadEntities(Collection<Entity> entityCollection) {
-        Collection<Entity> movedEntityCollection =
-                entityCollection.stream().map(entity -> {
-                    Vec3d entityPos = new Vec3d(entity.posX, entity.posY, entity.posZ);
-                    entityPos = region.convertRegionPosToRealWorld(entityPos);
-                    entity.setPosition(entityPos.xCoord, entityPos.yCoord, entityPos.zCoord);
-                    return entity;
-                }).collect(Collectors.toList());
-
-        realWorld.loadEntities(movedEntityCollection);
+    }    @Override
+    public WorldInfo getWorldInfo() {
+        if (parentWorld != null)
+            return parentWorld.getWorldInfo();
+        else
+            return worldInfo;
     }
 
     @Override
     public void unloadEntities(Collection<Entity> entityCollection) {
         realWorld.unloadEntities(entityCollection);
+    }    @Override
+    public GameRules getGameRules() {
+        return realWorld.getGameRules();
     }
 
     @Override
@@ -979,58 +1217,103 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
     @Override
     public int getSeaLevel() {
         return parentWorld.getSeaLevel();
+    }    @Override
+    public float getThunderStrength(float delta) {
+        if (realWorld != null)
+            return realWorld.getThunderStrength(delta);
+        else
+            return super.getThunderStrength(delta);
     }
 
     @Override
     public void setSeaLevel(int seaLevelIn) {
         parentWorld.setSeaLevel(seaLevelIn);
+    }    @Override
+    public void setThunderStrength(float strength) {
+        realWorld.setThunderStrength(strength);
     }
 
     @Override
     public int getStrongPower(BlockPos pos, EnumFacing direction) {
         return parentWorld.getStrongPower(pos, direction);
+    }    @Override
+    public float getRainStrength(float delta) {
+        if (realWorld != null)
+            return realWorld.getRainStrength(delta);
+        else
+            return super.getRainStrength(delta);
     }
 
     @Override
     public WorldType getWorldType() {
         return parentWorld.getWorldType();
+    }    @Override
+    public void setRainStrength(float strength) {
+        realWorld.setRainStrength(strength);
     }
 
     @Override
     public int getStrongPower(BlockPos pos) {
         return parentWorld.getStrongPower(pos);
+    }    @Override
+    public boolean isThundering() {
+        return realWorld.isThundering();
     }
 
     @Override
     public boolean isSidePowered(BlockPos pos, EnumFacing side) {
         return parentWorld.isSidePowered(pos, side);
+    }    @Override
+    public boolean isRaining() {
+        return realWorld.isRaining();
     }
 
     @Override
     public int getRedstonePower(BlockPos pos, EnumFacing facing) {
         return parentWorld.getRedstonePower(pos, facing);
+    }    @Override
+    public boolean isRainingAt(BlockPos strikePosition) {
+        strikePosition = region.convertRegionPosToRealWorld(strikePosition);
+
+        return realWorld.isRainingAt(strikePosition);
     }
 
     @Override
     public boolean isBlockPowered(BlockPos pos) {
         return parentWorld.isBlockPowered(pos);
+    }    @Override
+    public boolean isBlockinHighHumidity(BlockPos pos) {
+        pos = region.convertRegionPosToRealWorld(pos);
+
+        return realWorld.isBlockinHighHumidity(pos);
     }
 
     @Override
     public int isBlockIndirectlyGettingPowered(BlockPos pos) {
         return parentWorld.isBlockIndirectlyGettingPowered(pos);
+    }    @Nullable
+    @Override
+    public MapStorage getMapStorage() {
+        return parentWorld.getMapStorage();
     }
 
     @Nullable
     @Override
     public EntityPlayer getClosestPlayerToEntity(Entity entityIn, double distance) {
         return realWorld.getClosestPlayerToEntity(entityIn, distance);
+    }    @Override
+    public void setData(String dataID, WorldSavedData worldSavedDataIn) {
+        parentWorld.setData(dataID, worldSavedDataIn);
     }
 
     @Nullable
     @Override
     public EntityPlayer getNearestPlayerNotCreative(Entity entityIn, double distance) {
         return realWorld.getNearestPlayerNotCreative(entityIn, distance);
+    }    @Nullable
+    @Override
+    public WorldSavedData loadData(Class<? extends WorldSavedData> clazz, String dataID) {
+        return parentWorld.loadData(clazz, dataID);
     }
 
     @Nullable
@@ -1040,6 +1323,9 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
         pos = region.convertRegionPosToRealWorld(pos);
 
         return realWorld.getClosestPlayer(pos.xCoord, pos.yCoord, pos.zCoord, distance, spectator);
+    }    @Override
+    public int getUniqueDataId(String key) {
+        return parentWorld.getUniqueDataId(key);
     }
 
     @Nullable
@@ -1049,6 +1335,9 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
         pos = region.convertRegionPosToRealWorld(pos);
 
         return realWorld.getClosestPlayer(pos.xCoord, pos.yCoord, pos.zCoord, distance, predicate);
+    }    @Override
+    public void playBroadcastSound(int id, BlockPos pos, int data) {
+        parentWorld.playBroadcastSound(id, pos, data);
     }
 
     @Override
@@ -1057,18 +1346,27 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
         pos = region.convertRegionPosToRealWorld(pos);
 
         return realWorld.isAnyPlayerWithinRangeAt(pos.xCoord, pos.yCoord, pos.zCoord, range);
+    }    @Override
+    public void playEvent(int type, BlockPos pos, int data) {
+        parentWorld.playEvent(type, pos, data);
     }
 
     @Nullable
     @Override
     public EntityPlayer getNearestAttackablePlayer(Entity entityIn, double maxXZDistance, double maxYDistance) {
         return realWorld.getNearestAttackablePlayer(entityIn, maxXZDistance, maxYDistance);
+    }    @Override
+    public void playEvent(@Nullable EntityPlayer player, int type, BlockPos pos, int data) {
+        parentWorld.playEvent(player, type, pos, data);
     }
 
     @Nullable
     @Override
     public EntityPlayer getNearestAttackablePlayer(BlockPos pos, double maxXZDistance, double maxYDistance) {
         return realWorld.getNearestAttackablePlayer(region.convertRegionPosToRealWorld(pos), maxXZDistance, maxYDistance);
+    }    @Override
+    public int getHeight() {
+        return parentWorld.getHeight();
     }
 
     @Nullable
@@ -1077,227 +1375,40 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
         Vec3d pos = new Vec3d(x, y, z);
         pos = region.convertRegionPosToRealWorld(pos);
         return parentWorld.getNearestAttackablePlayer(pos.xCoord, pos.yCoord, pos.zCoord, maxXZDistance, maxYDistance, playerToDouble, p_184150_12_);
+    }    @Override
+    public int getActualHeight() {
+        return parentWorld.getActualHeight();
     }
 
     @Nullable
     @Override
     public EntityPlayer getPlayerEntityByName(String name) {
         return realWorld.getPlayerEntityByName(name);
+    }    @Override
+    public Random setRandomSeed(int p_72843_1_, int p_72843_2_, int p_72843_3_) {
+        return realWorld.setRandomSeed(p_72843_1_, p_72843_2_, p_72843_3_);
     }
 
     @Nullable
     @Override
     public EntityPlayer getPlayerEntityByUUID(UUID uuid) {
         return realWorld.getPlayerEntityByUUID(uuid);
-    }
-
-    @Override
-    public void checkSessionLock() throws MinecraftException {
-        parentWorld.checkSessionLock();
-    }
-
-    @Override
-    public long getSeed() {
-        if (parentWorld != null)
-            return parentWorld.getSeed();
-        else
-            return super.getSeed();
-    }
-
-    @Override
-    public long getTotalWorldTime() {
-        return realWorld.getTotalWorldTime();
-    }
-
-    @Override
-    public void setTotalWorldTime(long worldTime) {
-        realWorld.setTotalWorldTime(worldTime);
-    }
-
-    @Override
-    public long getWorldTime() {
-        return realWorld.getWorldTime();
-    }
-
-    @Override
-    public void setWorldTime(long time) {
-        realWorld.setWorldTime(time);
-    }
-
-    @Override
-    public BlockPos getSpawnPoint() {
-        return parentWorld.getSpawnPoint();
-    }
-
-    @Override
-    public void setSpawnPoint(BlockPos pos) {
-        parentWorld.setSpawnPoint(pos);
-    }
-
-    @Override
-    public void joinEntityInSurroundings(Entity entityIn) {
-        Vec3d entityPos = new Vec3d(entityIn.posX, entityIn.posY, entityIn.posZ);
-        entityPos = region.convertRegionPosToRealWorld(entityPos);
-        entityIn.setPosition(entityPos.xCoord, entityPos.yCoord, entityPos.zCoord);
-        realWorld.joinEntityInSurroundings(entityIn);
-    }
-
-    @Override
-    public boolean isBlockModifiable(EntityPlayer player, BlockPos pos) {
-        return parentWorld.isBlockModifiable(player, pos);
-    }
-
-    @Override
-    public boolean canMineBlockBody(EntityPlayer player, BlockPos pos) {
-        return parentWorld.canMineBlockBody(player, pos);
-    }
-
-    @Override
-    public void setEntityState(Entity entityIn, byte state) {
-        parentWorld.setEntityState(entityIn, state);
-    }
-
-    @Override
-    public void addBlockEvent(BlockPos pos, Block blockIn, int eventID, int eventParam) {
-        parentWorld.addBlockEvent(pos, blockIn, eventID, eventParam);
-    }
-
-    @Override
-    public ISaveHandler getSaveHandler() {
-        return parentWorld.getSaveHandler();
-    }
-
-    @Override
-    public WorldInfo getWorldInfo() {
-        if (parentWorld != null)
-            return parentWorld.getWorldInfo();
-        else
-            return worldInfo;
-    }
-
-    @Override
-    public GameRules getGameRules() {
-        return realWorld.getGameRules();
-    }
-
-    @Override
-    public void updateAllPlayersSleepingFlag() {
-        realWorld.updateAllPlayersSleepingFlag();
-    }
-
-    @Override
-    public float getThunderStrength(float delta) {
-        if (realWorld != null)
-            return realWorld.getThunderStrength(delta);
-        else
-            return super.getThunderStrength(delta);
-    }
-
-    @Override
-    public void setThunderStrength(float strength) {
-        realWorld.setThunderStrength(strength);
-    }
-
-    @Override
-    public float getRainStrength(float delta) {
-        if (realWorld != null)
-            return realWorld.getRainStrength(delta);
-        else
-            return super.getRainStrength(delta);
-    }
-
-    @Override
-    public void setRainStrength(float strength) {
-        realWorld.setRainStrength(strength);
-    }
-
-    @Override
-    public boolean isThundering() {
-        return realWorld.isThundering();
-    }
-
-    @Override
-    public boolean isRaining() {
-        return realWorld.isRaining();
-    }
-
-    @Override
-    public boolean isRainingAt(BlockPos strikePosition) {
-        strikePosition = region.convertRegionPosToRealWorld(strikePosition);
-
-        return realWorld.isRainingAt(strikePosition);
-    }
-
-    @Override
-    public boolean isBlockinHighHumidity(BlockPos pos) {
-        pos = region.convertRegionPosToRealWorld(pos);
-
-        return realWorld.isBlockinHighHumidity(pos);
-    }
-
-    @Nullable
-    @Override
-    public MapStorage getMapStorage() {
-        return parentWorld.getMapStorage();
-    }
-
-    @Override
-    public void setData(String dataID, WorldSavedData worldSavedDataIn) {
-        parentWorld.setData(dataID, worldSavedDataIn);
-    }
-
-    @Nullable
-    @Override
-    public WorldSavedData loadData(Class<? extends WorldSavedData> clazz, String dataID) {
-        return parentWorld.loadData(clazz, dataID);
-    }
-
-    @Override
-    public int getUniqueDataId(String key) {
-        return parentWorld.getUniqueDataId(key);
-    }
-
-    @Override
-    public void playBroadcastSound(int id, BlockPos pos, int data) {
-        parentWorld.playBroadcastSound(id, pos, data);
-    }
-
-    @Override
-    public void playEvent(int type, BlockPos pos, int data) {
-        parentWorld.playEvent(type, pos, data);
-    }
-
-    @Override
-    public void playEvent(@Nullable EntityPlayer player, int type, BlockPos pos, int data) {
-        parentWorld.playEvent(player, type, pos, data);
-    }
-
-    @Override
-    public int getHeight() {
-        return parentWorld.getHeight();
-    }
-
-    @Override
-    public int getActualHeight() {
-        return parentWorld.getActualHeight();
-    }
-
-    @Override
-    public Random setRandomSeed(int p_72843_1_, int p_72843_2_, int p_72843_3_) {
-        return realWorld.setRandomSeed(p_72843_1_, p_72843_2_, p_72843_3_);
-    }
-
-    @Override
+    }    @Override
     public double getHorizon() {
         return realWorld.getHorizon();
     }
 
     @Override
+    public void sendQuittingDisconnectingPacket() {
+    }    @Override
     public void sendBlockBreakProgress(int breakerId, BlockPos pos, int progress) {
         parentWorld.sendBlockBreakProgress(breakerId, pos, progress);
     }
 
     @Override
+    public void checkSessionLock() throws MinecraftException {
+        parentWorld.checkSessionLock();
+    }    @Override
     public Calendar getCurrentDate() {
         return realWorld.getCurrentDate();
     }
@@ -1413,13 +1524,7 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
         return parentWorld.getLootTableManager();
     }
 
-    @Nullable
-    @Override
-    public BlockPos findNearestStructure(String p_190528_1_, BlockPos pos, boolean p_190528_3_) {
-        pos = region.convertRegionPosToRealWorld(pos);
 
-        return realWorld.findNearestStructure(p_190528_1_, pos, p_190528_3_);
-    }
 
     @Override
     public void initCapabilities() {
@@ -1433,183 +1538,72 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
             super.initCapabilities();
     }
 
-    @Override
-    public void wakeAllPlayers() {
-        parentWorld.wakeAllPlayers();
-    }
 
-    @Override
-    public void playerCheckLight() {
-        parentWorld.playerCheckLight();
-    }
 
-    @Override
-    public BlockPos adjustPosToNearbyEntity(BlockPos pos) {
-        return parentWorld.adjustPosToNearbyEntity(pos);
-    }
 
-    @Override
-    public void createBonusChest() {
-        parentWorld.createBonusChest();
-    }
 
-    @Override
-    public void saveLevel() throws MinecraftException {
-        parentWorld.saveLevel();
-    }
 
-    @Nullable
-    @Override
-    public Biome.SpawnListEntry getSpawnListEntryForTypeAt(EnumCreatureType creatureType, BlockPos pos) {
-        return parentWorld.getSpawnListEntryForTypeAt(creatureType, pos);
-    }
 
-    @Override
-    public boolean canCreatureTypeSpawnHere(EnumCreatureType creatureType, Biome.SpawnListEntry spawnListEntry, BlockPos pos) {
-        return parentWorld.canCreatureTypeSpawnHere(creatureType, spawnListEntry, pos);
-    }
 
-    @Override
-    public boolean areAllPlayersAsleep() {
-        return parentWorld.areAllPlayersAsleep();
-    }
 
-    @Override
-    public void resetUpdateEntityTick() {
-        parentWorld.resetUpdateEntityTick();
-    }
 
-    @Nullable
-    @Override
-    public BlockPos getSpawnCoordinate() {
-        return parentWorld.getSpawnCoordinate();
-    }
 
-    @Override
-    public void saveAllChunks(boolean p_73044_1_, @Nullable IProgressUpdate progressCallback) throws MinecraftException {
-        parentWorld.saveAllChunks(p_73044_1_, progressCallback);
-    }
 
-    @Override
-    public void saveChunkData() {
-        parentWorld.saveChunkData();
-    }
 
-    @Override
-    public void flush() {
-        parentWorld.flush();
-    }
 
-    @Override
-    public EntityTracker getEntityTracker() {
-        return parentWorld.getEntityTracker();
-    }
 
-    @Override
-    public PlayerChunkMap getPlayerChunkMap() {
-        return parentWorld.getPlayerChunkMap();
-    }
 
-    @Override
-    public Teleporter getDefaultTeleporter() {
-        return parentWorld.getDefaultTeleporter();
-    }
 
-    @Override
-    public TemplateManager getStructureTemplateManager() {
-        return parentWorld.getStructureTemplateManager();
-    }
 
-    @Override
-    public void spawnParticle(EnumParticleTypes particleType, double xCoord, double yCoord, double zCoord, int numberOfParticles, double xOffset, double yOffset, double zOffset, double particleSpeed, int... particleArguments) {
-        parentWorld.spawnParticle(particleType, xCoord, yCoord, zCoord, numberOfParticles, xOffset, yOffset, zOffset, particleSpeed, particleArguments);
-    }
 
-    @Override
-    public void spawnParticle(EnumParticleTypes particleType, boolean longDistance, double xCoord, double yCoord, double zCoord, int numberOfParticles, double xOffset, double yOffset, double zOffset, double particleSpeed, int... particleArguments) {
-        parentWorld.spawnParticle(particleType, longDistance, xCoord, yCoord, zCoord, numberOfParticles, xOffset, yOffset, zOffset, particleSpeed, particleArguments);
-    }
 
-    @Override
-    public void spawnParticle(EntityPlayerMP player, EnumParticleTypes particle, boolean longDistance, double x, double y, double z, int count, double xOffset, double yOffset, double zOffset, double speed, int... arguments) {
-        parentWorld.spawnParticle(player, particle, longDistance, x, y, z, count, xOffset, yOffset, zOffset, speed, arguments);
-    }
 
-    @Nullable
-    @Override
-    public Entity getEntityFromUuid(UUID uuid) {
-        return parentWorld.getEntityFromUuid(uuid);
-    }
 
-    @Override
-    public ListenableFuture<Object> addScheduledTask(Runnable runnableToSchedule) {
-        return parentWorld.addScheduledTask(runnableToSchedule);
-    }
 
-    @Override
-    public boolean isCallingFromMinecraftThread() {
-        return parentWorld.isCallingFromMinecraftThread();
-    }
 
-    @Override
-    public File getChunkSaveLocation() {
-        if (parentWorld != null)
-            return parentWorld.getChunkSaveLocation();
-        else
-            return DimensionManager.getWorld(provider.getDimension()).getChunkSaveLocation();
-    }
 
-    @Override
-    public void resetRainAndThunder() {
-        realWorld.resetRainAndThunder();
-    }
 
-    @Override
-    public boolean canSpawnNPCs() {
-        return realWorld.canSpawnNPCs();
-    }
 
-    @Override
-    public boolean canSpawnAnimals() {
-        return realWorld.canSpawnAnimals();
-    }
 
-    @Override
-    public void setDebugWorldSettings() {
-        parentWorld.setDebugWorldSettings();
-    }
 
-    @Override
-    public void createSpawnPosition(WorldSettings settings) {
-        parentWorld.createSpawnPosition(settings);
-    }
 
-    @Override
-    public boolean canAddEntity(Entity entityIn) {
-        return realWorld.canAddEntity(entityIn);
-    }
 
-    @Override
-    public ChunkProviderServer getChunkProvider() {
-        if (parentWorld != null)
-            return parentWorld.getChunkProvider();
-        else
-            return super.getChunkProvider();
-    }
 
-    @Override
-    public void sendQueuedBlockEvents() {
-        parentWorld.sendQueuedBlockEvents();
-    }
 
-    @Override
-    public boolean fireBlockEvent(BlockEventData event) {
-        return parentWorld.fireBlockEvent(event);
-    }
 
-    @Override
-    public void sendPacketWithinDistance(EntityPlayerMP player, boolean longDistance, double x, double y, double z, Packet<?> packetIn) {
-        parentWorld.sendPacketWithinDistance(player, longDistance, x, y, z, packetIn);
-    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 }

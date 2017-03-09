@@ -20,7 +20,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.DimensionType;
-import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.ForgeChunkManager;
@@ -41,7 +40,6 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * Created by darkevilmac on 2/9/2017.

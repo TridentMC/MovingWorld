@@ -30,26 +30,6 @@ public class MobileRegionRenderer extends Render<EntityMobileRegion> {
         super(renderManager);
     }
 
-    @Override
-    public void doRender(EntityMobileRegion entity, double x, double y, double z, float entityYaw, float partialTicks) {
-        super.doRender(entity, x, y, z, entityYaw, partialTicks);
-        GlStateManager.pushMatrix();
-        GlStateManager.translate(x, y, z);
-        BlockPos size = new BlockPos(RegionPool.regionSize << 4, 0, RegionPool.regionSize << 4);
-
-        float fx = size.getX() / 2;
-        float fz = size.getZ() / 2;
-        GlStateManager.translate(-fx, -0, -fz); //minY is always 0
-        if (!regionRenderers.containsKey(entity) || regionRenderers.get(entity).worldClient == null)
-            regionRenderers.put(entity, new RegionRenderer(entity));
-        regionRenderers.get(entity).renderAll(partialTicks);
-        GlStateManager.popMatrix();
-
-        if (InputReader.INSTANCE.currentEntityHit != null) {
-            drawSelectionBox(entity, Minecraft.getMinecraft().player, InputReader.INSTANCE.currentBlockHit, partialTicks);
-        }
-    }
-
     public void drawSelectionBox(EntityMobileRegion entityMobileRegion, EntityPlayer player, RayTraceResult movingObjectPositionIn, float partialTicks) {
         if (movingObjectPositionIn.typeOfHit == RayTraceResult.Type.BLOCK) {
             double pX = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks;
@@ -79,14 +59,34 @@ public class MobileRegionRenderer extends Render<EntityMobileRegion> {
         }
     }
 
+    @Override
+    public boolean shouldRender(EntityMobileRegion livingEntity, ICamera camera, double camX, double camY, double camZ) {
+        return true; // :)
+    }
+
+    @Override
+    public void doRender(EntityMobileRegion entity, double x, double y, double z, float entityYaw, float partialTicks) {
+        super.doRender(entity, x, y, z, entityYaw, partialTicks);
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(x, y, z);
+        BlockPos size = new BlockPos(RegionPool.regionSize << 4, 0, RegionPool.regionSize << 4);
+
+        float fx = size.getX() / 2;
+        float fz = size.getZ() / 2;
+        GlStateManager.translate(-fx, -0, -fz); //minY is always 0
+        if (!regionRenderers.containsKey(entity) || regionRenderers.get(entity).worldClient == null)
+            regionRenderers.put(entity, new RegionRenderer(entity));
+        regionRenderers.get(entity).renderAll(partialTicks);
+        GlStateManager.popMatrix();
+
+        if (InputReader.INSTANCE.currentEntityHit != null) {
+            drawSelectionBox(entity, Minecraft.getMinecraft().player, InputReader.INSTANCE.currentBlockHit, partialTicks);
+        }
+    }
+
     @Nullable
     @Override
     protected ResourceLocation getEntityTexture(EntityMobileRegion entity) {
         return null;
-    }
-
-    @Override
-    public boolean shouldRender(EntityMobileRegion livingEntity, ICamera camera, double camX, double camY, double camZ) {
-        return true; // :)
     }
 }

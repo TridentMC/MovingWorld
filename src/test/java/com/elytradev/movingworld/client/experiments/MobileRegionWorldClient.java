@@ -72,6 +72,9 @@ public class MobileRegionWorldClient extends WorldClient {
     }
 
     @Override
+    public void tick() {
+        parentWorld.tick();
+    }    @Override
     public void initCapabilities() {
         if (initCapabilities == null) {
             initCapabilities = Invokers.findMethod(World.class, null, new String[]{"initCapabilities"});
@@ -81,6 +84,11 @@ public class MobileRegionWorldClient extends WorldClient {
             initCapabilities.invoke(parentWorld);
         else
             super.initCapabilities();
+    }
+
+    @Override
+    public void invalidateBlockReceiveRegion(int x1, int y1, int z1, int x2, int y2, int z2) {
+        parentWorld.invalidateBlockReceiveRegion(x1, y1, z1, x2, y2, z2);
     }
 
     @Override
@@ -100,35 +108,11 @@ public class MobileRegionWorldClient extends WorldClient {
     }
 
     @Override
-    public void updateWeather() {
-        parentWorld.updateWeather();
-    }
-
-    @Override
-    public void playMoodSoundAndCheckLight(int p_147467_1_, int p_147467_2_, Chunk chunkIn) {
-        parentWorld.playMoodSoundAndCheckLight(p_147467_1_, p_147467_2_, chunkIn);
-    }
-
-    @Override
     public void buildChunkCoordList() {
     }
 
     @Override
     public void updateBlocks() {
-    }
-
-    @Override
-    public void tickPlayers() {
-    }
-
-    @Override
-    public void tick() {
-        parentWorld.tick();
-    }
-
-    @Override
-    public void invalidateBlockReceiveRegion(int x1, int y1, int z1, int x2, int y2, int z2) {
-        parentWorld.invalidateBlockReceiveRegion(x1, y1, z1, x2, y2, z2);
     }
 
     @Override
@@ -183,6 +167,16 @@ public class MobileRegionWorldClient extends WorldClient {
 
     @Override
     public void sendQuittingDisconnectingPacket() {
+    }
+
+    @Override
+    public void updateWeather() {
+        parentWorld.updateWeather();
+    }
+
+    @Override
+    public void playMoodSoundAndCheckLight(int p_147467_1_, int p_147467_2_, Chunk chunkIn) {
+        parentWorld.playMoodSoundAndCheckLight(p_147467_1_, p_147467_2_, chunkIn);
     }
 
     @Override
@@ -243,11 +237,6 @@ public class MobileRegionWorldClient extends WorldClient {
     }
 
     @Override
-    public ChunkProviderClient getChunkProvider() {
-        return parentWorld.getChunkProvider();
-    }
-
-    @Override
     public World init() {
         return parentWorld.init();
     }
@@ -262,6 +251,9 @@ public class MobileRegionWorldClient extends WorldClient {
     public Biome getBiomeForCoordsBody(BlockPos pos) {
         pos = region.convertRegionPosToRealWorld(pos);
         return realWorld.getBiomeForCoordsBody(pos);
+    }    @Override
+    public ChunkProviderClient getChunkProvider() {
+        return parentWorld.getChunkProvider();
     }
 
     @Override
@@ -305,6 +297,16 @@ public class MobileRegionWorldClient extends WorldClient {
         return parentWorld.isBlockLoaded(pos, allowEmpty);
     }
 
+    @Override
+    public boolean isAreaLoaded(int xStart, int yStart, int zStart, int xEnd, int yEnd, int zEnd, boolean allowEmpty) {
+        BlockPos start = new BlockPos(xStart, yStart, zStart);
+        BlockPos end = new BlockPos(xEnd, yEnd, zEnd);
+
+        if (isPosWithinRegion(start) && isPosWithinRegion(end))
+            return parentWorld.isAreaLoaded(xStart, yStart, zStart, xEnd, yEnd, zEnd, allowEmpty);
+        else
+            return false;
+    }
 
     @Override
     public Chunk getChunkFromBlockCoords(BlockPos pos) {
@@ -564,11 +566,6 @@ public class MobileRegionWorldClient extends WorldClient {
     }
 
     @Override
-    public boolean isInsideBorder(WorldBorder worldBorderIn, Entity entityIn) {
-        return parentWorld.isInsideBorder(worldBorderIn, entityIn);
-    }
-
-    @Override
     public void removeEventListener(IWorldEventListener listener) {
         parentWorld.removeEventListener(listener);
     }
@@ -587,24 +584,12 @@ public class MobileRegionWorldClient extends WorldClient {
     }
 
     @Override
-    public boolean isAreaLoaded(int xStart, int yStart, int zStart, int xEnd, int yEnd, int zEnd, boolean allowEmpty) {
-        BlockPos start = new BlockPos(xStart, yStart, zStart);
-        BlockPos end = new BlockPos(xEnd, yEnd, zEnd);
-
-        if (isPosWithinRegion(start) && isPosWithinRegion(end))
-            return parentWorld.isAreaLoaded(xStart, yStart, zStart, xEnd, yEnd, zEnd, allowEmpty);
-        else
-            return false;
-    }
-
-    @Override
     public float getSunBrightnessFactor(float partialTicks) {
         if (realWorld != null)
             return realWorld.getSunBrightnessFactor(partialTicks);
         else
             return super.getSunBrightnessFactor(partialTicks);
     }
-
 
     @Override
     public float getSunBrightness(float partialTicks) {
@@ -710,6 +695,10 @@ public class MobileRegionWorldClient extends WorldClient {
 
     @Override
     public void updateEntities() {
+    }
+
+    @Override
+    public void tickPlayers() {
     }
 
     @Override
@@ -839,16 +828,16 @@ public class MobileRegionWorldClient extends WorldClient {
     }
 
     @Override
-    public void setAllowedSpawnTypes(boolean hostile, boolean peaceful) {
-        parentWorld.setAllowedSpawnTypes(hostile, peaceful);
-    }
-
-    @Override
     public void calculateInitialSkylight() {
         if (parentWorld != null)
             parentWorld.calculateInitialSkylight();
         else
             super.calculateInitialSkylight();
+    }
+
+    @Override
+    public void setAllowedSpawnTypes(boolean hostile, boolean peaceful) {
+        parentWorld.setAllowedSpawnTypes(hostile, peaceful);
     }
 
     @Override
@@ -984,13 +973,13 @@ public class MobileRegionWorldClient extends WorldClient {
     }
 
     @Override
-    public <T extends Entity> List<T> getEntitiesWithinAABB(Class<? extends T> clazz, AxisAlignedBB bb, @Nullable Predicate<? super T> filter) {
-        return realWorld.getEntitiesWithinAABB(clazz, region.convertRegionBBToRealWorld(bb), filter);
+    public <T extends Entity> List<T> getEntitiesWithinAABB(Class<? extends T> classEntity, AxisAlignedBB bb) {
+        return realWorld.getEntitiesWithinAABB(classEntity, region.convertRegionBBToRealWorld(bb));
     }
 
     @Override
-    public <T extends Entity> List<T> getEntitiesWithinAABB(Class<? extends T> classEntity, AxisAlignedBB bb) {
-        return realWorld.getEntitiesWithinAABB(classEntity, region.convertRegionBBToRealWorld(bb));
+    public <T extends Entity> List<T> getEntitiesWithinAABB(Class<? extends T> clazz, AxisAlignedBB bb, @Nullable Predicate<? super T> filter) {
+        return realWorld.getEntitiesWithinAABB(clazz, region.convertRegionBBToRealWorld(bb), filter);
     }
 
     @Nullable
@@ -1159,6 +1148,10 @@ public class MobileRegionWorldClient extends WorldClient {
     public void checkSessionLock() throws MinecraftException {
         parentWorld.checkSessionLock();
     }
+
+
+
+
 
     @Override
     public long getSeed() {
