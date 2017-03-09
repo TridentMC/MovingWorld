@@ -55,14 +55,12 @@ import java.util.stream.Collectors;
 @SuppressWarnings("deprecation")
 public class MobileRegionWorldClient extends WorldClient {
 
-    public WorldClient realWorld;
     public WorldClient parentWorld;
     public MobileRegion region;
     private Invoker initCapabilities;
 
     public MobileRegionWorldClient(NetHandlerPlayClient netHandler, WorldSettings settings, int dimension, EnumDifficulty difficulty, Profiler profilerIn, World parentWorld, MobileRegion region) {
         super(netHandler, settings, dimension, difficulty, profilerIn);
-        this.realWorld = Minecraft.getMinecraft().world;
         this.parentWorld = (WorldClient) parentWorld;
         this.region = region;
     }
@@ -244,13 +242,13 @@ public class MobileRegionWorldClient extends WorldClient {
     @Override
     public Biome getBiome(BlockPos pos) {
         pos = region.convertRegionPosToRealWorld(pos);
-        return realWorld.getBiome(pos);
+        return getRealWorld().getBiome(pos);
     }
 
     @Override
     public Biome getBiomeForCoordsBody(BlockPos pos) {
         pos = region.convertRegionPosToRealWorld(pos);
-        return realWorld.getBiomeForCoordsBody(pos);
+        return getRealWorld().getBiomeForCoordsBody(pos);
     }    @Override
     public ChunkProviderClient getChunkProvider() {
         return parentWorld.getChunkProvider();
@@ -258,7 +256,7 @@ public class MobileRegionWorldClient extends WorldClient {
 
     @Override
     public BiomeProvider getBiomeProvider() {
-        return realWorld.getBiomeProvider();
+        return getRealWorld().getBiomeProvider();
     }
 
     @Override
@@ -522,32 +520,32 @@ public class MobileRegionWorldClient extends WorldClient {
 
     @Override
     public void playSound(@Nullable EntityPlayer player, BlockPos pos, SoundEvent soundIn, SoundCategory category, float volume, float pitch) {
-        realWorld.playSound(player, pos, soundIn, category, volume, pitch);
+        getRealWorld().playSound(player, pos, soundIn, category, volume, pitch);
     }
 
     @Override
     public void playRecord(BlockPos blockPositionIn, @Nullable SoundEvent soundEventIn) {
-        realWorld.playRecord(blockPositionIn, soundEventIn);
+        getRealWorld().playRecord(blockPositionIn, soundEventIn);
     }
 
     @Override
     public void spawnParticle(EnumParticleTypes particleType, double xCoord, double yCoord, double zCoord, double xSpeed, double ySpeed, double zSpeed, int... parameters) {
-        realWorld.spawnParticle(particleType, xCoord, yCoord, zCoord, xSpeed, ySpeed, zSpeed, parameters);
+        getRealWorld().spawnParticle(particleType, xCoord, yCoord, zCoord, xSpeed, ySpeed, zSpeed, parameters);
     }
 
     @Override
     public void spawnAlwaysVisibleParticle(int p_190523_1_, double p_190523_2_, double p_190523_4_, double p_190523_6_, double p_190523_8_, double p_190523_10_, double p_190523_12_, int... p_190523_14_) {
-        realWorld.spawnAlwaysVisibleParticle(p_190523_1_, p_190523_2_, p_190523_4_, p_190523_6_, p_190523_8_, p_190523_10_, p_190523_12_, p_190523_14_);
+        getRealWorld().spawnAlwaysVisibleParticle(p_190523_1_, p_190523_2_, p_190523_4_, p_190523_6_, p_190523_8_, p_190523_10_, p_190523_12_, p_190523_14_);
     }
 
     @Override
     public void spawnParticle(EnumParticleTypes particleType, boolean ignoreRange, double xCoord, double yCoord, double zCoord, double xSpeed, double ySpeed, double zSpeed, int... parameters) {
-        realWorld.spawnParticle(particleType, ignoreRange, xCoord, yCoord, zCoord, xSpeed, ySpeed, zSpeed, parameters);
+        getRealWorld().spawnParticle(particleType, ignoreRange, xCoord, yCoord, zCoord, xSpeed, ySpeed, zSpeed, parameters);
     }
 
     @Override
     public boolean addWeatherEffect(Entity entityIn) {
-        return realWorld.addWeatherEffect(entityIn);
+        return getRealWorld().addWeatherEffect(entityIn);
     }
 
     @Override
@@ -585,92 +583,92 @@ public class MobileRegionWorldClient extends WorldClient {
 
     @Override
     public float getSunBrightnessFactor(float partialTicks) {
-        if (realWorld != null)
-            return realWorld.getSunBrightnessFactor(partialTicks);
+        if (getRealWorld() != null)
+            return getRealWorld().getSunBrightnessFactor(partialTicks);
         else
             return super.getSunBrightnessFactor(partialTicks);
     }
 
     @Override
     public float getSunBrightness(float partialTicks) {
-        return realWorld.getSunBrightness(partialTicks);
+        return getRealWorld().getSunBrightness(partialTicks);
     }
 
     @Override
     public float getSunBrightnessBody(float partialTicks) {
-        return realWorld.getSunBrightnessBody(partialTicks);
+        return getRealWorld().getSunBrightnessBody(partialTicks);
     }
 
     @Override
     public Vec3d getSkyColor(Entity entityIn, float partialTicks) {
-        return realWorld.getSkyColor(entityIn, partialTicks);
+        return getRealWorld().getSkyColor(entityIn, partialTicks);
     }
 
     @Override
     public Vec3d getSkyColorBody(Entity entityIn, float partialTicks) {
-        return realWorld.getSkyColorBody(entityIn, partialTicks);
+        return getRealWorld().getSkyColorBody(entityIn, partialTicks);
     }
 
     @Override
     public float getCelestialAngle(float partialTicks) {
-        if (realWorld != null)
-            return realWorld.getCelestialAngle(partialTicks);
+        if (getRealWorld() != null)
+            return getRealWorld().getCelestialAngle(partialTicks);
         else return super.getCelestialAngle(partialTicks);
     }
 
     @Override
     public int getMoonPhase() {
-        return realWorld.getMoonPhase();
+        return getRealWorld().getMoonPhase();
     }
 
     @Override
     public float getCurrentMoonPhaseFactor() {
-        return realWorld.getCurrentMoonPhaseFactor();
+        return getRealWorld().getCurrentMoonPhaseFactor();
     }
 
     @Override
     public float getCurrentMoonPhaseFactorBody() {
-        return realWorld.getCurrentMoonPhaseFactorBody();
+        return getRealWorld().getCurrentMoonPhaseFactorBody();
     }
 
     @Override
     public float getCelestialAngleRadians(float partialTicks) {
-        return realWorld.getCelestialAngleRadians(partialTicks);
+        return getRealWorld().getCelestialAngleRadians(partialTicks);
     }
 
     @Override
     public Vec3d getCloudColour(float partialTicks) {
-        return realWorld.getCloudColour(partialTicks);
+        return getRealWorld().getCloudColour(partialTicks);
     }
 
     @Override
     public Vec3d getCloudColorBody(float partialTicks) {
-        return realWorld.getCloudColorBody(partialTicks);
+        return getRealWorld().getCloudColorBody(partialTicks);
     }
 
     @Override
     public Vec3d getFogColor(float partialTicks) {
-        return realWorld.getFogColor(partialTicks);
+        return getRealWorld().getFogColor(partialTicks);
     }
 
     @Override
     public BlockPos getPrecipitationHeight(BlockPos pos) {
-        return realWorld.getPrecipitationHeight(pos);
+        return getRealWorld().getPrecipitationHeight(pos);
     }
 
     @Override
     public BlockPos getTopSolidOrLiquidBlock(BlockPos pos) {
-        return realWorld.getTopSolidOrLiquidBlock(pos);
+        return getRealWorld().getTopSolidOrLiquidBlock(pos);
     }
 
     @Override
     public float getStarBrightness(float partialTicks) {
-        return realWorld.getStarBrightness(partialTicks);
+        return getRealWorld().getStarBrightness(partialTicks);
     }
 
     @Override
     public float getStarBrightnessBody(float partialTicks) {
-        return realWorld.getStarBrightnessBody(partialTicks);
+        return getRealWorld().getStarBrightnessBody(partialTicks);
     }
 
     @Override
@@ -903,7 +901,7 @@ public class MobileRegionWorldClient extends WorldClient {
     public boolean canSnowAt(BlockPos pos, boolean checkLight) {
         if (isPosWithinRegion(pos)) {
             pos = region.convertRegionPosToRealWorld(pos);
-            return realWorld.canSnowAt(pos, checkLight);
+            return getRealWorld().canSnowAt(pos, checkLight);
         } else {
             return false;
         }
@@ -913,7 +911,7 @@ public class MobileRegionWorldClient extends WorldClient {
     public boolean canSnowAtBody(BlockPos pos, boolean checkLight) {
         if (isPosWithinRegion(pos)) {
             pos = region.convertRegionPosToRealWorld(pos);
-            return realWorld.canSnowAtBody(pos, checkLight);
+            return getRealWorld().canSnowAtBody(pos, checkLight);
         } else {
             return false;
         }
@@ -954,43 +952,43 @@ public class MobileRegionWorldClient extends WorldClient {
 
     @Override
     public List<Entity> getEntitiesWithinAABBExcludingEntity(@Nullable Entity entityIn, AxisAlignedBB bb) {
-        return realWorld.getEntitiesWithinAABBExcludingEntity(entityIn, region.convertRegionBBToRealWorld(bb));
+        return getRealWorld().getEntitiesWithinAABBExcludingEntity(entityIn, region.convertRegionBBToRealWorld(bb));
     }
 
     @Override
     public List<Entity> getEntitiesInAABBexcluding(@Nullable Entity entityIn, AxisAlignedBB bb, @Nullable Predicate<? super Entity> predicate) {
-        return realWorld.getEntitiesInAABBexcluding(entityIn, region.convertRegionBBToRealWorld(bb), predicate);
+        return getRealWorld().getEntitiesInAABBexcluding(entityIn, region.convertRegionBBToRealWorld(bb), predicate);
     }
 
     @Override
     public <T extends Entity> List<T> getEntities(Class<? extends T> entityType, Predicate<? super T> filter) {
-        return realWorld.getEntities(entityType, filter);
+        return getRealWorld().getEntities(entityType, filter);
     }
 
     @Override
     public <T extends Entity> List<T> getPlayers(Class<? extends T> playerType, Predicate<? super T> filter) {
-        return realWorld.getPlayers(playerType, filter);
+        return getRealWorld().getPlayers(playerType, filter);
     }
 
     @Override
     public <T extends Entity> List<T> getEntitiesWithinAABB(Class<? extends T> classEntity, AxisAlignedBB bb) {
-        return realWorld.getEntitiesWithinAABB(classEntity, region.convertRegionBBToRealWorld(bb));
+        return getRealWorld().getEntitiesWithinAABB(classEntity, region.convertRegionBBToRealWorld(bb));
     }
 
     @Override
     public <T extends Entity> List<T> getEntitiesWithinAABB(Class<? extends T> clazz, AxisAlignedBB bb, @Nullable Predicate<? super T> filter) {
-        return realWorld.getEntitiesWithinAABB(clazz, region.convertRegionBBToRealWorld(bb), filter);
+        return getRealWorld().getEntitiesWithinAABB(clazz, region.convertRegionBBToRealWorld(bb), filter);
     }
 
     @Nullable
     @Override
     public <T extends Entity> T findNearestEntityWithinAABB(Class<? extends T> entityType, AxisAlignedBB bb, T closestTo) {
-        return realWorld.findNearestEntityWithinAABB(entityType, region.convertRegionBBToRealWorld(bb), closestTo);
+        return getRealWorld().findNearestEntityWithinAABB(entityType, region.convertRegionBBToRealWorld(bb), closestTo);
     }
 
     @Override
     public List<Entity> getLoadedEntityList() {
-        return realWorld.getLoadedEntityList();
+        return getRealWorld().getLoadedEntityList();
     }
 
     @Override
@@ -1000,7 +998,7 @@ public class MobileRegionWorldClient extends WorldClient {
 
     @Override
     public int countEntities(Class<?> entityType) {
-        return realWorld.countEntities(entityType);
+        return getRealWorld().countEntities(entityType);
     }
 
     @Override
@@ -1013,12 +1011,12 @@ public class MobileRegionWorldClient extends WorldClient {
                     return entity;
                 }).collect(Collectors.toList());
 
-        realWorld.loadEntities(movedEntityCollection);
+        getRealWorld().loadEntities(movedEntityCollection);
     }
 
     @Override
     public void unloadEntities(Collection<Entity> entityCollection) {
-        realWorld.unloadEntities(entityCollection);
+        getRealWorld().unloadEntities(entityCollection);
     }
 
     @Override
@@ -1077,13 +1075,13 @@ public class MobileRegionWorldClient extends WorldClient {
     @Nullable
     @Override
     public EntityPlayer getClosestPlayerToEntity(Entity entityIn, double distance) {
-        return realWorld.getClosestPlayerToEntity(entityIn, distance);
+        return getRealWorld().getClosestPlayerToEntity(entityIn, distance);
     }
 
     @Nullable
     @Override
     public EntityPlayer getNearestPlayerNotCreative(Entity entityIn, double distance) {
-        return realWorld.getNearestPlayerNotCreative(entityIn, distance);
+        return getRealWorld().getNearestPlayerNotCreative(entityIn, distance);
     }
 
     @Nullable
@@ -1092,7 +1090,7 @@ public class MobileRegionWorldClient extends WorldClient {
         Vec3d pos = new Vec3d(posX, posY, posZ);
         pos = region.convertRegionPosToRealWorld(pos);
 
-        return realWorld.getClosestPlayer(pos.xCoord, pos.yCoord, pos.zCoord, distance, spectator);
+        return getRealWorld().getClosestPlayer(pos.xCoord, pos.yCoord, pos.zCoord, distance, spectator);
     }
 
     @Nullable
@@ -1101,7 +1099,7 @@ public class MobileRegionWorldClient extends WorldClient {
         Vec3d pos = new Vec3d(x, y, z);
         pos = region.convertRegionPosToRealWorld(pos);
 
-        return realWorld.getClosestPlayer(pos.xCoord, pos.yCoord, pos.zCoord, distance, predicate);
+        return getRealWorld().getClosestPlayer(pos.xCoord, pos.yCoord, pos.zCoord, distance, predicate);
     }
 
     @Override
@@ -1109,19 +1107,19 @@ public class MobileRegionWorldClient extends WorldClient {
         Vec3d pos = new Vec3d(x, y, z);
         pos = region.convertRegionPosToRealWorld(pos);
 
-        return realWorld.isAnyPlayerWithinRangeAt(pos.xCoord, pos.yCoord, pos.zCoord, range);
+        return getRealWorld().isAnyPlayerWithinRangeAt(pos.xCoord, pos.yCoord, pos.zCoord, range);
     }
 
     @Nullable
     @Override
     public EntityPlayer getNearestAttackablePlayer(Entity entityIn, double maxXZDistance, double maxYDistance) {
-        return realWorld.getNearestAttackablePlayer(entityIn, maxXZDistance, maxYDistance);
+        return getRealWorld().getNearestAttackablePlayer(entityIn, maxXZDistance, maxYDistance);
     }
 
     @Nullable
     @Override
     public EntityPlayer getNearestAttackablePlayer(BlockPos pos, double maxXZDistance, double maxYDistance) {
-        return realWorld.getNearestAttackablePlayer(region.convertRegionPosToRealWorld(pos), maxXZDistance, maxYDistance);
+        return getRealWorld().getNearestAttackablePlayer(region.convertRegionPosToRealWorld(pos), maxXZDistance, maxYDistance);
     }
 
     @Nullable
@@ -1135,13 +1133,13 @@ public class MobileRegionWorldClient extends WorldClient {
     @Nullable
     @Override
     public EntityPlayer getPlayerEntityByName(String name) {
-        return realWorld.getPlayerEntityByName(name);
+        return getRealWorld().getPlayerEntityByName(name);
     }
 
     @Nullable
     @Override
     public EntityPlayer getPlayerEntityByUUID(UUID uuid) {
-        return realWorld.getPlayerEntityByUUID(uuid);
+        return getRealWorld().getPlayerEntityByUUID(uuid);
     }
 
     @Override
@@ -1160,22 +1158,22 @@ public class MobileRegionWorldClient extends WorldClient {
 
     @Override
     public long getTotalWorldTime() {
-        return realWorld.getTotalWorldTime();
+        return getRealWorld().getTotalWorldTime();
     }
 
     @Override
     public void setTotalWorldTime(long worldTime) {
-        realWorld.setTotalWorldTime(worldTime);
+        getRealWorld().setTotalWorldTime(worldTime);
     }
 
     @Override
     public long getWorldTime() {
-        return realWorld.getWorldTime();
+        return getRealWorld().getWorldTime();
     }
 
     @Override
     public void setWorldTime(long time) {
-        realWorld.setWorldTime(time);
+        getRealWorld().setWorldTime(time);
     }
 
     @Override
@@ -1194,7 +1192,7 @@ public class MobileRegionWorldClient extends WorldClient {
         Vec3d entityPos = new Vec3d(entityIn.posX, entityIn.posY, entityIn.posZ);
         entityPos = region.convertRegionPosToRealWorld(entityPos);
         entityIn.setPosition(entityPos.xCoord, entityPos.yCoord, entityPos.zCoord);
-        realWorld.joinEntityInSurroundings(entityIn);
+        getRealWorld().joinEntityInSurroundings(entityIn);
     }
 
     @Override
@@ -1232,62 +1230,62 @@ public class MobileRegionWorldClient extends WorldClient {
 
     @Override
     public GameRules getGameRules() {
-        return realWorld.getGameRules();
+        return getRealWorld().getGameRules();
     }
 
     @Override
     public void updateAllPlayersSleepingFlag() {
-        realWorld.updateAllPlayersSleepingFlag();
+        getRealWorld().updateAllPlayersSleepingFlag();
     }
 
     @Override
     public float getThunderStrength(float delta) {
-        if (realWorld != null)
-            return realWorld.getThunderStrength(delta);
+        if (getRealWorld() != null)
+            return getRealWorld().getThunderStrength(delta);
         else
             return super.getThunderStrength(delta);
     }
 
     @Override
     public void setThunderStrength(float strength) {
-        realWorld.setThunderStrength(strength);
+        getRealWorld().setThunderStrength(strength);
     }
 
     @Override
     public float getRainStrength(float delta) {
-        if (realWorld != null)
-            return realWorld.getRainStrength(delta);
+        if (getRealWorld() != null)
+            return getRealWorld().getRainStrength(delta);
         else
             return super.getRainStrength(delta);
     }
 
     @Override
     public void setRainStrength(float strength) {
-        realWorld.setRainStrength(strength);
+        getRealWorld().setRainStrength(strength);
     }
 
     @Override
     public boolean isThundering() {
-        return realWorld.isThundering();
+        return getRealWorld().isThundering();
     }
 
     @Override
     public boolean isRaining() {
-        return realWorld.isRaining();
+        return getRealWorld().isRaining();
     }
 
     @Override
     public boolean isRainingAt(BlockPos strikePosition) {
         strikePosition = region.convertRegionPosToRealWorld(strikePosition);
 
-        return realWorld.isRainingAt(strikePosition);
+        return getRealWorld().isRainingAt(strikePosition);
     }
 
     @Override
     public boolean isBlockinHighHumidity(BlockPos pos) {
         pos = region.convertRegionPosToRealWorld(pos);
 
-        return realWorld.isBlockinHighHumidity(pos);
+        return getRealWorld().isBlockinHighHumidity(pos);
     }
 
     @Nullable
@@ -1339,12 +1337,12 @@ public class MobileRegionWorldClient extends WorldClient {
 
     @Override
     public Random setRandomSeed(int p_72843_1_, int p_72843_2_, int p_72843_3_) {
-        return realWorld.setRandomSeed(p_72843_1_, p_72843_2_, p_72843_3_);
+        return getRealWorld().setRandomSeed(p_72843_1_, p_72843_2_, p_72843_3_);
     }
 
     @Override
     public double getHorizon() {
-        return realWorld.getHorizon();
+        return getRealWorld().getHorizon();
     }
 
     @Override
@@ -1354,12 +1352,12 @@ public class MobileRegionWorldClient extends WorldClient {
 
     @Override
     public Calendar getCurrentDate() {
-        return realWorld.getCurrentDate();
+        return getRealWorld().getCurrentDate();
     }
 
     @Override
     public Scoreboard getScoreboard() {
-        return realWorld.getScoreboard();
+        return getRealWorld().getScoreboard();
     }
 
     @Override
@@ -1370,32 +1368,32 @@ public class MobileRegionWorldClient extends WorldClient {
     @Override
     public DifficultyInstance getDifficultyForLocation(BlockPos pos) {
         pos = region.convertRegionPosToRealWorld(pos);
-        return realWorld.getDifficultyForLocation(pos);
+        return getRealWorld().getDifficultyForLocation(pos);
     }
 
     @Override
     public EnumDifficulty getDifficulty() {
-        return realWorld.getDifficulty();
+        return getRealWorld().getDifficulty();
     }
 
     @Override
     public int getSkylightSubtracted() {
-        return realWorld.getSkylightSubtracted();
+        return getRealWorld().getSkylightSubtracted();
     }
 
     @Override
     public void setSkylightSubtracted(int newSkylightSubtracted) {
-        realWorld.setSkylightSubtracted(newSkylightSubtracted);
+        getRealWorld().setSkylightSubtracted(newSkylightSubtracted);
     }
 
     @Override
     public int getLastLightningBolt() {
-        return realWorld.getLastLightningBolt();
+        return getRealWorld().getLastLightningBolt();
     }
 
     @Override
     public void setLastLightningBolt(int lastLightningBoltIn) {
-        realWorld.setLastLightningBolt(lastLightningBoltIn);
+        getRealWorld().setLastLightningBolt(lastLightningBoltIn);
     }
 
     @Override
@@ -1440,7 +1438,7 @@ public class MobileRegionWorldClient extends WorldClient {
 
     @Override
     public int countEntities(EnumCreatureType type, boolean forSpawnCount) {
-        return realWorld.countEntities(type, forSpawnCount);
+        return getRealWorld().countEntities(type, forSpawnCount);
     }
 
 
@@ -1470,6 +1468,10 @@ public class MobileRegionWorldClient extends WorldClient {
     public BlockPos findNearestStructure(String p_190528_1_, BlockPos pos, boolean p_190528_3_) {
         pos = region.convertRegionPosToRealWorld(pos);
 
-        return realWorld.findNearestStructure(p_190528_1_, pos, p_190528_3_);
+        return getRealWorld().findNearestStructure(p_190528_1_, pos, p_190528_3_);
+    }
+    
+    public WorldClient getRealWorld(){
+        return Minecraft.getMinecraft().world;
     }
 }
