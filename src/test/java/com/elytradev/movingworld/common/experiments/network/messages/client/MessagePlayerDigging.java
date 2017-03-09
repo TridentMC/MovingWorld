@@ -4,15 +4,16 @@ import com.elytradev.concrete.Message;
 import com.elytradev.concrete.NetworkContext;
 import com.elytradev.concrete.annotation.field.MarshalledAs;
 import com.elytradev.concrete.annotation.type.ReceivedOn;
+import com.elytradev.movingworld.common.experiments.MWPlayerInteractionManager;
 import com.elytradev.movingworld.common.experiments.entity.EntityMobileRegion;
 import com.elytradev.movingworld.common.experiments.network.MovingWorldExperimentsNetworking;
+import com.elytradev.movingworld.common.experiments.network.messages.server.MessageBlockChange;
 import com.elytradev.movingworld.common.network.marshallers.EntityMarshaller;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.CPacketPlayerDigging;
-import net.minecraft.network.play.server.SPacketBlockChange;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
@@ -50,10 +51,18 @@ public class MessagePlayerDigging extends Message {
         EntityPlayerMP sender = (EntityPlayerMP) senderIn;
         WorldServer worldserver = (WorldServer) regionInteractedWith.getParentWorld();
 
+        if (!MWPlayerInteractionManager.MANAGERS.containsKey(sender)) {
+            MWPlayerInteractionManager.MANAGERS.put(sender, new MWPlayerInteractionManager(regionInteractedWith, sender));
+        } else {
+            MWPlayerInteractionManager.MANAGERS.get(sender).setRegionEntity(regionInteractedWith);
+        }
+
+        MWPlayerInteractionManager interactionManager = MWPlayerInteractionManager.MANAGERS.get(sender);
+
+
         sender.markPlayerActive();
         switch (action) {
             case SWAP_HELD_ITEMS:
-
                 if (!sender.isSpectator()) {
                     ItemStack itemstack = sender.getHeldItem(EnumHand.OFF_HAND);
                     sender.setHeldItem(EnumHand.OFF_HAND, sender.getHeldItem(EnumHand.MAIN_HAND));
@@ -62,14 +71,12 @@ public class MessagePlayerDigging extends Message {
 
                 return;
             case DROP_ITEM:
-
                 if (!sender.isSpectator()) {
                     sender.dropItem(false);
                 }
 
                 return;
             case DROP_ALL_ITEMS:
-
                 if (!sender.isSpectator()) {
                     sender.dropItem(true);
                 }
@@ -81,9 +88,10 @@ public class MessagePlayerDigging extends Message {
             case START_DESTROY_BLOCK:
             case ABORT_DESTROY_BLOCK:
             case STOP_DESTROY_BLOCK:
-                double d0 = sender.posX - ((double) position.getX() + 0.5D);
-                double d1 = sender.posY - ((double) position.getY() + 0.5D) + 1.5D;
-                double d2 = sender.posZ - ((double) position.getZ() + 0.5D);
+                BlockPos realWorldBlockPosition = regionInteractedWith.region.convertRegionPosToRealWorld(position);
+                double d0 = sender.posX - ((double) realWorldBlockPosition.getX() + 0.5D);
+                double d1 = sender.posY - ((double) realWorldBlockPosition.getY() + 0.5D) + 1.5D;
+                double d2 = sender.posZ - ((double) realWorldBlockPosition.getZ() + 0.5D);
                 double d3 = d0 * d0 + d1 * d1 + d2 * d2;
 
                 double dist = sender.interactionManager.getBlockReachDistance() + 1;
@@ -96,19 +104,19 @@ public class MessagePlayerDigging extends Message {
                 } else {
                     if (action == CPacketPlayerDigging.Action.START_DESTROY_BLOCK) {
                         if (!worldserver.getMinecraftServer().isBlockProtected(worldserver, position, sender) && worldserver.getWorldBorder().contains(position)) {
-                            sender.interactionManager.onBlockClicked(position, facing);
+                            interactionManager.onBlockClicked(position, facing);
                         } else {
-                            sender.connection.sendPacket(new SPacketBlockChange(worldserver, position));
+                            new MessageBlockChange(worldserver, position).sendTo(sender);
                         }
                     } else {
                         if (action == CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK) {
-                            sender.interactionManager.blockRemoving(position);
+                            interactionManager.blockRemoving(position);
                         } else if (action == CPacketPlayerDigging.Action.ABORT_DESTROY_BLOCK) {
-                            sender.interactionManager.cancelDestroyingBlock();
+                            interactionManager.cancelDestroyingBlock();
                         }
 
                         if (worldserver.getBlockState(position).getMaterial() != Material.AIR) {
-                            sender.connection.sendPacket(new SPacketBlockChange(worldserver, position));
+                            new MessageBlockChange(worldserver, position).sendTo(sender);
                         }
                     }
 

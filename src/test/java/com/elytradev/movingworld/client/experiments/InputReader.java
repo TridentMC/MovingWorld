@@ -89,7 +89,7 @@ public class InputReader {
         if (!rightClickDown)
             performedRightClick = false;
 
-        if (mc.world != null && controller.currentHit.getFirst() != null) {
+        if (mc.world != null && controller.getCurrentHit().getFirst() != null) {
             if (leftClickDown && !performedLeftClick) {
                 performLeftClick();
             }
@@ -108,17 +108,17 @@ public class InputReader {
         if (leftClickCounter > 0)
             return;
 
-        if (controller.currentHit.getFirst() == null) {
+        if (controller.getCurrentHit().getFirst() == null) {
             if (controller.isNotCreative()) {
                 this.leftClickCounter = 10;
             }
         } else if (!mc.player.isRowingBoat()) {
             mc.player.swingArm(EnumHand.MAIN_HAND);
-            if (controller.currentHit.getSecond().typeOfHit == RayTraceResult.Type.BLOCK) {
-                BlockPos hitBlock = controller.currentHit.getSecond().getBlockPos();
+            if (controller.getCurrentHit().getSecond().typeOfHit == RayTraceResult.Type.BLOCK) {
+                BlockPos hitBlock = controller.getCurrentHit().getSecond().getBlockPos();
 
-                if (!controller.currentHit.getFirst().getMobileRegionWorld().isAirBlock(hitBlock)) {
-                    controller.clickBlock(hitBlock, controller.currentHit.getSecond().sideHit);
+                if (!controller.getCurrentHit().getFirst().getMobileRegionWorld().isAirBlock(hitBlock)) {
+                    controller.clickBlock(hitBlock, controller.getCurrentHit().getSecond().sideHit);
                 }
             }
         }
@@ -133,13 +133,13 @@ public class InputReader {
                 for (EnumHand enumhand : EnumHand.values()) {
                     ItemStack itemstack = this.mc.player.getHeldItem(enumhand);
 
-                    if (controller.currentHit.getFirst() != null) {
-                        if (controller.currentHit.getSecond().typeOfHit == RayTraceResult.Type.BLOCK) {
-                            BlockPos blockpos = controller.currentHit.getSecond().getBlockPos();
-                            if (controller.currentHit.getFirst().getMobileRegionWorld().getBlockState(blockpos).getMaterial() != Material.AIR) {
+                    if (controller.getCurrentHit().getFirst() != null) {
+                        if (controller.getCurrentHit().getSecond().typeOfHit == RayTraceResult.Type.BLOCK) {
+                            BlockPos blockpos = controller.getCurrentHit().getSecond().getBlockPos();
+                            if (controller.getCurrentHit().getFirst().getMobileRegionWorld().getBlockState(blockpos).getMaterial() != Material.AIR) {
                                 int i = itemstack.getCount();
-                                EnumActionResult enumactionresult = controller.processRightClickBlock(this.mc.player, (WorldClient) controller.currentHit.getFirst().getMobileRegionWorld(),
-                                        blockpos, controller.currentHit.getSecond().sideHit, controller.currentHit.getSecond().hitVec, enumhand);
+                                EnumActionResult enumactionresult = controller.processRightClickBlock(this.mc.player, (WorldClient) controller.getCurrentHit().getFirst().getMobileRegionWorld(),
+                                        blockpos, controller.getCurrentHit().getSecond().sideHit, controller.getCurrentHit().getSecond().hitVec, enumhand);
 
                                 if (enumactionresult == EnumActionResult.SUCCESS) {
                                     this.mc.player.swingArm(enumhand);
@@ -164,12 +164,12 @@ public class InputReader {
         }
 
         if (this.leftClickCounter <= 0 && !this.mc.player.isHandActive()) {
-            if (leftClick && this.controller.currentHit.getFirst() != null && this.controller.currentHit.getSecond().typeOfHit == RayTraceResult.Type.BLOCK) {
-                EntityMobileRegion hitRegionEntity = controller.currentHit.getFirst();
-                BlockPos blockpos = this.controller.currentHit.getSecond().getBlockPos();
+            if (leftClick && this.controller.getCurrentHit().getFirst() != null && this.controller.getCurrentHit().getSecond().typeOfHit == RayTraceResult.Type.BLOCK) {
+                EntityMobileRegion hitRegionEntity = controller.getCurrentHit().getFirst();
+                BlockPos blockpos = this.controller.getCurrentHit().getSecond().getBlockPos();
 
-                if (!hitRegionEntity.getMobileRegionWorld().isAirBlock(blockpos) && this.controller.onPlayerDamageBlock(blockpos, this.controller.currentHit.getSecond().sideHit)) {
-                    ParticleHelper.addBlockHitEffects(hitRegionEntity.region, hitRegionEntity.getParentWorld(), controller.currentHit.getSecond().getBlockPos(), controller.currentHit.getSecond().sideHit);
+                if (!hitRegionEntity.getMobileRegionWorld().isAirBlock(blockpos) && this.controller.onPlayerDamageBlock(blockpos, this.controller.getCurrentHit().getSecond().sideHit)) {
+                    ParticleHelper.addBlockHitEffects(hitRegionEntity.region, hitRegionEntity.getParentWorld(), controller.getCurrentHit().getSecond().getBlockPos(), controller.getCurrentHit().getSecond().sideHit);
                     this.mc.player.swingArm(EnumHand.MAIN_HAND);
                 }
             } else {

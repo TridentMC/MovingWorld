@@ -70,19 +70,17 @@ public class MovingWorldExperimentsMod {
     public void onPreInit(FMLPreInitializationEvent e) {
         logger = e.getModLog();
         MinecraftForge.EVENT_BUS.register(this);
+        MinecraftForge.EVENT_BUS.register(MWPlayerInteractionManager.class);
         modProxy.setupDBS();
         modProxy.registerRenders();
 
-        ForgeChunkManager.setForcedChunkLoadingCallback(instance, new ForgeChunkManager.LoadingCallback() {
-            @Override
-            public void ticketsLoaded(List<ForgeChunkManager.Ticket> tickets, World world) {
-                for (ForgeChunkManager.Ticket t : tickets) {
-                    MobileRegion region = MobileRegion.getRegionFor(t.getModData().getCompoundTag("Region"));
+        ForgeChunkManager.setForcedChunkLoadingCallback(instance, (tickets, world) -> {
+            for (ForgeChunkManager.Ticket t : tickets) {
+                MobileRegion region = MobileRegion.getRegionFor(t.getModData().getCompoundTag("Region"));
 
-                    for (int cX = region.regionMin.chunkXPos; cX < region.regionMax.chunkXPos; cX++) {
-                        for (int cZ = region.regionMin.chunkZPos; cZ < region.regionMax.chunkZPos; cZ++) {
-                            ForgeChunkManager.forceChunk(t, new ChunkPos(cX, cZ));
-                        }
+                for (int cX = region.regionMin.chunkXPos; cX < region.regionMax.chunkXPos; cX++) {
+                    for (int cZ = region.regionMin.chunkZPos; cZ < region.regionMax.chunkZPos; cZ++) {
+                        ForgeChunkManager.forceChunk(t, new ChunkPos(cX, cZ));
                     }
                 }
             }

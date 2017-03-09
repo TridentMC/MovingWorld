@@ -35,9 +35,11 @@ import java.util.Optional;
  */
 public class MovingWorldPlayerController {
 
-    public Tuple<EntityMobileRegion, RayTraceResult> currentHit = new Tuple<>(null,
+    private Tuple<EntityMobileRegion, RayTraceResult> currentHit = new Tuple<>(null,
             new RayTraceResult(RayTraceResult.Type.MISS, new Vec3d(-1, -1, -1),
                     null, new BlockPos(-1, -1, -1)));
+    private EntityMobileRegion lastEntityHit;
+
     private PlayerControllerMP realController;
 
     private Minecraft mc;
@@ -49,6 +51,13 @@ public class MovingWorldPlayerController {
     private boolean isHittingBlock;
     private int currentPlayerItem;
 
+    public Tuple<EntityMobileRegion, RayTraceResult> getCurrentHit() {
+        return currentHit;
+    }
+
+    public EntityMobileRegion getLastEntityHit() {
+        return lastEntityHit;
+    }
 
     public MovingWorldPlayerController(PlayerControllerMP playerControllerMP) {
         this.realController = playerControllerMP;
@@ -61,6 +70,11 @@ public class MovingWorldPlayerController {
         if (!mcIn.world.extinguishFire(mcIn.player, pos, facing)) {
             inputHelper.onPlayerDestroyBlock(pos);
         }
+    }
+
+    public void setCurrentHit(EntityMobileRegion region, RayTraceResult traceResult) {
+        this.lastEntityHit = this.currentHit.getFirst();
+        this.currentHit = new Tuple<>(region, traceResult);
     }
 
     public void findRegionsNearPlayerCalcSelectedBlock() {
@@ -103,9 +117,9 @@ public class MovingWorldPlayerController {
         resultFound = resultFound && result.get().getSecond().typeOfHit == RayTraceResult.Type.BLOCK;
 
         if (resultFound) {
-            currentHit = new Tuple<>(result.get().getFirst(), result.get().getSecond());
+            setCurrentHit(result.get().getFirst(), result.get().getSecond());
         } else {
-            currentHit = new Tuple<>(null, new RayTraceResult(RayTraceResult.Type.MISS, new Vec3d(-1, -1, -1), null, new BlockPos(-1, -1, -1)));
+            setCurrentHit(null, new RayTraceResult(RayTraceResult.Type.MISS, new Vec3d(-1, -1, -1), null, new BlockPos(-1, -1, -1)));
         }
     }
 
@@ -149,7 +163,7 @@ public class MovingWorldPlayerController {
                     return false;
                 }
 
-                if (!itemstack.canDestroy(this.mc.world.getBlockState(pos).getBlock())) {
+                if (!itemstack.canDestroy(this.currentHit.getFirst().getParentWorld().getBlockState(pos).getBlock())) {
                     return false;
                 }
             }
@@ -174,7 +188,8 @@ public class MovingWorldPlayerController {
             } else {
                 world.playEvent(2001, pos, Block.getStateId(iblockstate));
 
-                this.currentHit = new Tuple<>(null, new RayTraceResult(RayTraceResult.Type.MISS, new Vec3d(currentHit.getSecond().getBlockPos().getX(), -1, currentHit.getSecond().getBlockPos().getZ()),
+                setCurrentHit(null, new RayTraceResult(RayTraceResult.Type.MISS,
+                        new Vec3d(currentHit.getSecond().getBlockPos().getX(), -1, currentHit.getSecond().getBlockPos().getZ()),
                         null, new BlockPos(currentHit.getSecond().getBlockPos().getX(), -1, currentHit.getSecond().getBlockPos().getZ())));
 
                 if (!this.getCurrentGameType().isCreative()) {
@@ -217,13 +232,13 @@ public class MovingWorldPlayerController {
                     return false;
                 }
 
-                if (!itemstack.canDestroy(this.mc.world.getBlockState(loc).getBlock())) {
+                if (!itemstack.canDestroy(this.currentHit.getFirst().getParentWorld().getBlockState(loc).getBlock())) {
                     return false;
                 }
             }
         }
 
-        if (!this.mc.world.getWorldBorder().contains(loc)) {
+        if (!this.currentHit.getFirst().getParentWorld().getWorldBorder().contains(loc)) {
             return false;
         } else {
             if (this.getCurrentGameType().isCreative()) {
@@ -239,12 +254,12 @@ public class MovingWorldPlayerController {
                 new MessagePlayerDigging(currentHit.getFirst(), CPacketPlayerDigging.Action.START_DESTROY_BLOCK, loc, face).sendToServer();
 
                 net.minecraftforge.event.entity.player.PlayerInteractEvent.LeftClickBlock event = net.minecraftforge.common.ForgeHooks.onLeftClickBlock(this.mc.player, loc, face, net.minecraftforge.common.ForgeHooks.rayTraceEyeHitVec(this.mc.player, getBlockReachDistance() + 1));
-                IBlockState iblockstate = this.mc.world.getBlockState(loc);
+                IBlockState iblockstate = this.currentHit.getFirst().getParentWorld().getBlockState(loc);
                 boolean flag = iblockstate.getMaterial() != Material.AIR;
 
                 if (flag && this.curBlockDamageMP == 0.0F) {
                     if (event.getUseBlock() != net.minecraftforge.fml.common.eventhandler.Event.Result.DENY)
-                        iblockstate.getBlock().onBlockClicked(this.mc.world, loc, this.mc.player);
+                        iblockstate.getBlock().onBlockClicked(this.currentHit.getFirst().getParentWorld(), loc, this.mc.player);
                 }
                 if (event.getUseItem() == net.minecraftforge.fml.common.eventhandler.Event.Result.DENY) return true;
                 if (flag && iblockstate.getPlayerRelativeBlockHardness(this.mc.player, this.currentHit.getFirst().getMobileRegionWorld(), loc) >= 1.0F) {
@@ -252,12 +267,12 @@ public class MovingWorldPlayerController {
                 } else {
                     this.isHittingBlock = true;
                     if (currentHit.getSecond().getBlockPos() != loc) {
-                        currentHit = new Tuple<>(currentHit.getFirst(), new RayTraceResult(RayTraceResult.Type.BLOCK, new Vec3d(loc), face, loc));
+                        setCurrentHit(currentHit.getFirst(), new RayTraceResult(RayTraceResult.Type.BLOCK, new Vec3d(loc), face, loc));
                     }
                     this.currentItemHittingBlock = this.mc.player.getHeldItemMainhand();
                     this.curBlockDamageMP = 0.0F;
                     this.stepSoundTickCounter = 0.0F;
-                    this.mc.world.sendBlockBreakProgress(this.mc.player.getEntityId(), this.currentHit.getSecond().getBlockPos(), (int) (this.curBlockDamageMP * 10.0F) - 1);
+                    this.currentHit.getFirst().getParentWorld().sendBlockBreakProgress(this.mc.player.getEntityId(), this.currentHit.getSecond().getBlockPos(), (int) (this.curBlockDamageMP * 10.0F) - 1);
                 }
             }
 
@@ -265,15 +280,12 @@ public class MovingWorldPlayerController {
         }
     }
 
-    /**
-     * Resets current block damage and field_78778_j
-     */
     public void resetBlockRemoving() {
-        if (this.isHittingBlock) {
-            new MessagePlayerDigging(currentHit.getFirst(), CPacketPlayerDigging.Action.ABORT_DESTROY_BLOCK, currentHit.getSecond().getBlockPos(), EnumFacing.DOWN).sendToServer();
+        if (this.isHittingBlock && (currentHit.getFirst() != null || lastEntityHit != null)) {
+            new MessagePlayerDigging(currentHit.getFirst() != null ? currentHit.getFirst() : lastEntityHit, CPacketPlayerDigging.Action.ABORT_DESTROY_BLOCK, currentHit.getSecond().getBlockPos(), EnumFacing.DOWN).sendToServer();
             this.isHittingBlock = false;
             this.curBlockDamageMP = 0.0F;
-            this.mc.world.sendBlockBreakProgress(this.mc.player.getEntityId(), this.currentHit.getSecond().getBlockPos(), -1);
+            this.currentHit.getFirst().getParentWorld().sendBlockBreakProgress(this.mc.player.getEntityId(), this.currentHit.getSecond().getBlockPos(), -1);
             this.mc.player.resetCooldown();
         }
     }
@@ -282,13 +294,13 @@ public class MovingWorldPlayerController {
         if (this.blockHitDelay > 0) {
             --this.blockHitDelay;
             return true;
-        } else if (this.getCurrentGameType().isCreative() && this.mc.world.getWorldBorder().contains(posBlock)) {
+        } else if (this.getCurrentGameType().isCreative() && this.currentHit.getFirst().getParentWorld().getWorldBorder().contains(posBlock)) {
             this.blockHitDelay = 5;
             new MessagePlayerDigging(currentHit.getFirst(), CPacketPlayerDigging.Action.START_DESTROY_BLOCK, posBlock, directionFacing).sendToServer();
             clickBlockCreative(this.mc, this, posBlock, directionFacing);
             return true;
         } else if (this.isHittingPosition(posBlock)) {
-            IBlockState iblockstate = this.mc.world.getBlockState(posBlock);
+            IBlockState iblockstate = this.currentHit.getFirst().getParentWorld().getBlockState(posBlock);
             Block block = iblockstate.getBlock();
 
             if (iblockstate.getMaterial() == Material.AIR) {
@@ -298,7 +310,7 @@ public class MovingWorldPlayerController {
                 this.curBlockDamageMP += iblockstate.getPlayerRelativeBlockHardness(this.mc.player, this.currentHit.getFirst().getMobileRegionWorld(), posBlock);
 
                 if (this.stepSoundTickCounter % 4.0F == 0.0F) {
-                    SoundType soundtype = block.getSoundType(iblockstate, mc.world, posBlock, mc.player);
+                    SoundType soundtype = block.getSoundType(iblockstate, currentHit.getFirst().getParentWorld(), posBlock, mc.player);
                     this.mc.getSoundHandler().playSound(new PositionedSoundRecord(soundtype.getHitSound(), SoundCategory.NEUTRAL, (soundtype.getVolume() + 1.0F) / 8.0F, soundtype.getPitch() * 0.5F, posBlock));
                 }
 
@@ -306,14 +318,15 @@ public class MovingWorldPlayerController {
 
                 if (this.curBlockDamageMP >= 1.0F) {
                     this.isHittingBlock = false;
-                    //this.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, posBlock, directionFacing));
+                    new MessagePlayerDigging(currentHit.getFirst(), CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, posBlock, directionFacing).sendToServer();
                     this.onPlayerDestroyBlock(posBlock);
                     this.curBlockDamageMP = 0.0F;
                     this.stepSoundTickCounter = 0.0F;
                     this.blockHitDelay = 5;
                 }
 
-                //this.mc.world.sendBlockBreakProgress(this.mc.player.getEntityId(), this.currentHit, (int) (this.curBlockDamageMP * 10.0F) - 1);
+                if (currentHit.getFirst() != null && currentHit.getFirst().getParentWorld() != null)
+                    currentHit.getFirst().getParentWorld().sendBlockBreakProgress(player.getEntityId(), currentHit.getSecond().getBlockPos(), (int) (curBlockDamageMP * 10F) - 1);
                 return true;
             }
         } else {
@@ -346,7 +359,7 @@ public class MovingWorldPlayerController {
         float f2 = (float) (facing.zCoord - (double) stack.getZ());
         boolean flag = false;
 
-        if (!this.mc.world.getWorldBorder().contains(stack)) {
+        if (!this.currentHit.getFirst().getParentWorld().getWorldBorder().contains(stack)) {
             return EnumActionResult.FAIL;
         } else {
             net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock event = net.minecraftforge.common.ForgeHooks
