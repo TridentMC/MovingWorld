@@ -31,6 +31,10 @@ public class MessageRegionData extends Message {
         this.data = data;
     }
 
+    public MessageRegionData(MobileRegion region) {
+        this(region.dimension, region.writeToCompound());
+    }
+
     @Override
     protected void handle(EntityPlayer sender) {
         if (data != null) {

@@ -125,7 +125,7 @@ public class MWPlayerInteractionManager {
                 if (!stack.isEmpty() && stack.getItem().onBlockStartBreak(stack, pos, player)) return false;
 
                 this.regionEntity.getParentWorld().playEvent(this.player, 2001, pos, Block.getStateId(iblockstate));
-                boolean flag1 = false;
+                boolean flag1;
 
                 if (this.isCreative()) {
                     flag1 = this.removeBlock(pos);
@@ -141,13 +141,13 @@ public class MWPlayerInteractionManager {
 
                     flag1 = this.removeBlock(pos, flag);
                     if (flag1 && flag) {
-                        iblockstate.getBlock().harvestBlock(this.regionEntity.getParentWorld(), this.player, pos, iblockstate, tileentity, itemstack2);
+                        iblockstate.getBlock().harvestBlock(this.regionEntity.getEntityWorld(), this.player, regionEntity.region.convertRegionPosToRealWorld(pos), iblockstate, tileentity, itemstack2);
                     }
                 }
 
                 // Drop experience
                 if (!this.isCreative() && flag1 && exp > 0) {
-                    iblockstate.getBlock().dropXpOnBlockBreak(regionEntity.getParentWorld(), pos, exp);
+                    iblockstate.getBlock().dropXpOnBlockBreak(this.regionEntity.getEntityWorld(), regionEntity.region.convertRegionPosToRealWorld(pos), exp);
                 }
                 return flag1;
             }

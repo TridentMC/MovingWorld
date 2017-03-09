@@ -40,9 +40,9 @@ public class BlockDebug extends Block {
         readerRegion.x = spawnAt.getX();
         readerRegion.y = 0;
         readerRegion.z = spawnAt.getZ();
-        BlockPos shiftedMin = readerRegion.convertRegionPosToRealWorld(reader.out.getAddedRegionMin());
-        BlockPos shiftedMax = readerRegion.convertRegionPosToRealWorld(reader.out.getAddedRegionMax());
 
+        BlockPos shiftedMin = readerRegion.convertRegionPosToRealWorld(readerRegion.sizeMin);
+        BlockPos shiftedMax = readerRegion.convertRegionPosToRealWorld(readerRegion.sizeMax);
 
         EntityMobileRegion entityMobileRegion = new EntityMobileRegion(worldIn, readerRegion, new AxisAlignedBB(shiftedMin.getX(), shiftedMin.getY(), shiftedMin.getZ(), shiftedMax.getX(), shiftedMax.getY(), shiftedMax.getZ()));
         entityMobileRegion.setPosition(spawnAt.getX(), 0, spawnAt.getZ());

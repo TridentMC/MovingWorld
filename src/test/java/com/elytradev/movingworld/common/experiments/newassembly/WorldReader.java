@@ -4,6 +4,7 @@ import com.elytradev.movingworld.MovingWorldMod;
 import com.elytradev.movingworld.common.experiments.BlockPosHelper;
 import com.elytradev.movingworld.common.experiments.MovingWorldExperimentsMod;
 import com.elytradev.movingworld.common.experiments.network.BlockData;
+import com.elytradev.movingworld.common.experiments.network.messages.server.MessageRegionData;
 import com.elytradev.movingworld.common.experiments.region.MobileRegion;
 import com.elytradev.movingworld.common.experiments.region.RegionPool;
 import com.google.common.collect.Lists;
@@ -19,6 +20,8 @@ import net.minecraft.world.World;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.elytradev.movingworld.common.experiments.MovingWorldExperimentsMod.*;
 
 /**
  * Used to read from a world into a collection.
@@ -116,9 +119,9 @@ public class WorldReader {
         BlockPos shiftedMin = min.subtract(startPos);
         BlockPos shiftedMax = max.subtract(startPos);
 
-        World subWorld = MovingWorldExperimentsMod.modProxy.getCommonDB().getWorldFromDim(MovingWorldExperimentsMod.registeredDimensions.get(world.provider.getDimension()));
+        World subWorld = modProxy.getCommonDB().getWorldFromDim(registeredDimensions.get(world.provider.getDimension()));
         RegionPool regionPool = RegionPool.getPool(subWorld.provider.getDimension(), true);
-        MobileRegion region = regionPool.nextRegion(false);
+        MobileRegion region = regionPool.nextRegion(false, false);
 
         List<BlockData> shiftedData = collected.values().stream().map(data -> shiftData(data, region)).collect(Collectors.toList());
         shiftedData.sort(new BlockDataComparator());
@@ -154,7 +157,7 @@ public class WorldReader {
             boolean success = subWorld.setBlockState(d.getPos(), d.getState(), 2);
 
             if (!success) {
-                MovingWorldExperimentsMod.logger.warn("Failed to add block to world on second pass... " + d.toString());
+                logger.warn("Failed to add block to world on second pass... " + d.toString());
                 continue;
             }
 
@@ -167,11 +170,17 @@ public class WorldReader {
             }
         }
 
+        region.sizeMin = addedMin;
+        region.sizeMax = addedMax;
+
+
         out.setAddedRegionMin(addedMin);
         out.setAddedRegionMax(addedMax);
         out.setPool(regionPool);
         out.setRegion(region);
         out.setSubWorld(subWorld);
+
+        new MessageRegionData(region).sendToEveryone();
     }
 
     public void cleanRealWorld() {

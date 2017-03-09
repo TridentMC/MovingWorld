@@ -55,9 +55,8 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
         this(worldIn, null, null);
     }
 
-
     @Override
-    public void fall(float distance, float damageMultiplier) {
+    protected void entityInit() {
         // Nah.
     }
 
@@ -74,13 +73,83 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
     }
 
     @Override
-    protected void entityInit() {
+    public void onEntityUpdate() {
+        super.onEntityUpdate();
+        if (region == null || world == null)
+            return;
+
+        if (world.isRemote && requestData) {
+            this.setupClientForData();
+            requestData = false;
+        }
+
+        if (world.getTotalWorldTime() % 15 == 0) {
+            //System.out.println(getEntityBoundingBox());
+        }
+
+        region.x = this.posX;
+        region.y = this.posY;
+        region.z = this.posZ;
+    }
+
+    @Override
+    public void fall(float distance, float damageMultiplier) {
         // Nah.
     }
 
     @Override
+    public boolean canBeCollidedWith() {
+        return true;
+    }
+
+    @Override
+    protected void readEntityFromNBT(NBTTagCompound compound) {
+        region = MobileRegion.getRegionFor(compound.getCompoundTag("Region"));
+
+        if (mobileRegionWorld == null) {
+            if (!world.isRemote)
+                initCommon();
+            else
+                initClient();
+        }
+    }
+
+    @Override
+    protected void writeEntityToNBT(NBTTagCompound compound) {
+        compound.setTag("Region", region.writeToCompound());
+    }
+
+    @Override
     public AxisAlignedBB getEntityBoundingBox() {
+        if (region.size() != null) {
+            boundingBox = region.convertRegionBBToRealWorld(region.size());
+        }
+        
         return boundingBox;
+    }
+
+    @Override
+    public void addTrackingPlayer(EntityPlayerMP player) {
+        super.addTrackingPlayer(player);
+
+        for (int cX = region.regionMin.chunkXPos; cX < region.regionMax.chunkXPos; cX++) {
+            for (int cZ = region.regionMin.chunkZPos; cZ < region.regionMax.chunkZPos; cZ++) {
+                WorldServer worldServer = ((WorldServer) getParentWorld());
+                worldServer.playerChunkMap.getOrCreateEntry(cX, cZ).addPlayer(player);
+            }
+        }
+    }
+
+    @Override
+    public void removeTrackingPlayer(EntityPlayerMP player) {
+        super.removeTrackingPlayer(player);
+
+        for (int cX = region.regionMin.chunkXPos; cX < region.regionMax.chunkXPos; cX++) {
+            for (int cZ = region.regionMin.chunkZPos; cZ < region.regionMax.chunkZPos; cZ++) {
+                WorldServer worldServer = ((WorldServer) getParentWorld());
+                worldServer.playerChunkMap.getEntry(cX, cZ).removePlayer(player);
+            }
+        }
     }
 
     protected void initCommon() {
@@ -118,31 +187,6 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
         }
     }
 
-    @Override
-    public boolean canBeCollidedWith() {
-        return true;
-    }
-
-    @Override
-    public void onEntityUpdate() {
-        super.onEntityUpdate();
-        if (region == null || world == null)
-            return;
-
-        if (world.isRemote && requestData) {
-            this.setupClientForData();
-            requestData = false;
-        }
-
-        if (world.getTotalWorldTime() % 15 == 0) {
-            //System.out.println(getEntityBoundingBox());
-        }
-
-        region.x = this.posX;
-        region.y = this.posY;
-        region.z = this.posZ;
-    }
-
     private WorldSettings genWorldSettings() {
         WorldSettings settings = new WorldSettings(0L,
                 getParentWorld().getWorldInfo().getGameType(),
@@ -159,23 +203,6 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
         } else {
             return MovingWorldExperimentsMod.modProxy.getCommonDB().getWorldFromDim(region.dimension);
         }
-    }
-
-    @Override
-    protected void readEntityFromNBT(NBTTagCompound compound) {
-        region = MobileRegion.getRegionFor(compound.getCompoundTag("Region"));
-
-        if (mobileRegionWorld == null) {
-            if (!world.isRemote)
-                initCommon();
-            else
-                initClient();
-        }
-    }
-
-    @Override
-    protected void writeEntityToNBT(NBTTagCompound compound) {
-        compound.setTag("Region", region.writeToCompound());
     }
 
     @Override
@@ -212,29 +239,5 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
 
     public World getMobileRegionWorld() {
         return mobileRegionWorld;
-    }
-
-    @Override
-    public void addTrackingPlayer(EntityPlayerMP player) {
-        super.addTrackingPlayer(player);
-
-        for (int cX = region.regionMin.chunkXPos; cX < region.regionMax.chunkXPos; cX++) {
-            for (int cZ = region.regionMin.chunkZPos; cZ < region.regionMax.chunkZPos; cZ++) {
-                WorldServer worldServer = ((WorldServer) getParentWorld());
-                worldServer.playerChunkMap.getOrCreateEntry(cX, cZ).addPlayer(player);
-            }
-        }
-    }
-
-    @Override
-    public void removeTrackingPlayer(EntityPlayerMP player) {
-        super.removeTrackingPlayer(player);
-
-        for (int cX = region.regionMin.chunkXPos; cX < region.regionMax.chunkXPos; cX++) {
-            for (int cZ = region.regionMin.chunkZPos; cZ < region.regionMax.chunkZPos; cZ++) {
-                WorldServer worldServer = ((WorldServer) getParentWorld());
-                worldServer.playerChunkMap.getEntry(cX, cZ).removePlayer(player);
-            }
-        }
     }
 }

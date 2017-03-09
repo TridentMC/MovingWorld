@@ -6,15 +6,22 @@ import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.Tuple;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+
+import java.util.List;
+import java.util.Optional;
 
 public class InputReader {
 
@@ -23,6 +30,9 @@ public class InputReader {
 
     public Minecraft mc;
     public MovingWorldPlayerController controller;
+
+    public EntityMobileRegion currentEntityHit = null;
+    public RayTraceResult currentBlockHit = new RayTraceResult(RayTraceResult.Type.MISS, new Vec3d(-1, -1, -1), null, new BlockPos(-1, -1, -1));
 
     private int leftClickCounter, rightClickCounter;
     private boolean performedLeftClick = false, performedRightClick = false;
@@ -57,7 +67,8 @@ public class InputReader {
         if (!enabled)
             return;
 
-        controller.findRegionsNearPlayerCalcSelectedBlock();
+        findRegionsNearPlayerCalcSelectedBlock();
+        controller.setCurrentHit(currentEntityHit);
 
         if (this.rightClickCounter > 0) {
             --this.rightClickCounter;
@@ -89,7 +100,7 @@ public class InputReader {
         if (!rightClickDown)
             performedRightClick = false;
 
-        if (mc.world != null && controller.getCurrentHit().getFirst() != null) {
+        if (mc.world != null && currentEntityHit != null) {
             if (leftClickDown && !performedLeftClick) {
                 performLeftClick();
             }
@@ -108,17 +119,17 @@ public class InputReader {
         if (leftClickCounter > 0)
             return;
 
-        if (controller.getCurrentHit().getFirst() == null) {
+        if (currentEntityHit == null) {
             if (controller.isNotCreative()) {
                 this.leftClickCounter = 10;
             }
         } else if (!mc.player.isRowingBoat()) {
             mc.player.swingArm(EnumHand.MAIN_HAND);
-            if (controller.getCurrentHit().getSecond().typeOfHit == RayTraceResult.Type.BLOCK) {
-                BlockPos hitBlock = controller.getCurrentHit().getSecond().getBlockPos();
+            if (currentBlockHit.typeOfHit == RayTraceResult.Type.BLOCK) {
+                BlockPos hitBlock = currentBlockHit.getBlockPos();
 
-                if (!controller.getCurrentHit().getFirst().getMobileRegionWorld().isAirBlock(hitBlock)) {
-                    controller.clickBlock(hitBlock, controller.getCurrentHit().getSecond().sideHit);
+                if (!currentEntityHit.getMobileRegionWorld().isAirBlock(hitBlock)) {
+                    controller.clickBlock(hitBlock, currentBlockHit.sideHit);
                 }
             }
         }
@@ -133,13 +144,13 @@ public class InputReader {
                 for (EnumHand enumhand : EnumHand.values()) {
                     ItemStack itemstack = this.mc.player.getHeldItem(enumhand);
 
-                    if (controller.getCurrentHit().getFirst() != null) {
-                        if (controller.getCurrentHit().getSecond().typeOfHit == RayTraceResult.Type.BLOCK) {
-                            BlockPos blockpos = controller.getCurrentHit().getSecond().getBlockPos();
-                            if (controller.getCurrentHit().getFirst().getMobileRegionWorld().getBlockState(blockpos).getMaterial() != Material.AIR) {
+                    if (currentEntityHit != null) {
+                        if (currentBlockHit.typeOfHit == RayTraceResult.Type.BLOCK) {
+                            BlockPos blockpos = currentBlockHit.getBlockPos();
+                            if (currentEntityHit.getMobileRegionWorld().getBlockState(blockpos).getMaterial() != Material.AIR) {
                                 int i = itemstack.getCount();
-                                EnumActionResult enumactionresult = controller.processRightClickBlock(this.mc.player, (WorldClient) controller.getCurrentHit().getFirst().getMobileRegionWorld(),
-                                        blockpos, controller.getCurrentHit().getSecond().sideHit, controller.getCurrentHit().getSecond().hitVec, enumhand);
+                                EnumActionResult enumactionresult = controller.processRightClickBlock(this.mc.player, (WorldClient) currentEntityHit.getMobileRegionWorld(),
+                                        blockpos, currentBlockHit.sideHit, currentBlockHit.hitVec, enumhand);
 
                                 if (enumactionresult == EnumActionResult.SUCCESS) {
                                     this.mc.player.swingArm(enumhand);
@@ -164,18 +175,89 @@ public class InputReader {
         }
 
         if (this.leftClickCounter <= 0 && !this.mc.player.isHandActive()) {
-            if (leftClick && this.controller.getCurrentHit().getFirst() != null && this.controller.getCurrentHit().getSecond().typeOfHit == RayTraceResult.Type.BLOCK) {
-                EntityMobileRegion hitRegionEntity = controller.getCurrentHit().getFirst();
-                BlockPos blockpos = this.controller.getCurrentHit().getSecond().getBlockPos();
+            if (leftClick && this.currentEntityHit != null && this.currentBlockHit.typeOfHit == RayTraceResult.Type.BLOCK) {
+                EntityMobileRegion hitRegionEntity = currentEntityHit;
+                BlockPos blockpos = this.currentBlockHit.getBlockPos();
 
-                if (!hitRegionEntity.getMobileRegionWorld().isAirBlock(blockpos) && this.controller.onPlayerDamageBlock(blockpos, this.controller.getCurrentHit().getSecond().sideHit)) {
-                    ParticleHelper.addBlockHitEffects(hitRegionEntity.region, hitRegionEntity.getParentWorld(), controller.getCurrentHit().getSecond().getBlockPos(), controller.getCurrentHit().getSecond().sideHit);
+                if (!hitRegionEntity.getMobileRegionWorld().isAirBlock(blockpos) && this.controller.onPlayerDamageBlock(blockpos, this.currentBlockHit.sideHit)) {
+                    ParticleHelper.addBlockHitEffects(hitRegionEntity.region, hitRegionEntity.getParentWorld(), currentBlockHit.getBlockPos(), currentBlockHit.sideHit);
                     this.mc.player.swingArm(EnumHand.MAIN_HAND);
                 }
             } else {
                 this.controller.resetBlockRemoving();
             }
         }
+    }
+
+    public void findRegionsNearPlayerCalcSelectedBlock() {
+        WorldClient worldClient = Minecraft.getMinecraft().world;
+        Entity renderViewEntity = Minecraft.getMinecraft().getRenderViewEntity();
+        float reachMultiplier = controller.getBlockReachDistance();
+        if (renderViewEntity == null)
+            return;
+        Vec3d lookVector = renderViewEntity.getLookVec();
+
+        Vec3d rayStart = renderViewEntity.getPositionEyes(1.0f);
+        Vec3d rayEnd = rayStart.addVector(lookVector.xCoord * reachMultiplier, lookVector.yCoord * reachMultiplier, lookVector.zCoord * reachMultiplier);
+        AxisAlignedBB bb = new AxisAlignedBB(rayStart.xCoord, rayStart.yCoord, rayStart.zCoord, rayEnd.xCoord, rayEnd.yCoord, rayEnd.zCoord).expandXyz(1);
+
+        List<EntityMobileRegion> regionEntities = worldClient.getEntitiesWithinAABB(EntityMobileRegion.class, bb);
+        Optional<Tuple<EntityMobileRegion, RayTraceResult>> result = regionEntities.stream().map(this::calcMouseOver).sorted((o1, o2) -> {
+            RayTraceResult o1Trace = o1.getSecond();
+            RayTraceResult o2Trace = o2.getSecond();
+
+            double o1Distance = Double.MAX_VALUE;
+            double o2Distance = Double.MAX_VALUE;
+
+            if (o1Trace != null && o1Trace.typeOfHit == RayTraceResult.Type.BLOCK) {
+                BlockPos o1PosShift = o1.getFirst().region.convertRegionPosToRealWorld(o1Trace.getBlockPos());
+
+                o1Distance = renderViewEntity.getDistanceSq(o1PosShift);
+            }
+
+            if (o2Trace != null && o2Trace.typeOfHit == RayTraceResult.Type.BLOCK) {
+                BlockPos o2PosShift = o2.getFirst().region.convertRegionPosToRealWorld(o2Trace.getBlockPos());
+
+                o2Distance = renderViewEntity.getDistanceSq(o2PosShift);
+            }
+
+            return (int) (o1Distance - o2Distance);
+        }).findFirst();
+
+        boolean resultFound = result != null;
+        resultFound = resultFound && result.isPresent() && result.get().getSecond() != null;
+        resultFound = resultFound && result.get().getSecond().typeOfHit == RayTraceResult.Type.BLOCK;
+
+        if (resultFound) {
+            currentEntityHit = result.get().getFirst();
+            currentBlockHit = result.get().getSecond();
+        } else {
+            currentEntityHit = null;
+            currentBlockHit = new RayTraceResult(RayTraceResult.Type.MISS, new Vec3d(-1, -1, -1), null, new BlockPos(-1, -1, -1));
+        }
+    }
+
+    private Tuple<EntityMobileRegion, RayTraceResult> calcMouseOver(EntityMobileRegion entityMobileRegion) {
+        Entity renderViewEntity = Minecraft.getMinecraft().getRenderViewEntity();
+        float reachMultiplier = controller.getBlockReachDistance();
+        if (renderViewEntity == null)
+            return null;
+        Vec3d lookVector = renderViewEntity.getLookVec();
+
+        Vec3d rayStart = renderViewEntity.getPositionEyes(1.0f);
+        Vec3d rayEnd = rayStart.addVector(lookVector.xCoord * reachMultiplier, lookVector.yCoord * reachMultiplier, lookVector.zCoord * reachMultiplier);
+
+        RayTraceResult traceResult = rayTraceMovingWorld(rayStart, rayEnd, entityMobileRegion);
+        return new Tuple<>(entityMobileRegion, traceResult);
+    }
+
+    private RayTraceResult rayTraceMovingWorld(Vec3d start, Vec3d end, EntityMobileRegion entityMobileRegion) {
+        Vec3d regionStart = entityMobileRegion.region.convertRealWorldPosToRegion(start);
+        Vec3d regionEnd = entityMobileRegion.region.convertRealWorldPosToRegion(end);
+
+        if (entityMobileRegion.getMobileRegionWorld() != null)
+            return entityMobileRegion.getMobileRegionWorld().rayTraceBlocks(regionStart, regionEnd);
+        else return new RayTraceResult(RayTraceResult.Type.MISS, new Vec3d(-1, -1, -1), null, new BlockPos(-1, -1, -1));
     }
 
 }

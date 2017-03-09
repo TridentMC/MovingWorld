@@ -28,6 +28,8 @@ public class BoundingBoxWorldListener implements IWorldEventListener {
 
         boolean removed = newState.getBlock().isAir(newState, worldIn, pos);
 
+        if (worldIn.isRemote)
+            System.out.println("Before " + regionForPos.size());
         if (regionForPos.size().isVecInside(new Vec3d(pos))) {
             if (removed) {
                 //In region, block was removed.
@@ -176,21 +178,9 @@ public class BoundingBoxWorldListener implements IWorldEventListener {
 
             // Ignore blocks removed out of bounds because that isn't possible.
         }
-    }
 
-    /**
-     * Detects if a pos is on the edge of region's current size.
-     * <p>
-     * Also returns whether the pos is on edge.
-     *
-     * @param pos
-     * @param region
-     * @return true if the pos is on edge.
-     */
-    public boolean isPosOnEdge(BlockPos pos, MobileRegion region) {
-        // vry teknical code rite here.
-        return pos.getX() == region.sizeMin.getX() || pos.getY() == region.sizeMin.getY() || pos.getZ() == region.sizeMin.getZ()
-                || pos.getX() == region.sizeMax.getX() || pos.getY() == region.sizeMax.getY() || pos.getZ() == region.sizeMax.getZ();
+        if (worldIn.isRemote)
+            System.out.println("After " + regionForPos.size());
     }
 
     @Override
@@ -246,5 +236,20 @@ public class BoundingBoxWorldListener implements IWorldEventListener {
     @Override
     public void sendBlockBreakProgress(int breakerId, BlockPos pos, int progress) {
 
+    }
+
+    /**
+     * Detects if a pos is on the edge of region's current size.
+     * <p>
+     * Also returns whether the pos is on edge.
+     *
+     * @param pos
+     * @param region
+     * @return true if the pos is on edge.
+     */
+    public boolean isPosOnEdge(BlockPos pos, MobileRegion region) {
+        // vry teknical code rite here.
+        return pos.getX() == region.sizeMin.getX() || pos.getY() == region.sizeMin.getY() || pos.getZ() == region.sizeMin.getZ()
+                || pos.getX() == region.sizeMax.getX() || pos.getY() == region.sizeMax.getY() || pos.getZ() == region.sizeMax.getZ();
     }
 }

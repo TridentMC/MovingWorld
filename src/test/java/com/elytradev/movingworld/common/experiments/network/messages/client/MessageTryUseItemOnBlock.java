@@ -3,19 +3,19 @@ package com.elytradev.movingworld.common.experiments.network.messages.client;
 import com.elytradev.concrete.Message;
 import com.elytradev.concrete.NetworkContext;
 import com.elytradev.concrete.annotation.field.MarshalledAs;
-import com.elytradev.concrete.annotation.field.Optional;
 import com.elytradev.concrete.annotation.type.ReceivedOn;
 import com.elytradev.concrete.reflect.accessor.Accessor;
 import com.elytradev.concrete.reflect.accessor.Accessors;
+import com.elytradev.movingworld.common.experiments.MWPlayerInteractionManager;
 import com.elytradev.movingworld.common.experiments.MovingWorldExperimentsMod;
 import com.elytradev.movingworld.common.experiments.entity.EntityMobileRegion;
 import com.elytradev.movingworld.common.experiments.network.MovingWorldExperimentsNetworking;
+import com.elytradev.movingworld.common.experiments.network.messages.server.MessageBlockChange;
 import com.elytradev.movingworld.common.network.marshallers.EntityMarshaller;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.NetHandlerPlayServer;
-import net.minecraft.network.play.server.SPacketBlockChange;
 import net.minecraft.network.play.server.SPacketChat;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -67,6 +67,15 @@ public class MessageTryUseItemOnBlock extends Message {
         WorldServer worldserver = (WorldServer) MovingWorldExperimentsMod.modProxy.getCommonDB().getWorldFromDim(dimension);
         BlockPos realWorldPos = regionInteractedWith.region.convertRegionPosToRealWorld(regionPos);
         ItemStack itemstack = player.getHeldItem(hand);
+
+        if (!MWPlayerInteractionManager.MANAGERS.containsKey(player)) {
+            MWPlayerInteractionManager.MANAGERS.put(player, new MWPlayerInteractionManager(regionInteractedWith, player));
+        } else {
+            MWPlayerInteractionManager.MANAGERS.get(player).setRegionEntity(regionInteractedWith);
+        }
+
+        MWPlayerInteractionManager interactionManager = MWPlayerInteractionManager.MANAGERS.get(player);
+
         player.markPlayerActive();
 
         if (regionPos.getY() < player.getServerWorld().getMinecraftServer().getBuildLimit() - 1 || placedBlockDirection != EnumFacing.UP && regionPos.getY() < player.getServerWorld().getMinecraftServer().getBuildLimit()) {
@@ -74,15 +83,14 @@ public class MessageTryUseItemOnBlock extends Message {
             dist *= dist;
             boolean withinRange = player.getDistanceSq((double) realWorldPos.getX() + 0.5D, (double) realWorldPos.getY() + 0.5D, (double) realWorldPos.getZ() + 0.5D) < dist;
             if (this.targetPos.get(player.connection) == null && withinRange && regionInteractedWith.region.isPosWithinBounds(regionPos)) {
-                player.interactionManager.processRightClickBlock(player, worldserver, itemstack, hand, regionPos, placedBlockDirection, facingX, facingY, facingZ);
+                interactionManager.processRightClickBlock(player, worldserver, itemstack, hand, regionPos, placedBlockDirection, facingX, facingY, facingZ);
             }
         } else {
             TextComponentTranslation textcomponenttranslation = new TextComponentTranslation("build.tooHigh", new Object[]{Integer.valueOf(player.getServerWorld().getMinecraftServer().getBuildLimit())});
             textcomponenttranslation.getStyle().setColor(TextFormatting.RED);
             player.connection.sendPacket(new SPacketChat(textcomponenttranslation, (byte) 2));
         }
-
-        player.connection.sendPacket(new SPacketBlockChange(worldserver, regionPos));
-        player.connection.sendPacket(new SPacketBlockChange(worldserver, regionPos.offset(placedBlockDirection)));
+        new MessageBlockChange(worldserver, regionPos).sendTo(player);
+        new MessageBlockChange(worldserver, regionPos.offset(placedBlockDirection)).sendTo(player);
     }
 }

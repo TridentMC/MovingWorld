@@ -45,8 +45,8 @@ public class MobileRegionRenderer extends Render<EntityMobileRegion> {
         regionRenderers.get(entity).renderAll(partialTicks);
         GlStateManager.popMatrix();
 
-        if (InputReader.INSTANCE.controller.getCurrentHit().getFirst() != null) {
-            drawSelectionBox(entity, Minecraft.getMinecraft().player, InputReader.INSTANCE.controller.getCurrentHit().getSecond(), partialTicks);
+        if (InputReader.INSTANCE.currentEntityHit != null) {
+            drawSelectionBox(entity, Minecraft.getMinecraft().player, InputReader.INSTANCE.currentBlockHit, partialTicks);
         }
     }
 
@@ -57,7 +57,7 @@ public class MobileRegionRenderer extends Render<EntityMobileRegion> {
             double pZ = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks;
 
             // Collect data to render bb of selected block.
-            BlockPos selectedPos = InputReader.INSTANCE.controller.getCurrentHit().getSecond().getBlockPos();
+            BlockPos selectedPos = InputReader.INSTANCE.currentBlockHit.getBlockPos();
             AxisAlignedBB bb = entityMobileRegion.getMobileRegionWorld().getBlockState(selectedPos)
                     .getSelectedBoundingBox(entityMobileRegion.getMobileRegionWorld(), selectedPos)
                     .expandXyz(0.002D).offset(-pX, -pY, -pZ);

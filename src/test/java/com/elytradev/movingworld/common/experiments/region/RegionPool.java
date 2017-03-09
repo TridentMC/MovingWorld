@@ -91,9 +91,10 @@ public class RegionPool {
      * Gets the next available MobileRegion in this pool and adjusts the cursor.
      *
      * @param simulate if true, don't change the result for the next call
+     * @param sendData if true, send data to clients
      * @return the next available region
      */
-    public MobileRegion nextRegion(boolean simulate) {
+    public MobileRegion nextRegion(boolean simulate, boolean sendData) {
         ChunkPos regionMin = new ChunkPos(regionCursorX, regionCursorZ);
         ChunkPos regionMax = new ChunkPos(regionCursorX + regionSize, regionCursorZ + regionSize);
         MobileRegion mobileRegion = MobileRegion.getRegionFor(dimension, regionMin, regionMax);
@@ -116,7 +117,8 @@ public class RegionPool {
             }
 
             // Send new pool data to clients.
-            new MessageRegionData(dimension, mobileRegion.writeToCompound()).sendToEveryone();
+            if (sendData)
+                new MessageRegionData(dimension, mobileRegion.writeToCompound()).sendToEveryone();
         }
 
         return mobileRegion;
