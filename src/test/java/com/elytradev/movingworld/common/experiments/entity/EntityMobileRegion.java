@@ -173,6 +173,7 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
     protected void initClient() {
     }
 
+    @SideOnly(Side.CLIENT)
     public void setupClientForData() {
         if (!receivedData) {
             if (!world.isRemote)

@@ -312,9 +312,10 @@ public class MWPlayerInteractionManager extends PlayerInteractionManager {
     }
 
     public EnumActionResult processRightClickBlock(EntityPlayer player, World worldIn, ItemStack stack, EnumHand hand, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ) {
-        if (!EntityPlayerProxy.PROXIES.containsKey(player.getGameProfile()))
+        if (!EntityPlayerProxy.PROXIES.containsKey(player.getGameProfile())) {
             EntityPlayerProxy.PROXIES.put(player.getGameProfile(), new EntityPlayerProxy((EntityPlayerMP) player, regionEntity));
-
+            worldIn.spawnEntity(EntityPlayerProxy.PROXIES.get(player.getGameProfile()));
+        }
         EntityPlayerProxy playerProxy = EntityPlayerProxy.PROXIES.get(player.getGameProfile());
         playerProxy.setRegion(regionEntity);
 

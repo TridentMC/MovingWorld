@@ -11,6 +11,8 @@ import net.minecraft.util.NonNullList;
 import javax.annotation.Nullable;
 import java.util.List;
 
+import static com.elytradev.movingworld.common.experiments.EntityPlayerProxy.PROXIES;
+
 /**
  * Created by darkevilmac on 3/9/2017.
  */
@@ -26,10 +28,10 @@ public class ContainerWrapper extends Container {
     public ContainerWrapper(Container realContainer) {
         this.realContainer = realContainer;
 
-        addSlotToContainer = Invokers.findMethod(Container.class, realContainer, new String[]{"addSlotToContainer", "func_75146_a"});
-        retrySlotClick = Invokers.findMethod(Container.class, realContainer, new String[]{"retrySlotClick", "func_75133_b"});
-        mergeItemStack = Invokers.findMethod(Container.class, realContainer, new String[]{"mergeItemStack", "func_75135_a"});
-        resetDrag = Invokers.findMethod(Container.class, realContainer, new String[]{"resetDrag", "func_94533_d"});
+        addSlotToContainer = Invokers.findMethod(Container.class, realContainer, new String[]{"addSlotToContainer", "func_75146_a", "a"}, Slot.class);
+        retrySlotClick = Invokers.findMethod(Container.class, realContainer, new String[]{"retrySlotClick", "func_75133_b", "a"}, int.class, int.class, boolean.class, EntityPlayer.class);
+        mergeItemStack = Invokers.findMethod(Container.class, realContainer, new String[]{"mergeItemStack", "func_75135_a", "a"}, ItemStack.class, int.class, int.class, boolean.class);
+        resetDrag = Invokers.findMethod(Container.class, realContainer, new String[]{"resetDrag", "func_94533_d", "d"});
     }
 
     @Override
@@ -135,7 +137,11 @@ public class ContainerWrapper extends Container {
 
     @Override
     public boolean canInteractWith(EntityPlayer playerIn) {
-        return realContainer.canInteractWith(EntityPlayerProxy.PROXIES.get(playerIn));
+        if(PROXIES.containsKey(playerIn.getGameProfile())){
+            return realContainer.canInteractWith(PROXIES.get(playerIn.getGameProfile()));
+        }
+
+        return realContainer.canInteractWith(playerIn);
     }
 
     @Override

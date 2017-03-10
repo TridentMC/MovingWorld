@@ -71,6 +71,7 @@ public class EntityPlayerProxy extends EntityPlayerMP {
         this.motionY = parent.motionY;
         this.motionZ = parent.motionZ;
 
+        this.validateWrapping();
         this.checkContainer();
 
         super.onUpdate();
@@ -112,7 +113,8 @@ public class EntityPlayerProxy extends EntityPlayerMP {
 
     private void validateWrapping() {
         if (this.openContainer != parent.inventoryContainer) {
-            if (this.openContainer instanceof ContainerWrapper)
+            if (this.openContainer instanceof ContainerWrapper
+                    || this.openContainer == null)
                 return;
 
             this.openContainer = new ContainerWrapper(this.openContainer);
@@ -127,7 +129,7 @@ public class EntityPlayerProxy extends EntityPlayerMP {
                 closeScreen();
             }
         } else {
-            closeScreen();
+            this.openContainer = parent.openContainer;
         }
     }
 
