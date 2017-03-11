@@ -3,6 +3,7 @@ package com.elytradev.movingworld.common.experiments;
 import com.elytradev.concrete.reflect.invoker.Invoker;
 import com.elytradev.concrete.reflect.invoker.Invokers;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.*;
 import net.minecraft.item.ItemStack;
@@ -11,7 +12,7 @@ import net.minecraft.util.NonNullList;
 import javax.annotation.Nullable;
 import java.util.List;
 
-import static com.elytradev.movingworld.common.experiments.EntityPlayerProxy.PROXIES;
+import static com.elytradev.movingworld.common.experiments.EntityPlayerMPProxy.PROXIES;
 
 /**
  * Created by darkevilmac on 3/9/2017.
@@ -137,8 +138,10 @@ public class ContainerWrapper extends Container {
 
     @Override
     public boolean canInteractWith(EntityPlayer playerIn) {
-        if(PROXIES.containsKey(playerIn.getGameProfile())){
+        if(playerIn instanceof EntityPlayerMP && PROXIES.containsKey(playerIn.getGameProfile())){
             return realContainer.canInteractWith(PROXIES.get(playerIn.getGameProfile()));
+        } else{
+
         }
 
         return realContainer.canInteractWith(playerIn);

@@ -1,31 +1,37 @@
-package com.elytradev.movingworld.common.experiments;
+package com.elytradev.movingworld.client.experiments;
 
+import com.elytradev.movingworld.common.experiments.ContainerWrapper;
 import com.elytradev.movingworld.common.experiments.entity.EntityMobileRegion;
 import com.mojang.authlib.GameProfile;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.entity.MoverType;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.stats.StatBase;
+import net.minecraft.stats.StatisticsManager;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IInteractionObject;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.HashMap;
 
-public class EntityPlayerProxy extends EntityPlayerMP {
-
-    public static HashMap<GameProfile, EntityPlayerProxy> PROXIES = new HashMap<>();
-
-    private EntityPlayerMP parent;
+/**
+ * Created by darkevilmac on 3/10/2017.
+ */
+@SideOnly(Side.CLIENT)
+public class EntityPlayerSPProxy extends EntityPlayerSP {
+    public static HashMap<GameProfile, EntityPlayerSPProxy> PROXIES = new HashMap<>();
+    private EntityPlayerSP parent;
     private EntityMobileRegion region;
 
-    public EntityPlayerProxy(EntityPlayerMP playerMP, EntityMobileRegion region) {
-        super(playerMP.getServer(), (WorldServer) region.getParentWorld(),
-                playerMP.getGameProfile(), MWPlayerInteractionManager.MANAGERS.get(playerMP));
+    public EntityPlayerSPProxy(EntityPlayerSP playerSP, EntityMobileRegion region) {
+        super(Minecraft.getMinecraft(), region.getParentWorld(),
+                playerSP.connection, playerSP.getStatFileWriter());
 
-        this.connection = playerMP.connection;
-        this.parent = playerMP;
+        this.parent = playerSP;
         this.region = region;
 
         Vec3d prevPos = region.region.convertRealWorldPosToRegion(new Vec3d(parent.prevPosX, parent.prevPosY, parent.prevPosZ));
@@ -78,12 +84,14 @@ public class EntityPlayerProxy extends EntityPlayerMP {
     }
 
     @Override
-    public void displayGui(IInteractionObject guiOwner) {
-        super.displayGui(guiOwner);
-        validateWrapping();
+    public void closeScreen() {
+        super.closeScreen();
+        parent.closeScreen();
+    }
 
-        parent.displayGui(guiOwner);
-        checkContainer();
+    @Override
+    public void addStat(StatBase stat, int amount) {
+        parent.addStat(stat, amount);
     }
 
     @Override
@@ -96,14 +104,17 @@ public class EntityPlayerProxy extends EntityPlayerMP {
     }
 
     @Override
-    public void closeScreen() {
-        super.closeScreen();
-        parent.closeScreen();
+    public void displayGui(IInteractionObject guiOwner) {
+        super.displayGui(guiOwner);
+        validateWrapping();
+
+        parent.displayGui(guiOwner);
+        checkContainer();
     }
 
     @Override
-    public void addStat(StatBase stat, int amount) {
-        parent.addStat(stat, amount);
+    public void move(MoverType type, double x, double y, double z) {
+        parent.move(type, x, y, z);
     }
 
     @Override
@@ -140,10 +151,5 @@ public class EntityPlayerProxy extends EntityPlayerMP {
 
         parent.openGui(mod, modGuiId, world, x, y, z);
         checkContainer();
-    }
-
-    @Override
-    public void move(MoverType type, double x, double y, double z) {
-        parent.move(type, x, y, z);
     }
 }
