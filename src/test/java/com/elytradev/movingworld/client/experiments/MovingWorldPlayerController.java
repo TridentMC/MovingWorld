@@ -1,5 +1,6 @@
 package com.elytradev.movingworld.client.experiments;
 
+import com.elytradev.movingworld.common.experiments.EntityPlayerMPProxy;
 import com.elytradev.movingworld.common.experiments.entity.EntityMobileRegion;
 import com.elytradev.movingworld.common.experiments.network.messages.client.MessagePlayerDigging;
 import com.elytradev.movingworld.common.experiments.network.messages.client.MessageTryUseItemOnBlock;
@@ -14,6 +15,7 @@ import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
@@ -288,6 +290,13 @@ public class MovingWorldPlayerController {
         if (currentHit == null)
             return EnumActionResult.FAIL;
 
+        if (!EntityPlayerSPProxy.PROXIES.containsKey(player.getGameProfile())) {
+            EntityPlayerSPProxy.PROXIES.put(player.getGameProfile(), new EntityPlayerSPProxy(player, currentHit));
+            worldIn.spawnEntity(EntityPlayerSPProxy.PROXIES.get(player.getGameProfile()));
+        }
+        EntityPlayerSPProxy playerProxy = EntityPlayerSPProxy.PROXIES.get(player.getGameProfile());
+        playerProxy.setRegion(currentHit);
+
         ItemStack itemstack = player.getHeldItem(vec);
         float f = (float) (facing.xCoord - (double) stack.getX());
         float f1 = (float) (facing.yCoord - (double) stack.getY());
@@ -317,7 +326,7 @@ public class MovingWorldPlayerController {
 
                 if ((!player.isSneaking() || bypass || event.getUseBlock() == net.minecraftforge.fml.common.eventhandler.Event.Result.ALLOW)) {
                     if (event.getUseBlock() != net.minecraftforge.fml.common.eventhandler.Event.Result.DENY)
-                        flag = iblockstate.getBlock().onBlockActivated(worldIn, stack, iblockstate, player, vec, pos, f, f1, f2);
+                        flag = iblockstate.getBlock().onBlockActivated(worldIn, stack, iblockstate, playerProxy, vec, pos, f, f1, f2);
                     if (flag) result = EnumActionResult.SUCCESS;
                 }
 

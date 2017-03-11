@@ -5,11 +5,9 @@ import com.elytradev.movingworld.common.experiments.entity.EntityMobileRegion;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.entity.MoverType;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.stats.StatBase;
-import net.minecraft.stats.StatisticsManager;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IInteractionObject;
 import net.minecraft.world.World;
@@ -37,6 +35,7 @@ public class EntityPlayerSPProxy extends EntityPlayerSP {
         Vec3d prevPos = region.region.convertRealWorldPosToRegion(new Vec3d(parent.prevPosX, parent.prevPosY, parent.prevPosZ));
         Vec3d curPos = region.region.convertRealWorldPosToRegion(new Vec3d(parent.posX, parent.posY, parent.posZ));
 
+        this.movementInput = parent.movementInput;
         this.inventory = parent.inventory;
         this.inventoryContainer = parent.inventoryContainer;
 
