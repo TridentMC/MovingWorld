@@ -1,18 +1,10 @@
 package com.elytradev.movingworld.client.experiments;
 
-import com.elytradev.movingworld.common.experiments.interact.ContainerWrapper;
 import com.elytradev.movingworld.common.experiments.entity.EntityMobileRegion;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.gui.GuiEnchantment;
-import net.minecraft.client.gui.GuiHopper;
-import net.minecraft.client.gui.GuiRepair;
-import net.minecraft.client.gui.inventory.*;
 import net.minecraft.entity.MoverType;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.ContainerPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.stats.StatBase;
 import net.minecraft.util.math.Vec3d;
@@ -59,20 +51,6 @@ public class EntityPlayerSPProxy extends EntityPlayerSP {
         this.motionZ = parent.motionZ;
     }
 
-    public static void onUpdateHook(EntityPlayerSP realPlayer) {
-        EntityPlayer proxy = null;
-
-        if (EntityPlayerSPProxy.PROXIES.containsKey(realPlayer.getGameProfile())) {
-            proxy = EntityPlayerSPProxy.PROXIES.get(realPlayer.getGameProfile());
-        }
-
-        if (proxy != null && proxy.openContainer instanceof ContainerWrapper) {
-            realPlayer.openContainer = proxy.openContainer;
-        } else if (proxy != null) {
-            proxy.openContainer = realPlayer.openContainer;
-        }
-    }
-
     public void setRegion(EntityMobileRegion region) {
         this.region = region;
     }
@@ -111,22 +89,13 @@ public class EntityPlayerSPProxy extends EntityPlayerSP {
 
     @Override
     public void displayGUIChest(IInventory chestInventory) {
-        Container lastContainer = this.openContainer;
         super.displayGUIChest(chestInventory);
-        Container currentContainer = this.openContainer;
-
-        validateWrapping(lastContainer, currentContainer);
-
         parent.displayGUIChest(chestInventory);
     }
 
     @Override
     public void displayGui(IInteractionObject guiOwner) {
-        Container lastContainer = this.openContainer;
-        displayGuiSuper(guiOwner);
-        Container currentContainer = this.openContainer;
-
-        validateWrapping(lastContainer, currentContainer);
+        super.displayGui(guiOwner);
         parent.displayGui(guiOwner);
     }
 
@@ -135,67 +104,14 @@ public class EntityPlayerSPProxy extends EntityPlayerSP {
         parent.move(type, x, y, z);
     }
 
-    public void displayGUIChestSuper(IInventory chestInventory) {
-        String s = chestInventory instanceof IInteractionObject ? ((IInteractionObject) chestInventory).getGuiID() : "minecraft:container";
-
-        if ("minecraft:chest".equals(s)) {
-            this.mc.displayGuiScreen(new GuiChest(this.inventory, chestInventory));
-        } else if ("minecraft:hopper".equals(s)) {
-            this.mc.displayGuiScreen(new GuiHopper(this.inventory, chestInventory));
-        } else if ("minecraft:furnace".equals(s)) {
-            this.mc.displayGuiScreen(new GuiFurnace(this.inventory, chestInventory));
-        } else if ("minecraft:brewing_stand".equals(s)) {
-            this.mc.displayGuiScreen(new GuiBrewingStand(this.inventory, chestInventory));
-        } else if ("minecraft:beacon".equals(s)) {
-            this.mc.displayGuiScreen(new GuiBeacon(this.inventory, chestInventory));
-        } else if (!"minecraft:dispenser".equals(s) && !"minecraft:dropper".equals(s)) {
-            if ("minecraft:shulker_box".equals(s)) {
-                this.mc.displayGuiScreen(new GuiShulkerBox(this.inventory, chestInventory));
-            } else {
-                this.mc.displayGuiScreen(new GuiChest(this.inventory, chestInventory));
-            }
-        } else {
-            this.mc.displayGuiScreen(new GuiDispenser(this.inventory, chestInventory));
-        }
-    }
-
-    public void displayGuiSuper(IInteractionObject guiOwner) {
-        String s = guiOwner.getGuiID();
-
-        if ("minecraft:crafting_table".equals(s)) {
-            this.mc.displayGuiScreen(new GuiCrafting(this.inventory, this.world));
-        } else if ("minecraft:enchanting_table".equals(s)) {
-            this.mc.displayGuiScreen(new GuiEnchantment(this.inventory, this.world, guiOwner));
-        } else if ("minecraft:anvil".equals(s)) {
-            this.mc.displayGuiScreen(new GuiRepair(this.inventory, this.world));
-        }
-    }
-
     @Override
     public void setPositionAndUpdate(double x, double y, double z) {
         super.setPositionAndUpdate(x, y, z);
     }
 
-    public void validateWrapping(Container lastContainer, Container currentContainer) {
-        if (lastContainer != currentContainer && !(currentContainer instanceof ContainerPlayer)) {
-            if (currentContainer instanceof ContainerWrapper)
-                return;
-
-            this.openContainer = new ContainerWrapper(this.openContainer);
-        }
-    }
-
-    public void openGuiSuper(Object mod, int modGuiId, World world, int x, int y, int z) {
-        net.minecraftforge.fml.common.network.internal.FMLNetworkHandler.openGui(this, mod, modGuiId, world, x, y, z);
-    }
-
     @Override
     public void openGui(Object mod, int modGuiId, World world, int x, int y, int z) {
-        Container lastContainer = this.openContainer;
         super.openGui(mod, modGuiId, world, x, y, z);
-        Container currentContainer = this.openContainer;
-
-        validateWrapping(lastContainer, currentContainer);
         parent.openGui(mod, modGuiId, world, x, y, z);
     }
 }

@@ -64,6 +64,9 @@ dependencies {
 
     compile 'com.elytradev:concrete:0.1.0'
     shadow 'com.elytradev:concrete:0.1.0'
+	
+	compile 'cglib:cglib:3.2.5'
+    compile 'org.objenesis:objenesis:2.5.1'
 }
 
 shadowJar {

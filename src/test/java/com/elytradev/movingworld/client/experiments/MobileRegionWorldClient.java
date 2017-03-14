@@ -72,6 +72,11 @@ public class MobileRegionWorldClient extends WorldClient {
     @Override
     public void tick() {
         parentWorld.tick();
+    }
+
+    @Override
+    public void invalidateBlockReceiveRegion(int x1, int y1, int z1, int x2, int y2, int z2) {
+        parentWorld.invalidateBlockReceiveRegion(x1, y1, z1, x2, y2, z2);
     }    @Override
     public void initCapabilities() {
         if (initCapabilities == null) {
@@ -82,11 +87,6 @@ public class MobileRegionWorldClient extends WorldClient {
             initCapabilities.invoke(parentWorld);
         else
             super.initCapabilities();
-    }
-
-    @Override
-    public void invalidateBlockReceiveRegion(int x1, int y1, int z1, int x2, int y2, int z2) {
-        parentWorld.invalidateBlockReceiveRegion(x1, y1, z1, x2, y2, z2);
     }
 
     @Override
@@ -249,9 +249,6 @@ public class MobileRegionWorldClient extends WorldClient {
     public Biome getBiomeForCoordsBody(BlockPos pos) {
         pos = region.convertRegionPosToRealWorld(pos);
         return getRealWorld().getBiomeForCoordsBody(pos);
-    }    @Override
-    public ChunkProviderClient getChunkProvider() {
-        return parentWorld.getChunkProvider();
     }
 
     @Override
@@ -262,6 +259,9 @@ public class MobileRegionWorldClient extends WorldClient {
     @Override
     public void initialize(WorldSettings settings) {
         parentWorld.initialize(settings);
+    }    @Override
+    public ChunkProviderClient getChunkProvider() {
+        return parentWorld.getChunkProvider();
     }
 
     @Nullable
@@ -1147,6 +1147,9 @@ public class MobileRegionWorldClient extends WorldClient {
         parentWorld.checkSessionLock();
     }
 
+    public WorldClient getRealWorld() {
+        return Minecraft.getMinecraft().world;
+    }
 
 
 
@@ -1470,8 +1473,6 @@ public class MobileRegionWorldClient extends WorldClient {
 
         return getRealWorld().findNearestStructure(p_190528_1_, pos, p_190528_3_);
     }
-    
-    public WorldClient getRealWorld(){
-        return Minecraft.getMinecraft().world;
-    }
+
+
 }

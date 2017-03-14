@@ -152,9 +152,6 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
     @Override
     public boolean isBlockTickPending(BlockPos pos, Block blockType) {
         return parentWorld.isBlockTickPending(pos, blockType);
-    }    @Override
-    public CrashReportCategory addWorldInfoToCrashReport(CrashReport report) {
-        return parentWorld.addWorldInfoToCrashReport(report);
     }
 
     @Override
@@ -170,19 +167,11 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
     @Override
     public void updateBlockTick(BlockPos pos, Block blockIn, int delay, int priority) {
         parentWorld.updateBlockTick(pos, blockIn, delay, priority);
-    }    @Override
-    public void makeFireworks(double x, double y, double z, double motionX, double motionY, double motionZ, @Nullable NBTTagCompound compund) {
-        Vec3d pos = new Vec3d(x, y, z);
-        pos = region.convertRegionPosToRealWorld(pos);
-        parentWorld.makeFireworks(pos.xCoord, pos.yCoord, pos.zCoord, motionX, motionY, motionZ, compund);
     }
 
     @Override
     public void scheduleBlockUpdate(BlockPos pos, Block blockIn, int delay, int priority) {
         parentWorld.scheduleBlockUpdate(pos, blockIn, delay, priority);
-    }    @Override
-    public void sendPacketToServer(Packet<?> packetIn) {
-        parentWorld.sendPacketToServer(packetIn);
     }
 
     @Override
@@ -196,6 +185,9 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
     @Override
     public void resetUpdateEntityTick() {
         parentWorld.resetUpdateEntityTick();
+    }    @Override
+    public CrashReportCategory addWorldInfoToCrashReport(CrashReport report) {
+        return parentWorld.addWorldInfoToCrashReport(report);
     }
 
     @Override
@@ -251,6 +243,11 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
     @Override
     public void initialize(WorldSettings settings) {
         parentWorld.initialize(settings);
+    }    @Override
+    public void makeFireworks(double x, double y, double z, double motionX, double motionY, double motionZ, @Nullable NBTTagCompound compund) {
+        Vec3d pos = new Vec3d(x, y, z);
+        pos = region.convertRegionPosToRealWorld(pos);
+        parentWorld.makeFireworks(pos.xCoord, pos.yCoord, pos.zCoord, motionX, motionY, motionZ, compund);
     }
 
     @Override
@@ -292,6 +289,9 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
     @Override
     public boolean spawnEntity(Entity entityIn) {
         return parentWorld.spawnEntity(entityIn);
+    }    @Override
+    public void sendPacketToServer(Packet<?> packetIn) {
+        parentWorld.sendPacketToServer(packetIn);
     }
 
     @Override
@@ -1084,12 +1084,6 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
         } else {
             return false;
         }
-    }    @Override
-    public long getSeed() {
-        if (parentWorld != null)
-            return parentWorld.getSeed();
-        else
-            return super.getSeed();
     }
 
     @Override
@@ -1098,9 +1092,6 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
             return parentWorld.checkLight(pos);
         else
             return false;
-    }    @Override
-    public long getTotalWorldTime() {
-        return realWorld.getTotalWorldTime();
     }
 
     @Override
@@ -1109,52 +1100,31 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
             return parentWorld.checkLightFor(lightType, pos);
         else
             return false;
-    }    @Override
-    public void setTotalWorldTime(long worldTime) {
-        realWorld.setTotalWorldTime(worldTime);
     }
 
     @Override
     public List<Entity> getEntitiesWithinAABBExcludingEntity(@Nullable Entity entityIn, AxisAlignedBB bb) {
         return realWorld.getEntitiesWithinAABBExcludingEntity(entityIn, region.convertRegionBBToRealWorld(bb));
-    }    @Override
-    public long getWorldTime() {
-        return realWorld.getWorldTime();
     }
 
     @Override
     public List<Entity> getEntitiesInAABBexcluding(@Nullable Entity entityIn, AxisAlignedBB bb, @Nullable Predicate<? super Entity> predicate) {
         return realWorld.getEntitiesInAABBexcluding(entityIn, region.convertRegionBBToRealWorld(bb), predicate);
-    }    @Override
-    public void setWorldTime(long time) {
-        realWorld.setWorldTime(time);
     }
 
     @Override
     public <T extends Entity> List<T> getEntities(Class<? extends T> entityType, Predicate<? super T> filter) {
         return realWorld.getEntities(entityType, filter);
-    }    @Override
-    public BlockPos getSpawnPoint() {
-        return parentWorld.getSpawnPoint();
     }
 
     @Override
     public <T extends Entity> List<T> getPlayers(Class<? extends T> playerType, Predicate<? super T> filter) {
         return realWorld.getPlayers(playerType, filter);
-    }    @Override
-    public void setSpawnPoint(BlockPos pos) {
-        parentWorld.setSpawnPoint(pos);
     }
 
     @Override
     public <T extends Entity> List<T> getEntitiesWithinAABB(Class<? extends T> classEntity, AxisAlignedBB bb) {
         return realWorld.getEntitiesWithinAABB(classEntity, region.convertRegionBBToRealWorld(bb));
-    }    @Override
-    public void joinEntityInSurroundings(Entity entityIn) {
-        Vec3d entityPos = new Vec3d(entityIn.posX, entityIn.posY, entityIn.posZ);
-        entityPos = region.convertRegionPosToRealWorld(entityPos);
-        entityIn.setPosition(entityPos.xCoord, entityPos.yCoord, entityPos.zCoord);
-        realWorld.joinEntityInSurroundings(entityIn);
     }
 
     @Override
@@ -1182,28 +1152,16 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
     @Override
     public void markChunkDirty(BlockPos pos, TileEntity unusedTileEntity) {
         parentWorld.markChunkDirty(pos, unusedTileEntity);
-    }    @Override
-    public ISaveHandler getSaveHandler() {
-        return parentWorld.getSaveHandler();
     }
 
     @Override
     public int countEntities(Class<?> entityType) {
         return realWorld.countEntities(entityType);
-    }    @Override
-    public WorldInfo getWorldInfo() {
-        if (parentWorld != null)
-            return parentWorld.getWorldInfo();
-        else
-            return worldInfo;
     }
 
     @Override
     public void unloadEntities(Collection<Entity> entityCollection) {
         realWorld.unloadEntities(entityCollection);
-    }    @Override
-    public GameRules getGameRules() {
-        return realWorld.getGameRules();
     }
 
     @Override
@@ -1217,103 +1175,58 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
     @Override
     public int getSeaLevel() {
         return parentWorld.getSeaLevel();
-    }    @Override
-    public float getThunderStrength(float delta) {
-        if (realWorld != null)
-            return realWorld.getThunderStrength(delta);
-        else
-            return super.getThunderStrength(delta);
     }
 
     @Override
     public void setSeaLevel(int seaLevelIn) {
         parentWorld.setSeaLevel(seaLevelIn);
-    }    @Override
-    public void setThunderStrength(float strength) {
-        realWorld.setThunderStrength(strength);
     }
 
     @Override
     public int getStrongPower(BlockPos pos, EnumFacing direction) {
         return parentWorld.getStrongPower(pos, direction);
-    }    @Override
-    public float getRainStrength(float delta) {
-        if (realWorld != null)
-            return realWorld.getRainStrength(delta);
-        else
-            return super.getRainStrength(delta);
     }
 
     @Override
     public WorldType getWorldType() {
         return parentWorld.getWorldType();
-    }    @Override
-    public void setRainStrength(float strength) {
-        realWorld.setRainStrength(strength);
     }
 
     @Override
     public int getStrongPower(BlockPos pos) {
         return parentWorld.getStrongPower(pos);
-    }    @Override
-    public boolean isThundering() {
-        return realWorld.isThundering();
     }
 
     @Override
     public boolean isSidePowered(BlockPos pos, EnumFacing side) {
         return parentWorld.isSidePowered(pos, side);
-    }    @Override
-    public boolean isRaining() {
-        return realWorld.isRaining();
     }
 
     @Override
     public int getRedstonePower(BlockPos pos, EnumFacing facing) {
         return parentWorld.getRedstonePower(pos, facing);
-    }    @Override
-    public boolean isRainingAt(BlockPos strikePosition) {
-        strikePosition = region.convertRegionPosToRealWorld(strikePosition);
-
-        return realWorld.isRainingAt(strikePosition);
     }
 
     @Override
     public boolean isBlockPowered(BlockPos pos) {
         return parentWorld.isBlockPowered(pos);
-    }    @Override
-    public boolean isBlockinHighHumidity(BlockPos pos) {
-        pos = region.convertRegionPosToRealWorld(pos);
-
-        return realWorld.isBlockinHighHumidity(pos);
     }
 
     @Override
     public int isBlockIndirectlyGettingPowered(BlockPos pos) {
         return parentWorld.isBlockIndirectlyGettingPowered(pos);
-    }    @Nullable
-    @Override
-    public MapStorage getMapStorage() {
-        return parentWorld.getMapStorage();
     }
 
     @Nullable
     @Override
     public EntityPlayer getClosestPlayerToEntity(Entity entityIn, double distance) {
         return realWorld.getClosestPlayerToEntity(entityIn, distance);
-    }    @Override
-    public void setData(String dataID, WorldSavedData worldSavedDataIn) {
-        parentWorld.setData(dataID, worldSavedDataIn);
     }
 
     @Nullable
     @Override
     public EntityPlayer getNearestPlayerNotCreative(Entity entityIn, double distance) {
         return realWorld.getNearestPlayerNotCreative(entityIn, distance);
-    }    @Nullable
-    @Override
-    public WorldSavedData loadData(Class<? extends WorldSavedData> clazz, String dataID) {
-        return parentWorld.loadData(clazz, dataID);
     }
 
     @Nullable
@@ -1323,9 +1236,6 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
         pos = region.convertRegionPosToRealWorld(pos);
 
         return realWorld.getClosestPlayer(pos.xCoord, pos.yCoord, pos.zCoord, distance, spectator);
-    }    @Override
-    public int getUniqueDataId(String key) {
-        return parentWorld.getUniqueDataId(key);
     }
 
     @Nullable
@@ -1336,8 +1246,11 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
 
         return realWorld.getClosestPlayer(pos.xCoord, pos.yCoord, pos.zCoord, distance, predicate);
     }    @Override
-    public void playBroadcastSound(int id, BlockPos pos, int data) {
-        parentWorld.playBroadcastSound(id, pos, data);
+    public long getSeed() {
+        if (parentWorld != null)
+            return parentWorld.getSeed();
+        else
+            return super.getSeed();
     }
 
     @Override
@@ -1346,27 +1259,18 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
         pos = region.convertRegionPosToRealWorld(pos);
 
         return realWorld.isAnyPlayerWithinRangeAt(pos.xCoord, pos.yCoord, pos.zCoord, range);
-    }    @Override
-    public void playEvent(int type, BlockPos pos, int data) {
-        parentWorld.playEvent(type, pos, data);
     }
 
     @Nullable
     @Override
     public EntityPlayer getNearestAttackablePlayer(Entity entityIn, double maxXZDistance, double maxYDistance) {
         return realWorld.getNearestAttackablePlayer(entityIn, maxXZDistance, maxYDistance);
-    }    @Override
-    public void playEvent(@Nullable EntityPlayer player, int type, BlockPos pos, int data) {
-        parentWorld.playEvent(player, type, pos, data);
     }
 
     @Nullable
     @Override
     public EntityPlayer getNearestAttackablePlayer(BlockPos pos, double maxXZDistance, double maxYDistance) {
         return realWorld.getNearestAttackablePlayer(region.convertRegionPosToRealWorld(pos), maxXZDistance, maxYDistance);
-    }    @Override
-    public int getHeight() {
-        return parentWorld.getHeight();
     }
 
     @Nullable
@@ -1375,40 +1279,227 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
         Vec3d pos = new Vec3d(x, y, z);
         pos = region.convertRegionPosToRealWorld(pos);
         return parentWorld.getNearestAttackablePlayer(pos.xCoord, pos.yCoord, pos.zCoord, maxXZDistance, maxYDistance, playerToDouble, p_184150_12_);
-    }    @Override
-    public int getActualHeight() {
-        return parentWorld.getActualHeight();
     }
 
     @Nullable
     @Override
     public EntityPlayer getPlayerEntityByName(String name) {
         return realWorld.getPlayerEntityByName(name);
-    }    @Override
-    public Random setRandomSeed(int p_72843_1_, int p_72843_2_, int p_72843_3_) {
-        return realWorld.setRandomSeed(p_72843_1_, p_72843_2_, p_72843_3_);
     }
 
     @Nullable
     @Override
     public EntityPlayer getPlayerEntityByUUID(UUID uuid) {
         return realWorld.getPlayerEntityByUUID(uuid);
-    }    @Override
-    public double getHorizon() {
-        return realWorld.getHorizon();
     }
 
     @Override
     public void sendQuittingDisconnectingPacket() {
-    }    @Override
-    public void sendBlockBreakProgress(int breakerId, BlockPos pos, int progress) {
-        parentWorld.sendBlockBreakProgress(breakerId, pos, progress);
     }
 
     @Override
     public void checkSessionLock() throws MinecraftException {
         parentWorld.checkSessionLock();
-    }    @Override
+    }
+
+    @Override
+    public long getTotalWorldTime() {
+        return realWorld.getTotalWorldTime();
+    }
+
+    @Override
+    public void setTotalWorldTime(long worldTime) {
+        realWorld.setTotalWorldTime(worldTime);
+    }
+
+    @Override
+    public long getWorldTime() {
+        if (realWorld != null)
+            return realWorld.getWorldTime();
+        else
+            return 0;
+    }
+
+    @Override
+    public void setWorldTime(long time) {
+        realWorld.setWorldTime(time);
+    }
+
+
+    @Override
+    public BlockPos getSpawnPoint() {
+        return parentWorld.getSpawnPoint();
+    }
+
+
+    @Override
+    public void setSpawnPoint(BlockPos pos) {
+        parentWorld.setSpawnPoint(pos);
+    }
+
+    @Override
+    public void joinEntityInSurroundings(Entity entityIn) {
+        Vec3d entityPos = new Vec3d(entityIn.posX, entityIn.posY, entityIn.posZ);
+        entityPos = region.convertRegionPosToRealWorld(entityPos);
+        entityIn.setPosition(entityPos.xCoord, entityPos.yCoord, entityPos.zCoord);
+        realWorld.joinEntityInSurroundings(entityIn);
+    }
+
+
+    @Override
+    public ISaveHandler getSaveHandler() {
+        return parentWorld.getSaveHandler();
+    }
+
+
+    @Override
+    public WorldInfo getWorldInfo() {
+        if (parentWorld != null)
+            return parentWorld.getWorldInfo();
+        else
+            return worldInfo;
+    }
+
+
+    @Override
+    public GameRules getGameRules() {
+        return realWorld.getGameRules();
+    }
+
+
+    @Override
+    public float getThunderStrength(float delta) {
+        if (realWorld != null)
+            return realWorld.getThunderStrength(delta);
+        else
+            return super.getThunderStrength(delta);
+    }
+
+
+    @Override
+    public void setThunderStrength(float strength) {
+        realWorld.setThunderStrength(strength);
+    }
+
+
+    @Override
+    public float getRainStrength(float delta) {
+        if (realWorld != null)
+            return realWorld.getRainStrength(delta);
+        else
+            return super.getRainStrength(delta);
+    }
+
+
+    @Override
+    public void setRainStrength(float strength) {
+        realWorld.setRainStrength(strength);
+    }
+
+
+    @Override
+    public boolean isThundering() {
+        return realWorld.isThundering();
+    }
+
+
+    @Override
+    public boolean isRaining() {
+        return realWorld.isRaining();
+    }
+
+
+    @Override
+    public boolean isRainingAt(BlockPos strikePosition) {
+        strikePosition = region.convertRegionPosToRealWorld(strikePosition);
+
+        return realWorld.isRainingAt(strikePosition);
+    }
+
+
+    @Override
+    public boolean isBlockinHighHumidity(BlockPos pos) {
+        pos = region.convertRegionPosToRealWorld(pos);
+
+        return realWorld.isBlockinHighHumidity(pos);
+    }
+
+
+    @Nullable
+    @Override
+    public MapStorage getMapStorage() {
+        return parentWorld.getMapStorage();
+    }
+
+
+    @Override
+    public void setData(String dataID, WorldSavedData worldSavedDataIn) {
+        parentWorld.setData(dataID, worldSavedDataIn);
+    }
+
+
+    @Nullable
+    @Override
+    public WorldSavedData loadData(Class<? extends WorldSavedData> clazz, String dataID) {
+        return parentWorld.loadData(clazz, dataID);
+    }
+
+
+    @Override
+    public int getUniqueDataId(String key) {
+        return parentWorld.getUniqueDataId(key);
+    }
+
+
+    @Override
+    public void playBroadcastSound(int id, BlockPos pos, int data) {
+        parentWorld.playBroadcastSound(id, pos, data);
+    }
+
+
+    @Override
+    public void playEvent(int type, BlockPos pos, int data) {
+        parentWorld.playEvent(type, pos, data);
+    }
+
+
+    @Override
+    public void playEvent(@Nullable EntityPlayer player, int type, BlockPos pos, int data) {
+        parentWorld.playEvent(player, type, pos, data);
+    }
+
+
+    @Override
+    public int getHeight() {
+        return parentWorld.getHeight();
+    }
+
+
+    @Override
+    public int getActualHeight() {
+        return parentWorld.getActualHeight();
+    }
+
+
+    @Override
+    public Random setRandomSeed(int p_72843_1_, int p_72843_2_, int p_72843_3_) {
+        return realWorld.setRandomSeed(p_72843_1_, p_72843_2_, p_72843_3_);
+    }
+
+
+    @Override
+    public double getHorizon() {
+        return realWorld.getHorizon();
+    }
+
+
+    @Override
+    public void sendBlockBreakProgress(int breakerId, BlockPos pos, int progress) {
+        parentWorld.sendBlockBreakProgress(breakerId, pos, progress);
+    }
+
+
+    @Override
     public Calendar getCurrentDate() {
         return realWorld.getCurrentDate();
     }
@@ -1525,7 +1616,6 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
     }
 
 
-
     @Override
     public void initCapabilities() {
         if (initCapabilities == null) {
@@ -1537,73 +1627,6 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
         else
             super.initCapabilities();
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 }
