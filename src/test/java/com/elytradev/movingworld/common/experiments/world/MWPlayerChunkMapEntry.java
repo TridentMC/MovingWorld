@@ -1,4 +1,4 @@
-package com.elytradev.movingworld.common.experiments;
+package com.elytradev.movingworld.common.experiments.world;
 
 import com.elytradev.concrete.Message;
 import com.elytradev.concrete.reflect.accessor.Accessor;

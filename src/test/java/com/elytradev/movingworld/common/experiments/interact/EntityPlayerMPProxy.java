@@ -1,9 +1,12 @@
-package com.elytradev.movingworld.common.experiments;
+package com.elytradev.movingworld.common.experiments.interact;
 
 import com.elytradev.movingworld.common.experiments.entity.EntityMobileRegion;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.entity.MoverType;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.inventory.Container;
+import net.minecraft.inventory.ContainerPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.stats.StatBase;
 import net.minecraft.util.math.Vec3d;
@@ -47,6 +50,20 @@ public class EntityPlayerMPProxy extends EntityPlayerMP {
         this.motionZ = parent.motionZ;
     }
 
+    public static void onUpdateHook(EntityPlayerMP realPlayer) {
+        EntityPlayer proxy = null;
+
+        if (EntityPlayerMPProxy.PROXIES.containsKey(realPlayer.getGameProfile())) {
+            proxy = EntityPlayerMPProxy.PROXIES.get(realPlayer.getGameProfile());
+        }
+
+        if (proxy != null && proxy.openContainer instanceof ContainerWrapper) {
+            realPlayer.openContainer = proxy.openContainer;
+        } else if (proxy != null) {
+            proxy.openContainer = realPlayer.openContainer;
+        }
+    }
+
     public void setRegion(EntityMobileRegion region) {
         this.region = region;
     }
@@ -71,28 +88,27 @@ public class EntityPlayerMPProxy extends EntityPlayerMP {
         this.motionY = parent.motionY;
         this.motionZ = parent.motionZ;
 
-        this.validateWrapping();
-        this.checkContainer();
-
         super.onUpdate();
     }
 
     @Override
     public void displayGui(IInteractionObject guiOwner) {
+        Container lastContainer = this.openContainer;
         super.displayGui(guiOwner);
-        validateWrapping();
+        Container currentContainer = this.openContainer;
 
+        validateWrapping(lastContainer, currentContainer);
         parent.displayGui(guiOwner);
-        checkContainer();
     }
 
     @Override
     public void displayGUIChest(IInventory chestInventory) {
+        Container lastContainer = this.openContainer;
         super.displayGUIChest(chestInventory);
-        validateWrapping();
+        Container currentContainer = this.openContainer;
 
+        validateWrapping(lastContainer, currentContainer);
         parent.displayGUIChest(chestInventory);
-        checkContainer();
     }
 
     @Override
@@ -111,39 +127,29 @@ public class EntityPlayerMPProxy extends EntityPlayerMP {
         super.setPositionAndUpdate(x, y, z);
     }
 
-    private void validateWrapping() {
-        if (this.openContainer != parent.inventoryContainer) {
-            if (this.openContainer instanceof ContainerWrapper
-                    || this.openContainer == null)
+    private void validateWrapping(Container lastContainer, Container currentContainer) {
+        if (lastContainer != currentContainer && !(currentContainer instanceof ContainerPlayer)) {
+            if (currentContainer instanceof ContainerWrapper)
                 return;
 
             this.openContainer = new ContainerWrapper(this.openContainer);
         }
     }
 
-    private void checkContainer() {
-        if (parent.openContainer != parent.inventoryContainer) {
-            if (this.openContainer instanceof ContainerWrapper) {
-                parent.openContainer = this.openContainer;
-            } else {
-                closeScreen();
-            }
-        } else {
-            this.openContainer = parent.openContainer;
-        }
-    }
-
     @Override
     public void openGui(Object mod, int modGuiId, World world, int x, int y, int z) {
+        Container lastContainer = this.openContainer;
         super.openGui(mod, modGuiId, world, x, y, z);
-        validateWrapping();
+        Container currentContainer = this.openContainer;
 
+        validateWrapping(lastContainer, currentContainer);
         parent.openGui(mod, modGuiId, world, x, y, z);
-        checkContainer();
     }
 
     @Override
     public void move(MoverType type, double x, double y, double z) {
         parent.move(type, x, y, z);
     }
+
+
 }

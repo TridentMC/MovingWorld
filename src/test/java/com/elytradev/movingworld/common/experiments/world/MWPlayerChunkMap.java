@@ -1,4 +1,4 @@
-package com.elytradev.movingworld.common.experiments;
+package com.elytradev.movingworld.common.experiments.world;
 
 import net.minecraft.server.management.PlayerChunkMap;
 import net.minecraft.server.management.PlayerChunkMapEntry;

@@ -1,6 +1,5 @@
 package com.elytradev.movingworld.client.experiments;
 
-import com.elytradev.movingworld.common.experiments.EntityPlayerMPProxy;
 import com.elytradev.movingworld.common.experiments.entity.EntityMobileRegion;
 import com.elytradev.movingworld.common.experiments.network.messages.client.MessagePlayerDigging;
 import com.elytradev.movingworld.common.experiments.network.messages.client.MessageTryUseItemOnBlock;
@@ -15,7 +14,6 @@ import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.multiplayer.WorldClient;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;

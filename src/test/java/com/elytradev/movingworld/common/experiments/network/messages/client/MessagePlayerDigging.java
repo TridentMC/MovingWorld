@@ -4,7 +4,7 @@ import com.elytradev.concrete.Message;
 import com.elytradev.concrete.NetworkContext;
 import com.elytradev.concrete.annotation.field.MarshalledAs;
 import com.elytradev.concrete.annotation.type.ReceivedOn;
-import com.elytradev.movingworld.common.experiments.MWPlayerInteractionManager;
+import com.elytradev.movingworld.common.experiments.interact.MWPlayerInteractionManager;
 import com.elytradev.movingworld.common.experiments.entity.EntityMobileRegion;
 import com.elytradev.movingworld.common.experiments.network.MovingWorldExperimentsNetworking;
 import com.elytradev.movingworld.common.experiments.network.messages.server.MessageBlockChange;

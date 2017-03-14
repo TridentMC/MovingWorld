@@ -1,4 +1,4 @@
-package com.elytradev.movingworld.common.experiments;
+package com.elytradev.movingworld.common.experiments.interact;
 
 import com.elytradev.movingworld.common.experiments.entity.EntityMobileRegion;
 import com.elytradev.movingworld.common.experiments.network.messages.server.MessageBlockChange;

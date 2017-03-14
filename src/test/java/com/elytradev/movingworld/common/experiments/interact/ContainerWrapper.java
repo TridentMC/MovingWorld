@@ -1,7 +1,9 @@
-package com.elytradev.movingworld.common.experiments;
+package com.elytradev.movingworld.common.experiments.interact;
 
 import com.elytradev.concrete.reflect.invoker.Invoker;
 import com.elytradev.concrete.reflect.invoker.Invokers;
+import com.elytradev.movingworld.client.experiments.EntityPlayerSPProxy;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -12,14 +14,12 @@ import net.minecraft.util.NonNullList;
 import javax.annotation.Nullable;
 import java.util.List;
 
-import static com.elytradev.movingworld.common.experiments.EntityPlayerMPProxy.PROXIES;
-
 /**
  * Created by darkevilmac on 3/9/2017.
  */
 public class ContainerWrapper extends Container {
 
-    private Container realContainer;
+    public final Container realContainer;
 
     private Invoker addSlotToContainer;
     private Invoker retrySlotClick;
@@ -138,13 +138,16 @@ public class ContainerWrapper extends Container {
 
     @Override
     public boolean canInteractWith(EntityPlayer playerIn) {
-        if(playerIn instanceof EntityPlayerMP && PROXIES.containsKey(playerIn.getGameProfile())){
-            return realContainer.canInteractWith(PROXIES.get(playerIn.getGameProfile()));
-        } else{
-
+        EntityPlayer proxy = null;
+        if (playerIn instanceof EntityPlayerMP && EntityPlayerMPProxy.PROXIES.containsKey(playerIn.getGameProfile())) {
+            proxy = (EntityPlayerMPProxy.PROXIES.get(playerIn.getGameProfile()));
+        } else if (playerIn instanceof EntityPlayerSP && EntityPlayerSPProxy.PROXIES.containsKey(playerIn.getGameProfile())) {
+            proxy = (EntityPlayerSPProxy.PROXIES.get(playerIn.getGameProfile()));
         }
 
-        return realContainer.canInteractWith(playerIn);
+        boolean proxyCan = proxy != null ? realContainer.canInteractWith(proxy) : false;
+
+        return proxyCan || realContainer.canInteractWith(playerIn);
     }
 
     @Override

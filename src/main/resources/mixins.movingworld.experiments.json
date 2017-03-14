@@ -4,6 +4,11 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "movingworld.mixin.refmap.json",
   "mixins": [
-    "MixinWorldServer"
+    "MixinWorldServer",
+    "MixinEntityPlayerMP",
+    "MixinPlayerContainerEvent"
+  ],
+  "client": [
+    "MixinEntityPlayerSP"
   ]
 }
