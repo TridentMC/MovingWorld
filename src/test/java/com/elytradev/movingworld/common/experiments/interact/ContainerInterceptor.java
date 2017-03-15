@@ -31,15 +31,15 @@ public class ContainerInterceptor implements MethodInterceptor {
         Object createdProxy = ObjenesisHelper.newInstance(classForProxy);
 
         // Attempt to move data to prevent inital NPEs. We're also instantiating from absolutely nothing so this is probably the best thing we can do...
-        try {
-            for (Field realField : FieldUtils.getAllFieldsList(realObject.getClass())) {
+        for (Field realField : FieldUtils.getAllFieldsList(realObject.getClass())) {
+            try {
                 realField.setAccessible(true);
-                Field proxyField = FieldUtils.getField(createdProxy.getClass(), realField.getName(), true);
-                proxyField.set(createdProxy, realField.get(realObject));
+                realField.set(createdProxy, realField.get(realObject));
+            } catch (IllegalAccessException e1) {
+                e1.printStackTrace();
             }
-        } catch (Throwable t) {
-            t.printStackTrace();
         }
+
         // Done.
 
         return createdProxy;
@@ -69,14 +69,19 @@ public class ContainerInterceptor implements MethodInterceptor {
 
     @Override
     public Object intercept(Object obj, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
+        Object result = methodProxy.invokeSuper(obj, args);
+
         if (obj instanceof Container && (
                 method.getName().equals("canInteractWith")
                         || method.getName().equals("func_75145_c"))) {
+            if ((Boolean) result == true)
+                return result;
+
             EntityPlayer proxyPlayer = getProxy(args);
             Boolean proxyCan = proxyPlayer != null ? (Boolean) methodProxy.invokeSuper(obj, new Object[]{proxyPlayer}) : false;
-            return proxyCan || (Boolean) methodProxy.invokeSuper(obj, args);
+            return proxyCan;
         }
 
-        return methodProxy.invokeSuper(obj, args);
+        return result;
     }
 }

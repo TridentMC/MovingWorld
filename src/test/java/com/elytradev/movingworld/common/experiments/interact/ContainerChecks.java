@@ -16,8 +16,7 @@ public class ContainerChecks {
     @SideOnly(Side.CLIENT)
     public static void checkCurrentScreen(EntityPlayer player, Minecraft mc) {
         if (mc.currentScreen != null && mc.currentScreen instanceof GuiContainer) {
-            if (player.openContainer != null && !Enhancer.isEnhanced(player.openContainer.getClass())) {
-                System.out.println("Setting current screen slots.");
+            if (player.openContainer != null && Enhancer.isEnhanced(player.openContainer.getClass())) {
                 ((GuiContainer) mc.currentScreen).inventorySlots = player.openContainer;
             }
         }
