@@ -14,6 +14,7 @@ import org.objenesis.ObjenesisHelper;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 /**
  * Pretty much entirely magic, really horrible code that
@@ -32,8 +33,11 @@ public class ContainerInterceptor implements MethodInterceptor {
 
         // Attempt to move data to prevent inital NPEs. We're also instantiating from absolutely nothing so this is probably the best thing we can do...
         for (Field realField : FieldUtils.getAllFieldsList(realObject.getClass())) {
+            if(Modifier.isStatic(realField.getModifiers()))
+                continue;
+            realField.setAccessible(true);
+            
             try {
-                realField.setAccessible(true);
                 realField.set(createdProxy, realField.get(realObject));
             } catch (IllegalAccessException e1) {
                 e1.printStackTrace();
