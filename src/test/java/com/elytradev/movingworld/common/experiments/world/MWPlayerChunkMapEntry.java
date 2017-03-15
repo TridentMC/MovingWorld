@@ -142,7 +142,7 @@ public class MWPlayerChunkMapEntry extends PlayerChunkMapEntry {
     public void sendBlockEntity(@Nullable TileEntity be) {
         if (be != null) {
             if (be.getUpdatePacket() != null) {
-                MessageUpdateTile tileUpdate = new MessageUpdateTile(be.getUpdatePacket());
+                MessageUpdateTile tileUpdate = new MessageUpdateTile(be.getUpdatePacket(), be);
                 sendToAllPlayers(tileUpdate);
             }
         }

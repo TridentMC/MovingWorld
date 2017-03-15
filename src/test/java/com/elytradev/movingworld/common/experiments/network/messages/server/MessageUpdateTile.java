@@ -32,15 +32,16 @@ public class MessageUpdateTile extends Message {
         super(ctx);
     }
 
-    public MessageUpdateTile(BlockPos blockPos, int tileEntityType, NBTTagCompound nbt) {
+    public MessageUpdateTile(BlockPos blockPos, int tileEntityType, NBTTagCompound nbt, TileEntity tileEntity) {
         super(MovingWorldExperimentsNetworking.networkContext);
         this.blockPos = blockPos;
         this.tileEntityType = tileEntityType;
         this.nbt = nbt;
+        this.dimension = tileEntity.getWorld().provider.getDimension();
     }
 
-    public MessageUpdateTile(SPacketUpdateTileEntity updatePacket) {
-        this(updatePacket.getPos(), updatePacket.getTileEntityType(), updatePacket.getNbtCompound());
+    public MessageUpdateTile(SPacketUpdateTileEntity updatePacket, TileEntity tileEntity) {
+        this(updatePacket.getPos(), updatePacket.getTileEntityType(), updatePacket.getNbtCompound(), tileEntity);
     }
 
     @Override
