@@ -29,6 +29,7 @@ public class MovingWorldExperimentsNetworking {
         networkContext.register(MessageFullPoolData.class);
         networkContext.register(MessageDimensionPoolData.class);
         networkContext.register(MessageChunkData.class);
+        networkContext.register(MessageOpenGui.class);
     }
 
 }

@@ -1,15 +1,21 @@
 package com.elytradev.movingworld.common.experiments.interact;
 
 import com.elytradev.movingworld.common.experiments.entity.EntityMobileRegion;
+import com.elytradev.movingworld.common.experiments.network.messages.server.MessageOpenGui;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.stats.StatBase;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IInteractionObject;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.ModContainer;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 
 import java.util.HashMap;
 
@@ -33,6 +39,7 @@ public class EntityPlayerMPProxy extends EntityPlayerMP {
 
         this.inventory = parent.inventory;
         this.inventoryContainer = parent.inventoryContainer;
+        this.openContainer = parent.openContainer;
 
         this.prevPosX = prevPos.xCoord;
         this.prevPosY = prevPos.yCoord;
@@ -76,19 +83,18 @@ public class EntityPlayerMPProxy extends EntityPlayerMP {
 
     @Override
     public void displayGui(IInteractionObject guiOwner) {
-        super.displayGui(guiOwner);
         parent.displayGui(guiOwner);
+        ContainerChecks.checkContainer(parent);
     }
 
     @Override
     public void displayGUIChest(IInventory chestInventory) {
-        super.displayGUIChest(chestInventory);
         parent.displayGUIChest(chestInventory);
+        ContainerChecks.checkContainer(parent);
     }
 
     @Override
     public void closeScreen() {
-        super.closeScreen();
         parent.closeScreen();
     }
 
@@ -105,8 +111,20 @@ public class EntityPlayerMPProxy extends EntityPlayerMP {
 
     @Override
     public void openGui(Object mod, int modGuiId, World world, int x, int y, int z) {
-        super.openGui(mod, modGuiId, world, x, y, z);
-        parent.openGui(mod, modGuiId, world, x, y, z);
+        ModContainer modContainer = FMLCommonHandler.instance().findContainerFor(mod);
+        Container remoteGuiContainer = NetworkRegistry.INSTANCE.getRemoteGuiContainer(modContainer, this, modGuiId, world, x, y, z);
+        if (remoteGuiContainer != null) {
+            this.getNextWindowId();
+            this.closeContainer();
+            int windowId = this.currentWindowId;
+            new MessageOpenGui(new BlockPos(x, y, z), modContainer.getModId(), modGuiId, windowId, region.getParentWorld().provider.getDimension()).sendTo(this);
+            this.openContainer = remoteGuiContainer;
+            this.openContainer.windowId = windowId;
+            this.openContainer.addListener(this);
+            net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.entity.player.PlayerContainerEvent.Open(this, this.openContainer));
+        }
+
+        ContainerChecks.checkContainer(parent);
     }
 
     @Override

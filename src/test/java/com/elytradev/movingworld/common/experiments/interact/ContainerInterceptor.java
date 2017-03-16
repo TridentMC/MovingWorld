@@ -36,7 +36,7 @@ public class ContainerInterceptor implements MethodInterceptor {
             if(Modifier.isStatic(realField.getModifiers()))
                 continue;
             realField.setAccessible(true);
-            
+
             try {
                 realField.set(createdProxy, realField.get(realObject));
             } catch (IllegalAccessException e1) {

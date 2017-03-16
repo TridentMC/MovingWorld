@@ -1,6 +1,8 @@
 package com.elytradev.movingworld.client.experiments;
 
+import com.elytradev.movingworld.common.experiments.MovingWorldExperimentsMod;
 import com.elytradev.movingworld.common.experiments.entity.EntityMobileRegion;
+import com.elytradev.movingworld.common.experiments.interact.ContainerChecks;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -10,6 +12,9 @@ import net.minecraft.stats.StatBase;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IInteractionObject;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.ModContainer;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -62,6 +67,7 @@ public class EntityPlayerSPProxy extends EntityPlayerSP {
 
         this.inventory = parent.inventory;
         this.inventoryContainer = parent.inventoryContainer;
+        this.openContainer = parent.openContainer;
 
         this.prevPosX = prevPos.xCoord;
         this.prevPosY = prevPos.yCoord;
@@ -78,7 +84,6 @@ public class EntityPlayerSPProxy extends EntityPlayerSP {
 
     @Override
     public void closeScreen() {
-        super.closeScreen();
         parent.closeScreen();
     }
 
@@ -89,14 +94,14 @@ public class EntityPlayerSPProxy extends EntityPlayerSP {
 
     @Override
     public void displayGUIChest(IInventory chestInventory) {
-        super.displayGUIChest(chestInventory);
         parent.displayGUIChest(chestInventory);
+        ContainerChecks.checkContainer(parent);
     }
 
     @Override
     public void displayGui(IInteractionObject guiOwner) {
-        super.displayGui(guiOwner);
         parent.displayGui(guiOwner);
+        ContainerChecks.checkContainer(parent);
     }
 
     @Override
@@ -111,7 +116,14 @@ public class EntityPlayerSPProxy extends EntityPlayerSP {
 
     @Override
     public void openGui(Object mod, int modGuiId, World world, int x, int y, int z) {
-        super.openGui(mod, modGuiId, world, x, y, z);
-        parent.openGui(mod, modGuiId, world, x, y, z);
+        ModContainer mc = FMLCommonHandler.instance().findContainerFor(mod);
+        if (FMLCommonHandler.instance().getSide().equals(Side.CLIENT)) {
+            Object guiContainer = NetworkRegistry.INSTANCE.getLocalGuiContainer(mc, this, modGuiId, region.getParentWorld(), x, y, z);
+            FMLCommonHandler.instance().showGuiScreen(guiContainer);
+        } else {
+            // Something smells fucky around here.
+            MovingWorldExperimentsMod.logger.warn("Proxy player for SP was not on client side.");
+        }
+        ContainerChecks.checkContainer(parent);
     }
 }
