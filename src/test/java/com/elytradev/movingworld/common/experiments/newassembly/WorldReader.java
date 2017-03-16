@@ -2,6 +2,7 @@ package com.elytradev.movingworld.common.experiments.newassembly;
 
 import com.elytradev.movingworld.MovingWorldMod;
 import com.elytradev.movingworld.common.experiments.BlockPosHelper;
+import com.elytradev.movingworld.common.experiments.MovingWorldInitHandler;
 import com.elytradev.movingworld.common.experiments.network.BlockData;
 import com.elytradev.movingworld.common.experiments.network.messages.server.MessageRegionData;
 import com.elytradev.movingworld.common.experiments.region.MobileRegion;
@@ -118,7 +119,7 @@ public class WorldReader {
         BlockPos shiftedMin = min.subtract(startPos);
         BlockPos shiftedMax = max.subtract(startPos);
 
-        World subWorld = modProxy.getCommonDB().getWorldFromDim(registeredDimensions.get(world.provider.getDimension()));
+        World subWorld = modProxy.getCommonDB().getWorldFromDim(MovingWorldInitHandler.registeredDimensions.get(world.provider.getDimension()));
         RegionPool regionPool = RegionPool.getPool(subWorld.provider.getDimension(), true);
         MobileRegion region = regionPool.nextRegion(false, false);
 

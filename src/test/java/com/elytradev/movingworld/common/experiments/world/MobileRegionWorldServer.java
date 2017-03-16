@@ -3,7 +3,7 @@ package com.elytradev.movingworld.common.experiments.world;
 import com.elytradev.concrete.reflect.invoker.Invoker;
 import com.elytradev.concrete.reflect.invoker.Invokers;
 import com.elytradev.movingworld.common.experiments.IWorldMixin;
-import com.elytradev.movingworld.common.experiments.MovingWorldExperimentsMod;
+import com.elytradev.movingworld.common.experiments.MovingWorldInitHandler;
 import com.elytradev.movingworld.common.experiments.interact.EntityPlayerMPProxy;
 import com.elytradev.movingworld.common.experiments.region.MobileRegion;
 import com.google.common.base.Function;
@@ -72,7 +72,7 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
     @Override
     public void onInstantiate(int dimension) {
         World parentWorld = DimensionManager.getWorld(dimension);
-        World realWorld = DimensionManager.getWorld(MovingWorldExperimentsMod.registeredDimensions.inverse().get(dimension));
+        World realWorld = DimensionManager.getWorld(MovingWorldInitHandler.registeredDimensions.inverse().get(dimension));
 
         this.realWorld = (WorldServer) realWorld;
         this.parentWorld = (WorldServer) parentWorld;
