@@ -4,6 +4,7 @@ import com.elytradev.concrete.reflect.invoker.Invoker;
 import com.elytradev.concrete.reflect.invoker.Invokers;
 import com.elytradev.movingworld.common.experiments.IWorldMixin;
 import com.elytradev.movingworld.common.experiments.MovingWorldExperimentsMod;
+import com.elytradev.movingworld.common.experiments.interact.EntityPlayerMPProxy;
 import com.elytradev.movingworld.common.experiments.region.MobileRegion;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -185,14 +186,14 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
     @Override
     public void resetUpdateEntityTick() {
         parentWorld.resetUpdateEntityTick();
-    }    @Override
-    public CrashReportCategory addWorldInfoToCrashReport(CrashReport report) {
-        return parentWorld.addWorldInfoToCrashReport(report);
     }
 
     @Override
     public boolean tickUpdates(boolean runAllPending) {
         return parentWorld.tickUpdates(runAllPending);
+    }    @Override
+    public CrashReportCategory addWorldInfoToCrashReport(CrashReport report) {
+        return parentWorld.addWorldInfoToCrashReport(report);
     }
 
     @Nullable
@@ -243,11 +244,6 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
     @Override
     public void initialize(WorldSettings settings) {
         parentWorld.initialize(settings);
-    }    @Override
-    public void makeFireworks(double x, double y, double z, double motionX, double motionY, double motionZ, @Nullable NBTTagCompound compund) {
-        Vec3d pos = new Vec3d(x, y, z);
-        pos = region.convertRegionPosToRealWorld(pos);
-        parentWorld.makeFireworks(pos.xCoord, pos.yCoord, pos.zCoord, motionX, motionY, motionZ, compund);
     }
 
     @Override
@@ -258,6 +254,11 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
     @Override
     public void createSpawnPosition(WorldSettings settings) {
         parentWorld.createSpawnPosition(settings);
+    }    @Override
+    public void makeFireworks(double x, double y, double z, double motionX, double motionY, double motionZ, @Nullable NBTTagCompound compund) {
+        Vec3d pos = new Vec3d(x, y, z);
+        pos = region.convertRegionPosToRealWorld(pos);
+        parentWorld.makeFireworks(pos.xCoord, pos.yCoord, pos.zCoord, motionX, motionY, motionZ, compund);
     }
 
     @Override
@@ -289,9 +290,6 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
     @Override
     public boolean spawnEntity(Entity entityIn) {
         return parentWorld.spawnEntity(entityIn);
-    }    @Override
-    public void sendPacketToServer(Packet<?> packetIn) {
-        parentWorld.sendPacketToServer(packetIn);
     }
 
     @Override
@@ -315,6 +313,9 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
     @Override
     public void onEntityAdded(Entity entityIn) {
         parentWorld.onEntityAdded(entityIn);
+    }    @Override
+    public void sendPacketToServer(Packet<?> packetIn) {
+        parentWorld.sendPacketToServer(packetIn);
     }
 
     @Override
@@ -715,14 +716,14 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
     public void playSound(@Nullable EntityPlayer player, double x, double y, double z, SoundEvent soundIn, SoundCategory category, float volume, float pitch) {
         Vec3d pos = new Vec3d(x, y, z);
         pos = region.convertRegionPosToRealWorld(pos);
-        parentWorld.playSound(player, pos.xCoord, pos.yCoord, pos.zCoord, soundIn, category, volume, pitch);
+        realWorld.playSound(player, pos.xCoord, pos.yCoord, pos.zCoord, soundIn, category, volume, pitch);
     }
 
     @Override
     public void playSound(double x, double y, double z, SoundEvent soundIn, SoundCategory category, float volume, float pitch, boolean distanceDelay) {
         Vec3d pos = new Vec3d(x, y, z);
         pos = region.convertRegionPosToRealWorld(pos);
-        parentWorld.playSound(pos.xCoord, pos.yCoord, pos.zCoord, soundIn, category, volume, pitch, distanceDelay);
+        realWorld.playSound(pos.xCoord, pos.yCoord, pos.zCoord, soundIn, category, volume, pitch, distanceDelay);
     }
 
     @Override
@@ -1245,12 +1246,6 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
         pos = region.convertRegionPosToRealWorld(pos);
 
         return realWorld.getClosestPlayer(pos.xCoord, pos.yCoord, pos.zCoord, distance, predicate);
-    }    @Override
-    public long getSeed() {
-        if (parentWorld != null)
-            return parentWorld.getSeed();
-        else
-            return super.getSeed();
     }
 
     @Override
@@ -1279,6 +1274,12 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
         Vec3d pos = new Vec3d(x, y, z);
         pos = region.convertRegionPosToRealWorld(pos);
         return parentWorld.getNearestAttackablePlayer(pos.xCoord, pos.yCoord, pos.zCoord, maxXZDistance, maxYDistance, playerToDouble, p_184150_12_);
+    }    @Override
+    public long getSeed() {
+        if (parentWorld != null)
+            return parentWorld.getSeed();
+        else
+            return super.getSeed();
     }
 
     @Nullable
@@ -1301,6 +1302,14 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
     public void checkSessionLock() throws MinecraftException {
         parentWorld.checkSessionLock();
     }
+
+
+
+
+
+
+
+
 
     @Override
     public long getTotalWorldTime() {
@@ -1456,18 +1465,26 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
         parentWorld.playBroadcastSound(id, pos, data);
     }
 
-
     @Override
-    public void playEvent(int type, BlockPos pos, int data) {
-        parentWorld.playEvent(type, pos, data);
+    public void playEvent(int type, BlockPos blockPos, int data) {
+        Vec3d pos = new Vec3d(blockPos.getX(), blockPos.getY(), blockPos.getZ());
+        pos = region.convertRegionPosToRealWorld(pos);
+        blockPos = new BlockPos(Math.round(pos.xCoord), Math.round(pos.yCoord), Math.round(pos.zCoord));
+
+        realWorld.playEvent(type, blockPos, data);
     }
 
-
     @Override
-    public void playEvent(@Nullable EntityPlayer player, int type, BlockPos pos, int data) {
-        parentWorld.playEvent(player, type, pos, data);
-    }
+    public void playEvent(@Nullable EntityPlayer player, int type, BlockPos blockPos, int data) {
+        Vec3d pos = new Vec3d(blockPos.getX(), blockPos.getY(), blockPos.getZ());
+        pos = region.convertRegionPosToRealWorld(pos);
+        blockPos = new BlockPos(Math.round(pos.xCoord), Math.round(pos.yCoord), Math.round(pos.zCoord));
+        if (player instanceof EntityPlayerMPProxy) {
+            player = ((EntityPlayerMPProxy) player).getParent();
+        }
 
+        realWorld.playEvent(player, type, blockPos, data);
+    }
 
     @Override
     public int getHeight() {

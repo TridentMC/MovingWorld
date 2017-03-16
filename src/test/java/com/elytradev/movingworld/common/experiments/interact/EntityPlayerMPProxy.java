@@ -54,10 +54,6 @@ public class EntityPlayerMPProxy extends EntityPlayerMP {
         this.motionZ = parent.motionZ;
     }
 
-    public void setRegion(EntityMobileRegion region) {
-        this.region = region;
-    }
-
     @Override
     public void onUpdate() {
         Vec3d prevPos = region.region.convertRealWorldPosToRegion(new Vec3d(parent.prevPosX, parent.prevPosY, parent.prevPosZ));
@@ -108,7 +104,6 @@ public class EntityPlayerMPProxy extends EntityPlayerMP {
         super.setPositionAndUpdate(x, y, z);
     }
 
-
     @Override
     public void openGui(Object mod, int modGuiId, World world, int x, int y, int z) {
         ModContainer modContainer = FMLCommonHandler.instance().findContainerFor(mod);
@@ -132,5 +127,15 @@ public class EntityPlayerMPProxy extends EntityPlayerMP {
         parent.move(type, x, y, z);
     }
 
+    public EntityPlayerMP getParent() {
+        return parent;
+    }
 
+    public EntityMobileRegion getRegion() {
+        return region;
+    }
+
+    public void setRegion(EntityMobileRegion region) {
+        this.region = region;
+    }
 }

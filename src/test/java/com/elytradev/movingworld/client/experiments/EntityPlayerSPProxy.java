@@ -56,10 +56,6 @@ public class EntityPlayerSPProxy extends EntityPlayerSP {
         this.motionZ = parent.motionZ;
     }
 
-    public void setRegion(EntityMobileRegion region) {
-        this.region = region;
-    }
-
     @Override
     public void onUpdate() {
         Vec3d prevPos = region.region.convertRealWorldPosToRegion(new Vec3d(parent.prevPosX, parent.prevPosY, parent.prevPosZ));
@@ -125,5 +121,17 @@ public class EntityPlayerSPProxy extends EntityPlayerSP {
             MovingWorldExperimentsMod.logger.warn("Proxy player for SP was not on client side.");
         }
         ContainerChecks.checkContainer(parent);
+    }
+
+    public EntityPlayerSP getParent() {
+        return parent;
+    }
+
+    public EntityMobileRegion getRegion() {
+        return region;
+    }
+
+    public void setRegion(EntityMobileRegion region) {
+        this.region = region;
     }
 }

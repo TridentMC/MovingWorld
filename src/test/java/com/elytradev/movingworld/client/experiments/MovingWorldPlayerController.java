@@ -99,7 +99,7 @@ public class MovingWorldPlayerController {
         if (this.getCurrentGameType().isCreative() && !this.mc.player.getHeldItemMainhand().isEmpty() && this.mc.player.getHeldItemMainhand().getItem() instanceof ItemSword) {
             return false;
         } else {
-            World world = currentHit.getParentWorld();
+            World world = currentHit.getMobileRegionWorld();
             IBlockState iblockstate = world.getBlockState(pos);
             Block block = iblockstate.getBlock();
 
@@ -155,7 +155,7 @@ public class MovingWorldPlayerController {
                     return false;
                 }
 
-                if (!itemstack.canDestroy(this.currentHit.getParentWorld().getBlockState(loc).getBlock())) {
+                if (!itemstack.canDestroy(this.currentHit.getMobileRegionWorld().getBlockState(loc).getBlock())) {
                     return false;
                 }
             }
@@ -181,12 +181,12 @@ public class MovingWorldPlayerController {
                 new MessagePlayerDigging(currentHit, CPacketPlayerDigging.Action.START_DESTROY_BLOCK, loc, face).sendToServer();
 
                 net.minecraftforge.event.entity.player.PlayerInteractEvent.LeftClickBlock event = net.minecraftforge.common.ForgeHooks.onLeftClickBlock(this.mc.player, loc, face, net.minecraftforge.common.ForgeHooks.rayTraceEyeHitVec(this.mc.player, getBlockReachDistance() + 1));
-                IBlockState iblockstate = this.currentHit.getParentWorld().getBlockState(loc);
+                IBlockState iblockstate = this.currentHit.getMobileRegionWorld().getBlockState(loc);
                 boolean flag = iblockstate.getMaterial() != Material.AIR;
 
                 if (flag && this.curBlockDamageMP == 0.0F) {
                     if (event.getUseBlock() != net.minecraftforge.fml.common.eventhandler.Event.Result.DENY)
-                        iblockstate.getBlock().onBlockClicked(this.currentHit.getParentWorld(), loc, this.mc.player);
+                        iblockstate.getBlock().onBlockClicked(this.currentHit.getMobileRegionWorld(), loc, this.mc.player);
                 }
                 if (event.getUseItem() == net.minecraftforge.fml.common.eventhandler.Event.Result.DENY) return true;
                 if (flag && iblockstate.getPlayerRelativeBlockHardness(this.mc.player, this.currentHit.getMobileRegionWorld(), loc) >= 1.0F) {
@@ -197,7 +197,7 @@ public class MovingWorldPlayerController {
                     this.currentItemHittingBlock = this.mc.player.getHeldItemMainhand();
                     this.curBlockDamageMP = 0.0F;
                     this.stepSoundTickCounter = 0.0F;
-                    this.currentHit.getParentWorld().sendBlockBreakProgress(this.mc.player.getEntityId(), this.currentBlock, (int) (this.curBlockDamageMP * 10.0F) - 1);
+                    this.currentHit.getMobileRegionWorld().sendBlockBreakProgress(this.mc.player.getEntityId(), this.currentBlock, (int) (this.curBlockDamageMP * 10.0F) - 1);
                 }
             }
 
@@ -211,7 +211,7 @@ public class MovingWorldPlayerController {
             new MessagePlayerDigging(useRegion, CPacketPlayerDigging.Action.ABORT_DESTROY_BLOCK, currentBlock, EnumFacing.DOWN).sendToServer();
             this.isHittingBlock = false;
             this.curBlockDamageMP = 0.0F;
-            useRegion.getParentWorld().sendBlockBreakProgress(this.mc.player.getEntityId(), this.currentBlock, -1);
+            useRegion.getMobileRegionWorld().sendBlockBreakProgress(this.mc.player.getEntityId(), this.currentBlock, -1);
             this.mc.player.resetCooldown();
         }
     }
@@ -222,13 +222,13 @@ public class MovingWorldPlayerController {
             return true;
         } else if (currentHit == null) {
             return false;
-        } else if (this.getCurrentGameType().isCreative() && this.currentHit.getParentWorld().getWorldBorder().contains(posBlock)) {
+        } else if (this.getCurrentGameType().isCreative() && this.currentHit.getMobileRegionWorld().getWorldBorder().contains(posBlock)) {
             this.blockHitDelay = 5;
             new MessagePlayerDigging(currentHit, CPacketPlayerDigging.Action.START_DESTROY_BLOCK, posBlock, directionFacing).sendToServer();
             clickBlockCreative(this.mc, this, posBlock, directionFacing);
             return true;
         } else if (this.isHittingPosition(posBlock)) {
-            IBlockState iblockstate = this.currentHit.getParentWorld().getBlockState(posBlock);
+            IBlockState iblockstate = this.currentHit.getMobileRegionWorld().getBlockState(posBlock);
             Block block = iblockstate.getBlock();
 
             if (iblockstate.getMaterial() == Material.AIR) {
@@ -238,7 +238,7 @@ public class MovingWorldPlayerController {
                 this.curBlockDamageMP += iblockstate.getPlayerRelativeBlockHardness(this.mc.player, this.currentHit.getMobileRegionWorld(), posBlock);
 
                 if (this.stepSoundTickCounter % 4.0F == 0.0F) {
-                    SoundType soundtype = block.getSoundType(iblockstate, currentHit.getParentWorld(), posBlock, mc.player);
+                    SoundType soundtype = block.getSoundType(iblockstate, currentHit.getMobileRegionWorld(), posBlock, mc.player);
                     this.mc.getSoundHandler().playSound(new PositionedSoundRecord(soundtype.getHitSound(), SoundCategory.NEUTRAL, (soundtype.getVolume() + 1.0F) / 8.0F, soundtype.getPitch() * 0.5F, posBlock));
                 }
 
@@ -253,8 +253,8 @@ public class MovingWorldPlayerController {
                     this.blockHitDelay = 5;
                 }
 
-                if (currentHit != null && currentHit.getParentWorld() != null)
-                    currentHit.getParentWorld().sendBlockBreakProgress(player.getEntityId(), currentBlock, (int) (curBlockDamageMP * 10F) - 1);
+                if (currentHit != null && currentHit.getMobileRegionWorld() != null)
+                    currentHit.getMobileRegionWorld().sendBlockBreakProgress(player.getEntityId(), currentBlock, (int) (curBlockDamageMP * 10F) - 1);
                 return true;
             }
         } else {

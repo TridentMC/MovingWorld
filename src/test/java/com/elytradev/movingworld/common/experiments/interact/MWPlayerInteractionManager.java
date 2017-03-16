@@ -75,17 +75,17 @@ public class MWPlayerInteractionManager extends PlayerInteractionManager {
 
         if (this.receivedFinishDiggingPacket) {
             int i = this.curblockDamage - this.initialBlockDamage;
-            IBlockState iblockstate = this.regionEntity.getParentWorld().getBlockState(this.delayedDestroyPos);
+            IBlockState iblockstate = this.regionEntity.getMobileRegionWorld().getBlockState(this.delayedDestroyPos);
             Block block = iblockstate.getBlock();
 
-            if (block.isAir(iblockstate, regionEntity.getParentWorld(), delayedDestroyPos)) {
+            if (block.isAir(iblockstate, regionEntity.getMobileRegionWorld(), delayedDestroyPos)) {
                 this.receivedFinishDiggingPacket = false;
             } else {
-                float f = iblockstate.getPlayerRelativeBlockHardness(this.player, this.regionEntity.getParentWorld(), this.delayedDestroyPos) * (float) (i + 1);
+                float f = iblockstate.getPlayerRelativeBlockHardness(this.player, this.regionEntity.getMobileRegionWorld(), this.delayedDestroyPos) * (float) (i + 1);
                 int j = (int) (f * 10.0F);
 
                 if (j != this.durabilityRemainingOnBlock) {
-                    this.regionEntity.getParentWorld().sendBlockBreakProgress(this.player.getEntityId(), this.delayedDestroyPos, j);
+                    this.regionEntity.getMobileRegionWorld().sendBlockBreakProgress(this.player.getEntityId(), this.delayedDestroyPos, j);
                     this.durabilityRemainingOnBlock = j;
                 }
 
@@ -95,20 +95,20 @@ public class MWPlayerInteractionManager extends PlayerInteractionManager {
                 }
             }
         } else if (this.isDestroyingBlock) {
-            IBlockState iblockstate1 = this.regionEntity.getParentWorld().getBlockState(this.destroyPos);
+            IBlockState iblockstate1 = this.regionEntity.getMobileRegionWorld().getBlockState(this.destroyPos);
             Block block1 = iblockstate1.getBlock();
 
-            if (block1.isAir(iblockstate1, regionEntity.getParentWorld(), destroyPos)) {
-                this.regionEntity.getParentWorld().sendBlockBreakProgress(this.player.getEntityId(), this.destroyPos, -1);
+            if (block1.isAir(iblockstate1, regionEntity.getMobileRegionWorld(), destroyPos)) {
+                this.regionEntity.getMobileRegionWorld().sendBlockBreakProgress(this.player.getEntityId(), this.destroyPos, -1);
                 this.durabilityRemainingOnBlock = -1;
                 this.isDestroyingBlock = false;
             } else {
                 int k = this.curblockDamage - this.initialDamage;
-                float f1 = iblockstate1.getPlayerRelativeBlockHardness(this.player, this.regionEntity.getParentWorld(), this.destroyPos) * (float) (k + 1); // Forge: Fix network break progress using wrong position
+                float f1 = iblockstate1.getPlayerRelativeBlockHardness(this.player, this.regionEntity.getMobileRegionWorld(), this.destroyPos) * (float) (k + 1); // Forge: Fix network break progress using wrong position
                 int l = (int) (f1 * 10.0F);
 
                 if (l != this.durabilityRemainingOnBlock) {
-                    this.regionEntity.getParentWorld().sendBlockBreakProgress(this.player.getEntityId(), this.destroyPos, l);
+                    this.regionEntity.getMobileRegionWorld().sendBlockBreakProgress(this.player.getEntityId(), this.destroyPos, l);
                     this.durabilityRemainingOnBlock = l;
                 }
             }
@@ -123,17 +123,17 @@ public class MWPlayerInteractionManager extends PlayerInteractionManager {
         net.minecraftforge.event.entity.player.PlayerInteractEvent.LeftClickBlock event = net.minecraftforge.common.ForgeHooks.onLeftClickBlock(player, pos, side, net.minecraftforge.common.ForgeHooks.rayTraceEyeHitVec(player, getBlockReachDistance() + 1));
         if (event.isCanceled()) {
             // Restore block and te data
-            new MessageBlockChange(regionEntity.getParentWorld(), pos).sendTo(player);
-            regionEntity.getParentWorld().notifyBlockUpdate(pos, regionEntity.getParentWorld().getBlockState(pos), regionEntity.getParentWorld().getBlockState(pos), 3);
+            new MessageBlockChange(regionEntity.getMobileRegionWorld(), pos).sendTo(player);
+            regionEntity.getMobileRegionWorld().notifyBlockUpdate(pos, regionEntity.getMobileRegionWorld().getBlockState(pos), regionEntity.getMobileRegionWorld().getBlockState(pos), 3);
             return;
         }
 
         if (this.isCreative()) {
-            if (!this.regionEntity.getParentWorld().extinguishFire((EntityPlayer) null, pos, side)) {
+            if (!this.regionEntity.getMobileRegionWorld().extinguishFire((EntityPlayer) null, pos, side)) {
                 this.tryHarvestBlock(pos);
             }
         } else {
-            IBlockState iblockstate = this.regionEntity.getParentWorld().getBlockState(pos);
+            IBlockState iblockstate = this.regionEntity.getMobileRegionWorld().getBlockState(pos);
             Block block = iblockstate.getBlock();
 
             if (this.isAdventure()) {
@@ -157,33 +157,33 @@ public class MWPlayerInteractionManager extends PlayerInteractionManager {
             this.initialDamage = this.curblockDamage;
             float f = 1.0F;
 
-            if (!iblockstate.getBlock().isAir(iblockstate, regionEntity.getParentWorld(), pos)) {
+            if (!iblockstate.getBlock().isAir(iblockstate, regionEntity.getMobileRegionWorld(), pos)) {
                 if (event.getUseBlock() != net.minecraftforge.fml.common.eventhandler.Event.Result.DENY) {
-                    block.onBlockClicked(this.regionEntity.getParentWorld(), pos, this.player);
-                    this.regionEntity.getParentWorld().extinguishFire((EntityPlayer) null, pos, side);
+                    block.onBlockClicked(this.regionEntity.getMobileRegionWorld(), pos, this.player);
+                    this.regionEntity.getMobileRegionWorld().extinguishFire((EntityPlayer) null, pos, side);
                 } else {
                     // Restore block and te data
-                    new MessageBlockChange(regionEntity.getParentWorld(), pos).sendTo(player);
-                    regionEntity.getParentWorld().notifyBlockUpdate(pos, regionEntity.getParentWorld().getBlockState(pos), regionEntity.getParentWorld().getBlockState(pos), 3);
+                    new MessageBlockChange(regionEntity.getMobileRegionWorld(), pos).sendTo(player);
+                    regionEntity.getMobileRegionWorld().notifyBlockUpdate(pos, regionEntity.getMobileRegionWorld().getBlockState(pos), regionEntity.getMobileRegionWorld().getBlockState(pos), 3);
                 }
-                f = iblockstate.getPlayerRelativeBlockHardness(this.player, this.regionEntity.getParentWorld(), pos);
+                f = iblockstate.getPlayerRelativeBlockHardness(this.player, this.regionEntity.getMobileRegionWorld(), pos);
             }
             if (event.getUseItem() == net.minecraftforge.fml.common.eventhandler.Event.Result.DENY) {
                 if (f >= 1.0F) {
                     // Restore block and te data
-                    new MessageBlockChange(regionEntity.getParentWorld(), pos).sendTo(player);
-                    regionEntity.getParentWorld().notifyBlockUpdate(pos, regionEntity.getParentWorld().getBlockState(pos), regionEntity.getParentWorld().getBlockState(pos), 3);
+                    new MessageBlockChange(regionEntity.getMobileRegionWorld(), pos).sendTo(player);
+                    regionEntity.getMobileRegionWorld().notifyBlockUpdate(pos, regionEntity.getMobileRegionWorld().getBlockState(pos), regionEntity.getMobileRegionWorld().getBlockState(pos), 3);
                 }
                 return;
             }
 
-            if (!iblockstate.getBlock().isAir(iblockstate, regionEntity.getParentWorld(), pos) && f >= 1.0F) {
+            if (!iblockstate.getBlock().isAir(iblockstate, regionEntity.getMobileRegionWorld(), pos) && f >= 1.0F) {
                 this.tryHarvestBlock(pos);
             } else {
                 this.isDestroyingBlock = true;
                 this.destroyPos = pos;
                 int i = (int) (f * 10.0F);
-                this.regionEntity.getParentWorld().sendBlockBreakProgress(this.player.getEntityId(), pos, i);
+                this.regionEntity.getMobileRegionWorld().sendBlockBreakProgress(this.player.getEntityId(), pos, i);
                 this.durabilityRemainingOnBlock = i;
             }
         }
@@ -192,14 +192,14 @@ public class MWPlayerInteractionManager extends PlayerInteractionManager {
     public void blockRemoving(BlockPos pos) {
         if (pos.equals(this.destroyPos)) {
             int i = this.curblockDamage - this.initialDamage;
-            IBlockState iblockstate = this.regionEntity.getParentWorld().getBlockState(pos);
+            IBlockState iblockstate = this.regionEntity.getMobileRegionWorld().getBlockState(pos);
 
-            if (!iblockstate.getBlock().isAir(iblockstate, regionEntity.getParentWorld(), pos)) {
-                float f = iblockstate.getPlayerRelativeBlockHardness(this.player, this.regionEntity.getParentWorld(), pos) * (float) (i + 1);
+            if (!iblockstate.getBlock().isAir(iblockstate, regionEntity.getMobileRegionWorld(), pos)) {
+                float f = iblockstate.getPlayerRelativeBlockHardness(this.player, this.regionEntity.getMobileRegionWorld(), pos) * (float) (i + 1);
 
                 if (f >= 0.7F) {
                     this.isDestroyingBlock = false;
-                    this.regionEntity.getParentWorld().sendBlockBreakProgress(this.player.getEntityId(), pos, -1);
+                    this.regionEntity.getMobileRegionWorld().sendBlockBreakProgress(this.player.getEntityId(), pos, -1);
                     this.tryHarvestBlock(pos);
                 } else if (!this.receivedFinishDiggingPacket) {
                     this.isDestroyingBlock = false;
@@ -216,41 +216,41 @@ public class MWPlayerInteractionManager extends PlayerInteractionManager {
      */
     public void cancelDestroyingBlock() {
         this.isDestroyingBlock = false;
-        this.regionEntity.getParentWorld().sendBlockBreakProgress(this.player.getEntityId(), this.destroyPos, -1);
+        this.regionEntity.getMobileRegionWorld().sendBlockBreakProgress(this.player.getEntityId(), this.destroyPos, -1);
     }
 
     /**
      * Attempts to harvest a block
      */
     public boolean tryHarvestBlock(BlockPos pos) {
-        int exp = net.minecraftforge.common.ForgeHooks.onBlockBreakEvent(regionEntity.getParentWorld(), player.interactionManager.getGameType(), player, pos);
+        int exp = net.minecraftforge.common.ForgeHooks.onBlockBreakEvent(regionEntity.getMobileRegionWorld(), player.interactionManager.getGameType(), player, pos);
         if (exp == -1) {
             return false;
         } else {
-            IBlockState iblockstate = this.regionEntity.getParentWorld().getBlockState(pos);
-            TileEntity tileentity = this.regionEntity.getParentWorld().getTileEntity(pos);
+            IBlockState iblockstate = this.regionEntity.getMobileRegionWorld().getBlockState(pos);
+            TileEntity tileentity = this.regionEntity.getMobileRegionWorld().getTileEntity(pos);
             Block block = iblockstate.getBlock();
 
             if ((block instanceof BlockCommandBlock || block instanceof BlockStructure) && !this.player.canUseCommandBlock()) {
-                this.regionEntity.getParentWorld().notifyBlockUpdate(pos, iblockstate, iblockstate, 3);
+                this.regionEntity.getMobileRegionWorld().notifyBlockUpdate(pos, iblockstate, iblockstate, 3);
                 return false;
             } else {
                 ItemStack stack = player.getHeldItemMainhand();
                 if (!stack.isEmpty() && stack.getItem().onBlockStartBreak(stack, pos, player)) return false;
 
-                this.regionEntity.getParentWorld().playEvent(this.player, 2001, pos, Block.getStateId(iblockstate));
+                this.regionEntity.getMobileRegionWorld().playEvent(this.player, 2001, pos, Block.getStateId(iblockstate));
                 boolean flag1;
 
                 if (this.isCreative()) {
                     flag1 = this.removeBlock(pos);
-                    new MessageBlockChange(regionEntity.getParentWorld(), pos).sendTo(player);
+                    new MessageBlockChange(regionEntity.getMobileRegionWorld(), pos).sendTo(player);
                 } else {
                     ItemStack itemstack1 = this.player.getHeldItemMainhand();
                     ItemStack itemstack2 = itemstack1.isEmpty() ? ItemStack.EMPTY : itemstack1.copy();
-                    boolean flag = iblockstate.getBlock().canHarvestBlock(regionEntity.getParentWorld(), pos, player);
+                    boolean flag = iblockstate.getBlock().canHarvestBlock(regionEntity.getMobileRegionWorld(), pos, player);
 
                     if (!itemstack1.isEmpty()) {
-                        itemstack1.onBlockDestroyed(this.regionEntity.getParentWorld(), iblockstate, pos, this.player);
+                        itemstack1.onBlockDestroyed(this.regionEntity.getMobileRegionWorld(), iblockstate, pos, this.player);
                     }
 
                     flag1 = this.removeBlock(pos, flag);
@@ -410,11 +410,11 @@ public class MWPlayerInteractionManager extends PlayerInteractionManager {
     }
 
     private boolean removeBlock(BlockPos pos, boolean canHarvest) {
-        IBlockState iblockstate = this.regionEntity.getParentWorld().getBlockState(pos);
-        boolean flag = iblockstate.getBlock().removedByPlayer(iblockstate, regionEntity.getParentWorld(), pos, player, canHarvest);
+        IBlockState iblockstate = this.regionEntity.getMobileRegionWorld().getBlockState(pos);
+        boolean flag = iblockstate.getBlock().removedByPlayer(iblockstate, regionEntity.getMobileRegionWorld(), pos, player, canHarvest);
 
         if (flag) {
-            iblockstate.getBlock().onBlockDestroyedByPlayer(this.regionEntity.getParentWorld(), pos, iblockstate);
+            iblockstate.getBlock().onBlockDestroyedByPlayer(this.regionEntity.getMobileRegionWorld(), pos, iblockstate);
         }
 
         return flag;

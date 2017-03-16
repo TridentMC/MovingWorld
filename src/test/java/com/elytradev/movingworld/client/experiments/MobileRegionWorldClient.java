@@ -199,7 +199,7 @@ public class MobileRegionWorldClient extends WorldClient {
     public void playSound(@Nullable EntityPlayer player, double x, double y, double z, SoundEvent soundIn, SoundCategory category, float volume, float pitch) {
         Vec3d pos = new Vec3d(x, y, z);
         pos = region.convertRegionPosToRealWorld(pos);
-        parentWorld.playSound(player, pos.xCoord, pos.yCoord, pos.zCoord, soundIn, category, volume, pitch);
+        getRealWorld().playSound(player, pos.xCoord, pos.yCoord, pos.zCoord, soundIn, category, volume, pitch);
     }
 
     @Override
@@ -207,14 +207,14 @@ public class MobileRegionWorldClient extends WorldClient {
         Vec3d pos = new Vec3d(blockPos.getX(), blockPos.getY(), blockPos.getZ());
         pos = region.convertRegionPosToRealWorld(pos);
         blockPos = new BlockPos(Math.round(pos.xCoord), Math.round(pos.yCoord), Math.round(pos.zCoord));
-        parentWorld.playSound(blockPos, soundIn, category, volume, pitch, distanceDelay);
+        getRealWorld().playSound(blockPos, soundIn, category, volume, pitch, distanceDelay);
     }
 
     @Override
     public void playSound(double x, double y, double z, SoundEvent soundIn, SoundCategory category, float volume, float pitch, boolean distanceDelay) {
         Vec3d pos = new Vec3d(x, y, z);
         pos = region.convertRegionPosToRealWorld(pos);
-        parentWorld.playSound(pos.xCoord, pos.yCoord, pos.zCoord, soundIn, category, volume, pitch, distanceDelay);
+        getRealWorld().playSound(pos.xCoord, pos.yCoord, pos.zCoord, soundIn, category, volume, pitch, distanceDelay);
     }
 
     @Override
@@ -1319,13 +1319,25 @@ public class MobileRegionWorldClient extends WorldClient {
     }
 
     @Override
-    public void playEvent(int type, BlockPos pos, int data) {
-        parentWorld.playEvent(type, pos, data);
+    public void playEvent(int type, BlockPos blockPos, int data) {
+        Vec3d pos = new Vec3d(blockPos.getX(), blockPos.getY(), blockPos.getZ());
+        pos = region.convertRegionPosToRealWorld(pos);
+        blockPos = new BlockPos(Math.round(pos.xCoord), Math.round(pos.yCoord), Math.round(pos.zCoord));
+
+        getRealWorld().playEvent(type, blockPos, data);
     }
 
     @Override
-    public void playEvent(@Nullable EntityPlayer player, int type, BlockPos pos, int data) {
-        parentWorld.playEvent(player, type, pos, data);
+    public void playEvent(@Nullable EntityPlayer player, int type, BlockPos blockPos, int data) {
+        Vec3d pos = new Vec3d(blockPos.getX(), blockPos.getY(), blockPos.getZ());
+        pos = region.convertRegionPosToRealWorld(pos);
+        blockPos = new BlockPos(Math.round(pos.xCoord), Math.round(pos.yCoord), Math.round(pos.zCoord));
+        if(player instanceof EntityPlayerSPProxy){
+            player = ((EntityPlayerSPProxy)player).getParent();
+        }
+
+
+        getRealWorld().playEvent(player, type, blockPos, data);
     }
 
     @Override
