@@ -157,6 +157,18 @@ public class RegionRenderer {
         GlStateManager.disableBlend();
         GlStateManager.disableCull();
         RenderHelper.enableStandardItemLighting();
+
+        GlStateManager.pushMatrix();
+
+        for (TileEntity t : tiles) {
+            BlockPos renderPos = t.getPos().subtract(region.minBlockPos());
+            GlStateManager.color(1, 1, 1, 1);
+            TileEntityRendererDispatcher.instance.renderTileEntityAt(t, renderPos.getX(), renderPos.getY(), renderPos.getZ(), partialTicks);
+        }
+
+        GlStateManager.popMatrix();
+
+
         // it always hurts
         return true;
     }
