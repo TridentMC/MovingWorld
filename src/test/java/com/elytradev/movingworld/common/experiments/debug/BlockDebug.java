@@ -24,7 +24,11 @@ public class BlockDebug extends Block {
 
     @Override
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-        if (worldIn == null || worldIn.isRemote || RegionPool.getPool(worldIn.provider.getDimension(), false) != null)
+        RegionPool pool = RegionPool.getPool(worldIn.provider.getDimension(), false);
+
+        if (worldIn == null
+                || worldIn.isRemote
+                || RegionPool.getPool(worldIn.provider.getDimension(), false) != null)
             return false;
 
         WorldReader reader = new WorldReader(pos, worldIn);

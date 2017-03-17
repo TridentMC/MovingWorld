@@ -27,7 +27,6 @@ import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.relauncher.Side;
 
 import java.io.File;
 import java.io.IOException;
@@ -134,7 +133,6 @@ public class MovingWorldInitHandler {
 
         try {
             // Register new dimension
-            registeredDimensions.put(loadedDimensionID, activeDimID);
             DimensionManager.registerDimension(activeDimID,
                     DimensionType.register("MovingWorld|P" + loadedDimensionID + "|C" + activeDimID,
                             "movingworld", activeDimID, MovingWorldProvider.class, true));
@@ -154,6 +152,7 @@ public class MovingWorldInitHandler {
             RegionPool.getPool(activeDimID, true);
             worldServer.addEventListener(new BoundingBoxWorldListener());
             MovingWorldExperimentsMod.logger.info("DB check: " + MovingWorldExperimentsMod.modProxy.getCommonDB().getWorldFromDim(activeDimID));
+            registeredDimensions.put(loadedDimensionID, activeDimID);
             activeDimID++;
         } catch (Exception exception) {
             MovingWorldExperimentsMod.logger.error("Exception on subworld registration/load ", e);
@@ -161,7 +160,7 @@ public class MovingWorldInitHandler {
     }
 
     @Mod.EventHandler
-    public void onWorldUnload(WorldEvent.Unload e){
+    public void onWorldUnload(WorldEvent.Unload e) {
         if (e.getWorld().isRemote && registeredDimensions.containsKey(e.getWorld().provider.getDimension())) {
             int subworldID = registeredDimensions.get(e.getWorld().provider.getDimension());
             ((MovingWorldClientDatabase) MovingWorldExperimentsMod.modProxy.getClientDB()).worlds.remove(subworldID);
@@ -170,7 +169,10 @@ public class MovingWorldInitHandler {
 
     @Mod.EventHandler
     public void onServerStopped(FMLServerStoppedEvent e) {
-        MovingWorldInitHandler.registeredDimensions.forEach((parent, child) -> DimensionManager.unregisterDimension(child));
+        for (Integer child : MovingWorldInitHandler.registeredDimensions.values()) {
+            System.out.println("Unregistering " + child);
+            DimensionManager.unregisterDimension(child);
+        }
         MovingWorldInitHandler.registeredDimensions = HashBiMap.create();
         MovingWorldInitHandler.activeDimID = MovingWorldInitHandler.startingDimID;
     }
@@ -183,14 +185,18 @@ public class MovingWorldInitHandler {
     @SubscribeEvent
     public void onConnection(PlayerEvent.PlayerLoggedInEvent e) {
         if (!e.isCanceled() && e.player != null && !e.player.world.isRemote) {
-            new MessageDimensionPoolData(e.player.world.provider.getDimension(), RegionPool.getPool(e.player.world.provider.getDimension(), true).writePoolToCompound()).sendTo(e.player);
+            int subworldID = registeredDimensions.get(e.player.dimension);
+
+            new MessageDimensionPoolData(subworldID, RegionPool.getPool(subworldID, true).writePoolToCompound()).sendTo(e.player);
         }
     }
 
     @SubscribeEvent
     public void onDimChange(PlayerEvent.PlayerChangedDimensionEvent e) {
         if (!e.isCanceled() && e.player != null && !e.player.world.isRemote) {
-            new MessageDimensionPoolData(e.toDim, RegionPool.getPool(e.toDim, true).writePoolToCompound()).sendTo(e.player);
+            int subworldID = registeredDimensions.get(e.toDim);
+
+            new MessageDimensionPoolData(subworldID, RegionPool.getPool(subworldID, true).writePoolToCompound()).sendTo(e.player);
         }
     }
 

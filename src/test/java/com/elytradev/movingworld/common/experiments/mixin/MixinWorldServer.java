@@ -1,7 +1,7 @@
 package com.elytradev.movingworld.common.experiments.mixin;
 
 import com.elytradev.movingworld.common.experiments.IWorldMixin;
-import com.elytradev.movingworld.common.experiments.region.RegionPool;
+import com.elytradev.movingworld.common.experiments.MovingWorldExperimentsMod;
 import net.minecraft.entity.EntityTracker;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldServer;
@@ -21,7 +21,7 @@ public class MixinWorldServer implements IWorldMixin {
 
     @Redirect(method = WORLD_SERVER_CONSTRUCTOR, at = @At(value = "INVOKE", target = DIM_MANAGER_SETWORLD))
     private void setDimensionManagerWorld(int dimensionId, WorldServer world, MinecraftServer mcServer) {
-        if (RegionPool.getPool(dimensionId, false) == null) {
+        if (!MovingWorldExperimentsMod.instance.initHandler.registeredDimensions.containsValue(dimensionId)) {
             DimensionManager.setWorld(dimensionId, world, mcServer);
         }
     }

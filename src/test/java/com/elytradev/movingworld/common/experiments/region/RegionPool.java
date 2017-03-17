@@ -49,6 +49,9 @@ public class RegionPool {
         }
 
         if (generate) {
+            if (dimension < 50) {
+                Thread.dumpStack();
+            }
             POOLS.put(dimension, new RegionPool(dimension));
         } else {
             return null;
@@ -83,6 +86,9 @@ public class RegionPool {
             NBTTagCompound poolCompound = tagCompound.getCompoundTag("Pool#" + i);
             RegionPool pool = new RegionPool();
             pool.readPoolFromCompound(poolCompound);
+            if (i < 50) {
+                Thread.dumpStack();
+            }
             POOLS.put(i, pool);
         }
     }
