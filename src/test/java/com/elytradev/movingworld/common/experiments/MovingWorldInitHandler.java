@@ -39,11 +39,11 @@ import java.util.HashMap;
  */
 public class MovingWorldInitHandler {
 
+    public static final int startingDimID = 50;
     /**
      * ParentWorldID->SubWorldID
      */
     public static HashBiMap<Integer, Integer> registeredDimensions = HashBiMap.create();
-    public static int startingDimID = 50;
     public static int activeDimID = startingDimID;
 
     private Accessor<PlayerChunkMap> playerChunkMap;
@@ -73,17 +73,25 @@ public class MovingWorldInitHandler {
 
         File activePoolDir = new File(saveDir, "movingworld-pools");
         File oldPoolDir = new File(activePoolDir, "old");
+        if (!activePoolDir.exists()) {
+            activePoolDir.mkdir();
+        }
+        if (!oldPoolDir.exists()) {
+            oldPoolDir.mkdir();
+        }
 
         try {
             NBTTagCompound poolCompound = pool.writePoolToCompound();
             File regionPool = new File(activePoolDir, MessageFormat.format("poolD{0}.dat", parentDimension));
             if (regionPool.exists()) {
                 regionPool.renameTo(new File(oldPoolDir, MessageFormat.format("poolD{0}.dat", parentDimension)));
+            } else {
+                regionPool.createNewFile();
             }
             regionPool = new File(activePoolDir, MessageFormat.format("poolD{0}.dat", parentDimension));
             CompressedStreamTools.write(poolCompound, regionPool);
         } catch (IOException e) {
-            MovingWorldExperimentsMod.logger.error(MessageFormat.format("Failed to write pool data from file for dimension {0}", parentDimension));
+            MovingWorldExperimentsMod.logger.error(MessageFormat.format("Failed to write pool data from file for dimension {0}", parentDimension), e);
         }
     }
 
@@ -152,16 +160,18 @@ public class MovingWorldInitHandler {
         }
     }
 
+    @Mod.EventHandler
+    public void onWorldUnload(WorldEvent.Unload e){
+        if (e.getWorld().isRemote && registeredDimensions.containsKey(e.getWorld().provider.getDimension())) {
+            int subworldID = registeredDimensions.get(e.getWorld().provider.getDimension());
+            ((MovingWorldClientDatabase) MovingWorldExperimentsMod.modProxy.getClientDB()).worlds.remove(subworldID);
+        }
+    }
 
     @Mod.EventHandler
     public void onServerStopped(FMLServerStoppedEvent e) {
         MovingWorldInitHandler.registeredDimensions.forEach((parent, child) -> DimensionManager.unregisterDimension(child));
         MovingWorldInitHandler.registeredDimensions = HashBiMap.create();
-
-        if (e.getSide() == Side.CLIENT) {
-            ((MovingWorldClientDatabase) MovingWorldExperimentsMod.modProxy.getClientDB()).worlds.clear();
-        }
-
         MovingWorldInitHandler.activeDimID = MovingWorldInitHandler.startingDimID;
     }
 
