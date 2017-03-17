@@ -87,22 +87,31 @@ public class MovingWorldInitHandler {
         }
     }
 
-    private void readPoolFromFile(int parentDimension, int subWorldDimension, boolean logError) {
+    private boolean isPoolDataPresent(int parentDimension) {
+        File saveDir = DimensionManager.getCurrentSaveRootDirectory();
+
+        if (saveDir == null)
+            return false;
+
+        File activePoolDir = new File(saveDir, "movingworld-pools");
+
+        return new File(activePoolDir, MessageFormat.format("poolD{0}.dat", parentDimension)).exists();
+    }
+
+    private void readPoolFromFile(int parentDimension, int subWorldDimension) {
         File saveDir = DimensionManager.getCurrentSaveRootDirectory();
 
         if (saveDir == null)
             return;
 
         File activePoolDir = new File(saveDir, "movingworld-pools");
-        File oldPoolDir = new File(activePoolDir, "old");
 
         try {
             File regionPool = new File(activePoolDir, MessageFormat.format("poolD{0}.dat", parentDimension));
             NBTTagCompound poolCompound = CompressedStreamTools.read(regionPool);
             RegionPool.getPool(subWorldDimension, true).readPoolFromCompound(poolCompound);
         } catch (IOException e) {
-            if (logError)
-                MovingWorldExperimentsMod.logger.error(MessageFormat.format("Failed to read pool data from file for dimension {0}", parentDimension));
+            MovingWorldExperimentsMod.logger.error(MessageFormat.format("Failed to read pool data from file for dimension {0}", parentDimension));
         }
     }
 
@@ -132,7 +141,8 @@ public class MovingWorldInitHandler {
             worldServer.addEventListener(new MWServerWorldEventHandler(worldServer.mcServer, worldServer));
 
             // Init pool, increment dimension number.
-            readPoolFromFile(e.getWorld().provider.getDimension(), activeDimID, false);
+            if (isPoolDataPresent(e.getWorld().provider.getDimension()))
+                readPoolFromFile(e.getWorld().provider.getDimension(), activeDimID);
             RegionPool.getPool(activeDimID, true);
             worldServer.addEventListener(new BoundingBoxWorldListener());
             MovingWorldExperimentsMod.logger.info("DB check: " + MovingWorldExperimentsMod.modProxy.getCommonDB().getWorldFromDim(activeDimID));
