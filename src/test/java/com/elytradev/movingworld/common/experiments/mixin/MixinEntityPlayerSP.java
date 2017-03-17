@@ -1,13 +1,9 @@
 package com.elytradev.movingworld.common.experiments.mixin;
 
 import com.elytradev.movingworld.common.experiments.interact.ContainerChecks;
-import com.elytradev.movingworld.common.experiments.interact.ContainerInterceptor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.ContainerPlayer;
-import net.sf.cglib.proxy.Enhancer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;

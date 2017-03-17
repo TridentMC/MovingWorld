@@ -1,6 +1,7 @@
-package com.elytradev.movingworld.common.experiments.interact;
+package com.elytradev.movingworld.common.experiments.proxy;
 
 import com.elytradev.movingworld.client.experiments.EntityPlayerSPProxy;
+import com.elytradev.movingworld.common.experiments.interact.EntityPlayerMPProxy;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;

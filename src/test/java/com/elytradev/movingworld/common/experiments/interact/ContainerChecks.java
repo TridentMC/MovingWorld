@@ -1,5 +1,6 @@
 package com.elytradev.movingworld.common.experiments.interact;
 
+import com.elytradev.movingworld.common.experiments.proxy.ContainerInterceptor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.EntityPlayer;

@@ -82,56 +82,7 @@ public class MovingWorldExperimentsMod {
 
     }
 
-    @Mod.EventHandler
-    public void onServerStopped(FMLServerStoppedEvent e) {
-        MovingWorldInitHandler.registeredDimensions.forEach((parent, child) -> DimensionManager.unregisterDimension(child));
-        MovingWorldInitHandler.registeredDimensions = HashBiMap.create();
 
-        if (e.getSide() == Side.CLIENT) {
-            ((MovingWorldClientDatabase) modProxy.getClientDB()).worlds.clear();
-        }
-
-        MovingWorldInitHandler.activeDimID = MovingWorldInitHandler.startingDimID;
-    }
-
-    @Mod.EventHandler
-    public void onServerStopping(FMLServerStoppingEvent e) {
-        File saveDir = DimensionManager.getCurrentSaveRootDirectory();
-
-        if (saveDir != null) {
-            try {
-                NBTTagCompound poolCompound = RegionPool.writeAllToCompound();
-                File regionPool = new File(saveDir, "movingworld-regionpools.dat");
-                if (regionPool.exists()) {
-                    regionPool.renameTo(new File(saveDir, "movingworld-regionpools-old.dat"));
-                }
-                regionPool = new File(saveDir, "movingworld-regionpools.dat");
-                CompressedStreamTools.write(poolCompound, regionPool);
-            } catch (Exception exception) {
-                logger.error("Something went wrong when saving region pools....");
-                exception.printStackTrace();
-            }
-        }
-    }
-
-    @Mod.EventHandler
-    public void onServerStarted(FMLServerStartedEvent e) {
-        File saveDir = DimensionManager.getCurrentSaveRootDirectory();
-
-        if (saveDir != null) {
-            try {
-                File regionPool = new File(saveDir, "movingworld-regionpools.dat");
-                if (regionPool.exists()) {
-
-                    NBTTagCompound poolCompound = CompressedStreamTools.read(regionPool);
-                    RegionPool.readAllFromCompound(poolCompound);
-                }
-            } catch (Exception exception) {
-                logger.error("Something went wrong when loading region pools...");
-                exception.printStackTrace();
-            }
-        }
-    }
 
 
 }
