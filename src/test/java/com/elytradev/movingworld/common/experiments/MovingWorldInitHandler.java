@@ -57,7 +57,7 @@ public class MovingWorldInitHandler {
     public void onWorldSave(WorldEvent.Save e) {
         // Save pool for dimension.
 
-        if (registeredDimensions.containsValue(e.getWorld().provider.getDimension()))
+        if (!registeredDimensions.containsValue(e.getWorld().provider.getDimension()))
             return;
 
         int subWorldID = registeredDimensions.inverse().get(e.getWorld().provider.getDimension());
