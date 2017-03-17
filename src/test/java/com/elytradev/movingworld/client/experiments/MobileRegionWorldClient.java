@@ -520,12 +520,16 @@ public class MobileRegionWorldClient extends WorldClient {
 
     @Override
     public void playSound(@Nullable EntityPlayer player, BlockPos pos, SoundEvent soundIn, SoundCategory category, float volume, float pitch) {
+        pos = region.convertRegionPosToRealWorld(pos);
+
         getRealWorld().playSound(player, pos, soundIn, category, volume, pitch);
     }
 
     @Override
-    public void playRecord(BlockPos blockPositionIn, @Nullable SoundEvent soundEventIn) {
-        getRealWorld().playRecord(blockPositionIn, soundEventIn);
+    public void playRecord(BlockPos pos, @Nullable SoundEvent soundEventIn) {
+        pos = region.convertRegionPosToRealWorld(pos);
+
+        getRealWorld().playRecord(pos, soundEventIn);
     }
 
     @Override
