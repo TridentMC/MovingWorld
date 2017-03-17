@@ -191,9 +191,6 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
     @Override
     public boolean tickUpdates(boolean runAllPending) {
         return parentWorld.tickUpdates(runAllPending);
-    }    @Override
-    public CrashReportCategory addWorldInfoToCrashReport(CrashReport report) {
-        return parentWorld.addWorldInfoToCrashReport(report);
     }
 
     @Nullable
@@ -206,6 +203,9 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
     @Override
     public List<NextTickListEntry> getPendingBlockUpdates(StructureBoundingBox structureBB, boolean p_175712_2_) {
         return parentWorld.getPendingBlockUpdates(structureBB, p_175712_2_);
+    }    @Override
+    public CrashReportCategory addWorldInfoToCrashReport(CrashReport report) {
+        return parentWorld.addWorldInfoToCrashReport(report);
     }
 
     @Override
@@ -254,11 +254,6 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
     @Override
     public void createSpawnPosition(WorldSettings settings) {
         parentWorld.createSpawnPosition(settings);
-    }    @Override
-    public void makeFireworks(double x, double y, double z, double motionX, double motionY, double motionZ, @Nullable NBTTagCompound compund) {
-        Vec3d pos = new Vec3d(x, y, z);
-        pos = region.convertRegionPosToRealWorld(pos);
-        parentWorld.makeFireworks(pos.xCoord, pos.yCoord, pos.zCoord, motionX, motionY, motionZ, compund);
     }
 
     @Override
@@ -280,6 +275,11 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
     @Override
     public void saveChunkData() {
         parentWorld.saveChunkData();
+    }    @Override
+    public void makeFireworks(double x, double y, double z, double motionX, double motionY, double motionZ, @Nullable NBTTagCompound compund) {
+        Vec3d pos = new Vec3d(x, y, z);
+        pos = region.convertRegionPosToRealWorld(pos);
+        parentWorld.makeFireworks(pos.xCoord, pos.yCoord, pos.zCoord, motionX, motionY, motionZ, compund);
     }
 
     @Override
@@ -289,7 +289,13 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
 
     @Override
     public boolean spawnEntity(Entity entityIn) {
-        return parentWorld.spawnEntity(entityIn);
+        Vec3d pos = new Vec3d(entityIn.posX, entityIn.posY, entityIn.posZ);
+        pos = region.convertRegionPosToRealWorld(pos);
+        entityIn.setPosition(pos.xCoord, pos.yCoord, pos.zCoord);
+        entityIn.setPosition(pos.xCoord, pos.yCoord, pos.zCoord);
+        entityIn.setWorld(realWorld);
+
+        return realWorld.spawnEntity(entityIn);
     }
 
     @Override
@@ -299,6 +305,7 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
                     Vec3d entityPos = new Vec3d(entity.posX, entity.posY, entity.posZ);
                     entityPos = region.convertRegionPosToRealWorld(entityPos);
                     entity.setPosition(entityPos.xCoord, entityPos.yCoord, entityPos.zCoord);
+                    entity.setWorld(realWorld);
                     return entity;
                 }).collect(Collectors.toList());
 
@@ -312,15 +319,15 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
 
     @Override
     public void onEntityAdded(Entity entityIn) {
-        parentWorld.onEntityAdded(entityIn);
-    }    @Override
-    public void sendPacketToServer(Packet<?> packetIn) {
-        parentWorld.sendPacketToServer(packetIn);
+        if(entityIn.world != realWorld)
+            entityIn.setWorld(realWorld);
+
+        realWorld.onEntityAdded(entityIn);
     }
 
     @Override
     public void onEntityRemoved(Entity entityIn) {
-        parentWorld.onEntityRemoved(entityIn);
+        realWorld.onEntityRemoved(entityIn);
     }
 
     @Override
@@ -330,7 +337,7 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
 
     @Override
     public void setEntityState(Entity entityIn, byte state) {
-        parentWorld.setEntityState(entityIn, state);
+        realWorld.setEntityState(entityIn, state);
     }
 
     @Override
@@ -349,6 +356,9 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
     @Override
     public void addBlockEvent(BlockPos pos, Block blockIn, int eventID, int eventParam) {
         parentWorld.addBlockEvent(pos, blockIn, eventID, eventParam);
+    }    @Override
+    public void sendPacketToServer(Packet<?> packetIn) {
+        parentWorld.sendPacketToServer(packetIn);
     }
 
     @Override
@@ -1168,7 +1178,7 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
     @Override
     public boolean mayPlace(Block p_190527_1_, BlockPos pos, boolean p_190527_3_, EnumFacing p_190527_4_, @Nullable Entity p_190527_5_) {
         if (isPosWithinRegion(pos))
-            return realWorld.mayPlace(p_190527_1_, pos, p_190527_3_, p_190527_4_, p_190527_5_);
+            return parentWorld.mayPlace(p_190527_1_, pos, p_190527_3_, p_190527_4_, p_190527_5_);
         else
             return false;
     }
@@ -1274,12 +1284,6 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
         Vec3d pos = new Vec3d(x, y, z);
         pos = region.convertRegionPosToRealWorld(pos);
         return parentWorld.getNearestAttackablePlayer(pos.xCoord, pos.yCoord, pos.zCoord, maxXZDistance, maxYDistance, playerToDouble, p_184150_12_);
-    }    @Override
-    public long getSeed() {
-        if (parentWorld != null)
-            return parentWorld.getSeed();
-        else
-            return super.getSeed();
     }
 
     @Nullable
@@ -1309,6 +1313,13 @@ public class MobileRegionWorldServer extends WorldServer implements IWorldMixin 
 
 
 
+    @Override
+    public long getSeed() {
+        if (parentWorld != null)
+            return parentWorld.getSeed();
+        else
+            return super.getSeed();
+    }
 
 
     @Override

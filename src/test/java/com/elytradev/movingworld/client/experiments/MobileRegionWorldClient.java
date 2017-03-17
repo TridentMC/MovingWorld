@@ -77,6 +77,14 @@ public class MobileRegionWorldClient extends WorldClient {
     @Override
     public void invalidateBlockReceiveRegion(int x1, int y1, int z1, int x2, int y2, int z2) {
         parentWorld.invalidateBlockReceiveRegion(x1, y1, z1, x2, y2, z2);
+    }
+
+    @Override
+    public IChunkProvider createChunkProvider() {
+        if (parentWorld != null)
+            return parentWorld.createChunkProvider();
+        else
+            return null;
     }    @Override
     public void initCapabilities() {
         if (initCapabilities == null) {
@@ -87,14 +95,6 @@ public class MobileRegionWorldClient extends WorldClient {
             initCapabilities.invoke(parentWorld);
         else
             super.initCapabilities();
-    }
-
-    @Override
-    public IChunkProvider createChunkProvider() {
-        if (parentWorld != null)
-            return parentWorld.createChunkProvider();
-        else
-            return null;
     }
 
     @Override
@@ -121,38 +121,50 @@ public class MobileRegionWorldClient extends WorldClient {
 
     @Override
     public boolean spawnEntity(Entity entityIn) {
-        return parentWorld.spawnEntity(entityIn);
+        Vec3d pos = new Vec3d(entityIn.posX, entityIn.posY, entityIn.posZ);
+        pos = region.convertRegionPosToRealWorld(pos);
+        entityIn.setPosition(pos.xCoord, pos.yCoord, pos.zCoord);
+        entityIn.setPosition(pos.xCoord, pos.yCoord, pos.zCoord);
+        entityIn.setWorld(getRealWorld());
+
+        return getRealWorld().spawnEntity(entityIn);
     }
 
     @Override
     public void removeEntity(Entity entityIn) {
-        parentWorld.removeEntity(entityIn);
+        getRealWorld().removeEntity(entityIn);
     }
 
     @Override
     public void onEntityAdded(Entity entityIn) {
-        parentWorld.onEntityAdded(entityIn);
+        getRealWorld().onEntityAdded(entityIn);
     }
 
     @Override
     public void onEntityRemoved(Entity entityIn) {
-        parentWorld.onEntityRemoved(entityIn);
+        getRealWorld().onEntityRemoved(entityIn);
     }
 
     @Override
     public void addEntityToWorld(int entityID, Entity entityToSpawn) {
-        parentWorld.addEntityToWorld(entityID, entityToSpawn);
+        Vec3d pos = new Vec3d(entityToSpawn.posX, entityToSpawn.posY, entityToSpawn.posZ);
+        pos = region.convertRegionPosToRealWorld(pos);
+        entityToSpawn.setPosition(pos.xCoord, pos.yCoord, pos.zCoord);
+        entityToSpawn.setPosition(pos.xCoord, pos.yCoord, pos.zCoord);
+        entityToSpawn.setWorld(getRealWorld());
+
+        getRealWorld().addEntityToWorld(entityID, entityToSpawn);
     }
 
     @Nullable
     @Override
     public Entity getEntityByID(int id) {
-        return parentWorld.getEntityByID(id);
+        return  getRealWorld().getEntityByID(id);
     }
 
     @Override
     public Entity removeEntityFromWorld(int entityID) {
-        return parentWorld.removeEntityFromWorld(entityID);
+        return  getRealWorld().removeEntityFromWorld(entityID);
     }
 
     @Override
@@ -259,9 +271,6 @@ public class MobileRegionWorldClient extends WorldClient {
     @Override
     public void initialize(WorldSettings settings) {
         parentWorld.initialize(settings);
-    }    @Override
-    public ChunkProviderClient getChunkProvider() {
-        return parentWorld.getChunkProvider();
     }
 
     @Nullable
@@ -273,6 +282,9 @@ public class MobileRegionWorldClient extends WorldClient {
     @Override
     public void setInitialSpawnLocation() {
         parentWorld.setInitialSpawnLocation();
+    }    @Override
+    public ChunkProviderClient getChunkProvider() {
+        return parentWorld.getChunkProvider();
     }
 
     @Override
@@ -554,7 +566,7 @@ public class MobileRegionWorldClient extends WorldClient {
 
     @Override
     public void removeEntityDangerously(Entity entityIn) {
-        parentWorld.removeEntityDangerously(entityIn);
+        getRealWorld().removeEntityDangerously(entityIn);
     }
 
     @Override
@@ -1158,6 +1170,8 @@ public class MobileRegionWorldClient extends WorldClient {
 
 
 
+
+
     @Override
     public long getSeed() {
         return parentWorld.getSeed();
@@ -1336,8 +1350,8 @@ public class MobileRegionWorldClient extends WorldClient {
         Vec3d pos = new Vec3d(blockPos.getX(), blockPos.getY(), blockPos.getZ());
         pos = region.convertRegionPosToRealWorld(pos);
         blockPos = new BlockPos(Math.round(pos.xCoord), Math.round(pos.yCoord), Math.round(pos.zCoord));
-        if(player instanceof EntityPlayerSPProxy){
-            player = ((EntityPlayerSPProxy)player).getParent();
+        if (player instanceof EntityPlayerSPProxy) {
+            player = ((EntityPlayerSPProxy) player).getParent();
         }
 
 

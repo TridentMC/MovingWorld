@@ -255,13 +255,13 @@ public class MWPlayerInteractionManager extends PlayerInteractionManager {
 
                     flag1 = this.removeBlock(pos, flag);
                     if (flag1 && flag) {
-                        iblockstate.getBlock().harvestBlock(this.regionEntity.getEntityWorld(), this.player, regionEntity.region.convertRegionPosToRealWorld(pos), iblockstate, tileentity, itemstack2);
+                        iblockstate.getBlock().harvestBlock(this.regionEntity.getMobileRegionWorld(), this.player, pos, iblockstate, tileentity, itemstack2);
                     }
                 }
 
                 // Drop experience
                 if (!this.isCreative() && flag1 && exp > 0) {
-                    iblockstate.getBlock().dropXpOnBlockBreak(this.regionEntity.getEntityWorld(), regionEntity.region.convertRegionPosToRealWorld(pos), exp);
+                    iblockstate.getBlock().dropXpOnBlockBreak(this.regionEntity.getMobileRegionWorld(), pos, exp);
                 }
                 return flag1;
             }
@@ -280,7 +280,7 @@ public class MWPlayerInteractionManager extends PlayerInteractionManager {
             int j = stack.getMetadata();
             ItemStack copyBeforeUse = stack.copy();
             ActionResult<ItemStack> actionresult = stack.useItemRightClick(worldIn, player, hand);
-            ItemStack itemstack = (ItemStack) actionresult.getResult();
+            ItemStack itemstack = actionresult.getResult();
 
             if (itemstack == stack && itemstack.getCount() == i && itemstack.getMaxItemUseDuration() <= 0 && itemstack.getMetadata() == j) {
                 return actionresult.getType();
@@ -316,6 +316,7 @@ public class MWPlayerInteractionManager extends PlayerInteractionManager {
             EntityPlayerMPProxy.PROXIES.put(player.getGameProfile(), new EntityPlayerMPProxy((EntityPlayerMP) player, regionEntity));
             worldIn.spawnEntity(EntityPlayerMPProxy.PROXIES.get(player.getGameProfile()));
         }
+        World regionWorld = regionEntity.getMobileRegionWorld();
         EntityPlayerMPProxy playerProxy = EntityPlayerMPProxy.PROXIES.get(player.getGameProfile());
         playerProxy.setRegion(regionEntity);
 
@@ -356,7 +357,7 @@ public class MWPlayerInteractionManager extends PlayerInteractionManager {
             if (!player.isSneaking() || bypass || event.getUseBlock() == net.minecraftforge.fml.common.eventhandler.Event.Result.ALLOW) {
                 IBlockState iblockstate = worldIn.getBlockState(pos);
                 if (event.getUseBlock() != net.minecraftforge.fml.common.eventhandler.Event.Result.DENY)
-                    if (iblockstate.getBlock().onBlockActivated(worldIn, pos, iblockstate, playerProxy, hand, facing, hitX, hitY, hitZ)) {
+                    if (iblockstate.getBlock().onBlockActivated(regionWorld, pos, iblockstate, playerProxy, hand, facing, hitX, hitY, hitZ)) {
                         result = EnumActionResult.SUCCESS;
                     }
             }
@@ -379,7 +380,7 @@ public class MWPlayerInteractionManager extends PlayerInteractionManager {
                     int i = stack.getCount();
                     if (result != EnumActionResult.SUCCESS && event.getUseItem() != net.minecraftforge.fml.common.eventhandler.Event.Result.DENY
                             || result == EnumActionResult.SUCCESS && event.getUseItem() == net.minecraftforge.fml.common.eventhandler.Event.Result.ALLOW) {
-                        EnumActionResult enumactionresult = stack.onItemUse(player, worldIn, pos, hand, facing, hitX, hitY, hitZ);
+                        EnumActionResult enumactionresult = stack.onItemUse(player, regionWorld, pos, hand, facing, hitX, hitY, hitZ);
                         stack.setItemDamage(j);
                         stack.setCount(i);
                         return enumactionresult;
@@ -387,7 +388,7 @@ public class MWPlayerInteractionManager extends PlayerInteractionManager {
                 } else {
                     if (result != EnumActionResult.SUCCESS && event.getUseItem() != net.minecraftforge.fml.common.eventhandler.Event.Result.DENY
                             || result == EnumActionResult.SUCCESS && event.getUseItem() == net.minecraftforge.fml.common.eventhandler.Event.Result.ALLOW)
-                        return stack.onItemUse(player, worldIn, pos, hand, facing, hitX, hitY, hitZ);
+                        return stack.onItemUse(player, regionWorld, pos, hand, facing, hitX, hitY, hitZ);
                     else return result;
                 }
             }

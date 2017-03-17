@@ -23,7 +23,7 @@ public class BoundingBoxWorldListener implements IWorldEventListener {
     @Override
     public void notifyBlockUpdate(World worldIn, BlockPos pos, IBlockState oldState, IBlockState newState, int flags) {
         MobileRegion regionForPos = RegionPool.getPool(worldIn.provider.getDimension(), false).regions.get(worldIn.getChunkFromBlockCoords(pos).getPos());
-        if (regionForPos == null)
+        if (regionForPos == null || true)
             return;
 
         boolean removed = newState.getBlock().isAir(newState, worldIn, pos);
