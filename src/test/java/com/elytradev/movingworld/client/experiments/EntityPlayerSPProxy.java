@@ -25,10 +25,31 @@ import java.util.HashMap;
  */
 @SideOnly(Side.CLIENT)
 public class EntityPlayerSPProxy extends EntityPlayerSP {
-    public static HashMap<GameProfile, EntityPlayerSPProxy> PROXIES = new HashMap<>();
+    private static HashMap<GameProfile, EntityPlayerSPProxy> PROXIES = new HashMap<>();
     private EntityPlayerSP parent;
     private EntityMobileRegion region;
 
+
+    public static EntityPlayerSPProxy getProxyForPlayer(EntityPlayerSP realPlayer, EntityMobileRegion region, boolean checkSpawned) {
+        if (PROXIES.containsKey(realPlayer.getGameProfile())) {
+            EntityPlayerSPProxy proxy = PROXIES.get(realPlayer.getGameProfile());
+            if (checkSpawned && region.getParentWorld().getEntityByID(proxy.getEntityId()) == null) {
+                region.getParentWorld().spawnEntity(proxy);
+            }
+            return proxy;
+        } else {
+            EntityPlayerSPProxy proxy = new EntityPlayerSPProxy(realPlayer, region);
+            region.getParentWorld().spawnEntity(proxy);
+
+            PROXIES.put(realPlayer.getGameProfile(), proxy);
+            return PROXIES.get(realPlayer.getGameProfile());
+        }
+    }
+
+    public static boolean hasProxy(EntityPlayerSP realPlayer){
+        return PROXIES.containsKey(realPlayer.getGameProfile());
+    }
+    
     public EntityPlayerSPProxy(EntityPlayerSP playerSP, EntityMobileRegion region) {
         super(Minecraft.getMinecraft(), region.getParentWorld(),
                 playerSP.connection, playerSP.getStatFileWriter());

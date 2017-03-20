@@ -288,11 +288,7 @@ public class MovingWorldPlayerController {
         if (currentHit == null)
             return EnumActionResult.FAIL;
 
-        if (!EntityPlayerSPProxy.PROXIES.containsKey(player.getGameProfile())) {
-            EntityPlayerSPProxy.PROXIES.put(player.getGameProfile(), new EntityPlayerSPProxy(player, currentHit));
-            worldIn.spawnEntity(EntityPlayerSPProxy.PROXIES.get(player.getGameProfile()));
-        }
-        EntityPlayerSPProxy playerProxy = EntityPlayerSPProxy.PROXIES.get(player.getGameProfile());
+        EntityPlayerSPProxy playerProxy = EntityPlayerSPProxy.getProxyForPlayer(player, currentHit, true);
         playerProxy.setRegion(currentHit);
 
         ItemStack itemstack = player.getHeldItem(vec);

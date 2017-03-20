@@ -34,7 +34,7 @@ public class ContainerInterceptor implements MethodInterceptor {
 
         // Attempt to move data to prevent inital NPEs. We're also instantiating from absolutely nothing so this is probably the best thing we can do...
         for (Field realField : FieldUtils.getAllFieldsList(realObject.getClass())) {
-            if(Modifier.isStatic(realField.getModifiers()))
+            if (Modifier.isStatic(realField.getModifiers()))
                 continue;
             realField.setAccessible(true);
 
@@ -60,10 +60,10 @@ public class ContainerInterceptor implements MethodInterceptor {
             EntityPlayer playerProxy = null;
 
             EntityPlayer playerIn = (EntityPlayer) arg0;
-            if (playerIn instanceof EntityPlayerMP && EntityPlayerMPProxy.PROXIES.containsKey(playerIn.getGameProfile())) {
-                playerProxy = (EntityPlayerMPProxy.PROXIES.get(playerIn.getGameProfile()));
-            } else if (playerIn instanceof EntityPlayerSP && EntityPlayerSPProxy.PROXIES.containsKey(playerIn.getGameProfile())) {
-                playerProxy = (EntityPlayerSPProxy.PROXIES.get(playerIn.getGameProfile()));
+            if (playerIn instanceof EntityPlayerMP && EntityPlayerMPProxy.hasProxy((EntityPlayerMP) playerIn)) {
+                playerProxy = EntityPlayerMPProxy.getProxyForPlayer((EntityPlayerMP) playerIn, null, false);
+            } else if (playerIn instanceof EntityPlayerSP && EntityPlayerSPProxy.hasProxy((EntityPlayerSP) playerIn)) {
+                playerProxy = EntityPlayerSPProxy.getProxyForPlayer((EntityPlayerSP) playerIn, null, false);
             }
 
             return playerProxy;
@@ -84,6 +84,9 @@ public class ContainerInterceptor implements MethodInterceptor {
 
             EntityPlayer proxyPlayer = getProxy(args);
             Boolean proxyCan = proxyPlayer != null ? (Boolean) methodProxy.invokeSuper(obj, new Object[]{proxyPlayer}) : false;
+
+            System.out.println("Intercepted canInteractWith, " + proxyCan + " " + proxyPlayer);
+
             return proxyCan;
         }
 

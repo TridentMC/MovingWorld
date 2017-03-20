@@ -21,7 +21,7 @@ import java.util.HashMap;
 
 public class EntityPlayerMPProxy extends EntityPlayerMP {
 
-    public static HashMap<GameProfile, EntityPlayerMPProxy> PROXIES = new HashMap<>();
+    private static HashMap<GameProfile, EntityPlayerMPProxy> PROXIES = new HashMap<>();
 
     private EntityPlayerMP parent;
     private EntityMobileRegion region;
@@ -53,6 +53,27 @@ public class EntityPlayerMPProxy extends EntityPlayerMP {
         this.motionY = parent.motionY;
         this.motionZ = parent.motionZ;
     }
+
+    public static EntityPlayerMPProxy getProxyForPlayer(EntityPlayerMP realPlayer, EntityMobileRegion region, boolean checkSpawned) {
+        if (PROXIES.containsKey(realPlayer.getGameProfile())) {
+            EntityPlayerMPProxy proxy = PROXIES.get(realPlayer.getGameProfile());
+            if (checkSpawned && region.getParentWorld().getEntityByID(proxy.getEntityId()) == null) {
+                region.getParentWorld().spawnEntity(proxy);
+            }
+            return proxy;
+        } else {
+            EntityPlayerMPProxy proxy = new EntityPlayerMPProxy(realPlayer, region);
+            region.getParentWorld().spawnEntity(proxy);
+
+            PROXIES.put(realPlayer.getGameProfile(), proxy);
+            return PROXIES.get(realPlayer.getGameProfile());
+        }
+    }
+
+    public static boolean hasProxy(EntityPlayerMP realPlayer){
+        return PROXIES.containsKey(realPlayer.getGameProfile());
+    }
+
 
     @Override
     public void onUpdate() {

@@ -136,6 +136,7 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
             for (int cZ = region.regionMin.chunkZPos; cZ < region.regionMax.chunkZPos; cZ++) {
                 WorldServer worldServer = ((WorldServer) getParentWorld());
                 worldServer.playerChunkMap.getOrCreateEntry(cX, cZ).addPlayer(player);
+                System.out.println("Start tracking mobile region chunks. " + cX + " " + cZ);
             }
         }
     }
@@ -148,6 +149,7 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
             for (int cZ = region.regionMin.chunkZPos; cZ < region.regionMax.chunkZPos; cZ++) {
                 WorldServer worldServer = ((WorldServer) getParentWorld());
                 worldServer.playerChunkMap.getEntry(cX, cZ).removePlayer(player);
+                System.out.println("Stop tracking mobile region chunks. " + cX + " " + cZ);
             }
         }
     }

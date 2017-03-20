@@ -8,6 +8,7 @@ import com.elytradev.movingworld.client.experiments.EntityPlayerSPProxy;
 import com.elytradev.movingworld.common.experiments.MovingWorldExperimentsMod;
 import com.elytradev.movingworld.common.experiments.network.MovingWorldExperimentsNetworking;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.BlockPos;
@@ -42,7 +43,7 @@ public class MessageOpenGui extends Message {
     @Override
     protected void handle(EntityPlayer sender) {
         EntityPlayer player = Minecraft.getMinecraft().player;
-        EntityPlayer proxy = EntityPlayerSPProxy.PROXIES.get(player.getGameProfile());
+        EntityPlayer proxy = EntityPlayerSPProxy.getProxyForPlayer((EntityPlayerSP) player, null, false);
 
         if (proxy == null)
             return; // nope, im out.

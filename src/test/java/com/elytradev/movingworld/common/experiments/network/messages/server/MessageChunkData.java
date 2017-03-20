@@ -108,23 +108,6 @@ public class MessageChunkData extends Message {
                 tileentity.handleUpdateTag(nbttagcompound);
             }
         }
-
-        for (ExtendedBlockStorage e : chunk.getBlockStorageArray()) {
-            for (int x = 0; x < 16; x++) {
-                for (int z = 0; z < 16; z++) {
-                    for (int y = 0; y < 16; y++) {
-                        if (e == null)
-                            continue;
-
-                        if (e.get(x, y, z) == null || e.get(x, y, z).getBlock() == Blocks.AIR)
-                            continue;
-                        System.out.println("Block O Data " + e.get(x, y, z));
-                    }
-                }
-            }
-        }
-        System.out.println(MessageFormat.format("Got chunk data for cX {0} cZ {1}", chunkX, chunkZ));
-        System.out.println("END PACKET\n\n\n\n\n\n\n");
     }
 
     public int extractChunkData(PacketBuffer buf, Chunk chunkIn, boolean writeSkylight, int changedSectionFilter) {

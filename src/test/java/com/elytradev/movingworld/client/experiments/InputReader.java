@@ -49,7 +49,8 @@ public class InputReader {
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent e) {
         if (mc.isGamePaused()
-                || mc.world == null) {
+                || mc.world == null
+                || e.phase == TickEvent.Phase.END) {
             return;
         }
 
