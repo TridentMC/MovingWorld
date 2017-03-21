@@ -45,7 +45,7 @@ public class MessageSoundEffect extends Message {
         super(MovingWorldExperimentsNetworking.networkContext);
         this.dimension = dimension;
 
-        Validate.notNull(soundIn, "sound", new Object[0]);
+        Validate.notNull(soundIn, "sound");
         this.sound = soundIn;
         this.category = categoryIn;
         this.posX = (int) xIn;

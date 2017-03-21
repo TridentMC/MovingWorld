@@ -38,7 +38,7 @@ public class InputReader {
     private boolean performedLeftClick = false, performedRightClick = false;
 
     public InputReader(PlayerControllerMP playerControllerMP) {
-        this.enabled = false;
+        enabled = false;
         this.controller = new MovingWorldPlayerController(playerControllerMP);
         this.mc = Minecraft.getMinecraft();
 

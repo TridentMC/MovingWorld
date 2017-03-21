@@ -86,7 +86,7 @@ public class MessageTryUseItemOnBlock extends Message {
                 interactionManager.processRightClickBlock(player, worldserver, itemstack, hand, regionPos, placedBlockDirection, facingX, facingY, facingZ);
             }
         } else {
-            TextComponentTranslation textcomponenttranslation = new TextComponentTranslation("build.tooHigh", new Object[]{Integer.valueOf(player.getServerWorld().getMinecraftServer().getBuildLimit())});
+            TextComponentTranslation textcomponenttranslation = new TextComponentTranslation("build.tooHigh", Integer.valueOf(player.getServerWorld().getMinecraftServer().getBuildLimit()));
             textcomponenttranslation.getStyle().setColor(TextFormatting.RED);
             player.connection.sendPacket(new SPacketChat(textcomponenttranslation, (byte) 2));
         }

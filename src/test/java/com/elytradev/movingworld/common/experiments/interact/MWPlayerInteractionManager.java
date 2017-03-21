@@ -129,7 +129,7 @@ public class MWPlayerInteractionManager extends PlayerInteractionManager {
         }
 
         if (this.isCreative()) {
-            if (!this.regionEntity.getMobileRegionWorld().extinguishFire((EntityPlayer) null, pos, side)) {
+            if (!this.regionEntity.getMobileRegionWorld().extinguishFire(null, pos, side)) {
                 this.tryHarvestBlock(pos);
             }
         } else {
@@ -160,7 +160,7 @@ public class MWPlayerInteractionManager extends PlayerInteractionManager {
             if (!iblockstate.getBlock().isAir(iblockstate, regionEntity.getMobileRegionWorld(), pos)) {
                 if (event.getUseBlock() != net.minecraftforge.fml.common.eventhandler.Event.Result.DENY) {
                     block.onBlockClicked(this.regionEntity.getMobileRegionWorld(), pos, this.player);
-                    this.regionEntity.getMobileRegionWorld().extinguishFire((EntityPlayer) null, pos, side);
+                    this.regionEntity.getMobileRegionWorld().extinguishFire(null, pos, side);
                 } else {
                     // Restore block and te data
                     new MessageBlockChange(regionEntity.getMobileRegionWorld(), pos).sendTo(player);

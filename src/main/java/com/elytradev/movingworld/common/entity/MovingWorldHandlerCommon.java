@@ -22,10 +22,7 @@ public abstract class MovingWorldHandlerCommon {
     public abstract void setMovingWorld(EntityMovingWorld movingWorld);
 
     public boolean processInitialInteract(EntityPlayer player,EnumHand hand) {
-        if (player.isSneaking())
-            return false;
-        else
-            return true;
+        return !player.isSneaking();
     }
 
     public void onChunkUpdate() {
