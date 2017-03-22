@@ -75,7 +75,6 @@ public class ContainerInterceptor implements MethodInterceptor {
     @Override
     public Object intercept(Object obj, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
         Object result = methodProxy.invokeSuper(obj, args);
-
         if (obj instanceof Container && (
                 method.getName().equals("canInteractWith")
                         || method.getName().equals("func_75145_c"))) {
@@ -84,9 +83,6 @@ public class ContainerInterceptor implements MethodInterceptor {
 
             EntityPlayer proxyPlayer = getProxy(args);
             Boolean proxyCan = proxyPlayer != null ? (Boolean) methodProxy.invokeSuper(obj, new Object[]{proxyPlayer}) : false;
-
-            System.out.println("Intercepted canInteractWith, " + proxyCan + " " + proxyPlayer);
-
             return proxyCan;
         }
 

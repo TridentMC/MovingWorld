@@ -60,12 +60,14 @@ public class EntityPlayerMPProxy extends EntityPlayerMP {
             if (checkSpawned && region.getParentWorld().getEntityByID(proxy.getEntityId()) == null) {
                 region.getParentWorld().spawnEntity(proxy);
             }
+            proxy.checkVars(region);
             return proxy;
         } else {
             EntityPlayerMPProxy proxy = new EntityPlayerMPProxy(realPlayer, region);
             region.getParentWorld().spawnEntity(proxy);
 
             PROXIES.put(realPlayer.getGameProfile(), proxy);
+            proxy.checkVars(region);
             return PROXIES.get(realPlayer.getGameProfile());
         }
     }
@@ -75,8 +77,9 @@ public class EntityPlayerMPProxy extends EntityPlayerMP {
     }
 
 
-    @Override
-    public void onUpdate() {
+    public void checkVars(EntityMobileRegion region){
+        this.region = region;
+
         Vec3d prevPos = region.region.convertRealWorldPosToRegion(new Vec3d(parent.prevPosX, parent.prevPosY, parent.prevPosZ));
         Vec3d curPos = region.region.convertRealWorldPosToRegion(new Vec3d(parent.posX, parent.posY, parent.posZ));
 
@@ -94,6 +97,11 @@ public class EntityPlayerMPProxy extends EntityPlayerMP {
         this.motionX = parent.motionX;
         this.motionY = parent.motionY;
         this.motionZ = parent.motionZ;
+    }
+
+    @Override
+    public void onUpdate() {
+        checkVars(region);
 
         super.onUpdate();
     }
