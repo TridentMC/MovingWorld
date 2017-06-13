@@ -1,5 +1,5 @@
 node {
 	checkout scm
-	sh './gradlew setupCiWorkspace clean build'
+	sh './gradlew setupDecompWorkspace clean build'
 	archive 'build/libs/*jar'
 }
