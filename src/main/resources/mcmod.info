@@ -2,7 +2,7 @@
 {
   "modid": "MovingWorld",
   "name": "Moving World",
-  "description": "A Library for allowing the movement of tile entities in the world while still enabling interaction.",
+  "description": "A Library for allowing the movement of collections of blocks and tile entities.",
   "version": "${version}",
   "mcversion": "${mcversion}",
   "url": "",

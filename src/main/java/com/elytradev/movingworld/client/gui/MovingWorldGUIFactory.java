@@ -6,10 +6,19 @@ import net.minecraftforge.fml.client.IModGuiFactory;
 
 import java.util.Set;
 
-
 public class MovingWorldGUIFactory implements IModGuiFactory {
     @Override
     public void initialize(Minecraft minecraftInstance) {
+    }
+
+    @Override
+    public boolean hasConfigGui() {
+        return true;
+    }
+
+    @Override
+    public GuiScreen createConfigGui(GuiScreen parentScreen) {
+        return new MovingWorldConfigGUI(parentScreen);
     }
 
     @Override

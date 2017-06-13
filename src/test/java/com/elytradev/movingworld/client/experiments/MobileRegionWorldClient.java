@@ -41,6 +41,7 @@ import net.minecraft.world.gen.structure.StructureBoundingBox;
 import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.MapStorage;
 import net.minecraft.world.storage.WorldInfo;
+import net.minecraft.world.storage.WorldSavedData;
 import net.minecraft.world.storage.loot.LootTableManager;
 import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.capabilities.Capability;
@@ -85,7 +86,9 @@ public class MobileRegionWorldClient extends WorldClient {
             return parentWorld.createChunkProvider();
         else
             return null;
-    }    @Override
+    }
+
+    @Override
     public void initCapabilities() {
         if (initCapabilities == null) {
             initCapabilities = Invokers.findMethod(World.class, null, new String[]{"initCapabilities"});
@@ -106,10 +109,6 @@ public class MobileRegionWorldClient extends WorldClient {
     }
 
     @Override
-    public void buildChunkCoordList() {
-    }
-
-    @Override
     public void updateBlocks() {
     }
 
@@ -123,8 +122,8 @@ public class MobileRegionWorldClient extends WorldClient {
     public boolean spawnEntity(Entity entityIn) {
         Vec3d pos = new Vec3d(entityIn.posX, entityIn.posY, entityIn.posZ);
         pos = region.convertRegionPosToRealWorld(pos);
-        entityIn.setPosition(pos.xCoord, pos.yCoord, pos.zCoord);
-        entityIn.setPosition(pos.xCoord, pos.yCoord, pos.zCoord);
+        entityIn.setPosition(pos.x, pos.y, pos.z);
+        entityIn.setPosition(pos.x, pos.y, pos.z);
         entityIn.setWorld(getRealWorld());
 
         return getRealWorld().spawnEntity(entityIn);
@@ -149,8 +148,8 @@ public class MobileRegionWorldClient extends WorldClient {
     public void addEntityToWorld(int entityID, Entity entityToSpawn) {
         Vec3d pos = new Vec3d(entityToSpawn.posX, entityToSpawn.posY, entityToSpawn.posZ);
         pos = region.convertRegionPosToRealWorld(pos);
-        entityToSpawn.setPosition(pos.xCoord, pos.yCoord, pos.zCoord);
-        entityToSpawn.setPosition(pos.xCoord, pos.yCoord, pos.zCoord);
+        entityToSpawn.setPosition(pos.x, pos.y, pos.z);
+        entityToSpawn.setPosition(pos.x, pos.y, pos.z);
         entityToSpawn.setWorld(getRealWorld());
 
         getRealWorld().addEntityToWorld(entityID, entityToSpawn);
@@ -159,12 +158,12 @@ public class MobileRegionWorldClient extends WorldClient {
     @Nullable
     @Override
     public Entity getEntityByID(int id) {
-        return  getRealWorld().getEntityByID(id);
+        return getRealWorld().getEntityByID(id);
     }
 
     @Override
     public Entity removeEntityFromWorld(int entityID) {
-        return  getRealWorld().removeEntityFromWorld(entityID);
+        return getRealWorld().removeEntityFromWorld(entityID);
     }
 
     @Override
@@ -211,14 +210,14 @@ public class MobileRegionWorldClient extends WorldClient {
     public void playSound(@Nullable EntityPlayer player, double x, double y, double z, SoundEvent soundIn, SoundCategory category, float volume, float pitch) {
         Vec3d pos = new Vec3d(x, y, z);
         pos = region.convertRegionPosToRealWorld(pos);
-        getRealWorld().playSound(player, pos.xCoord, pos.yCoord, pos.zCoord, soundIn, category, volume, pitch);
+        getRealWorld().playSound(player, pos.x, pos.y, pos.z, soundIn, category, volume, pitch);
     }
 
     @Override
     public void playSound(BlockPos blockPos, SoundEvent soundIn, SoundCategory category, float volume, float pitch, boolean distanceDelay) {
         Vec3d pos = new Vec3d(blockPos.getX(), blockPos.getY(), blockPos.getZ());
         pos = region.convertRegionPosToRealWorld(pos);
-        blockPos = new BlockPos(Math.round(pos.xCoord), Math.round(pos.yCoord), Math.round(pos.zCoord));
+        blockPos = new BlockPos(Math.round(pos.x), Math.round(pos.y), Math.round(pos.z));
         getRealWorld().playSound(blockPos, soundIn, category, volume, pitch, distanceDelay);
     }
 
@@ -226,14 +225,14 @@ public class MobileRegionWorldClient extends WorldClient {
     public void playSound(double x, double y, double z, SoundEvent soundIn, SoundCategory category, float volume, float pitch, boolean distanceDelay) {
         Vec3d pos = new Vec3d(x, y, z);
         pos = region.convertRegionPosToRealWorld(pos);
-        getRealWorld().playSound(pos.xCoord, pos.yCoord, pos.zCoord, soundIn, category, volume, pitch, distanceDelay);
+        getRealWorld().playSound(pos.x, pos.y, pos.z, soundIn, category, volume, pitch, distanceDelay);
     }
 
     @Override
     public void makeFireworks(double x, double y, double z, double motionX, double motionY, double motionZ, @Nullable NBTTagCompound compund) {
         Vec3d pos = new Vec3d(x, y, z);
         pos = region.convertRegionPosToRealWorld(pos);
-        parentWorld.makeFireworks(pos.xCoord, pos.yCoord, pos.zCoord, motionX, motionY, motionZ, compund);
+        parentWorld.makeFireworks(pos.x, pos.y, pos.z, motionX, motionY, motionZ, compund);
     }
 
     @Override
@@ -282,7 +281,9 @@ public class MobileRegionWorldClient extends WorldClient {
     @Override
     public void setInitialSpawnLocation() {
         parentWorld.setInitialSpawnLocation();
-    }    @Override
+    }
+
+    @Override
     public ChunkProviderClient getChunkProvider() {
         return parentWorld.getChunkProvider();
     }
@@ -1023,7 +1024,7 @@ public class MobileRegionWorldClient extends WorldClient {
                 entityCollection.stream().map(entity -> {
                     Vec3d entityPos = new Vec3d(entity.posX, entity.posY, entity.posZ);
                     entityPos = region.convertRegionPosToRealWorld(entityPos);
-                    entity.setPosition(entityPos.xCoord, entityPos.yCoord, entityPos.zCoord);
+                    entity.setPosition(entityPos.x, entityPos.y, entityPos.z);
                     return entity;
                 }).collect(Collectors.toList());
 
@@ -1106,7 +1107,7 @@ public class MobileRegionWorldClient extends WorldClient {
         Vec3d pos = new Vec3d(posX, posY, posZ);
         pos = region.convertRegionPosToRealWorld(pos);
 
-        return getRealWorld().getClosestPlayer(pos.xCoord, pos.yCoord, pos.zCoord, distance, spectator);
+        return getRealWorld().getClosestPlayer(pos.x, pos.y, pos.z, distance, spectator);
     }
 
     @Nullable
@@ -1115,7 +1116,7 @@ public class MobileRegionWorldClient extends WorldClient {
         Vec3d pos = new Vec3d(x, y, z);
         pos = region.convertRegionPosToRealWorld(pos);
 
-        return getRealWorld().getClosestPlayer(pos.xCoord, pos.yCoord, pos.zCoord, distance, predicate);
+        return getRealWorld().getClosestPlayer(pos.x, pos.y, pos.z, distance, predicate);
     }
 
     @Override
@@ -1123,7 +1124,7 @@ public class MobileRegionWorldClient extends WorldClient {
         Vec3d pos = new Vec3d(x, y, z);
         pos = region.convertRegionPosToRealWorld(pos);
 
-        return getRealWorld().isAnyPlayerWithinRangeAt(pos.xCoord, pos.yCoord, pos.zCoord, range);
+        return getRealWorld().isAnyPlayerWithinRangeAt(pos.x, pos.y, pos.z, range);
     }
 
     @Nullable
@@ -1143,7 +1144,7 @@ public class MobileRegionWorldClient extends WorldClient {
     public EntityPlayer getNearestAttackablePlayer(double x, double y, double z, double maxXZDistance, double maxYDistance, @Nullable Function<EntityPlayer, Double> playerToDouble, @Nullable Predicate<EntityPlayer> p_184150_12_) {
         Vec3d pos = new Vec3d(x, y, z);
         pos = region.convertRegionPosToRealWorld(pos);
-        return parentWorld.getNearestAttackablePlayer(pos.xCoord, pos.yCoord, pos.zCoord, maxXZDistance, maxYDistance, playerToDouble, p_184150_12_);
+        return parentWorld.getNearestAttackablePlayer(pos.x, pos.y, pos.z, maxXZDistance, maxYDistance, playerToDouble, p_184150_12_);
     }
 
     @Nullable
@@ -1166,11 +1167,6 @@ public class MobileRegionWorldClient extends WorldClient {
     public WorldClient getRealWorld() {
         return Minecraft.getMinecraft().world;
     }
-
-
-
-
-
 
     @Override
     public long getSeed() {
@@ -1212,7 +1208,7 @@ public class MobileRegionWorldClient extends WorldClient {
     public void joinEntityInSurroundings(Entity entityIn) {
         Vec3d entityPos = new Vec3d(entityIn.posX, entityIn.posY, entityIn.posZ);
         entityPos = region.convertRegionPosToRealWorld(entityPos);
-        entityIn.setPosition(entityPos.xCoord, entityPos.yCoord, entityPos.zCoord);
+        entityIn.setPosition(entityPos.x, entityPos.y, entityPos.z);
         getRealWorld().joinEntityInSurroundings(entityIn);
     }
 
@@ -1340,7 +1336,7 @@ public class MobileRegionWorldClient extends WorldClient {
     public void playEvent(int type, BlockPos blockPos, int data) {
         Vec3d pos = new Vec3d(blockPos.getX(), blockPos.getY(), blockPos.getZ());
         pos = region.convertRegionPosToRealWorld(pos);
-        blockPos = new BlockPos(Math.round(pos.xCoord), Math.round(pos.yCoord), Math.round(pos.zCoord));
+        blockPos = new BlockPos(Math.round(pos.x), Math.round(pos.y), Math.round(pos.z));
 
         getRealWorld().playEvent(type, blockPos, data);
     }
@@ -1349,7 +1345,7 @@ public class MobileRegionWorldClient extends WorldClient {
     public void playEvent(@Nullable EntityPlayer player, int type, BlockPos blockPos, int data) {
         Vec3d pos = new Vec3d(blockPos.getX(), blockPos.getY(), blockPos.getZ());
         pos = region.convertRegionPosToRealWorld(pos);
-        blockPos = new BlockPos(Math.round(pos.xCoord), Math.round(pos.yCoord), Math.round(pos.zCoord));
+        blockPos = new BlockPos(Math.round(pos.x), Math.round(pos.y), Math.round(pos.z));
         if (player instanceof EntityPlayerSPProxy) {
             player = ((EntityPlayerSPProxy) player).getParent();
         }

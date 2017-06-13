@@ -1,6 +1,6 @@
 package com.elytradev.movingworld.common.experiments.network;
 
-import com.elytradev.concrete.NetworkContext;
+import com.elytradev.concrete.network.NetworkContext;
 import com.elytradev.movingworld.common.experiments.MovingWorldExperimentsMod;
 import com.elytradev.movingworld.common.experiments.network.messages.client.*;
 import com.elytradev.movingworld.common.experiments.network.messages.server.*;

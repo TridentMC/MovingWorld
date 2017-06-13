@@ -132,8 +132,8 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
     public void addTrackingPlayer(EntityPlayerMP player) {
         super.addTrackingPlayer(player);
 
-        for (int cX = region.regionMin.chunkXPos; cX < region.regionMax.chunkXPos; cX++) {
-            for (int cZ = region.regionMin.chunkZPos; cZ < region.regionMax.chunkZPos; cZ++) {
+        for (int cX = region.regionMin.x; cX < region.regionMax.x; cX++) {
+            for (int cZ = region.regionMin.z; cZ < region.regionMax.z; cZ++) {
                 WorldServer worldServer = ((WorldServer) getParentWorld());
                 worldServer.playerChunkMap.getOrCreateEntry(cX, cZ).addPlayer(player);
                 System.out.println("Start tracking mobile region chunks. " + cX + " " + cZ);
@@ -145,8 +145,8 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
     public void removeTrackingPlayer(EntityPlayerMP player) {
         super.removeTrackingPlayer(player);
 
-        for (int cX = region.regionMin.chunkXPos; cX < region.regionMax.chunkXPos; cX++) {
-            for (int cZ = region.regionMin.chunkZPos; cZ < region.regionMax.chunkZPos; cZ++) {
+        for (int cX = region.regionMin.x; cX < region.regionMax.x; cX++) {
+            for (int cZ = region.regionMin.z; cZ < region.regionMax.z; cZ++) {
                 WorldServer worldServer = ((WorldServer) getParentWorld());
                 worldServer.playerChunkMap.getEntry(cX, cZ).removePlayer(player);
                 System.out.println("Stop tracking mobile region chunks. " + cX + " " + cZ);
@@ -160,8 +160,8 @@ public class EntityMobileRegion extends Entity implements IEntityAdditionalSpawn
 
         chunkTicket = ForgeChunkManager.requestTicket(MovingWorldExperimentsMod.instance, getParentWorld(), ForgeChunkManager.Type.NORMAL);
 
-        for (int cX = region.regionMin.chunkXPos; cX < region.regionMax.chunkXPos; cX++) {
-            for (int cZ = region.regionMin.chunkZPos; cZ < region.regionMax.chunkZPos; cZ++) {
+        for (int cX = region.regionMin.x; cX < region.regionMax.x; cX++) {
+            for (int cZ = region.regionMin.z; cZ < region.regionMax.z; cZ++) {
                 ForgeChunkManager.forceChunk(chunkTicket, new ChunkPos(cX, cZ));
             }
         }

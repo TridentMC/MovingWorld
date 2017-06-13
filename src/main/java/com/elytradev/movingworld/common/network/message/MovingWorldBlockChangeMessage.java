@@ -1,9 +1,9 @@
 package com.elytradev.movingworld.common.network.message;
 
-import com.elytradev.concrete.Message;
-import com.elytradev.concrete.NetworkContext;
-import com.elytradev.concrete.annotation.field.MarshalledAs;
-import com.elytradev.concrete.annotation.type.ReceivedOn;
+import com.elytradev.concrete.network.Message;
+import com.elytradev.concrete.network.NetworkContext;
+import com.elytradev.concrete.network.annotation.field.MarshalledAs;
+import com.elytradev.concrete.network.annotation.type.ReceivedOn;
 import com.elytradev.movingworld.MovingWorldMod;
 import com.elytradev.movingworld.common.chunk.ChunkIO;
 import com.elytradev.movingworld.common.entity.EntityMovingWorld;

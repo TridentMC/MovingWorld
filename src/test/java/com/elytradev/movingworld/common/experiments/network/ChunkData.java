@@ -1,6 +1,6 @@
 package com.elytradev.movingworld.common.experiments.network;
 
-import com.elytradev.concrete.Marshallable;
+import com.elytradev.concrete.network.Marshallable;
 import com.elytradev.movingworld.common.chunk.mobilechunk.MobileChunk;
 import com.elytradev.movingworld.common.experiments.region.MobileRegion;
 import com.google.common.collect.Lists;

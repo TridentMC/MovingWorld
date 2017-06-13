@@ -1,6 +1,6 @@
 package com.elytradev.movingworld.common.experiments.world;
 
-import com.elytradev.concrete.Message;
+import com.elytradev.concrete.network.Message;
 import com.elytradev.concrete.reflect.accessor.Accessor;
 import com.elytradev.concrete.reflect.accessor.Accessors;
 import com.elytradev.movingworld.common.experiments.network.messages.server.*;
@@ -30,7 +30,7 @@ public class MWPlayerChunkMapEntry extends PlayerChunkMapEntry {
 
     public void addPlayer(EntityPlayerMP player) {
         if (this.players.contains(player)) {
-            LOGGER.debug("Failed to add player. {} already is in chunk {}, {}", player, Integer.valueOf(this.pos.chunkXPos), Integer.valueOf(this.pos.chunkZPos));
+            LOGGER.debug("Failed to add player. {} already is in chunk {}, {}", player, Integer.valueOf(this.pos.x), Integer.valueOf(this.pos.z));
         } else {
             if (this.players.isEmpty()) {
                 this.lastUpdateInhabitedTime = this.playerChunkMap.getWorldServer().getTotalWorldTime();
@@ -52,7 +52,7 @@ public class MWPlayerChunkMapEntry extends PlayerChunkMapEntry {
 
                 if (this.players.isEmpty()) {
                     if (this.loading.get(this))
-                        net.minecraftforge.common.chunkio.ChunkIOExecutor.dropQueuedChunkLoad(this.playerChunkMap.getWorldServer(), this.pos.chunkXPos, this.pos.chunkZPos, this.loadedRunnable.get(this));
+                        net.minecraftforge.common.chunkio.ChunkIOExecutor.dropQueuedChunkLoad(this.playerChunkMap.getWorldServer(), this.pos.x, this.pos.z, this.loadedRunnable.get(this));
                     this.playerChunkMap.removeEntry(this);
                 }
 
@@ -60,7 +60,7 @@ public class MWPlayerChunkMapEntry extends PlayerChunkMapEntry {
             }
 
             if (this.sentToPlayers) {
-                sendToAllPlayers(new MessageUnloadChunk(this.getChunk().getWorld().provider.getDimension(), this.pos.chunkXPos, this.pos.chunkZPos));
+                sendToAllPlayers(new MessageUnloadChunk(this.getChunk().getWorld().provider.getDimension(), this.pos.x, this.pos.z));
             }
 
             this.players.remove(player);
@@ -105,9 +105,9 @@ public class MWPlayerChunkMapEntry extends PlayerChunkMapEntry {
         if (this.sentToPlayers && this.chunk != null) {
             if (this.changes != 0) {
                 if (this.changes == 1) {
-                    int i = (this.changedBlocks[0] >> 12 & 15) + this.pos.chunkXPos * 16;
+                    int i = (this.changedBlocks[0] >> 12 & 15) + this.pos.x * 16;
                     int j = this.changedBlocks[0] & 255;
-                    int k = (this.changedBlocks[0] >> 8 & 15) + this.pos.chunkZPos * 16;
+                    int k = (this.changedBlocks[0] >> 8 & 15) + this.pos.z * 16;
                     BlockPos blockpos = new BlockPos(i, j, k);
                     this.sendToAllPlayers(new MessageBlockChange(this.playerChunkMap.getWorldServer(), blockpos));
                     net.minecraft.block.state.IBlockState state = this.playerChunkMap.getWorldServer().getBlockState(blockpos);
@@ -120,9 +120,9 @@ public class MWPlayerChunkMapEntry extends PlayerChunkMapEntry {
                 } else {
                     this.sendToAllPlayers(new MessageMultiBlockChange(this.changes, this.changedBlocks, this.chunk));
                     for (int l = 0; l < this.changes; ++l) {
-                        int i1 = (this.changedBlocks[l] >> 12 & 15) + this.pos.chunkXPos * 16;
+                        int i1 = (this.changedBlocks[l] >> 12 & 15) + this.pos.x * 16;
                         int j1 = this.changedBlocks[l] & 255;
-                        int k1 = (this.changedBlocks[l] >> 8 & 15) + this.pos.chunkZPos * 16;
+                        int k1 = (this.changedBlocks[l] >> 8 & 15) + this.pos.z * 16;
                         BlockPos blockpos1 = new BlockPos(i1, j1, k1);
                         net.minecraft.block.state.IBlockState state = this.playerChunkMap.getWorldServer().getBlockState(blockpos1);
 

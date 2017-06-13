@@ -90,8 +90,8 @@ public class MobileRegion {
      * @return true if the chunk is within the region, false otherwise.
      */
     public boolean isChunkInRegion(int x, int z) {
-        return x >= regionMin.chunkXPos && x <= regionMax.chunkXPos
-                && z >= regionMin.chunkZPos && z <= regionMax.chunkZPos;
+        return x >= regionMin.x && x <= regionMax.x
+                && z >= regionMin.z && z <= regionMax.z;
     }
 
     /**
@@ -180,7 +180,7 @@ public class MobileRegion {
      * @return
      */
     public Vec3d convertRegionPosToRealWorld(Vec3d regionPos) {
-        Vec3d adjustedPosition = new Vec3d(regionPos.xCoord, regionPos.yCoord, regionPos.zCoord);
+        Vec3d adjustedPosition = new Vec3d(regionPos.x, regionPos.y, regionPos.z);
         adjustedPosition = adjustedPosition.subtract(centerPos());
         adjustedPosition = adjustedPosition.add(new Vec3d(x, y, z));
         return adjustedPosition;
@@ -193,9 +193,9 @@ public class MobileRegion {
      * @return
      */
     public Vec3d convertRealWorldPosToRegion(Vec3d realWorldPos) {
-        Vec3d adjustedPosition = new Vec3d(realWorldPos.xCoord + centerPos().xCoord - x,
-                realWorldPos.yCoord - y,
-                realWorldPos.zCoord + centerPos().zCoord - z);
+        Vec3d adjustedPosition = new Vec3d(realWorldPos.x + centerPos().x - x,
+                realWorldPos.y - y,
+                realWorldPos.z + centerPos().z - z);
 
         return adjustedPosition;
     }
@@ -209,7 +209,7 @@ public class MobileRegion {
     public BlockPos convertRegionPosToRealWorld(BlockPos pos) {
         Vec3d vec3DPos = new Vec3d(pos.getX(), pos.getY(), pos.getZ());
         vec3DPos = convertRegionPosToRealWorld(vec3DPos);
-        return new BlockPos(Math.round(vec3DPos.xCoord), Math.round(vec3DPos.yCoord), Math.round(vec3DPos.zCoord));
+        return new BlockPos(Math.round(vec3DPos.x), Math.round(vec3DPos.y), Math.round(vec3DPos.z));
     }
 
     /**
@@ -221,7 +221,7 @@ public class MobileRegion {
     public BlockPos convertRealWorldPosToRegion(BlockPos pos) {
         Vec3d vec3DPos = new Vec3d(pos.getX(), pos.getY(), pos.getZ());
         vec3DPos = convertRealWorldPosToRegion(vec3DPos);
-        return new BlockPos(Math.round(vec3DPos.xCoord), Math.round(vec3DPos.yCoord), Math.round(vec3DPos.zCoord));
+        return new BlockPos(Math.round(vec3DPos.x), Math.round(vec3DPos.y), Math.round(vec3DPos.z));
     }
 
     /**
@@ -234,7 +234,7 @@ public class MobileRegion {
         Vec3d min = convertRegionPosToRealWorld(new Vec3d(regionBB.minX, regionBB.minY, regionBB.minZ));
         Vec3d max = convertRegionPosToRealWorld(new Vec3d(regionBB.maxX, regionBB.maxY, regionBB.maxZ));
 
-        return new AxisAlignedBB(min.xCoord, min.yCoord, min.zCoord, max.xCoord, max.yCoord, max.zCoord);
+        return new AxisAlignedBB(min.x, min.y, min.z, max.x, max.y, max.z);
     }
 
     public AxisAlignedBB size() {

@@ -60,8 +60,8 @@ public class MovingWorldExperimentsMod {
             for (ForgeChunkManager.Ticket t : tickets) {
                 MobileRegion region = MobileRegion.getRegionFor(t.getModData().getCompoundTag("Region"));
 
-                for (int cX = region.regionMin.chunkXPos; cX < region.regionMax.chunkXPos; cX++) {
-                    for (int cZ = region.regionMin.chunkZPos; cZ < region.regionMax.chunkZPos; cZ++) {
+                for (int cX = region.regionMin.x; cX < region.regionMax.x; cX++) {
+                    for (int cZ = region.regionMin.z; cZ < region.regionMax.z; cZ++) {
                         ForgeChunkManager.forceChunk(t, new ChunkPos(cX, cZ));
                     }
                 }

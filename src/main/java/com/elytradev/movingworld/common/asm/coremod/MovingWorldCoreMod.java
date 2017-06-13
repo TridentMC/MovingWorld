@@ -13,7 +13,7 @@ public class MovingWorldCoreMod implements IFMLLoadingPlugin {
     public MovingWorldCoreMod() {
         MixinBootstrap.init();
         Mixins.addConfiguration("mixins.movingworld.json");
-        Mixins.addConfiguration("mixins.movingworld.experiments.json");
+        Mixins.addConfiguration("src/test/resources/mixins.movingworld.experiments.json");
     }
 
     @Override

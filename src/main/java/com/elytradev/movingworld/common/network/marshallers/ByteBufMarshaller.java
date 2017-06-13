@@ -1,6 +1,6 @@
 package com.elytradev.movingworld.common.network.marshallers;
 
-import com.elytradev.concrete.Marshaller;
+import com.elytradev.concrete.network.Marshaller;
 import io.netty.buffer.ByteBuf;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 

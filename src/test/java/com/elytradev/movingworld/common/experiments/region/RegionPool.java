@@ -116,8 +116,8 @@ public class RegionPool {
             throw new RegionOverflowException();
         }
         if (!simulate) {
-            for (int chunkX = regionMin.chunkXPos; chunkX <= regionMax.chunkXPos; chunkX++) {
-                for (int chunkZ = regionMin.chunkZPos; chunkZ <= regionMax.chunkZPos; chunkZ++) {
+            for (int chunkX = regionMin.x; chunkX <= regionMax.x; chunkX++) {
+                for (int chunkZ = regionMin.z; chunkZ <= regionMax.z; chunkZ++) {
                     regions.put(new ChunkPos(chunkX, chunkZ), mobileRegion);
                 }
             }
@@ -140,8 +140,8 @@ public class RegionPool {
         MobileRegion region = addRegion;
 
         if (!regions.values().stream().anyMatch(testRegion -> testRegion.equals(addRegion))) {
-            for (int chunkX = addRegion.regionMin.chunkXPos; chunkX <= addRegion.regionMax.chunkXPos; chunkX++) {
-                for (int chunkZ = addRegion.regionMin.chunkZPos; chunkZ <= addRegion.regionMax.chunkZPos; chunkZ++) {
+            for (int chunkX = addRegion.regionMin.x; chunkX <= addRegion.regionMax.x; chunkX++) {
+                for (int chunkZ = addRegion.regionMin.z; chunkZ <= addRegion.regionMax.z; chunkZ++) {
                     regions.put(new ChunkPos(chunkX, chunkZ), addRegion);
                 }
             }
@@ -163,8 +163,8 @@ public class RegionPool {
         List<NBTTagCompound> regionCompounds = regions.entrySet().stream().map(chunkPosMobileRegionEntry -> {
             NBTTagCompound entryCompound = new NBTTagCompound();
 
-            entryCompound.setInteger("ChunkX", chunkPosMobileRegionEntry.getKey().chunkXPos);
-            entryCompound.setInteger("ChunkZ", chunkPosMobileRegionEntry.getKey().chunkZPos);
+            entryCompound.setInteger("ChunkX", chunkPosMobileRegionEntry.getKey().x);
+            entryCompound.setInteger("ChunkZ", chunkPosMobileRegionEntry.getKey().z);
             entryCompound.setTag("MobileRegion", chunkPosMobileRegionEntry.getValue().writeToCompound());
 
             return entryCompound;

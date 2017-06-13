@@ -5,7 +5,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.IChunkGenerator;
+import net.minecraft.world.gen.IChunkGenerator;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -21,8 +21,14 @@ public class ChunkProviderEmpty implements IChunkGenerator {
         this.world = world;
     }
 
+    /**
+     * Generates the chunk at the specified position, from scratch
+     *
+     * @param x
+     * @param z
+     */
     @Override
-    public Chunk provideChunk(int x, int z) {
+    public Chunk generateChunk(int x, int z) {
         Chunk chunk = new Chunk(world, x, z);
         chunk.generateSkylightMap();
         return chunk;
@@ -47,13 +53,21 @@ public class ChunkProviderEmpty implements IChunkGenerator {
 
     @Nullable
     @Override
-    public BlockPos getStrongholdGen(World worldIn, String structureName, BlockPos position, boolean p_180513_4_) {
-        // whats that?
+    public BlockPos getNearestStructurePos(World worldIn, String structureName, BlockPos position, boolean findUnexplored) {
+        // nah
         return null;
     }
 
     @Override
     public void recreateStructures(Chunk chunkIn, int x, int z) {
         // they were never here
+    }
+
+
+    // Not documented in MCP atm, I think this checks if a map has a "feature" or type of element.
+    // So the answer to that is nah.
+    @Override
+    public boolean func_193414_a(World world, String feature, BlockPos pos) {
+        return false;
     }
 }

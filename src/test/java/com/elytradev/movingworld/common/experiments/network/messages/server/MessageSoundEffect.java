@@ -1,9 +1,9 @@
 package com.elytradev.movingworld.common.experiments.network.messages.server;
 
-import com.elytradev.concrete.Message;
-import com.elytradev.concrete.NetworkContext;
-import com.elytradev.concrete.annotation.field.MarshalledAs;
-import com.elytradev.concrete.annotation.type.ReceivedOn;
+import com.elytradev.concrete.network.Message;
+import com.elytradev.concrete.network.NetworkContext;
+import com.elytradev.concrete.network.annotation.field.MarshalledAs;
+import com.elytradev.concrete.network.annotation.type.ReceivedOn;
 import com.elytradev.movingworld.common.experiments.MovingWorldExperimentsMod;
 import com.elytradev.movingworld.common.experiments.network.MovingWorldExperimentsNetworking;
 import com.elytradev.movingworld.common.experiments.network.marshallers.SoundEventMarshaller;
@@ -67,8 +67,8 @@ public class MessageSoundEffect extends Message {
 
         Vec3d transformedPosition = region.convertRegionPosToRealWorld(new Vec3d(posX, posY, posZ));
 
-        Minecraft.getMinecraft().world.playSound(Minecraft.getMinecraft().player, transformedPosition.xCoord,
-                transformedPosition.yCoord, transformedPosition.zCoord, sound, category, soundVolume, soundPitch);
+        Minecraft.getMinecraft().world.playSound(Minecraft.getMinecraft().player, transformedPosition.x,
+                transformedPosition.y, transformedPosition.z, sound, category, soundVolume, soundPitch);
     }
 
     @Override

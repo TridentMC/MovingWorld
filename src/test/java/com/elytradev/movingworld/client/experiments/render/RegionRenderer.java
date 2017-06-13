@@ -65,8 +65,8 @@ public class RegionRenderer {
             blocks.put(renderLayer, new HashMap<>());
         }
 
-        for (int cX = worldClient.region.regionMin.chunkXPos; cX <= worldClient.region.regionMax.chunkXPos; cX++) {
-            for (int cZ = worldClient.region.regionMin.chunkZPos; cZ <= worldClient.region.regionMax.chunkZPos; cZ++) {
+        for (int cX = worldClient.region.regionMin.x; cX <= worldClient.region.regionMax.x; cX++) {
+            for (int cZ = worldClient.region.regionMin.z; cZ <= worldClient.region.regionMax.z; cZ++) {
                 ChunkPos chunkPos = new ChunkPos(cX, cZ);
 
                 Chunk theChunk = worldClient.parentWorld.getChunkFromChunkCoords(cX, cZ);
@@ -131,7 +131,7 @@ public class RegionRenderer {
 
         BlockRendererDispatcher rendererDispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
         Tessellator tessellator = Tessellator.getInstance();
-        VertexBuffer vertexBuffer = tessellator.getBuffer();
+        BufferBuilder buffer = tessellator.getBuffer();
 
         RenderHelper.disableStandardItemLighting();
         GlStateManager.blendFunc(770, 771);
@@ -144,15 +144,15 @@ public class RegionRenderer {
             GlStateManager.shadeModel(7424);
         }
 
-        vertexBuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
+        buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
 
         for (BlockRenderLayer renderLayer : BlockRenderLayer.values()) {
             for (BlockData blockData : blocks.get(renderLayer).values()) {
-                dispatchBlock(vertexBuffer, rendererDispatcher, blockData);
+                dispatchBlock(buffer, rendererDispatcher, blockData);
             }
         }
 
-        vertexBuffer.setTranslation(0.0D, 0.0D, 0.0D);
+        buffer.setTranslation(0.0D, 0.0D, 0.0D);
         tessellator.draw();
         GlStateManager.disableBlend();
         GlStateManager.disableCull();
@@ -173,10 +173,10 @@ public class RegionRenderer {
         return true;
     }
 
-    public void dispatchBlock(VertexBuffer vertexBuffer, BlockRendererDispatcher rendererDispatcher, BlockData data) {
+    public void dispatchBlock(BufferBuilder buffer, BlockRendererDispatcher rendererDispatcher, BlockData data) {
         GlStateManager.pushMatrix();
         GlStateManager.color(1, 1, 1, 1);
-        rendererDispatcher.renderBlock(data.getState(), data.getPos().subtract(region.minBlockPos()), offsetAccess, vertexBuffer);
+        rendererDispatcher.renderBlock(data.getState(), data.getPos().subtract(region.minBlockPos()), offsetAccess, buffer);
         GlStateManager.popMatrix();
     }
 

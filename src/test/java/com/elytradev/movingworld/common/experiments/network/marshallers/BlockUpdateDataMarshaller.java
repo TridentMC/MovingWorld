@@ -1,6 +1,6 @@
 package com.elytradev.movingworld.common.experiments.network.marshallers;
 
-import com.elytradev.concrete.Marshaller;
+import com.elytradev.concrete.network.Marshaller;
 import com.elytradev.movingworld.common.experiments.network.messages.server.MessageMultiBlockChange;
 import io.netty.buffer.ByteBuf;
 

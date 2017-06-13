@@ -1,10 +1,10 @@
 package com.elytradev.movingworld.common.experiments.network.messages.server;
 
-import com.elytradev.concrete.Marshallable;
-import com.elytradev.concrete.Message;
-import com.elytradev.concrete.NetworkContext;
-import com.elytradev.concrete.annotation.field.MarshalledAs;
-import com.elytradev.concrete.annotation.type.ReceivedOn;
+import com.elytradev.concrete.network.Marshallable;
+import com.elytradev.concrete.network.Message;
+import com.elytradev.concrete.network.NetworkContext;
+import com.elytradev.concrete.network.annotation.field.MarshalledAs;
+import com.elytradev.concrete.network.annotation.type.ReceivedOn;
 import com.elytradev.movingworld.common.experiments.MovingWorldExperimentsMod;
 import com.elytradev.movingworld.common.experiments.network.MovingWorldExperimentsNetworking;
 import com.elytradev.movingworld.common.experiments.network.marshallers.BlockStateMarshaller;
@@ -44,8 +44,8 @@ public class MessageMultiBlockChange extends Message {
     public MessageMultiBlockChange(int changeCount, short[] offsets, Chunk chunk) {
         super(MovingWorldExperimentsNetworking.networkContext);
 
-        this.chunkX = chunk.xPosition;
-        this.chunkZ = chunk.zPosition;
+        this.chunkX = chunk.x;
+        this.chunkZ = chunk.z;
         this.dimension = chunk.getWorld().provider.getDimension();
         BlockUpdateData[] updateDataArray = new BlockUpdateData[changeCount];
 
@@ -76,7 +76,7 @@ public class MessageMultiBlockChange extends Message {
 
         public BlockUpdateData(short offset, Chunk chunk) {
             this.offset = offset;
-            this.blockState = chunk.getBlockState(this.getPos(chunk.getPos().chunkXPos, chunk.getPos().chunkZPos));
+            this.blockState = chunk.getBlockState(this.getPos(chunk.getPos().x, chunk.getPos().z));
         }
 
         public BlockUpdateData() {

@@ -1,6 +1,6 @@
 package com.elytradev.movingworld.common.experiments.world;
 
-import com.elytradev.concrete.Message;
+import com.elytradev.concrete.network.Message;
 import com.elytradev.movingworld.common.experiments.MovingWorldExperimentsMod;
 import com.elytradev.movingworld.common.experiments.MovingWorldInitHandler;
 import com.elytradev.movingworld.common.experiments.network.messages.server.MessageEffect;
@@ -72,9 +72,9 @@ public class MWServerWorldEventHandler extends ServerWorldEventHandler {
 
                 Vec3d transformedPosition = region.convertRealWorldPosToRegion(playerPos);
 
-                double d0 = x - transformedPosition.xCoord;
-                double d1 = y - transformedPosition.yCoord;
-                double d2 = z - transformedPosition.zCoord;
+                double d0 = x - transformedPosition.x;
+                double d1 = y - transformedPosition.y;
+                double d2 = z - transformedPosition.z;
 
                 if (d0 * d0 + d1 * d1 + d2 * d2 < radius * radius) {
                     m.sendTo(sendTo);

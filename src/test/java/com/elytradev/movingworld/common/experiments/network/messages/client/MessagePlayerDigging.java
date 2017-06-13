@@ -1,9 +1,9 @@
 package com.elytradev.movingworld.common.experiments.network.messages.client;
 
-import com.elytradev.concrete.Message;
-import com.elytradev.concrete.NetworkContext;
-import com.elytradev.concrete.annotation.field.MarshalledAs;
-import com.elytradev.concrete.annotation.type.ReceivedOn;
+import com.elytradev.concrete.network.Message;
+import com.elytradev.concrete.network.NetworkContext;
+import com.elytradev.concrete.network.annotation.field.MarshalledAs;
+import com.elytradev.concrete.network.annotation.type.ReceivedOn;
 import com.elytradev.movingworld.common.experiments.entity.EntityMobileRegion;
 import com.elytradev.movingworld.common.experiments.interact.MWPlayerInteractionManager;
 import com.elytradev.movingworld.common.experiments.network.MovingWorldExperimentsNetworking;

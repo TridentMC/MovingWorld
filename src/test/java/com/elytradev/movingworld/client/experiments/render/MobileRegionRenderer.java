@@ -40,7 +40,7 @@ public class MobileRegionRenderer extends Render<EntityMobileRegion> {
             BlockPos selectedPos = InputReader.INSTANCE.currentBlockHit.getBlockPos();
             AxisAlignedBB bb = entityMobileRegion.getMobileRegionWorld().getBlockState(selectedPos)
                     .getSelectedBoundingBox(entityMobileRegion.getMobileRegionWorld(), selectedPos)
-                    .expandXyz(0.002D).offset(-pX, -pY, -pZ);
+                    .grow(0.002D).offset(-pX, -pY, -pZ);
             bb = entityMobileRegion.region.convertRegionBBToRealWorld(bb);
 
             // Actually render.

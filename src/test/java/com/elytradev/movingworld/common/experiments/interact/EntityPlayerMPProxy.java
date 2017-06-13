@@ -41,13 +41,13 @@ public class EntityPlayerMPProxy extends EntityPlayerMP {
         this.inventoryContainer = parent.inventoryContainer;
         this.openContainer = parent.openContainer;
 
-        this.prevPosX = prevPos.xCoord;
-        this.prevPosY = prevPos.yCoord;
-        this.prevPosZ = prevPos.zCoord;
+        this.prevPosX = prevPos.x;
+        this.prevPosY = prevPos.y;
+        this.prevPosZ = prevPos.z;
 
-        this.posX = curPos.xCoord;
-        this.posY = curPos.yCoord;
-        this.posZ = curPos.zCoord;
+        this.posX = curPos.x;
+        this.posY = curPos.y;
+        this.posZ = curPos.z;
 
         this.motionX = parent.motionX;
         this.motionY = parent.motionY;
@@ -86,13 +86,13 @@ public class EntityPlayerMPProxy extends EntityPlayerMP {
         this.inventory = parent.inventory;
         this.inventoryContainer = parent.inventoryContainer;
 
-        this.prevPosX = prevPos.xCoord;
-        this.prevPosY = prevPos.yCoord;
-        this.prevPosZ = prevPos.zCoord;
+        this.prevPosX = prevPos.x;
+        this.prevPosY = prevPos.y;
+        this.prevPosZ = prevPos.z;
 
-        this.posX = curPos.xCoord;
-        this.posY = curPos.yCoord;
-        this.posZ = curPos.zCoord;
+        this.posX = curPos.x;
+        this.posY = curPos.y;
+        this.posZ = curPos.z;
 
         this.motionX = parent.motionX;
         this.motionY = parent.motionY;

@@ -1,9 +1,9 @@
 package com.elytradev.movingworld.common.experiments.network.messages.server;
 
-import com.elytradev.concrete.Message;
-import com.elytradev.concrete.NetworkContext;
-import com.elytradev.concrete.annotation.field.MarshalledAs;
-import com.elytradev.concrete.annotation.type.ReceivedOn;
+import com.elytradev.concrete.network.Message;
+import com.elytradev.concrete.network.NetworkContext;
+import com.elytradev.concrete.network.annotation.field.MarshalledAs;
+import com.elytradev.concrete.network.annotation.type.ReceivedOn;
 import com.elytradev.movingworld.common.experiments.MovingWorldExperimentsMod;
 import com.elytradev.movingworld.common.experiments.network.MovingWorldExperimentsNetworking;
 import com.google.common.collect.Lists;
@@ -54,8 +54,8 @@ public class MessageChunkData extends Message {
         super(MovingWorldExperimentsNetworking.networkContext);
 
         this.dimension = dimension;
-        this.chunkX = chunkIn.xPosition;
-        this.chunkZ = chunkIn.zPosition;
+        this.chunkX = chunkIn.x;
+        this.chunkZ = chunkIn.z;
         this.loadChunk = changedSectionFilter == 65535;
         boolean flag = chunkIn.getWorld().provider.hasSkyLight();
         this.buffer = Unpooled.wrappedBuffer(new byte[this.calculateChunkSize(chunkIn, flag, changedSectionFilter)]);
@@ -93,7 +93,7 @@ public class MessageChunkData extends Message {
 
         worldClient.invalidateBlockReceiveRegion(chunkX << 4, 0, chunkZ << 4, (chunkX << 4) + 15, 256, (chunkZ << 4) + 15);
         Chunk chunk = worldClient.getChunkFromChunkCoords(chunkX, chunkZ);
-        chunk.fillChunk(getReadBuffer(), availableSections, loadChunk);
+        chunk.read(getReadBuffer(), availableSections, loadChunk);
         worldClient.markBlockRangeForRenderUpdate(chunkX << 4, 0, chunkZ << 4, (chunkX << 4) + 15, 256, (chunkZ << 4) + 15);
 
         if (!loadChunk || !(worldClient.provider instanceof WorldProviderSurface)) {
@@ -121,10 +121,10 @@ public class MessageChunkData extends Message {
             if (extendedblockstorage != Chunk.NULL_BLOCK_STORAGE && (!this.doChunkLoad() || !extendedblockstorage.isEmpty()) && (changedSectionFilter & 1 << j) != 0) {
                 i |= 1 << j;
                 extendedblockstorage.getData().write(buf);
-                buf.writeBytes(extendedblockstorage.getBlocklightArray().getData());
+                buf.writeBytes(extendedblockstorage.getBlockLight().getData());
 
                 if (writeSkylight) {
-                    buf.writeBytes(extendedblockstorage.getSkylightArray().getData());
+                    buf.writeBytes(extendedblockstorage.getSkyLight().getData());
                 }
             }
         }
@@ -146,10 +146,10 @@ public class MessageChunkData extends Message {
 
             if (extendedblockstorage != Chunk.NULL_BLOCK_STORAGE && (!this.doChunkLoad() || !extendedblockstorage.isEmpty()) && (p_189556_3_ & 1 << j) != 0) {
                 i = i + extendedblockstorage.getData().getSerializedSize();
-                i = i + extendedblockstorage.getBlocklightArray().getData().length;
+                i = i + extendedblockstorage.getBlockLight().getData().length;
 
                 if (p_189556_2_) {
-                    i += extendedblockstorage.getSkylightArray().getData().length;
+                    i += extendedblockstorage.getSkyLight().getData().length;
                 }
             }
         }

@@ -1,9 +1,9 @@
 package com.elytradev.movingworld.common.experiments.network.messages.client;
 
-import com.elytradev.concrete.Message;
-import com.elytradev.concrete.NetworkContext;
-import com.elytradev.concrete.annotation.field.MarshalledAs;
-import com.elytradev.concrete.annotation.type.ReceivedOn;
+import com.elytradev.concrete.network.Message;
+import com.elytradev.concrete.network.NetworkContext;
+import com.elytradev.concrete.network.annotation.field.MarshalledAs;
+import com.elytradev.concrete.network.annotation.type.ReceivedOn;
 import com.elytradev.concrete.reflect.accessor.Accessor;
 import com.elytradev.concrete.reflect.accessor.Accessors;
 import com.elytradev.movingworld.common.experiments.MovingWorldExperimentsMod;
@@ -21,6 +21,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.ChatType;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.WorldServer;
@@ -88,7 +89,7 @@ public class MessageTryUseItemOnBlock extends Message {
         } else {
             TextComponentTranslation textcomponenttranslation = new TextComponentTranslation("build.tooHigh", Integer.valueOf(player.getServerWorld().getMinecraftServer().getBuildLimit()));
             textcomponenttranslation.getStyle().setColor(TextFormatting.RED);
-            player.connection.sendPacket(new SPacketChat(textcomponenttranslation, (byte) 2));
+            player.connection.sendPacket(new SPacketChat(textcomponenttranslation, ChatType.GAME_INFO));
         }
         new MessageBlockChange(worldserver, regionPos).sendTo(player);
         new MessageBlockChange(worldserver, regionPos.offset(placedBlockDirection)).sendTo(player);

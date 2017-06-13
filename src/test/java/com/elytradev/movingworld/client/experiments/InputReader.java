@@ -199,8 +199,8 @@ public class InputReader {
         Vec3d lookVector = renderViewEntity.getLookVec();
 
         Vec3d rayStart = renderViewEntity.getPositionEyes(1.0f);
-        Vec3d rayEnd = rayStart.addVector(lookVector.xCoord * reachMultiplier, lookVector.yCoord * reachMultiplier, lookVector.zCoord * reachMultiplier);
-        AxisAlignedBB bb = new AxisAlignedBB(rayStart.xCoord, rayStart.yCoord, rayStart.zCoord, rayEnd.xCoord, rayEnd.yCoord, rayEnd.zCoord).expandXyz(1);
+        Vec3d rayEnd = rayStart.addVector(lookVector.x * reachMultiplier, lookVector.y * reachMultiplier, lookVector.z * reachMultiplier);
+        AxisAlignedBB bb = new AxisAlignedBB(rayStart.x, rayStart.y, rayStart.z, rayEnd.x, rayEnd.y, rayEnd.z).grow(1);
 
         List<EntityMobileRegion> regionEntities = worldClient.getEntitiesWithinAABB(EntityMobileRegion.class, bb);
         Optional<Tuple<EntityMobileRegion, RayTraceResult>> result = regionEntities.stream().map(this::calcMouseOver).sorted((o1, o2) -> {
@@ -246,7 +246,7 @@ public class InputReader {
         Vec3d lookVector = renderViewEntity.getLookVec();
 
         Vec3d rayStart = renderViewEntity.getPositionEyes(1.0f);
-        Vec3d rayEnd = rayStart.addVector(lookVector.xCoord * reachMultiplier, lookVector.yCoord * reachMultiplier, lookVector.zCoord * reachMultiplier);
+        Vec3d rayEnd = rayStart.addVector(lookVector.x * reachMultiplier, lookVector.y * reachMultiplier, lookVector.z * reachMultiplier);
 
         RayTraceResult traceResult = rayTraceMovingWorld(rayStart, rayEnd, entityMobileRegion);
         return new Tuple<>(entityMobileRegion, traceResult);

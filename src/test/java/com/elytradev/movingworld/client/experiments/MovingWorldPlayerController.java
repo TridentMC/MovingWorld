@@ -292,9 +292,9 @@ public class MovingWorldPlayerController {
         playerProxy.setRegion(currentHit);
 
         ItemStack itemstack = player.getHeldItem(vec);
-        float f = (float) (facing.xCoord - (double) stack.getX());
-        float f1 = (float) (facing.yCoord - (double) stack.getY());
-        float f2 = (float) (facing.zCoord - (double) stack.getZ());
+        float f = (float) (facing.x - (double) stack.getX());
+        float f1 = (float) (facing.y - (double) stack.getY());
+        float f2 = (float) (facing.z - (double) stack.getZ());
         boolean flag = false;
 
         if (!this.currentHit.getParentWorld().getWorldBorder().contains(stack)) {

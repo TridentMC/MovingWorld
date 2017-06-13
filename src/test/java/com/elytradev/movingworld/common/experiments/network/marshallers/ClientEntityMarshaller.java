@@ -1,6 +1,6 @@
 package com.elytradev.movingworld.common.experiments.network.marshallers;
 
-import com.elytradev.concrete.Marshaller;
+import com.elytradev.concrete.network.Marshaller;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;

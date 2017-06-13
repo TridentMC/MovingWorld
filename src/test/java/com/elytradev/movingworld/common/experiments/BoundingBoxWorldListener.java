@@ -30,7 +30,7 @@ public class BoundingBoxWorldListener implements IWorldEventListener {
 
         if (worldIn.isRemote)
             System.out.println("Before " + regionForPos.size());
-        if (regionForPos.size().isVecInside(new Vec3d(pos))) {
+        if (regionForPos.size().contains(new Vec3d(pos))) {
             if (removed) {
                 //In region, block was removed.
 
