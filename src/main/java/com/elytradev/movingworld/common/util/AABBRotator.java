@@ -44,17 +44,17 @@ public class AABBRotator {
         vec10 = vec10.rotateAroundY(ang);
         vec11 = vec11.rotateAroundY(ang);
 
-        vec0h = vec0h.setX((vec00.xCoord + vec01.xCoord) / 2D);
-        vec0h = vec0h.setZ((vec00.zCoord + vec01.zCoord) / 2D);
+        vec0h = vec0h.setX((vec00.x + vec01.x) / 2D);
+        vec0h = vec0h.setZ((vec00.z + vec01.z) / 2D);
 
-        vec1h = vec1h.setX((vec10.xCoord + vec11.xCoord) / 2D);
-        vec1h = vec1h.setZ((vec10.zCoord + vec11.zCoord) / 2D);
+        vec1h = vec1h.setX((vec10.x + vec11.x) / 2D);
+        vec1h = vec1h.setZ((vec10.z + vec11.z) / 2D);
 
-        vech0 = vech0.setX((vec00.xCoord + vec10.xCoord) / 2D);
-        vech0 = vech0.setZ((vec00.zCoord + vec10.zCoord) / 2D);
+        vech0 = vech0.setX((vec00.x + vec10.x) / 2D);
+        vech0 = vech0.setZ((vec00.z + vec10.z) / 2D);
 
-        vech1 = vech1.setX((vec01.xCoord + vec11.xCoord) / 2D);
-        vech1 = vech1.setZ((vec01.zCoord + vec11.zCoord) / 2D);
+        vech1 = vech1.setX((vec01.x + vec11.x) / 2D);
+        vech1 = vech1.setZ((vec01.z + vec11.z) / 2D);
 
         aabb = new AxisAlignedBB(minX(), y0, minZ(), maxX(), y1, maxZ()).offset(xoff, 0F, zoff);
 
@@ -62,18 +62,18 @@ public class AABBRotator {
     }
 
     private static double minX() {
-        return Math.min(Math.min(Math.min(vec0h.xCoord, vec1h.xCoord), vech0.xCoord), vech1.xCoord);
+        return Math.min(Math.min(Math.min(vec0h.x, vec1h.x), vech0.x), vech1.x);
     }
 
     private static double minZ() {
-        return Math.min(Math.min(Math.min(vec0h.zCoord, vec1h.zCoord), vech0.zCoord), vech1.zCoord);
+        return Math.min(Math.min(Math.min(vec0h.z, vec1h.z), vech0.z), vech1.z);
     }
 
     private static double maxX() {
-        return Math.max(Math.max(Math.max(vec0h.xCoord, vec1h.xCoord), vech0.xCoord), vech1.xCoord);
+        return Math.max(Math.max(Math.max(vec0h.x, vec1h.x), vech0.x), vech1.x);
     }
 
     private static double maxZ() {
-        return Math.max(Math.max(Math.max(vec0h.zCoord, vec1h.zCoord), vech0.zCoord), vech1.zCoord);
+        return Math.max(Math.max(Math.max(vec0h.z, vec1h.z), vech0.z), vech1.z);
     }
 }

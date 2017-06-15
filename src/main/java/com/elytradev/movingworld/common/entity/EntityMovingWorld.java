@@ -141,7 +141,6 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         return controllingPassenger == null;
     }
 
-
     public double getControlX() {
         return controlX;
     }
@@ -530,8 +529,8 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
                 vec.addVector(0, 0.25, 0);
             }
 
-            passenger.setPosition(posX + vec.xCoord, posY + vec.yCoord + passenger.getYOffset(),
-                    posZ + vec.zCoord);
+            passenger.setPosition(posX + vec.x, posY + vec.y + passenger.getYOffset(),
+                    posZ + vec.z);
 
             this.applyYawToEntity(passenger);
         }
@@ -716,12 +715,12 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
                 -mobileChunk.getCenterZ());
         vec = vec.rotateYaw((float) Math.toRadians(rotationYaw));
 
-        int ix = MathHelperMod.round_double(vec.xCoord + posX);
-        int iy = MathHelperMod.round_double(vec.yCoord + posY);
-        int iz = MathHelperMod.round_double(vec.zCoord + posZ);
+        int ix = MathHelperMod.round_double(vec.x + posX);
+        int iy = MathHelperMod.round_double(vec.y + posY);
+        int iz = MathHelperMod.round_double(vec.z + posZ);
 
         if (doPosAdjustment) {
-            setPositionAndUpdate(ix - vec.xCoord, iy - vec.yCoord, iz - vec.zCoord);
+            setPositionAndUpdate(ix - vec.x, iy - vec.y, iz - vec.z);
         }
 
         motionX = motionY = motionZ = 0D;
@@ -947,7 +946,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
      * it can cause a lot of lag.
      */
     @Override
-    protected void resetHeight() {
+    protected void doWaterSplashEffect() {
         float sqrtMotion = MathHelper.sqrt(
                 this.motionX * this.motionX * 0.20000000298023224D + this.motionY * this.motionY
                         + this.motionZ * this.motionZ * 0.20000000298023224D) * 0.2F;

@@ -64,14 +64,14 @@ public class ChunkDisassembler {
                     vec = vecB;
                     vec = vec.rotateAroundY(yaw);
 
-                    pos = new BlockPos(MathHelperMod.round_double(vec.xCoord + movingWorld.posX),
-                            MathHelperMod.round_double(vec.yCoord + movingWorld.posY),
-                            MathHelperMod.round_double(vec.zCoord + movingWorld.posZ));
+                    pos = new BlockPos(MathHelperMod.round_double(vec.x + movingWorld.posX),
+                            MathHelperMod.round_double(vec.y + movingWorld.posY),
+                            MathHelperMod.round_double(vec.z + movingWorld.posZ));
 
                     state = world.getBlockState(pos);
                     block = state.getBlock();
                     if ((block != null && !block.isAir(state, world, pos) && !block.getMaterial(state).isLiquid() && !assemblyInteractor.canOverwriteState(state))
-                            || (MathHelperMod.round_double(vec.yCoord + movingWorld.posY) > world.getActualHeight())) {
+                            || (MathHelperMod.round_double(vec.y + movingWorld.posY) > world.getActualHeight())) {
                         return false;
                     }
                 }
@@ -126,9 +126,9 @@ public class ChunkDisassembler {
                         vec = new Vec3dMod(i + ox, j + oy, k + oz);
                         vec = vec.rotateAroundY(yaw);
 
-                        pos = new BlockPos(MathHelperMod.round_double(vec.xCoord + movingWorld.posX),
-                                MathHelperMod.round_double(vec.yCoord + movingWorld.posY),
-                                MathHelperMod.round_double(vec.zCoord + movingWorld.posZ));
+                        pos = new BlockPos(MathHelperMod.round_double(vec.x + movingWorld.posX),
+                                MathHelperMod.round_double(vec.y + movingWorld.posY),
+                                MathHelperMod.round_double(vec.z + movingWorld.posZ));
 
                         lbList.add(new LocatedBlock(blockState, tileentity, pos, new BlockPos(i, j, k)));
                     }

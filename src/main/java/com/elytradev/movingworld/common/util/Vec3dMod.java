@@ -12,7 +12,7 @@ import net.minecraft.util.math.Vec3d;
 public class Vec3dMod extends Vec3d {
 
     public Vec3dMod(Vec3d vec3) {
-        super(vec3.xCoord, vec3.yCoord, vec3.zCoord);
+        super(vec3.x, vec3.y, vec3.z);
     }
 
     public Vec3dMod(BlockPos pos) {
@@ -28,15 +28,15 @@ public class Vec3dMod extends Vec3d {
     }
 
     public Vec3dMod setX(double x) {
-        return new Vec3dMod(x, this.yCoord, this.zCoord);
+        return new Vec3dMod(x, this.y, this.z);
     }
 
     public Vec3dMod setY(double y) {
-        return new Vec3dMod(this.xCoord, y, this.zCoord);
+        return new Vec3dMod(this.x, y, this.z);
     }
 
     public Vec3dMod setZ(double z) {
-        return new Vec3dMod(this.xCoord, this.yCoord, z);
+        return new Vec3dMod(this.x, this.y, z);
     }
 
     public Vec3dMod makeNewVec(double x, double y, double z) {
@@ -66,9 +66,9 @@ public class Vec3dMod extends Vec3d {
     public Vec3dMod rotateRoll(float roll) {
         float var2 = MathHelper.cos(roll);
         float var3 = MathHelper.sin(roll);
-        double var4 = this.xCoord * (double) var2 + this.yCoord * (double) var3;
-        double var6 = this.yCoord * (double) var2 - this.xCoord * (double) var3;
-        double var8 = this.zCoord;
+        double var4 = this.x * (double) var2 + this.y * (double) var3;
+        double var6 = this.y * (double) var2 - this.x * (double) var3;
+        double var8 = this.z;
         return new Vec3dMod(var4, var6, var8);
     }
 
@@ -80,9 +80,9 @@ public class Vec3dMod extends Vec3d {
     public Vec3dMod rotateAroundX(float angle) {
         float f1 = MathHelper.cos(angle);
         float f2 = MathHelper.sin(angle);
-        double d0 = this.xCoord;
-        double d1 = this.yCoord * (double) f1 + this.zCoord * (double) f2;
-        double d2 = this.zCoord * (double) f1 - this.yCoord * (double) f2;
+        double d0 = this.x;
+        double d1 = this.y * (double) f1 + this.z * (double) f2;
+        double d2 = this.z * (double) f1 - this.y * (double) f2;
         return this.makeNewVec(d0, d1, d2);
     }
 
@@ -92,9 +92,9 @@ public class Vec3dMod extends Vec3d {
     public Vec3dMod rotateAroundY(float angle) {
         float f1 = MathHelper.cos(angle);
         float f2 = MathHelper.sin(angle);
-        double d0 = this.xCoord * (double) f1 + this.zCoord * (double) f2;
-        double d1 = this.yCoord;
-        double d2 = this.zCoord * (double) f1 - this.xCoord * (double) f2;
+        double d0 = this.x * (double) f1 + this.z * (double) f2;
+        double d1 = this.y;
+        double d2 = this.z * (double) f1 - this.x * (double) f2;
         return this.makeNewVec(d0, d1, d2);
     }
 
@@ -104,9 +104,9 @@ public class Vec3dMod extends Vec3d {
     public Vec3dMod rotateAroundZ(float angle) {
         float f1 = MathHelper.cos(angle);
         float f2 = MathHelper.sin(angle);
-        double d0 = this.xCoord * (double) f1 + this.yCoord * (double) f2;
-        double d1 = this.yCoord * (double) f1 - this.xCoord * (double) f2;
-        double d2 = this.zCoord;
+        double d0 = this.x * (double) f1 + this.y * (double) f2;
+        double d1 = this.y * (double) f1 - this.x * (double) f2;
+        double d2 = this.z;
         return this.makeNewVec(d0, d1, d2);
     }
 

@@ -29,13 +29,13 @@ public class ChunkCollisionHelper {
         boolean cancel = false;
         IMixinEntity mixinEntity = (IMixinEntity) entity;
 
-        double d3 = mobileChunk.getChunkPosForWorldPos(new Vec3d(entity.posX, 0, 0)).xCoord;
-        double d4 = mobileChunk.getChunkPosForWorldPos(new Vec3d(0, entity.posY, 0)).yCoord;
-        double d5 = mobileChunk.getChunkPosForWorldPos(new Vec3d(0, 0, entity.posZ)).zCoord;
+        double d3 = mobileChunk.getChunkPosForWorldPos(new Vec3d(entity.posX, 0, 0)).x;
+        double d4 = mobileChunk.getChunkPosForWorldPos(new Vec3d(0, entity.posY, 0)).y;
+        double d5 = mobileChunk.getChunkPosForWorldPos(new Vec3d(0, 0, entity.posZ)).z;
 
-        final double entityChunkPosX = mobileChunk.getChunkPosForWorldPos(new Vec3d(entity.posX, 0, 0)).xCoord;
-        final double entityChunkPosY = mobileChunk.getChunkPosForWorldPos(new Vec3d(0, entity.posY, 0)).yCoord;
-        final double entityChunkPosZ = mobileChunk.getChunkPosForWorldPos(new Vec3d(0, 0, entity.posZ)).zCoord;
+        final double entityChunkPosX = mobileChunk.getChunkPosForWorldPos(new Vec3d(entity.posX, 0, 0)).x;
+        final double entityChunkPosY = mobileChunk.getChunkPosForWorldPos(new Vec3d(0, entity.posY, 0)).y;
+        final double entityChunkPosZ = mobileChunk.getChunkPosForWorldPos(new Vec3d(0, 0, entity.posZ)).z;
 
         double d6 = x;
         double d7 = y;
@@ -44,7 +44,7 @@ public class ChunkCollisionHelper {
         AxisAlignedBB entityBox = entity.getEntityBoundingBox();
         entityBox = mobileChunk.offsetWorldBBToChunkBB(entityBox);
 
-        List list1 = mobileChunk.getCollidingBoundingBoxes(true, entityBox.addCoord(x, y, z));
+        List list1 = mobileChunk.getCollidingBoundingBoxes(true, entityBox.offset(x, y, z));
         AxisAlignedBB axisalignedbb = entityBox;
         AxisAlignedBB axisalignedbb1;
 
@@ -76,9 +76,9 @@ public class ChunkCollisionHelper {
             AxisAlignedBB axisalignedbb3 = entityBox;
             entityBox = (axisalignedbb);
             y = (double) entity.stepHeight;
-            List list = mobileChunk.getCollidingBoundingBoxes(true, entityBox.addCoord(d6, y, d8));
+            List list = mobileChunk.getCollidingBoundingBoxes(true, entityBox.offset(d6, y, d8));
             AxisAlignedBB axisalignedbb4 = entityBox;
-            AxisAlignedBB axisalignedbb5 = axisalignedbb4.addCoord(d6, 0.0D, d8);
+            AxisAlignedBB axisalignedbb5 = axisalignedbb4.offset(d6, 0.0D, d8);
             double d12 = y;
             AxisAlignedBB axisalignedbb6;
 

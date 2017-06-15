@@ -104,7 +104,7 @@ public abstract class MobileChunk implements IBlockAccess {
     public Vec3d getWorldPosForChunkPos(Vec3d vec) {
         Vec3d movingWorldPos = new Vec3d(entityMovingWorld.posX, entityMovingWorld.posY, entityMovingWorld.posZ);
         movingWorldPos = movingWorldPos.subtract(new Double(maxX()) / 2, new Double(maxY()) / 2, new Double(maxZ()) / 2);
-        Vec3d returnPos = new Vec3d(vec.xCoord, vec.yCoord, vec.zCoord);
+        Vec3d returnPos = new Vec3d(vec.x, vec.y, vec.z);
         returnPos.add(movingWorldPos);
         return returnPos;
     }
@@ -113,7 +113,7 @@ public abstract class MobileChunk implements IBlockAccess {
     public Vec3d getChunkPosForWorldPos(Vec3d pos) {
         Vec3d movingWorldPos = new Vec3d(entityMovingWorld.posX, entityMovingWorld.posY, entityMovingWorld.posZ);
         movingWorldPos = movingWorldPos.subtract(new Double(maxX()) / 2, new Double(maxY()) / 2, new Double(maxZ()) / 2);
-        Vec3d returnPos = new Vec3d(pos.xCoord, pos.yCoord, pos.zCoord);
+        Vec3d returnPos = new Vec3d(pos.x, pos.y, pos.z);
         returnPos = returnPos.subtract(movingWorldPos);
         return returnPos;
     }
@@ -131,7 +131,7 @@ public abstract class MobileChunk implements IBlockAccess {
         minVec = getChunkPosForWorldPos(minVec);
         maxVec = getChunkPosForWorldPos(maxVec);
 
-        axisAlignedBB = new AxisAlignedBB(minVec.xCoord, minVec.yCoord, minVec.zCoord, maxVec.xCoord, maxVec.yCoord, maxVec.zCoord);
+        axisAlignedBB = new AxisAlignedBB(minVec.x, minVec.y, minVec.z, maxVec.x, maxVec.y, maxVec.z);
 
         return axisAlignedBB;
     }
@@ -323,13 +323,13 @@ public abstract class MobileChunk implements IBlockAccess {
 
         if (!chunkPos) {
             for (AxisAlignedBB axisAlignedBB : boundingBoxes.values()) {
-                if (axisAlignedBB.intersectsWith(boxUnion)) {
+                if (axisAlignedBB.intersects(boxUnion)) {
                     axisAlignedBBs.add(axisAlignedBB);
                 }
             }
         } else {
             for (AxisAlignedBB axisAlignedBB : chunkBoundingBoxes.values()) {
-                if (axisAlignedBB.intersectsWith(boxUnion)) {
+                if (axisAlignedBB.intersects(boxUnion)) {
                     axisAlignedBBs.add(axisAlignedBB);
                 }
             }
@@ -343,13 +343,13 @@ public abstract class MobileChunk implements IBlockAccess {
 
         if (!chunkPos) {
             for (AxisAlignedBB axisAlignedBB : boundingBoxes.values()) {
-                if (axisAlignedBB.intersectsWith(box)) {
+                if (axisAlignedBB.intersects(box)) {
                     axisAlignedBBs.add(axisAlignedBB);
                 }
             }
         } else {
             for (AxisAlignedBB axisAlignedBB : chunkBoundingBoxes.values()) {
-                if (axisAlignedBB.intersectsWith(box)) {
+                if (axisAlignedBB.intersects(box)) {
                     axisAlignedBBs.add(axisAlignedBB);
                 }
             }
@@ -383,7 +383,7 @@ public abstract class MobileChunk implements IBlockAccess {
 
                 axisAlignedBB = AABBRotator.rotateAABBAroundY(axisAlignedBB, offset.getX(), offset.getZ(), rotationRadians);
                 Vec3dMod vec3 = new Vec3dMod(maxDX, maxDY, maxDZ).rotateAroundY(rotationRadians);
-                axisAlignedBB = axisAlignedBB.offset(entityMovingWorld.posX + vec3.xCoord, entityMovingWorld.posY + vec3.yCoord, entityMovingWorld.posZ + vec3.zCoord);
+                axisAlignedBB = axisAlignedBB.offset(entityMovingWorld.posX + vec3.x, entityMovingWorld.posY + vec3.y, entityMovingWorld.posZ + vec3.z);
 
                 newBoundingBoxes.put(pos, axisAlignedBB);
             }
@@ -655,10 +655,10 @@ public abstract class MobileChunk implements IBlockAccess {
         //midVec = midVec.add(minVec);
         Vec3d maxVec = new Vec3d(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ);
 
-        if (container.minX < minVec.xCoord || container.minY < minVec.yCoord || container.minZ < minVec.zCoord) {
+        if (container.minX < minVec.x || container.minY < minVec.y || container.minZ < minVec.z) {
             return true;
         }
-        if (container.maxX > maxVec.xCoord || container.maxY > maxVec.yCoord || container.maxZ > maxVec.zCoord) {
+        if (container.maxX > maxVec.x || container.maxY > maxVec.y || container.maxZ > maxVec.z) {
             return true;
         }
         return false;
