@@ -63,11 +63,9 @@ public class ChunkProviderEmpty implements IChunkGenerator {
         // they were never here
     }
 
-
-    // Not documented in MCP atm, I think this checks if a map has a "feature" or type of element.
-    // So the answer to that is nah.
     @Override
-    public boolean func_193414_a(World world, String feature, BlockPos pos) {
+    public boolean isInsideStructure(World worldIn, String structureName, BlockPos pos) {
         return false;
     }
+
 }

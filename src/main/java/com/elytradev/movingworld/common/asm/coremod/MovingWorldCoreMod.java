@@ -1,19 +1,23 @@
 package com.elytradev.movingworld.common.asm.coremod;
 
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
-
 import org.spongepowered.asm.launch.MixinBootstrap;
 import org.spongepowered.asm.mixin.Mixins;
 
 import java.util.Map;
 
-@IFMLLoadingPlugin.MCVersion(value = "1.11.2")
+@IFMLLoadingPlugin.MCVersion(value = "1.12")
 public class MovingWorldCoreMod implements IFMLLoadingPlugin {
 
     public MovingWorldCoreMod() {
         MixinBootstrap.init();
         Mixins.addConfiguration("mixins.movingworld.json");
-        Mixins.addConfiguration("src/test/resources/mixins.movingworld.experiments.json");
+        try {
+            if (Class.forName("com.elytradev.movingworld.common.experiments.MovingWorldExperimentsMod") != null)
+                Mixins.addConfiguration("mixins.movingworld.experiments.json");
+        } catch (ClassNotFoundException e) {
+            // yum! tasty tasty exceptions :^)
+        }
     }
 
     @Override

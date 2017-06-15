@@ -52,7 +52,7 @@ public class EntityPlayerSPProxy extends EntityPlayerSP {
     
     public EntityPlayerSPProxy(EntityPlayerSP playerSP, EntityMobileRegion region) {
         super(Minecraft.getMinecraft(), region.getParentWorld(),
-                playerSP.connection, playerSP.getStatFileWriter(), playerSP.func_192035_E());
+                playerSP.connection, playerSP.getStatFileWriter(), playerSP.getRecipeBook());
 
         this.parent = playerSP;
         this.region = region;
