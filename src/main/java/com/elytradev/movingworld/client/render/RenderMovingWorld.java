@@ -1,18 +1,16 @@
 package com.elytradev.movingworld.client.render;
 
+import com.elytradev.movingworld.common.chunk.mobilechunk.MobileChunkClient;
+import com.elytradev.movingworld.common.entity.EntityMovingWorld;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.culling.ICamera;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.util.ResourceLocation;
-
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nullable;
-
-import com.elytradev.movingworld.common.chunk.mobilechunk.MobileChunkClient;
-import com.elytradev.movingworld.common.entity.EntityMovingWorld;
 
 public class RenderMovingWorld extends Render<EntityMovingWorld> {
     public RenderMovingWorld(RenderManager renderManager) {

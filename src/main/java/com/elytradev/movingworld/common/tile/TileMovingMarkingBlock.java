@@ -5,6 +5,8 @@ import com.elytradev.movingworld.common.chunk.LocatedBlock;
 import com.elytradev.movingworld.common.chunk.MovingWorldAssemblyInteractor;
 import com.elytradev.movingworld.common.chunk.assembly.AssembleResult;
 import com.elytradev.movingworld.common.chunk.assembly.ChunkAssembler;
+import com.elytradev.movingworld.common.entity.EntityMovingWorld;
+import com.elytradev.movingworld.common.entity.MovingWorldInfo;
 import com.elytradev.movingworld.common.util.LocatedBlockList;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -17,9 +19,6 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 
 import java.util.UUID;
-
-import com.elytradev.movingworld.common.entity.EntityMovingWorld;
-import com.elytradev.movingworld.common.entity.MovingWorldInfo;
 
 public abstract class TileMovingMarkingBlock extends TileEntity implements IMovingTile {
 

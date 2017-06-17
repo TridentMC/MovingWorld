@@ -1,12 +1,10 @@
 package com.elytradev.movingworld.common.asm.mixin.core.block.property;
 
-import net.minecraft.block.properties.PropertyInteger;
-import net.minecraft.block.state.IBlockState;
-
-import org.spongepowered.asm.mixin.Mixin;
-
 import com.elytradev.movingworld.api.rotation.IRotationProperty;
 import com.elytradev.movingworld.common.util.RotationHelper;
+import net.minecraft.block.properties.PropertyInteger;
+import net.minecraft.block.state.IBlockState;
+import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(PropertyInteger.class)
 public class MixinPropertyInteger implements IRotationProperty {

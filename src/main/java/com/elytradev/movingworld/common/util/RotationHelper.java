@@ -2,13 +2,12 @@ package com.elytradev.movingworld.common.util;
 
 import com.elytradev.movingworld.MovingWorldMod;
 import com.elytradev.movingworld.api.rotation.IRotationBlock;
+import com.elytradev.movingworld.api.rotation.IRotationProperty;
+import com.elytradev.movingworld.common.chunk.LocatedBlock;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.Vec3i;
-
-import com.elytradev.movingworld.api.rotation.IRotationProperty;
-import com.elytradev.movingworld.common.chunk.LocatedBlock;
 
 public class RotationHelper {
 

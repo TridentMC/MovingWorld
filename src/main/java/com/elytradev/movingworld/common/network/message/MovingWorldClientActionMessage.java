@@ -1,11 +1,11 @@
 package com.elytradev.movingworld.common.network.message;
 
-import com.elytradev.movingworld.common.network.MovingWorldClientAction;
 import com.elytradev.concrete.network.Message;
 import com.elytradev.concrete.network.NetworkContext;
 import com.elytradev.concrete.network.annotation.field.MarshalledAs;
 import com.elytradev.concrete.network.annotation.type.ReceivedOn;
 import com.elytradev.movingworld.common.entity.EntityMovingWorld;
+import com.elytradev.movingworld.common.network.MovingWorldClientAction;
 import com.elytradev.movingworld.common.network.MovingWorldNetworking;
 import com.elytradev.movingworld.common.network.marshallers.EntityMarshaller;
 import net.minecraft.entity.player.EntityPlayer;

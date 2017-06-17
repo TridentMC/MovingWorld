@@ -1,5 +1,9 @@
 package com.elytradev.movingworld.common.chunk.assembly;
 
+import com.elytradev.movingworld.MovingWorldMod;
+import com.elytradev.movingworld.common.chunk.LocatedBlock;
+import com.elytradev.movingworld.common.chunk.MovingWorldAssemblyInteractor;
+import com.elytradev.movingworld.common.chunk.MovingWorldSizeOverflowException;
 import com.elytradev.movingworld.common.event.AssembleBlockEvent;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -10,11 +14,6 @@ import net.minecraftforge.common.MinecraftForge;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-
-import com.elytradev.movingworld.MovingWorldMod;
-import com.elytradev.movingworld.common.chunk.LocatedBlock;
-import com.elytradev.movingworld.common.chunk.MovingWorldAssemblyInteractor;
-import com.elytradev.movingworld.common.chunk.MovingWorldSizeOverflowException;
 
 
 public class ChunkAssembler {

@@ -1,13 +1,11 @@
 package com.elytradev.movingworld.common.util;
 
 import com.elytradev.movingworld.MovingWorldMod;
+import com.elytradev.movingworld.common.chunk.LocatedBlock;
 import com.google.common.collect.HashBiMap;
-
 import net.minecraft.util.math.BlockPos;
 
 import java.util.ArrayList;
-
-import com.elytradev.movingworld.common.chunk.LocatedBlock;
 
 public class LocatedBlockList extends ArrayList<LocatedBlock> {
 

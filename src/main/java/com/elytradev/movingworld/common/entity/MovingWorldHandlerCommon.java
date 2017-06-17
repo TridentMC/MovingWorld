@@ -21,7 +21,7 @@ public abstract class MovingWorldHandlerCommon {
 
     public abstract void setMovingWorld(EntityMovingWorld movingWorld);
 
-    public boolean processInitialInteract(EntityPlayer player,EnumHand hand) {
+    public boolean processInitialInteract(EntityPlayer player, EnumHand hand) {
         return !player.isSneaking();
     }
 

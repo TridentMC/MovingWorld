@@ -1,9 +1,8 @@
 package com.elytradev.movingworld.api;
 
 import com.elytradev.movingworld.common.chunk.mobilechunk.MobileChunk;
-import net.minecraft.util.math.BlockPos;
-
 import com.elytradev.movingworld.common.entity.EntityMovingWorld;
+import net.minecraft.util.math.BlockPos;
 
 public interface IMovingTile {
 

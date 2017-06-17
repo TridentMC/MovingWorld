@@ -5,7 +5,6 @@ import com.elytradev.movingworld.common.chunk.LocatedBlock;
 import com.elytradev.movingworld.common.util.RotationHelper;
 import net.minecraft.block.BlockSkull;
 import net.minecraft.tileentity.TileEntitySkull;
-
 import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(BlockSkull.class)

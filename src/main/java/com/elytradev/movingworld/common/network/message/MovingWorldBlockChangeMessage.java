@@ -10,7 +10,6 @@ import com.elytradev.movingworld.common.entity.EntityMovingWorld;
 import com.elytradev.movingworld.common.network.MovingWorldNetworking;
 import com.elytradev.movingworld.common.network.marshallers.ByteBufMarshaller;
 import com.elytradev.movingworld.common.network.marshallers.EntityMarshaller;
-
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.relauncher.Side;

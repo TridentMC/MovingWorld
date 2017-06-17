@@ -1,5 +1,9 @@
 package com.elytradev.movingworld;
 
+import com.elytradev.movingworld.client.ClientProxy;
+import com.elytradev.movingworld.common.CommonProxy;
+import com.elytradev.movingworld.common.config.MainConfig;
+import com.elytradev.movingworld.common.network.MovingWorldNetworking;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
@@ -7,15 +11,9 @@ import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
-
-import com.elytradev.movingworld.client.ClientProxy;
-import com.elytradev.movingworld.common.CommonProxy;
-import com.elytradev.movingworld.common.config.MainConfig;
-import com.elytradev.movingworld.common.network.MovingWorldNetworking;
 
 @Mod(modid = MovingWorldMod.MOD_ID, name = MovingWorldMod.MOD_NAME, version = MovingWorldMod.MOD_VERSION, guiFactory = MovingWorldMod.MOD_GUIFACTORY)
 public class MovingWorldMod {

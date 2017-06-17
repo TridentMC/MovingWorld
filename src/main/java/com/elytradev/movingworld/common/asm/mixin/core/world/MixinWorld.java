@@ -1,7 +1,6 @@
 package com.elytradev.movingworld.common.asm.mixin.core.world;
 
 import net.minecraft.world.World;
-
 import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(World.class)

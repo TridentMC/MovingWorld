@@ -3,7 +3,6 @@ package com.elytradev.movingworld.common.config;
 import com.elytradev.movingworld.MovingWorldMod;
 import com.elytradev.movingworld.common.config.priority.AssemblePriorityConfig;
 import com.elytradev.movingworld.common.util.MaterialDensity;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
