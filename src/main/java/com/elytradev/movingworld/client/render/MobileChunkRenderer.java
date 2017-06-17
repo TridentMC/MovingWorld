@@ -244,7 +244,6 @@ public class MobileChunkRenderer {
             if (vbo == null)
                 return;
 
-            Minecraft.getMinecraft().entityRenderer.enableLightmap();
             GlStateManager.pushMatrix();
 
             GlStateManager.glEnableClientState(32884);
@@ -281,8 +280,6 @@ public class MobileChunkRenderer {
                         GlStateManager.resetColor();
                 }
             }
-
-            Minecraft.getMinecraft().entityRenderer.disableLightmap();
             GlStateManager.popMatrix();
         }
 
@@ -304,11 +301,24 @@ public class MobileChunkRenderer {
         }
 
         public void render() {
-            RenderHelper.enableStandardItemLighting();
+            GlStateManager.pushMatrix();
+            RenderHelper.disableStandardItemLighting();
+            GlStateManager.blendFunc(770, 771);
+            GlStateManager.enableBlend();
+            GlStateManager.enableCull();
+
+            if (Minecraft.isAmbientOcclusionEnabled()) {
+                GlStateManager.shadeModel(7425);
+            } else {
+                GlStateManager.shadeModel(7424);
+            }
             for (int i = 0; i < BlockRenderLayer.values().length; ++i) {
                 renderLayer(BlockRenderLayer.values()[i]);
             }
-            RenderHelper.disableStandardItemLighting();
+            GlStateManager.disableBlend();
+            GlStateManager.disableCull();
+            RenderHelper.enableStandardItemLighting();
+            GlStateManager.popMatrix();
         }
     }
 
