@@ -84,6 +84,8 @@ shadowJar {
     exclude 'dummyThing'
 
 	relocate 'com.elytradev.concrete', "com.elytradev.movingworld.repackage.com.elytradev.concrete"
+    configurations = [project.configurations.shadow]
+
     dependencies {
         include(dependency('org.spongepowered:mixin'))
     }
