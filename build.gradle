@@ -17,6 +17,16 @@ buildscript {
     }
 }
 
+repositories {
+    maven {
+        name 'spongepowered'
+        url 'https://repo.spongepowered.org/maven/'
+    }
+    maven {
+        url = 'http://repo.elytradev.com/'
+    }
+}
+
 apply plugin: 'java'
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'org.spongepowered.mixin'
@@ -43,28 +53,16 @@ targetCompatibility = 1.8
 
 minecraft {
     version = project.forgeVersion
+    mappings = project.mcpVersion
     runDir = "run"
 
     def replacementVersion = 'MOD_VERSION = \"' + project.version + '\"'
-
     replace("MOD_VERSION = \"@MOVINGWORLDVER@\"",
             replacementVersion)
-
-    mappings = project.mcpVersion
 }
 
 mixin {
     add sourceSets.main, "mixins.movingworld.refmap.json"
-}
-
-repositories {
-    maven {
-        name 'spongepowered'
-        url 'https://repo.spongepowered.org/maven/'
-    }
-    maven {
-        url = 'http://repo.elytradev.com/'
-    }
 }
 
 dependencies {
@@ -75,19 +73,15 @@ dependencies {
 
     compile 'com.elytradev:concrete:0.2.2:all'
     shadow 'com.elytradev:concrete:0.2.2:all'
-	
-	compile 'cglib:cglib:3.2.5'
-    compile 'org.objenesis:objenesis:2.5.1'
 }
 
 shadowJar {
     exclude 'dummyThing'
 
 	relocate 'com.elytradev.concrete', "com.elytradev.movingworld.repackage.com.elytradev.concrete"
-    configurations = [project.configurations.shadow]
-
     dependencies {
         include(dependency('org.spongepowered:mixin'))
+        include(dependency('com.elytradev:concrete'))
     }
 
     classifier = 'full'
