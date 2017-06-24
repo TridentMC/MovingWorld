@@ -89,18 +89,33 @@ public class MobileChunkRenderer {
 
     private void renderTiles(float partialTicks) {
         GlStateManager.pushMatrix();
-        World tesrDispatchWorld = TileEntityRendererDispatcher.instance.world;
-        TileEntityRendererDispatcher.instance.setWorld(chunk.getFakeWorld());
+        TileEntityRendererDispatcher dispatcher = TileEntityRendererDispatcher.instance;
+        World tesrDispatchWorld = dispatcher.world;
+        dispatcher.setWorld(chunk.getFakeWorld());
         for (Map.Entry<BlockPos, TileEntity> blockPosTileEntityEntry : chunk.normalTESRS.entrySet()) {
             TileEntity tile = blockPosTileEntityEntry.getValue();
             tile.setWorld(chunk.getFakeWorld());
-            TileEntitySpecialRenderer renderer = TileEntityRendererDispatcher.instance.getRenderer(tile);
+            TileEntitySpecialRenderer renderer = dispatcher.getRenderer(tile);
             if (renderer != null && tile.shouldRenderInPass(MinecraftForgeClient.getRenderPass())) {
-                TileEntityRendererDispatcher.instance.render(tile, tile.getPos().getX(), tile.getPos().getY(), tile.getPos().getZ(), partialTicks);
+                dispatcher.render(tile, tile.getPos().getX(), tile.getPos().getY(), tile.getPos().getZ(), partialTicks);
             }
             tile.setWorld(chunk.world);
         }
-        TileEntityRendererDispatcher.instance.setWorld(tesrDispatchWorld);
+        dispatcher.setWorld(tesrDispatchWorld);
+        GlStateManager.popMatrix();
+
+        GlStateManager.pushMatrix();
+        dispatcher.preDrawBatch();
+        for (Map.Entry<BlockPos, TileEntity> blockPosTileEntityEntry : chunk.fastTESRS.entrySet()) {
+            TileEntity tile = blockPosTileEntityEntry.getValue();
+            tile.setWorld(chunk.getFakeWorld());
+            TileEntitySpecialRenderer renderer = dispatcher.getRenderer(tile);
+            if (renderer != null && tile.shouldRenderInPass(MinecraftForgeClient.getRenderPass())) {
+                dispatcher.render(tile, tile.getPos().getX(), tile.getPos().getY(), tile.getPos().getZ(), partialTicks);
+            }
+            tile.setWorld(chunk.world);
+        }
+        dispatcher.drawBatch(0);
         GlStateManager.popMatrix();
     }
 
@@ -233,6 +248,9 @@ public class MobileChunkRenderer {
                     bufferBuilder.color(1.0F, 1.0F, 1.0F, 1.0F);
                     blockDispatcher.renderBlock(datum.getSecond(), datum.getFirst(), chunk.getFakeWorld(), bufferBuilder);
                 }
+                bufferBuilder.sortVertexData((float) TileEntityRendererDispatcher.staticPlayerX,
+                        (float) TileEntityRendererDispatcher.staticPlayerY,
+                        (float) TileEntityRendererDispatcher.staticPlayerZ);
                 bufferBuilder.finishDrawing();
                 vertexBuffers[i].bufferData(bufferBuilder.getByteBuffer());
                 bufferBuilder.reset();

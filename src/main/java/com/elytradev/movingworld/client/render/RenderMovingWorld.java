@@ -42,7 +42,7 @@ public class RenderMovingWorld extends Render<EntityMovingWorld> {
 
         bindEntityTexture(entity);
         ((MobileChunkClient) entity.getMobileChunk()).getRenderer().render(partialTicks);
-        GL11.glPopMatrix();
+        GlStateManager.popMatrix();
     }
 
     @Override

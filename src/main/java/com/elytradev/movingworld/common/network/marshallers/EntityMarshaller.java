@@ -1,10 +1,10 @@
 package com.elytradev.movingworld.common.network.marshallers;
 
 import com.elytradev.concrete.network.Marshaller;
+import com.elytradev.movingworld.MovingWorldMod;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.Entity;
 import net.minecraft.world.World;
-import net.minecraftforge.common.DimensionManager;
 
 public class EntityMarshaller implements Marshaller<Entity> {
 
@@ -14,8 +14,10 @@ public class EntityMarshaller implements Marshaller<Entity> {
     @Override
     public Entity unmarshal(ByteBuf in) {
         if (in.readBoolean()) {
-            World world = DimensionManager.getWorld(in.readInt());
-            return world.getEntityByID(in.readInt());
+            int dimID = in.readInt();
+            int entityID = in.readInt();
+            World world = MovingWorldMod.PROXY.getWorld(dimID);
+            return world.getEntityByID(entityID);
         } else {
             return null;
         }
