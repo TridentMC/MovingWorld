@@ -4,6 +4,7 @@ import com.elytradev.movingworld.common.CommonProxy;
 import com.elytradev.movingworld.common.config.MainConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 
 public class ClientProxy extends CommonProxy {
 
@@ -11,6 +12,9 @@ public class ClientProxy extends CommonProxy {
 
     @Override
     public World getWorld(int id) {
-        return Minecraft.getMinecraft().world;
+        if (FMLCommonHandler.instance().getEffectiveSide().isClient())
+            return Minecraft.getMinecraft().world;
+
+        return super.getWorld(id);
     }
 }
