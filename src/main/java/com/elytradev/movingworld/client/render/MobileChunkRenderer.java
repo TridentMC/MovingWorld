@@ -2,6 +2,7 @@ package com.elytradev.movingworld.client.render;
 
 import com.elytradev.movingworld.MovingWorldMod;
 import com.elytradev.movingworld.common.chunk.mobilechunk.MobileChunk;
+import com.elytradev.movingworld.common.chunk.mobilechunk.MobileChunkClient;
 import com.google.common.collect.Maps;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -38,11 +39,11 @@ public class MobileChunkRenderer {
     public LegacyRender legacyRender = new LegacyRender();
     public VBORender vboRender = new VBORender();
     private boolean useVBO = OpenGlHelper.useVbo();
-    private MobileChunk chunk;
+    private MobileChunkClient chunk;
 
 
     public MobileChunkRenderer(MobileChunk mobilechunk) {
-        chunk = mobilechunk;
+        chunk = (MobileChunkClient) mobilechunk;
         needsUpdate = true;
     }
 
@@ -87,16 +88,15 @@ public class MobileChunkRenderer {
     }
 
     private void renderTiles(float partialTicks) {
-        // TODO: Fast TESR.
         GlStateManager.pushMatrix();
         World tesrDispatchWorld = TileEntityRendererDispatcher.instance.world;
         TileEntityRendererDispatcher.instance.setWorld(chunk.getFakeWorld());
-        for (Map.Entry<BlockPos, TileEntity> blockPosTileEntityEntry : chunk.chunkTileEntityMap.entrySet()) {
+        for (Map.Entry<BlockPos, TileEntity> blockPosTileEntityEntry : chunk.normalTESRS.entrySet()) {
             TileEntity tile = blockPosTileEntityEntry.getValue();
             tile.setWorld(chunk.getFakeWorld());
-            TileEntitySpecialRenderer renderer = TileEntityRendererDispatcher.instance.getSpecialRenderer(tile);
+            TileEntitySpecialRenderer renderer = TileEntityRendererDispatcher.instance.getRenderer(tile);
             if (renderer != null && tile.shouldRenderInPass(MinecraftForgeClient.getRenderPass())) {
-                TileEntityRendererDispatcher.instance.renderTileEntityAt(tile, tile.getPos().getX(), tile.getPos().getY(), tile.getPos().getZ(), partialTicks);
+                TileEntityRendererDispatcher.instance.render(tile, tile.getPos().getX(), tile.getPos().getY(), tile.getPos().getZ(), partialTicks);
             }
             tile.setWorld(chunk.world);
         }

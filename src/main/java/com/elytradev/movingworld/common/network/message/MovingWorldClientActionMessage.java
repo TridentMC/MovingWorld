@@ -29,8 +29,11 @@ public class MovingWorldClientActionMessage extends Message {
         super(MovingWorldNetworking.NETWORK);
         this.movingWorld = movingWorld;
         this.action = action;
-    }
 
+        if (action == MovingWorldClientAction.DISASSEMBLE || action == MovingWorldClientAction.DISASSEMBLEWITHOVERWRITE) {
+            movingWorld.disassembling = true;
+        }
+    }
 
     @Override
     protected void handle(EntityPlayer sender) {

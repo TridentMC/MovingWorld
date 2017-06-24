@@ -1,31 +1,20 @@
 package com.elytradev.movingworld.common.experiments;
 
-import com.elytradev.movingworld.client.experiments.MovingWorldClientDatabase;
-import com.elytradev.movingworld.common.experiments.debug.BlockDebug;
 import com.elytradev.movingworld.common.experiments.entity.EntityMobileRegion;
 import com.elytradev.movingworld.common.experiments.interact.MWPlayerInteractionManager;
 import com.elytradev.movingworld.common.experiments.network.MovingWorldExperimentsNetworking;
 import com.elytradev.movingworld.common.experiments.region.MobileRegion;
-import com.elytradev.movingworld.common.experiments.region.RegionPool;
-import com.google.common.collect.HashBiMap;
-import net.minecraft.block.material.MapColor;
-import net.minecraft.block.material.Material;
-import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
-import net.minecraftforge.fml.common.event.*;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
-import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.fml.relauncher.Side;
 import org.apache.logging.log4j.Logger;
-
-import java.io.File;
 
 /**
  * Created by darkevilmac on 2/9/2017.
@@ -68,7 +57,8 @@ public class MovingWorldExperimentsMod {
             }
         });
         //noinspection deprecation
-        GameRegistry.registerWithItem(new BlockDebug(Material.TNT, MapColor.TNT));
+        //TODO: Register debug item.
+        //GameRegistry.registerWithItem(new BlockDebug(Material.TNT, MapColor.TNT));
     }
 
     @Mod.EventHandler
@@ -81,8 +71,6 @@ public class MovingWorldExperimentsMod {
     public void onPostInit(FMLPostInitializationEvent e) {
 
     }
-
-
 
 
 }

@@ -76,6 +76,7 @@ public class ChunkDisassembler {
     }
 
     public AssembleResult doDisassemble(MovingWorldAssemblyInteractor assemblyInteractor) {
+        movingWorld.disassembling = true;
         tileMarker = null;
         if (movingWorld.getMobileChunk().marker != null && movingWorld.getMobileChunk().marker.tileEntity != null && movingWorld.getMobileChunk().marker.tileEntity instanceof TileMovingMarkingBlock)
             tileMarker = (TileMovingMarkingBlock) movingWorld.getMobileChunk().marker.tileEntity;
@@ -155,7 +156,7 @@ public class ChunkDisassembler {
                     MovingWorldMod.LOG.debug("Post-rejoining block: " + locatedBlockInstance.toString());
                     world.setBlockState(pos, locatedBlockInstance.blockState, 2);
                     assemblyInteractor.blockDisassembled(locatedBlockInstance);
-                    DisassembleBlockEvent event = new DisassembleBlockEvent(locatedBlockInstance);
+                    DisassembleBlockEvent event = new DisassembleBlockEvent(movingWorld, locatedBlockInstance);
                     MinecraftForge.EVENT_BUS.post(event);
                     this.result.assembleBlock(locatedBlockInstance);
                 }
@@ -240,7 +241,7 @@ public class ChunkDisassembler {
 
             LocatedBlock lb = new LocatedBlock(blockState, tileentity, pos);
             assemblyInteractor.blockDisassembled(lb);
-            DisassembleBlockEvent event = new DisassembleBlockEvent(lb);
+            DisassembleBlockEvent event = new DisassembleBlockEvent(movingWorld, lb);
             MinecraftForge.EVENT_BUS.post(event);
             result.assembleBlock(lb);
         }

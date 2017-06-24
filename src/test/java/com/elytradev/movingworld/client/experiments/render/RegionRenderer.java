@@ -96,7 +96,7 @@ public class RegionRenderer {
                 }
 
                 for (TileEntity t : theChunk.getTileEntityMap().values()) {
-                    if (TileEntityRendererDispatcher.instance.getSpecialRenderer(t) != null) {
+                    if (TileEntityRendererDispatcher.instance.getRenderer(t) != null) {
                         tiles.add(t);
                     }
                 }
@@ -163,7 +163,7 @@ public class RegionRenderer {
         for (TileEntity t : tiles) {
             BlockPos renderPos = t.getPos().subtract(region.minBlockPos());
             GlStateManager.color(1, 1, 1, 1);
-            TileEntityRendererDispatcher.instance.renderTileEntityAt(t, renderPos.getX(), renderPos.getY(), renderPos.getZ(), partialTicks);
+            TileEntityRendererDispatcher.instance.render(t, renderPos.getX(), renderPos.getY(), renderPos.getZ(), partialTicks);
         }
 
         GlStateManager.popMatrix();

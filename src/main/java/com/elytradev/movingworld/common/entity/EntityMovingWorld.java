@@ -62,6 +62,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     public EnumFacing frontDirection;
     public BlockPos riderDestination;
     public Entity prevRiddenByEntity;
+    public boolean disassembling = false;
     protected float groundFriction, horFriction, vertFriction;
     protected int[] layeredBlockVolumeCount;
     // Related to actual movement. We don't ever really change these variables, they're changed by classes derived from EntityMovingWorld
@@ -75,6 +76,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     protected double controlPitch, controlYaw;
     @SideOnly(Side.CLIENT)
     protected double controlVelX, controlVelY, controlVelZ;
+    private int disassembleTimer = 100;
     private MobileChunk mobileChunk;
     private MovingWorldInfo info;
     private ChunkDisassembler disassembler;
@@ -358,6 +360,14 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             handleServerUpdate(horvel);
         }
 
+        if (disassembling) {
+            if (disassembleTimer <= 0) {
+                disassembling = false;
+                disassembleTimer = 100;
+            } else {
+                disassembleTimer--;
+            }
+        }
     }
 
     @SideOnly(Side.CLIENT)
@@ -478,7 +488,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     }
 
     public void updatePassengerPosition(Entity passenger, BlockPos riderDestination, int flags) {
-        if (passenger != null) {
+        if (passenger != null && !disassembling) {
             int frontDir = frontDirection.getHorizontalIndex();
 
             float yaw = (float) Math.toRadians(rotationYaw);
