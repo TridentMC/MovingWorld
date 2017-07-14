@@ -35,6 +35,8 @@ public class MainConfig {
 
         shared.blockBlacklist = new HashSet<String>();
         shared.blockWhitelist = new HashSet<String>();
+        shared.tileBlacklist = new HashSet<String>();
+        shared.tileWhitelist = new HashSet<String>();
         shared.overwritableBlocks = new HashSet<String>();
         shared.updatableTiles = new HashSet<>();
 
@@ -69,7 +71,7 @@ public class MainConfig {
 
     public void loadAndSave() {
         String[] defaultMaterialDensities = {"\"minecraft:air=0.0\"", "\"minecraft:wool=0.1\""};
-        String[] defaultBlockDensities = {"\"ArchimedesShipsPlus:floater=0.04\"", "\"ArchimedesShipsPlus:balloon=0.02\""};
+        String[] defaultBlockDensities = {"\"DavincisVessels:floater=0.04\"", "\"DavincisVessels:balloon=0.02\""};
         String[] defaultUpdatableTiles = {"Furnace", "Hopper", "Banner", "EnchantTable", "DLDetector"};
 
         Block[] defaultOverWritableBlocks = {Blocks.TALLGRASS, Blocks.WATERLILY, Blocks.SNOW_LAYER};
@@ -94,6 +96,7 @@ public class MainConfig {
         shared.iterativeAlgorithm = config.get(Configuration.CATEGORY_GENERAL, "Use Iterative Algorithm", true).getBoolean();
         shared.diagonalAssembly = config.get(Configuration.CATEGORY_GENERAL, "Assemble Diagonal Blocks NOTE: Can be overridden by mods!", false).getBoolean();
         shared.useWhitelist = config.get("mobile_chunk", "use_whitelist", false, "Switch this property to select the block restriction list to use. 'true' for the 'allowed_blocks' whitelist, 'false' for the 'forbidden_blocks' blacklist.").getBoolean(false);
+        shared.useTileWhitelist = config.get("mobile_chunk", "use_tile_whitelist", false, "Switch this property to select the tile entity restriction list to use. 'true' for the 'allowed_tiles' whitelist, 'false' for the 'forbidden_tiles' blacklist.").getBoolean(false);
         shared.loadedBlockDensities = config.get("mobile_chunk", "block_densities", defaultBlockDensities, "A list of pairs of a block with a density value. This list overrides the 'material_densities' list.").getStringList();
         shared.loadedMaterialDensities = config.get("mobile_chunk", "material_densities", defaultMaterialDensities, "A list of pairs of a material with a density value. The first value is the name of a block. All objects with the same material will get this density value, unless overridden.").getStringList();
 
@@ -101,12 +104,18 @@ public class MainConfig {
 
         String[] forbiddenBlocks = config.get("mobile_chunk", "forbidden_blocks", blockBlackListNames, "A list of blocks that will not be added to a Moving World.").getStringList();
         String[] allowedBlocks = config.get("mobile_chunk", "allowed_blocks", blockWhiteListNames, "A list of blocks that are allowed on a Moving World.").getStringList();
+
+        String[] forbiddenTiles = config.get("mobile_chunk", "forbidden_tiles", new String[0], "A list of tile entities that will not be added to a Moving World.").getStringList();
+        String[] allowedTiles = config.get("mobile_chunk", "allowed_tiles", new String[0], "A list of tile entities that are allowed on a Moving World.").getStringList();
+
         String[] overwritableBlocks = config.get("mobile_chunk", "overwritable_blocks", overWritableBlockNames, "A list of blocks that may be overwritten when decompiling a Moving World.").getStringList();
         String[] updatableTiles = config.get("mobile_chunk", "updatable_tiles", defaultUpdatableTiles,
                 "(Currently unimplemented) A list of tiles that are allowed to tick while they're part of a MobileChunk, might cause explosive loss of data, type 2 diabetes, and cancer. Use with caution.").getStringList();
 
         Collections.addAll(this.shared.blockBlacklist, forbiddenBlocks);
         Collections.addAll(this.shared.blockWhitelist, allowedBlocks);
+        Collections.addAll(this.shared.tileBlacklist, forbiddenTiles);
+        Collections.addAll(this.shared.tileWhitelist, allowedTiles);
         Collections.addAll(this.shared.overwritableBlocks, overwritableBlocks);
         Collections.addAll(this.shared.updatableTiles, updatableTiles);
 
@@ -248,6 +257,15 @@ public class MainConfig {
         //return shared.updatableTiles.contains(TileEntity.classToNameMap.get(tileClass));
     }
 
+    public boolean isTileAllowed(TileEntity t) {
+        if (t == null)
+            return true;
+        Class<? extends TileEntity> tileClass = t.getClass();
+        String tileName = TileEntity.getKey(tileClass).toString();
+
+        return shared.useTileWhitelist ? shared.tileWhitelist.contains(tileName) : !shared.tileBlacklist.contains(tileName);
+    }
+
     @SubscribeEvent
     public void onConfigChange(ConfigChangedEvent.OnConfigChangedEvent event) {
         if (event.getModID().equals(MovingWorldMod.MOD_ID)) {
@@ -261,9 +279,12 @@ public class MainConfig {
         public boolean iterativeAlgorithm;
         public boolean diagonalAssembly;
         public boolean useWhitelist;
+        public boolean useTileWhitelist;
         public Set<String> blockBlacklist;
         public Set<String> blockWhitelist;
         public Set<String> overwritableBlocks;
+        public Set<String> tileBlacklist;
+        public Set<String> tileWhitelist;
         public Set<String> updatableTiles;
         public AssemblePriorityConfig assemblePriorityConfig;
 
@@ -272,18 +293,11 @@ public class MainConfig {
 
         public NBTTagCompound serialize() {
             NBTTagCompound tag = new NBTTagCompound();
-
-            tag.setBoolean("iterativeAlgorithm", iterativeAlgorithm);
-            tag.setBoolean("diagonalAssembly", diagonalAssembly);
-            tag.setBoolean("useWhitelist", useWhitelist);
-
-
             return tag;
         }
 
         public SharedConfig deserialize(NBTTagCompound tag) {
             SharedConfig sharedConfig = new SharedConfig();
-
             return sharedConfig;
         }
     }

@@ -87,6 +87,7 @@ public class MovingWorldAssemblyInteractor {
         IBlockState state = lb.blockState;
 
         canAssemble.justCancel = !(!state.getMaterial().equals(Material.AIR) && !state.getMaterial().isLiquid() && MovingWorldMod.INSTANCE.getNetworkConfig().isStateAllowed(state));
+        canAssemble.justCancel = canAssemble.justCancel || !MovingWorldMod.INSTANCE.getNetworkConfig().isTileAllowed(lb.tileEntity);
 
         return canAssemble;
     }
