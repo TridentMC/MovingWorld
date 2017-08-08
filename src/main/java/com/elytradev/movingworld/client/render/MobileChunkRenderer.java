@@ -20,6 +20,7 @@ import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.client.MinecraftForgeClient;
+import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
@@ -38,7 +39,7 @@ public class MobileChunkRenderer {
     public boolean isRemoved;
     public LegacyRender legacyRender = new LegacyRender();
     public VBORender vboRender = new VBORender();
-    private boolean useVBO = OpenGlHelper.useVbo();
+    private boolean usingVBOs = useVBO();
     private MobileChunkClient chunk;
 
 
@@ -47,12 +48,16 @@ public class MobileChunkRenderer {
         needsUpdate = true;
     }
 
+    public boolean useVBO() {
+        return OpenGlHelper.useVbo() && !FMLClientHandler.instance().hasOptifine();
+    }
+
     public void render(float partialTicks) {
         try {
-            if (this.useVBO != OpenGlHelper.useVbo()) {
-                this.useVBO = OpenGlHelper.useVbo();
+            if (this.usingVBOs != useVBO()) {
+                this.usingVBOs = useVBO();
                 // Remove the old render.
-                if (this.useVBO) {
+                if (this.usingVBOs) {
                     this.legacyRender.remove();
                 } else {
                     this.vboRender.remove();
@@ -73,7 +78,7 @@ public class MobileChunkRenderer {
                 this.needsUpdate = false;
             }
 
-            if (this.useVBO) {
+            if (this.usingVBOs) {
                 this.vboRender.render();
             } else {
                 this.legacyRender.render();
