@@ -12,7 +12,7 @@ buildscript {
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
-        classpath 'org.spongepowered:mixingradle:0.4-SNAPSHOT'
+        classpath 'org.spongepowered:mixingradle:' + project.mixinGradleVersion
         classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.3'
     }
 }
@@ -66,19 +66,19 @@ mixin {
 }
 
 dependencies {
-    compile('org.spongepowered:mixin:0.6.9-SNAPSHOT') {
+    compile('org.spongepowered:mixin:' + project.mixinVersion) {
         exclude module: 'launchwrapper'
         exclude module: 'guava'
     }
 
-    compile 'com.elytradev:concrete:0.2.2:all'
-    shadow 'com.elytradev:concrete:0.2.2:all'
+    compile 'com.elytradev:concrete:' + project.concreteVersion + ':all'
+    shadow 'com.elytradev:concrete:' + project.concreteVersion + ':all'
 }
 
 shadowJar {
     exclude 'dummyThing'
 
-	relocate 'com.elytradev.concrete', "com.elytradev.movingworld.repackage.com.elytradev.concrete"
+    relocate 'com.elytradev.concrete', "com.elytradev.movingworld.repackage.com.elytradev.concrete"
     dependencies {
         include(dependency('org.spongepowered:mixin'))
         include(dependency('com.elytradev:concrete'))

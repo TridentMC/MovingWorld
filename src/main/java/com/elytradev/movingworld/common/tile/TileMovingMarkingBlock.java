@@ -5,6 +5,7 @@ import com.elytradev.movingworld.common.chunk.LocatedBlock;
 import com.elytradev.movingworld.common.chunk.MovingWorldAssemblyInteractor;
 import com.elytradev.movingworld.common.chunk.assembly.AssembleResult;
 import com.elytradev.movingworld.common.chunk.assembly.ChunkAssembler;
+import com.elytradev.movingworld.common.chunk.mobilechunk.MobileChunk;
 import com.elytradev.movingworld.common.entity.EntityMovingWorld;
 import com.elytradev.movingworld.common.entity.MovingWorldInfo;
 import com.elytradev.movingworld.common.util.LocatedBlockList;
@@ -19,6 +20,8 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 
 import java.util.UUID;
+
+import static com.elytradev.movingworld.common.chunk.mobilechunk.MobileChunk.TILE_METADATA;
 
 public abstract class TileMovingMarkingBlock extends TileEntity implements IMovingTile {
 
@@ -175,7 +178,7 @@ public abstract class TileMovingMarkingBlock extends TileEntity implements IMovi
         if (tag.hasKey("owner")) {
             getInfo().setOwner(UUID.fromString(tag.getString("owner")));
         }
-        blockMetadata = tag.getInteger("meta");
+        TILE_METADATA.set(this, tag.getInteger("meta"));
         if (tag.hasKey("ship") && world != null) {
             int id = tag.getInteger("ship");
             Entity entity = world.getEntityByID(id);
@@ -212,7 +215,7 @@ public abstract class TileMovingMarkingBlock extends TileEntity implements IMovi
             tag.setString("owner", getInfo().getOwner().toString());
         }
 
-        tag.setInteger("meta", blockMetadata);
+        tag.setInteger("meta", TILE_METADATA.get(this));
         tag.setString("name", getInfo().getName());
         if (getParentMovingWorld() != null && !getParentMovingWorld().isDead) {
             tag.setInteger("movingWorld", getParentMovingWorld().getEntityId());
@@ -241,7 +244,7 @@ public abstract class TileMovingMarkingBlock extends TileEntity implements IMovi
 
     public void writeNBTForSending(NBTTagCompound tag) {
         super.writeToNBT(tag);
-        tag.setInteger("meta", blockMetadata);
+        tag.setInteger("meta", TILE_METADATA.get(this));
         tag.setString("name", getInfo().getName());
 
         if (getParentMovingWorld() != null && !getParentMovingWorld().isDead) {

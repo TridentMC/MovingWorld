@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.Mixins;
 
 import java.util.Map;
 
-@IFMLLoadingPlugin.MCVersion(value = "1.12")
+@IFMLLoadingPlugin.Name(value = "MovingWorldCore")
 public class MovingWorldCoreMod implements IFMLLoadingPlugin {
 
     public MovingWorldCoreMod() {
@@ -41,7 +41,7 @@ public class MovingWorldCoreMod implements IFMLLoadingPlugin {
 
     @Override
     public String getAccessTransformerClass() {
-        return "com.elytradev.movingworld.common.asm.coremod.MovingWorldAccessTransformer";
+        return null;
     }
 
 }

@@ -170,10 +170,10 @@ public class ChunkCollisionHelper {
         entity.setEntityBoundingBox(new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ));
 
         mixinEntity.resetPosToBB();
-        entity.isCollidedHorizontally = d6 != x || d8 != z;
-        entity.isCollidedVertically = d7 != y;
-        entity.onGround = entity.isCollidedVertically && d7 < 0.0D;
-        entity.isCollided = entity.isCollidedHorizontally || entity.isCollidedVertically;
+        entity.collidedHorizontally = d6 != x || d8 != z;
+        entity.collidedVertically = d7 != y;
+        entity.onGround = entity.collidedVertically && d7 < 0.0D;
+        entity.collided = entity.collidedVertically || entity.collidedVertically;
         int i = MathHelper.floor(entityChunkPosX);
         int j = MathHelper.floor(entityChunkPosY - 0.20000000298023224D);
         int k = MathHelper.floor(entityChunkPosZ);

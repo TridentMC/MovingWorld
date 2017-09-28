@@ -634,10 +634,10 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
                     if (block == Blocks.SNOW) {
                         world.setBlockToAir(new BlockPos(i1, l1, j1));
-                        isCollidedHorizontally = false;
+                        collidedHorizontally = false;
                     } else if (block == Blocks.WATERLILY) {
                         world.destroyBlock(new BlockPos(i1, l1, j1), true);
-                        isCollidedHorizontally = false;
+                        collidedHorizontally = false;
                     } else {
                         didCollide = true;
                     }

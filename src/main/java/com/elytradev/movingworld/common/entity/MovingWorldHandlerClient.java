@@ -12,7 +12,7 @@ public abstract class MovingWorldHandlerClient extends MovingWorldHandlerCommon 
 
     @Override
     public boolean processInitialInteract(EntityPlayer player, EnumHand hand) {
-        if (player.getDistanceSqToEntity(getMovingWorld()) >= 36D) {
+        if (player.getDistanceSq(getMovingWorld()) >= 36D) {
             new FarInteractMessage(getMovingWorld(), hand).sendToServer();
         }
 

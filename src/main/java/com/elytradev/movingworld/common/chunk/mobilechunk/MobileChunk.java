@@ -1,5 +1,7 @@
 package com.elytradev.movingworld.common.chunk.mobilechunk;
 
+import com.elytradev.concrete.reflect.accessor.Accessor;
+import com.elytradev.concrete.reflect.accessor.Accessors;
 import com.elytradev.movingworld.MovingWorldMod;
 import com.elytradev.movingworld.api.IMovingTile;
 import com.elytradev.movingworld.common.chunk.LocatedBlock;
@@ -33,6 +35,10 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class MobileChunk implements IBlockAccess {
+
+    public static final Accessor<Block> TILE_BLOCK_TYPE = Accessors.findField(TileEntity.class, "blockType", "field_145854_h");
+    public static final Accessor<Integer> TILE_METADATA = Accessors.findField(TileEntity.class, "blockMetadata", "field_145847_g");
+
     public static final int CHUNK_SIZE = 16;
     public static final int CHUNK_MEMORY_USING = CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE * (4 + 2);    //(16*16*16 shorts and ints)
 
@@ -256,8 +262,8 @@ public abstract class MobileChunk implements IBlockAccess {
                 setTileEntity(pos, tileentity);
             } else {
                 tileentity.updateContainingBlockInfo();
-                tileentity.blockType = block;
-                tileentity.blockMetadata = meta;
+                TILE_BLOCK_TYPE.set(tileentity, block);
+                TILE_METADATA.set(tileentity, meta);
             }
         }
 
@@ -413,7 +419,7 @@ public abstract class MobileChunk implements IBlockAccess {
 
             if (tileentity != null) {
                 tileentity.updateContainingBlockInfo();
-                tileentity.blockMetadata = block.getMetaFromState(state);
+                TILE_METADATA.set(tileentity, block.getMetaFromState(state));
             }
         }
 
@@ -509,7 +515,7 @@ public abstract class MobileChunk implements IBlockAccess {
                 chunkTileEntityMap.get(chunkPosition).invalidate(); //RIP
             }
 
-            newTile.blockMetadata = block.getMetaFromState(blockState);
+            TILE_METADATA.set(newTile, block.getMetaFromState(blockState));
             chunkTileEntityMap.put(chunkPosition, newTile);
 
             if (newTile instanceof IMovingTile) {
