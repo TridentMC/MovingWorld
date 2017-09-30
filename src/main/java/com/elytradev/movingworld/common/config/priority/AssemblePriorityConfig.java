@@ -10,10 +10,7 @@ import net.minecraft.init.Blocks;
 import net.minecraftforge.common.config.Configuration;
 import org.apache.commons.lang3.ArrayUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class AssemblePriorityConfig {
 
@@ -43,15 +40,15 @@ public class AssemblePriorityConfig {
     public AssemblePriorityConfig(Configuration configuration) {
         this.config = configuration;
 
-        highPriorityAssembly = new HashSet<String>();
-        lowPriorityAssembly = new HashSet<String>();
-        highPriorityDisassembly = new HashSet<String>();
-        lowPriorityDisassembly = new HashSet<String>();
+        highPriorityAssembly = new HashSet<>();
+        lowPriorityAssembly = new HashSet<>();
+        highPriorityDisassembly = new HashSet<>();
+        lowPriorityDisassembly = new HashSet<>();
 
-        highPriorityAssemblyBlocksToRegister = new HashSet<String>();
-        lowPriorityAssemblyBlocksToRegister = new HashSet<String>();
-        highPriorityDisassemblyBlocksToRegister = new HashSet<String>();
-        lowPriorityDisassemblyBlocksToRegister = new HashSet<String>();
+        highPriorityAssemblyBlocksToRegister = new HashSet<>();
+        lowPriorityAssemblyBlocksToRegister = new HashSet<>();
+        highPriorityDisassemblyBlocksToRegister = new HashSet<>();
+        lowPriorityDisassemblyBlocksToRegister = new HashSet<>();
     }
 
     public void loadAndSavePreInit() {
@@ -73,7 +70,7 @@ public class AssemblePriorityConfig {
 
         detectedVersion = config.get("DONT TOUCH", "CONFIG VERSION", AssemblePriorityConfig.CONFIG_VERSION).getString();
         rediscoverPoweredBlocks = config.get(Configuration.CATEGORY_GENERAL, "Rediscover powered blocks on next restart?", true).getBoolean();
-        if (detectedVersion != AssemblePriorityConfig.CONFIG_VERSION) {
+        if (!Objects.equals(detectedVersion, AssemblePriorityConfig.CONFIG_VERSION)) {
             config.get("DONT TOUCH", "CONFIG VERSION", AssemblePriorityConfig.CONFIG_VERSION).set(AssemblePriorityConfig.CONFIG_VERSION);
             rediscoverPoweredBlocks = true;
         }
@@ -144,7 +141,7 @@ public class AssemblePriorityConfig {
 
     void discoverPoweredBlocks() {
         if (rediscoverPoweredBlocks) {
-            ArrayList<String> poweredBlockNames = new ArrayList<String>();
+            ArrayList<String> poweredBlockNames = new ArrayList<>();
             ArrayList<Block> allBlocks = Lists.newArrayList(Block.REGISTRY.iterator());
 
             for (Block checkBlock : allBlocks) {

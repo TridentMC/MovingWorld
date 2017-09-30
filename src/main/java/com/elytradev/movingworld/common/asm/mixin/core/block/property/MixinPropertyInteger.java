@@ -6,14 +6,16 @@ import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.IBlockState;
 import org.spongepowered.asm.mixin.Mixin;
 
+import java.util.Objects;
+
 @Mixin(PropertyInteger.class)
 public class MixinPropertyInteger implements IRotationProperty {
     @Override
     public IBlockState rotate(IBlockState blockState, boolean ccw) {
         PropertyInteger intProp = (PropertyInteger) (Object) this;
-        int propVal = blockState.getValue(intProp).intValue();
+        int propVal = blockState.getValue(intProp);
 
-        if (intProp.getName() == "rotation" && isValidRotationProperty()) {
+        if (Objects.equals(intProp.getName(), "rotation") && isValidRotationProperty()) {
             for (int i = 0; i <= 3; i++) {
                 propVal = RotationHelper.rotateInteger(propVal, 0, 15, ccw);
             }
@@ -28,6 +30,5 @@ public class MixinPropertyInteger implements IRotationProperty {
 
         return intProp.getAllowedValues().contains(0) && intProp.getAllowedValues().contains(15)
                 && (!intProp.getAllowedValues().contains(-1) && !intProp.getAllowedValues().contains(16));
-
     }
 }

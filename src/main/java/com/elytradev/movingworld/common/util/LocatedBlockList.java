@@ -35,7 +35,7 @@ public class LocatedBlockList extends ArrayList<LocatedBlock> {
     }
 
     public ArrayList<LocatedBlockList> getSortedAssemblyBlocks() {
-        ArrayList<LocatedBlockList> lbListList = new ArrayList<LocatedBlockList>();
+        ArrayList<LocatedBlockList> lbListList = new ArrayList<>();
 
         lbListList.add(getHighPriorityAssemblyBlocks());
         lbListList.add(getStandardPriorityAssemblyBlocks());
@@ -45,7 +45,7 @@ public class LocatedBlockList extends ArrayList<LocatedBlock> {
     }
 
     public ArrayList<LocatedBlockList> getSortedDisassemblyBlocks() {
-        ArrayList<LocatedBlockList> lbListList = new ArrayList<LocatedBlockList>();
+        ArrayList<LocatedBlockList> lbListList = new ArrayList<>();
 
         lbListList.add(getHighPriorityDisassemblyBlocks());
         lbListList.add(getStandardPriorityDisassemblyBlocks());

@@ -44,7 +44,7 @@ public abstract class MovingWorldHandlerCommon {
         World.MAX_ENTITY_RADIUS = Math.max(World.MAX_ENTITY_RADIUS, Math.max(getMovingWorld().width, getMovingWorld().height) + 2F);
 
         try {
-            getMovingWorld().fillAirBlocks(new HashSet<BlockPos>(), new BlockPos(-1, -1, -1));
+            getMovingWorld().fillAirBlocks(new HashSet<>(), new BlockPos(-1, -1, -1));
         } catch (StackOverflowError e) {
             MovingWorldMod.LOG.error("Failure during moving world post-initialization", e);
         }

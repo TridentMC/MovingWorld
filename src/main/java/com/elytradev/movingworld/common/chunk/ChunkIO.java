@@ -110,8 +110,7 @@ public abstract class ChunkIO {
 
     private static DataOutputStream preCompress(ByteBuf data) throws IOException {
         ByteBufOutputStream bbos = new ByteBufOutputStream(data);
-        DataOutputStream out = new DataOutputStream(new GZIPOutputStream(bbos));
-        return out;
+        return new DataOutputStream(new GZIPOutputStream(bbos));
     }
 
     private static void postCompress(ByteBuf data, DataOutputStream out, int count) throws IOException {

@@ -155,8 +155,7 @@ public class AssembleResult {
                 }
                 setAirState2.add(lb);
 
-                TileEntity tileClone = tileentity;
-                entityMovingWorld.getMobileChunk().setTileEntity(iPos, tileClone);
+                entityMovingWorld.getMobileChunk().setTileEntity(iPos, tileentity);
             }
         }
 

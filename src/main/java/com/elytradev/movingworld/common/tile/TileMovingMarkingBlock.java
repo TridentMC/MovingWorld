@@ -5,7 +5,6 @@ import com.elytradev.movingworld.common.chunk.LocatedBlock;
 import com.elytradev.movingworld.common.chunk.MovingWorldAssemblyInteractor;
 import com.elytradev.movingworld.common.chunk.assembly.AssembleResult;
 import com.elytradev.movingworld.common.chunk.assembly.ChunkAssembler;
-import com.elytradev.movingworld.common.chunk.mobilechunk.MobileChunk;
 import com.elytradev.movingworld.common.entity.EntityMovingWorld;
 import com.elytradev.movingworld.common.entity.MovingWorldInfo;
 import com.elytradev.movingworld.common.util.LocatedBlockList;

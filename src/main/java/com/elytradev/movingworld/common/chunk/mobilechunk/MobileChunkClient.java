@@ -31,7 +31,7 @@ public class MobileChunkClient extends MobileChunk {
 
     @Override
     public void onChunkUnload() {
-        List<TileEntity> iterator = new ArrayList<TileEntity>(chunkTileEntityMap.values());
+        List<TileEntity> iterator = new ArrayList<>(chunkTileEntityMap.values());
         for (TileEntity te : iterator) {
             removeChunkBlockTileEntity(te.getPos());
         }

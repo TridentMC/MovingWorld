@@ -17,8 +17,6 @@ public class MixinPropertyEnum implements IRotationProperty {
         IProperty propertyEnum = (IProperty) this;
         Object propertyValue = blockState.getValue(propertyEnum);
 
-        if (propertyValue == null) return blockState;
-
         if (propertyValue instanceof EnumFacing) {
             EnumFacing facing = (EnumFacing) propertyValue;
 

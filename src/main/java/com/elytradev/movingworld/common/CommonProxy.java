@@ -5,7 +5,7 @@ import net.minecraftforge.common.DimensionManager;
 
 public class CommonProxy {
 
-    public World getWorld(int id){
+    public World getWorld(int id) {
         return DimensionManager.getWorld(id);
     }
 

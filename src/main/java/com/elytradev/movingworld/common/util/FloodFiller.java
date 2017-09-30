@@ -16,7 +16,6 @@ import java.util.Iterator;
 public class FloodFiller {
 
     private LocatedBlockList lbList = new LocatedBlockList();
-    private ArrayList<BlockPos> posStack;
 
     /**
      * @return amount of blocks that were filled in.
@@ -49,7 +48,7 @@ public class FloodFiller {
     }
 
     private void fillCoord(MobileChunk mobileChunk, int startX, int startY, int startZ) {
-        posStack = new ArrayList<BlockPos>();
+        ArrayList<BlockPos> posStack = new ArrayList<>();
         posStack.add(new BlockPos(startX, startY, startZ));
 
         while (!posStack.isEmpty()) {
@@ -61,7 +60,6 @@ public class FloodFiller {
             int z = pos.getZ();
 
             if (state == null || state.getBlock() instanceof BlockAir) {
-
                 if (x > mobileChunk.maxX() || x < mobileChunk.minX() - 1 ||
                         y > mobileChunk.maxY() + 1 || y < mobileChunk.minY() - 1 ||
                         z > mobileChunk.maxZ() || z < mobileChunk.minZ() - 1
@@ -80,8 +78,6 @@ public class FloodFiller {
                 posStack.add(pos.add(-1, 0, 0));
                 posStack.add(pos.add(0, -1, 0));
                 posStack.add(pos.add(0, 0, -1));
-            } else {
-                continue;
             }
         }
     }

@@ -162,7 +162,7 @@ public class MobileChunkRenderer {
 
             HashMap<BlockRenderLayer, List<Tuple<BlockPos, IBlockState>>> blockRenderMap = Maps.newHashMap();
             for (BlockRenderLayer blockRenderLayer : BlockRenderLayer.values()) {
-                blockRenderMap.put(blockRenderLayer, new ArrayList());
+                blockRenderMap.put(blockRenderLayer, new ArrayList<>());
             }
             // Collect block states.
             for (int y = chunk.minY(); y < chunk.maxY(); ++y) {
@@ -220,7 +220,7 @@ public class MobileChunkRenderer {
 
             HashMap<BlockRenderLayer, List<Tuple<BlockPos, IBlockState>>> blockRenderMap = Maps.newHashMap();
             for (BlockRenderLayer blockRenderLayer : BlockRenderLayer.values()) {
-                blockRenderMap.put(blockRenderLayer, new ArrayList());
+                blockRenderMap.put(blockRenderLayer, new ArrayList<>());
             }
             // Collect block states.
             for (int y = chunk.minY(); y < chunk.maxY(); ++y) {

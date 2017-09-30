@@ -19,7 +19,7 @@ public class MovingWorldConfigGUI extends GuiConfig {
 
     public static List<IConfigElement> generateConfigList() {
 
-        ArrayList<IConfigElement> elements = new ArrayList<IConfigElement>();
+        ArrayList<IConfigElement> elements = new ArrayList<>();
 
         for (String name : MovingWorldMod.INSTANCE.getNetworkConfig().getConfig().getCategoryNames())
             elements.add(new ConfigElement(MovingWorldMod.INSTANCE.getNetworkConfig().getConfig().getCategory(name)));

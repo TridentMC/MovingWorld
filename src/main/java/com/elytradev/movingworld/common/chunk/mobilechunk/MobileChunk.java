@@ -63,12 +63,12 @@ public abstract class MobileChunk implements IBlockAccess {
     public MobileChunk(World world, EntityMovingWorld entitymovingWorld) {
         this.world = world;
         entityMovingWorld = entitymovingWorld;
-        blockStorageMap = new HashMap<BlockPos, ExtendedBlockStorage>(1);
-        chunkTileEntityMap = new HashMap<BlockPos, TileEntity>(2);
+        blockStorageMap = new HashMap<>(1);
+        chunkTileEntityMap = new HashMap<>(2);
         updatableTiles = new ArrayList<>();
         boundingBoxes = HashBiMap.create();
         chunkBoundingBoxes = HashBiMap.create();
-        movingWorldTileEntities = new ArrayList<IMovingTile>();
+        movingWorldTileEntities = new ArrayList<>();
         marker = null;
 
         isChunkLoaded = false;
@@ -99,7 +99,7 @@ public abstract class MobileChunk implements IBlockAccess {
 
     public Vec3d getWorldPosForChunkPos(BlockPos pos) {
         Vec3d movingWorldPos = new Vec3d(entityMovingWorld.posX, entityMovingWorld.posY, entityMovingWorld.posZ);
-        movingWorldPos = movingWorldPos.subtract(new Double(maxX()) / 2, new Double(maxY()) / 2, new Double(maxZ()) / 2);
+        movingWorldPos = movingWorldPos.subtract((double) maxX() / 2, (double) maxY() / 2, (double) maxZ() / 2);
         Vec3d returnPos = new Vec3d(pos.getX(), pos.getY(), pos.getZ());
         returnPos.add(movingWorldPos);
         return returnPos;
@@ -107,7 +107,7 @@ public abstract class MobileChunk implements IBlockAccess {
 
     public Vec3d getWorldPosForChunkPos(Vec3d vec) {
         Vec3d movingWorldPos = new Vec3d(entityMovingWorld.posX, entityMovingWorld.posY, entityMovingWorld.posZ);
-        movingWorldPos = movingWorldPos.subtract(new Double(maxX()) / 2, new Double(maxY()) / 2, new Double(maxZ()) / 2);
+        movingWorldPos = movingWorldPos.subtract((double) maxX() / 2, (double) maxY() / 2, (double) maxZ() / 2);
         Vec3d returnPos = new Vec3d(vec.x, vec.y, vec.z);
         returnPos.add(movingWorldPos);
         return returnPos;
@@ -116,7 +116,7 @@ public abstract class MobileChunk implements IBlockAccess {
 
     public Vec3d getChunkPosForWorldPos(Vec3d pos) {
         Vec3d movingWorldPos = new Vec3d(entityMovingWorld.posX, entityMovingWorld.posY, entityMovingWorld.posZ);
-        movingWorldPos = movingWorldPos.subtract(new Double(maxX()) / 2, new Double(maxY()) / 2, new Double(maxZ()) / 2);
+        movingWorldPos = movingWorldPos.subtract((double) maxX() / 2, (double) maxY() / 2, (double) maxZ() / 2);
         Vec3d returnPos = new Vec3d(pos.x, pos.y, pos.z);
         returnPos = returnPos.subtract(movingWorldPos);
         return returnPos;
@@ -294,9 +294,9 @@ public abstract class MobileChunk implements IBlockAccess {
         AxisAlignedBB axisAlignedBB = this.getBlockState(pos).getCollisionBoundingBox(this.getFakeWorld(), pos);
         chunkBoundingBoxes.put(pos, axisAlignedBB);
 
-        double maxDX = new Double(maxX());
-        double maxDY = new Double(maxY());
-        double maxDZ = new Double(maxZ());
+        double maxDX = (double) maxX();
+        double maxDY = (double) maxY();
+        double maxDZ = (double) maxZ();
 
         maxDX = maxDX / 2 * -1;
         maxDY = maxDY / 2 * -1;
@@ -309,7 +309,7 @@ public abstract class MobileChunk implements IBlockAccess {
     }
 
     public List<AxisAlignedBB> getBoxes() {
-        ArrayList<AxisAlignedBB> boxes = new ArrayList<AxisAlignedBB>();
+        ArrayList<AxisAlignedBB> boxes = new ArrayList<>();
         boxes.addAll(boundingBoxes.values());
 
         return boxes;
@@ -321,7 +321,7 @@ public abstract class MobileChunk implements IBlockAccess {
      * @return applicable bounding boxes with applicable position.
      */
     public List getCollidingBoundingBoxes(boolean chunkPos, AxisAlignedBB startBox, AxisAlignedBB endBox) {
-        ArrayList<AxisAlignedBB> axisAlignedBBs = new ArrayList<AxisAlignedBB>();
+        ArrayList<AxisAlignedBB> axisAlignedBBs = new ArrayList<>();
 
         AxisAlignedBB boxUnion = startBox.union(endBox);
 
@@ -343,7 +343,7 @@ public abstract class MobileChunk implements IBlockAccess {
     }
 
     public List getCollidingBoundingBoxes(boolean chunkPos, AxisAlignedBB box) {
-        ArrayList<AxisAlignedBB> axisAlignedBBs = new ArrayList<AxisAlignedBB>();
+        ArrayList<AxisAlignedBB> axisAlignedBBs = new ArrayList<>();
 
         if (!chunkPos) {
             for (AxisAlignedBB axisAlignedBB : boundingBoxes.values()) {
@@ -376,9 +376,9 @@ public abstract class MobileChunk implements IBlockAccess {
                 AxisAlignedBB axisAlignedBB = bb;
                 BlockPos pos = chunkBoundingBoxes.inverse().get(bb);
 
-                double maxDX = new Double(maxX());
-                double maxDY = new Double(maxY());
-                double maxDZ = new Double(maxZ());
+                double maxDX = (double) maxX();
+                double maxDY = (double) maxY();
+                double maxDZ = (double) maxZ();
 
                 maxDX = maxDX / 2 * -1;
                 maxDY = maxDY / 2 * -1 + 1;
@@ -662,10 +662,7 @@ public abstract class MobileChunk implements IBlockAccess {
         if (container.minX < minVec.x || container.minY < minVec.y || container.minZ < minVec.z) {
             return true;
         }
-        if (container.maxX > maxVec.x || container.maxY > maxVec.y || container.maxZ > maxVec.z) {
-            return true;
-        }
-        return false;
+        return container.maxX > maxVec.x || container.maxY > maxVec.y || container.maxZ > maxVec.z;
     }
 
     public abstract Side side();

@@ -8,7 +8,6 @@ import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.util.ResourceLocation;
-import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nullable;
 
@@ -24,9 +23,9 @@ public class RenderMovingWorld extends Render<EntityMovingWorld> {
         return TextureMap.LOCATION_BLOCKS_TEXTURE;
     }
 
-    public void renderVehicle(EntityMovingWorld entity, double x, double y, double z, float yaw, float partialTicks) {
+    public void renderVehicle(EntityMovingWorld entity, double x, double y, double z, float partialTicks) {
         float pitch = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * partialTicks;
-        yaw = entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw) * partialTicks;
+        float yaw = entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw) * partialTicks;
 
         float rx = entity.frontDirection.getHorizontalIndex() == 1 ? -1f : entity.frontDirection.getHorizontalIndex() == 3 ? 1f : 0f;
         float rz = entity.frontDirection.getHorizontalIndex() == 0 ? 1f : entity.frontDirection.getHorizontalIndex() == 2 ? -1f : 0f;
@@ -47,7 +46,7 @@ public class RenderMovingWorld extends Render<EntityMovingWorld> {
 
     @Override
     public void doRender(EntityMovingWorld entity, double x, double y, double z, float yaw, float partialTicks) {
-        renderVehicle(entity, x, y, z, yaw, partialTicks);
+        renderVehicle(entity, x, y, z, partialTicks);
         super.doRender(entity, x, y, z, yaw, partialTicks);
     }
 

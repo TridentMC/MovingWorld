@@ -54,9 +54,8 @@ public class ChunkDisassembler {
             for (int j = chunk.minY(); j < chunk.maxY(); j++) {
                 for (int k = chunk.minZ(); k < chunk.maxZ(); k++) {
                     if (chunk.isAirBlock(new BlockPos(i, j, k))) continue;
-                    Vec3dMod vecB = new Vec3dMod(i + ox, j + oy, k + oz);
 
-                    vec = vecB;
+                    vec = new Vec3dMod(i + ox, j + oy, k + oz);
                     vec = vec.rotateAroundY(yaw);
 
                     pos = new BlockPos(MathHelperMod.round_double(vec.x + movingWorld.posX),

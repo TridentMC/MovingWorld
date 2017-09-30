@@ -33,11 +33,11 @@ public class MainConfig {
         this.shared.assemblePriorityConfig = new AssemblePriorityConfig(
                 new Configuration(new File(config.getConfigFile().getParentFile(), "AssemblePriority.cfg")));
 
-        shared.blockBlacklist = new HashSet<String>();
-        shared.blockWhitelist = new HashSet<String>();
-        shared.tileBlacklist = new HashSet<String>();
-        shared.tileWhitelist = new HashSet<String>();
-        shared.overwritableBlocks = new HashSet<String>();
+        shared.blockBlacklist = new HashSet<>();
+        shared.blockWhitelist = new HashSet<>();
+        shared.tileBlacklist = new HashSet<>();
+        shared.tileWhitelist = new HashSet<>();
+        shared.overwritableBlocks = new HashSet<>();
         shared.updatableTiles = new HashSet<>();
 
         MinecraftForge.EVENT_BUS.register(this); // For in game config reloads.
@@ -192,7 +192,7 @@ public class MainConfig {
         Property prop = config.get("mobile_chunk", "forbidden_blocks", blockBlackListNames, "A list of blocks that will not be added to a Moving World.");
 
         String[] stringList = prop.getStringList();
-        ArrayList<String> stringArrayList = new ArrayList<String>();
+        ArrayList<String> stringArrayList = new ArrayList<>();
         Collections.addAll(stringArrayList, stringList);
 
         if (!stringArrayList.contains(blockName))
@@ -225,7 +225,7 @@ public class MainConfig {
         Property prop = config.get("mobile_chunk", "allowed_blocks", blockWhiteListNames, "A list of blocks that are allowed on a Moving World.");
 
         String[] stringList = prop.getStringList();
-        ArrayList<String> stringArrayList = new ArrayList<String>();
+        ArrayList<String> stringArrayList = new ArrayList<>();
         Collections.addAll(stringArrayList, stringList);
         if (!stringArrayList.contains(blockName))
             stringArrayList.add(blockName);
@@ -292,13 +292,11 @@ public class MainConfig {
         private String[] loadedMaterialDensities;
 
         public NBTTagCompound serialize() {
-            NBTTagCompound tag = new NBTTagCompound();
-            return tag;
+            return new NBTTagCompound();
         }
 
         public SharedConfig deserialize(NBTTagCompound tag) {
-            SharedConfig sharedConfig = new SharedConfig();
-            return sharedConfig;
+            return new SharedConfig();
         }
     }
 

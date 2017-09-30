@@ -4,6 +4,7 @@ import com.elytradev.movingworld.client.ClientProxy;
 import com.elytradev.movingworld.common.CommonProxy;
 import com.elytradev.movingworld.common.config.MainConfig;
 import com.elytradev.movingworld.common.network.MovingWorldNetworking;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
@@ -32,6 +33,7 @@ public class MovingWorldMod {
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent e) {
+        MinecraftForge.EVENT_BUS.register(PROXY);
         LOG = e.getModLog();
         File configFolder = new File(e.getModConfigurationDirectory(), "MovingWorld");
         File mConfigFile = new File(configFolder, "Main.cfg");

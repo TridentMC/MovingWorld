@@ -17,4 +17,5 @@ public class ClientProxy extends CommonProxy {
 
         return super.getWorld(id);
     }
+
 }

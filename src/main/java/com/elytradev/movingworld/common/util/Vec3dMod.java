@@ -68,8 +68,7 @@ public class Vec3dMod extends Vec3d {
         float var3 = MathHelper.sin(roll);
         double var4 = this.x * (double) var2 + this.y * (double) var3;
         double var6 = this.y * (double) var2 - this.x * (double) var3;
-        double var8 = this.z;
-        return new Vec3dMod(var4, var6, var8);
+        return new Vec3dMod(var4, var6, this.z);
     }
 
     // Reimplemented from 1.7 for my sanity.
@@ -80,10 +79,9 @@ public class Vec3dMod extends Vec3d {
     public Vec3dMod rotateAroundX(float angle) {
         float f1 = MathHelper.cos(angle);
         float f2 = MathHelper.sin(angle);
-        double d0 = this.x;
         double d1 = this.y * (double) f1 + this.z * (double) f2;
         double d2 = this.z * (double) f1 - this.y * (double) f2;
-        return this.makeNewVec(d0, d1, d2);
+        return this.makeNewVec(this.x, d1, d2);
     }
 
     /**
@@ -93,9 +91,8 @@ public class Vec3dMod extends Vec3d {
         float f1 = MathHelper.cos(angle);
         float f2 = MathHelper.sin(angle);
         double d0 = this.x * (double) f1 + this.z * (double) f2;
-        double d1 = this.y;
         double d2 = this.z * (double) f1 - this.x * (double) f2;
-        return this.makeNewVec(d0, d1, d2);
+        return this.makeNewVec(d0, this.y, d2);
     }
 
     /**
@@ -106,8 +103,7 @@ public class Vec3dMod extends Vec3d {
         float f2 = MathHelper.sin(angle);
         double d0 = this.x * (double) f1 + this.y * (double) f2;
         double d1 = this.y * (double) f1 - this.x * (double) f2;
-        double d2 = this.z;
-        return this.makeNewVec(d0, d1, d2);
+        return this.makeNewVec(d0, d1, this.z);
     }
 
 }

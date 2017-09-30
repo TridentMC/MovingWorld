@@ -8,7 +8,6 @@ import net.minecraft.util.math.BlockPos;
 
 public abstract class MovingWorldCapabilities {
 
-    private final EntityMovingWorld movingWorld;
     private float mass;
     private int blockCount;
     private boolean autoCalcMass;
@@ -17,7 +16,6 @@ public abstract class MovingWorldCapabilities {
     private boolean canFly;
 
     public MovingWorldCapabilities(EntityMovingWorld movingWorld, boolean autoCalcMass) {
-        this.movingWorld = movingWorld;
         this.autoCalcMass = autoCalcMass;
         clear();
     }
