@@ -87,9 +87,15 @@ public class MobileChunkRenderer {
             // Tiles always render in the same way.
             renderTiles(partialTicks);
         } catch (Exception e) {
-            MovingWorldMod.LOG.error("Exception when rendering a MobileChunk! {}", e);
-        }
+            MovingWorldMod.LOG.error("Exception when rendering a MobileChunk! {}", e.getMessage());
+            e.printStackTrace();
 
+            try {
+                Tessellator.getInstance().getBuffer().finishDrawing();
+            } catch (Exception e2) {
+            }
+            return;
+        }
     }
 
     private void renderTiles(float partialTicks) {

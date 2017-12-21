@@ -1,11 +1,13 @@
 package com.elytradev.movingworld.common.chunk.mobilechunk.world;
 
+import com.elytradev.movingworld.common.chunk.mobilechunk.FakeChunk;
 import com.elytradev.movingworld.common.chunk.mobilechunk.MobileChunk;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -109,5 +111,10 @@ public class FakeWorld extends World {
     @Override
     public int getCombinedLight(BlockPos pos, int lightValue) {
         return mobileChunk.getCombinedLight(pos, lightValue);
+    }
+
+    @Override
+    public Chunk getChunkFromChunkCoords(int chunkX, int chunkZ) {
+        return new FakeChunk(mobileChunk, chunkX, chunkZ);
     }
 }
