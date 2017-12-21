@@ -111,6 +111,7 @@ public class AssembleResult {
             }
         } catch (Exception e) {
             resultType = ResultType.RESULT_ERROR_OCCURED;
+            world.getGameRules().setOrCreateGameRule("doTileDrops", String.valueOf(doTileDropsInWorld));
             MovingWorldMod.LOG.error("Result code: RESULT ERROR OCCURRED was reached when attempting to getEntity from assembly result. Printing stacktrace...");
             MovingWorldMod.LOG.error(e);
             e.printStackTrace();
