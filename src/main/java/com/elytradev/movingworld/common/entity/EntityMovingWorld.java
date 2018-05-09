@@ -577,8 +577,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         if (passenger.getRidingEntity() != this) {
             throw new IllegalStateException("Use x.startRiding(y), not y.addPassenger(x)");
         } else {
-            if (controllingPassenger == null && passenger != null
-                    && passenger instanceof EntityPlayer) {
+            if (controllingPassenger == null && passenger instanceof EntityPlayer) {
                 controllingPassenger = (EntityPlayer) passenger;
             }
         }

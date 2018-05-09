@@ -134,9 +134,9 @@ public class AssembleResult {
 
         LocatedBlockList setAirState2 = new LocatedBlockList();
 
-        if (movingWorldMarkingBlock != null && movingWorldMarkingBlock.tileEntity != null && movingWorldMarkingBlock.tileEntity instanceof TileMovingMarkingBlock
-                && ((TileMovingMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks != null &&
-                !((TileMovingMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks.isEmpty()) {
+        if (movingWorldMarkingBlock != null && movingWorldMarkingBlock.tileEntity instanceof TileMovingMarkingBlock
+            && ((TileMovingMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks != null &&
+            !((TileMovingMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks.isEmpty()) {
 
             setFluids = true;
         }

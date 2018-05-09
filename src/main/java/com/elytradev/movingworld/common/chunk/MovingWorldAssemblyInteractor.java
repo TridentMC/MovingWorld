@@ -93,11 +93,11 @@ public class MovingWorldAssemblyInteractor {
     }
 
     public boolean isBlockMovingWorldMarker(Block block) {
-        return block != null && block instanceof BlockMovingWorldMarker;
+        return block instanceof BlockMovingWorldMarker;
     }
 
     public boolean isTileMovingWorldMarker(TileEntity tile) {
-        return tile != null && tile instanceof TileMovingMarkingBlock;
+        return tile instanceof TileMovingMarkingBlock;
     }
 
     public EnumFacing getFrontDirection(LocatedBlock marker) {

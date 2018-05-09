@@ -77,7 +77,8 @@ public class ChunkDisassembler {
     public AssembleResult doDisassemble(MovingWorldAssemblyInteractor assemblyInteractor) {
         movingWorld.disassembling = true;
         tileMarker = null;
-        if (movingWorld.getMobileChunk().marker != null && movingWorld.getMobileChunk().marker.tileEntity != null && movingWorld.getMobileChunk().marker.tileEntity instanceof TileMovingMarkingBlock)
+        if (movingWorld.getMobileChunk().marker != null
+            && movingWorld.getMobileChunk().marker.tileEntity instanceof TileMovingMarkingBlock)
             tileMarker = (TileMovingMarkingBlock) movingWorld.getMobileChunk().marker.tileEntity;
 
         removedFluidBlocks = new LocatedBlockList();

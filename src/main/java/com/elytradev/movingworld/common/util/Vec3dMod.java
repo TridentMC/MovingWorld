@@ -46,6 +46,7 @@ public class Vec3dMod extends Vec3d {
     /**
      * Rotate around the X axis
      */
+    @Override
     @Deprecated
     public Vec3dMod rotatePitch(float pitch) {
         return new Vec3dMod(super.rotatePitch(pitch));
@@ -54,6 +55,7 @@ public class Vec3dMod extends Vec3d {
     /**
      * Rotate around the Y axis
      */
+    @Override
     @Deprecated
     public Vec3dMod rotateYaw(float yaw) {
         return new Vec3dMod(super.rotateYaw(yaw));

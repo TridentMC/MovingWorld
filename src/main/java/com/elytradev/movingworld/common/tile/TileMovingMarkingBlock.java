@@ -1,5 +1,7 @@
 package com.elytradev.movingworld.common.tile;
 
+import static com.elytradev.movingworld.common.chunk.mobilechunk.MobileChunk.TILE_METADATA;
+
 import com.elytradev.movingworld.api.IMovingTile;
 import com.elytradev.movingworld.common.chunk.LocatedBlock;
 import com.elytradev.movingworld.common.chunk.MovingWorldAssemblyInteractor;
@@ -8,6 +10,7 @@ import com.elytradev.movingworld.common.chunk.assembly.ChunkAssembler;
 import com.elytradev.movingworld.common.entity.EntityMovingWorld;
 import com.elytradev.movingworld.common.entity.MovingWorldInfo;
 import com.elytradev.movingworld.common.util.LocatedBlockList;
+import java.util.UUID;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -17,10 +20,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
-
-import java.util.UUID;
-
-import static com.elytradev.movingworld.common.chunk.mobilechunk.MobileChunk.TILE_METADATA;
 
 public abstract class TileMovingMarkingBlock extends TileEntity implements IMovingTile {
 
@@ -86,7 +85,8 @@ public abstract class TileMovingMarkingBlock extends TileEntity implements IMovi
                 case RESULT_OK_WITH_WARNINGS:
                     returnVal = true;
                 case RESULT_BLOCK_OVERFLOW:
-                    c = new TextComponentString("Cannot create moving world with more than " + getMaxBlocks() + " blocks");
+                    c = new TextComponentString(
+                        "Cannot create moving world with more than " + getMaxBlocks() + " blocks");
                     player.sendStatusMessage(c, true);
                     break;
                 case RESULT_MISSING_MARKER:
@@ -163,9 +163,8 @@ public abstract class TileMovingMarkingBlock extends TileEntity implements IMovi
     /**
      * Called during/after mountMovingWorld();
      *
-     * @param stage can be 1, 2, or 3 this represents the stage of the method we're at. more
-     *              information can be viewed at the github repo to see when your code will be
-     *              executed. http://github.com/elytra/MovingWorld
+     * @param stage can be 1, 2, or 3 this represents the stage of the method we're at. more information can be viewed
+     * at the github repo to see when your code will be executed. http://github.com/elytra/MovingWorld
      */
     public void mountedMovingWorld(EntityPlayer player, EntityMovingWorld movingWorld, MountStage stage) {
     }

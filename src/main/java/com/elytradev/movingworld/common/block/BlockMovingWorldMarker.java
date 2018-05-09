@@ -21,7 +21,7 @@ public abstract class BlockMovingWorldMarker extends BlockContainer {
     }
 
     public static void onPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase entity, ItemStack itemStack) {
-        if (world != null && !world.isRemote && entity != null && entity instanceof EntityPlayer) {
+        if (world != null && !world.isRemote && entity instanceof EntityPlayer) {
             if (world.getTileEntity(pos) != null && world.getTileEntity(pos) instanceof TileMovingMarkingBlock) {
                 TileMovingMarkingBlock tile = (TileMovingMarkingBlock) world.getTileEntity(pos);
                 tile.getInfo().setOwner(((EntityPlayer) entity).getGameProfile().getId());
@@ -33,7 +33,7 @@ public abstract class BlockMovingWorldMarker extends BlockContainer {
     public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase entity, ItemStack itemStack) {
         super.onBlockPlacedBy(world, pos, state, entity, itemStack);
 
-        if (world != null && !world.isRemote && entity != null && entity instanceof EntityPlayer) {
+        if (world != null && !world.isRemote && entity instanceof EntityPlayer) {
             if (world.getTileEntity(pos) != null && world.getTileEntity(pos) instanceof TileMovingMarkingBlock) {
                 TileMovingMarkingBlock tile = (TileMovingMarkingBlock) world.getTileEntity(pos);
                 tile.getInfo().setOwner(((EntityPlayer) entity).getGameProfile().getId());

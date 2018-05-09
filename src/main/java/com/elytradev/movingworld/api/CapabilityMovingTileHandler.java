@@ -38,7 +38,7 @@ public class CapabilityMovingTileHandler {
 
             @Override
             public void readNBT(Capability<IMovingTile> capability, IMovingTile instance, EnumFacing side, NBTBase nbt) {
-                if (nbt != null && nbt instanceof NBTTagCompound) {
+                if (nbt instanceof NBTTagCompound) {
                     NBTTagCompound compound = (NBTTagCompound) nbt;
 
                     if (!compound.getBoolean("Empty")) {
