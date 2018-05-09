@@ -161,13 +161,13 @@ public class AssembleResult {
         }
 
         for (LocatedBlock lb : setAirState2) {
-            world.removeTileEntity(lb.blockPos);
             world.setBlockState(lb.blockPos, Blocks.AIR.getDefaultState(), 2);
+            world.removeTileEntity(lb.blockPos);
         }
 
         for (LocatedBlock lb : locatedBlocks) {
-            world.removeTileEntity(lb.blockPos);
             world.setBlockToAir(lb.blockPos);
+            world.removeTileEntity(lb.blockPos);
         }
 
         if (setFluids) {
