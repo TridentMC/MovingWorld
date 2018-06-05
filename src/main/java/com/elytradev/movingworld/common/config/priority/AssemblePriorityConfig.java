@@ -10,8 +10,6 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Configuration;
 import org.apache.commons.lang3.ArrayUtils;
-
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class AssemblePriorityConfig {
