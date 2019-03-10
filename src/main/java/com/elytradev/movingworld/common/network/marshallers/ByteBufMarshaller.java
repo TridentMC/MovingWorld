@@ -1,31 +1,29 @@
 package com.elytradev.movingworld.common.network.marshallers;
 
-import com.elytradev.concrete.network.Marshaller;
+import com.tridevmc.compound.network.marshallers.Marshaller;
+import com.tridevmc.compound.network.marshallers.RegisteredMarshaller;
 import io.netty.buffer.ByteBuf;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
+import net.minecraft.network.PacketBuffer;
 
-/**
- * Code from Concrete that's not available in 0.0.6 builds.
- */
-public class ByteBufMarshaller implements Marshaller<ByteBuf> {
 
-    public static final String MARSHALLER_NAME = "com.elytradev.movingworld.common.network.marshallers.ByteBufMarshaller";
-    public static final ByteBufMarshaller INSTANCE = new ByteBufMarshaller();
+@RegisteredMarshaller(channel = "movingworld", ids = {"byebuf"}, acceptedTypes = {ByteBuf.class})
+public class ByteBufMarshaller extends Marshaller<ByteBuf> {
 
     @Override
-    public ByteBuf unmarshal(ByteBuf in) {
-        int length = ByteBufUtils.readVarInt(in, 5);
-
+    public ByteBuf readFrom(ByteBuf in) {
+        PacketBuffer pBuf = new PacketBuffer(in);
+        int length = pBuf.readVarInt();
         return in.readBytes(length);
     }
 
     @Override
-    public void marshal(ByteBuf out, ByteBuf t) {
+    public void writeTo(ByteBuf out, ByteBuf t) {
+        PacketBuffer pBuf = new PacketBuffer(out);
         if (t != null) {
-            ByteBufUtils.writeVarInt(out, t.readableBytes(), 5);
+            pBuf.writeVarInt(t.readableBytes());
             out.writeBytes(t.readBytes(t.readableBytes()));
         } else {
-            ByteBufUtils.writeVarInt(out, 0, 5);
+            pBuf.writeVarInt(0);
         }
     }
 }

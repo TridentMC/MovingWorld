@@ -66,7 +66,7 @@ public class MainConfig {
      * A private method so I can hide it in my IDE, because it's an eye sore.
      */
     private Block[] getDefaultBlockBlackList() {
-        return new Block[]{(Blocks.DIRT), (Blocks.GRASS), (Blocks.SAND), (Blocks.GRAVEL), (Blocks.CLAY), (Blocks.ICE), (Blocks.WATER), (Blocks.FLOWING_WATER), (Blocks.LAVA), (Blocks.FLOWING_LAVA), (Blocks.SNOW), Blocks.SNOW_LAYER, (Blocks.WATERLILY), (Blocks.NETHERRACK), (Blocks.SOUL_SAND), Blocks.TALLGRASS};
+        return new Block[]{Blocks.DIRT, Blocks.GRASS, Blocks.SAND, Blocks.GRAVEL, Blocks.CLAY, Blocks.ICE, Blocks.WATER, Blocks.FLOWING_WATER, Blocks.LAVA, Blocks.FLOWING_LAVA, Blocks.SNOW, Blocks.SNOW_LAYER, Blocks.WATERLILY, Blocks.NETHERRACK, Blocks.SOUL_SAND, Blocks.TALLGRASS};
     }
 
     public void loadAndSave() {

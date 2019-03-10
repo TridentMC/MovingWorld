@@ -62,8 +62,7 @@ public abstract class ChunkIO {
         out.writeByte(pos.getX());
         out.writeByte(pos.getY());
         out.writeByte(pos.getZ());
-        out.writeShort(Block.getIdFromBlock(state.getBlock()));
-        out.writeInt(state.getBlock().getMetaFromState(state));
+        out.writeInt(Block.getStateId(state));
     }
 
     public static void read(DataInput in, MobileChunk chunk) throws IOException {
@@ -78,8 +77,7 @@ public abstract class ChunkIO {
             x = in.readByte();
             y = in.readByte();
             z = in.readByte();
-            id = in.readShort();
-            state = Block.getBlockById(id).getStateFromMeta(in.readInt());
+            state = Block.getStateById(in.readInt());
             chunk.setBlockState(new BlockPos(x, y, z), state);
         }
     }

@@ -8,8 +8,8 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
@@ -19,10 +19,10 @@ import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.MinecraftForgeClient;
-import net.minecraftforge.fml.client.FMLClientHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.ModList;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@SideOnly(Side.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class MobileChunkRenderer {
     /**
      * Boolean for whether this renderer needs to be updated or not
@@ -39,6 +39,7 @@ public class MobileChunkRenderer {
     public boolean isRemoved;
     public LegacyRender legacyRender = new LegacyRender();
     public VBORender vboRender = new VBORender();
+    public static boolean hasOptifine = ModList.get().isLoaded("optifine");
     private boolean usingVBOs = useVBO();
     private MobileChunkClient chunk;
 
@@ -49,7 +50,7 @@ public class MobileChunkRenderer {
     }
 
     public boolean useVBO() {
-        return OpenGlHelper.useVbo() && !FMLClientHandler.instance().hasOptifine();
+        return OpenGlHelper.useVbo() && !hasOptifine;
     }
 
     public void render(float partialTicks) {
@@ -106,7 +107,7 @@ public class MobileChunkRenderer {
         for (Map.Entry<BlockPos, TileEntity> blockPosTileEntityEntry : chunk.normalTESRS.entrySet()) {
             TileEntity tile = blockPosTileEntityEntry.getValue();
             tile.setWorld(chunk.getFakeWorld());
-            TileEntitySpecialRenderer renderer = dispatcher.getRenderer(tile);
+            TileEntityRenderer renderer = dispatcher.getRenderer(tile);
             if (renderer != null && tile.shouldRenderInPass(MinecraftForgeClient.getRenderPass())) {
                 dispatcher.render(tile, tile.getPos().getX(), tile.getPos().getY(), tile.getPos().getZ(), partialTicks);
             }
@@ -120,7 +121,7 @@ public class MobileChunkRenderer {
         for (Map.Entry<BlockPos, TileEntity> blockPosTileEntityEntry : chunk.fastTESRS.entrySet()) {
             TileEntity tile = blockPosTileEntityEntry.getValue();
             tile.setWorld(chunk.getFakeWorld());
-            TileEntitySpecialRenderer renderer = dispatcher.getRenderer(tile);
+            TileEntityRenderer renderer = dispatcher.getRenderer(tile);
             if (renderer != null && tile.shouldRenderInPass(MinecraftForgeClient.getRenderPass())) {
                 dispatcher.render(tile, tile.getPos().getX(), tile.getPos().getY(), tile.getPos().getZ(), partialTicks);
             }
@@ -132,8 +133,8 @@ public class MobileChunkRenderer {
 
     public void dispatchBlockRender(BlockPos blockPos, IBlockState blockState, BufferBuilder buffer) {
         buffer.color(1.0F, 1.0F, 1.0F, 1.0F);
-        BlockRendererDispatcher blockRendererDispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
-        blockRendererDispatcher.renderBlock(blockState, blockPos, chunk.getFakeWorld(), buffer);
+        BlockRendererDispatcher blockRendererDispatcher = Minecraft.getInstance().getBlockRendererDispatcher();
+        blockRendererDispatcher.renderBlock(blockState, blockPos, chunk.getFakeWorld(), buffer, this.chunk.world.rand);
     }
 
     public void markDirty() {
@@ -150,7 +151,7 @@ public class MobileChunkRenderer {
 
         public void compile() {
             this.displayList = GLAllocation.generateDisplayLists(1);
-            GlStateManager.glNewList(this.displayList, 4864);
+            GlStateManager.newList(this.displayList, 4864);
 
             Tessellator tessellator = Tessellator.getInstance();
             BufferBuilder buffer = tessellator.getBuffer();
@@ -192,7 +193,7 @@ public class MobileChunkRenderer {
             // Actually render.
             for (BlockRenderLayer blockRenderLayer : BlockRenderLayer.values()) {
                 for (Tuple<BlockPos, IBlockState> blockRenderData : blockRenderMap.get(blockRenderLayer)) {
-                    dispatchBlockRender(blockRenderData.getFirst(), blockRenderData.getSecond(), buffer);
+                    dispatchBlockRender(blockRenderData.getA(), blockRenderData.getB(), buffer);
                 }
             }
 
@@ -202,12 +203,12 @@ public class MobileChunkRenderer {
             GlStateManager.disableCull();
             RenderHelper.enableStandardItemLighting();
 
-            GlStateManager.glEndList();
+            GlStateManager.endList();
         }
 
         public void remove() {
             if (displayList >= 0)
-                GlStateManager.glDeleteLists(displayList, 1);
+                GlStateManager.deleteLists(displayList, 1);
         }
 
         public void render() {
@@ -253,11 +254,11 @@ public class MobileChunkRenderer {
                 List<Tuple<BlockPos, IBlockState>> data = blockRenderMap.get(renderLayer);
                 BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
 
-                BlockRendererDispatcher blockDispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
+                BlockRendererDispatcher blockDispatcher = Minecraft.getInstance().getBlockRendererDispatcher();
                 bufferBuilder.begin(7, DefaultVertexFormats.BLOCK);
                 for (Tuple<BlockPos, IBlockState> datum : data) {
                     bufferBuilder.color(1.0F, 1.0F, 1.0F, 1.0F);
-                    blockDispatcher.renderBlock(datum.getSecond(), datum.getFirst(), chunk.getFakeWorld(), bufferBuilder);
+                    blockDispatcher.renderBlock(datum.getB(), datum.getA(), chunk.getFakeWorld(), bufferBuilder, chunk.getFakeWorld().getRandom());
                 }
                 bufferBuilder.sortVertexData((float) TileEntityRendererDispatcher.staticPlayerX,
                         (float) TileEntityRendererDispatcher.staticPlayerY,
@@ -275,13 +276,13 @@ public class MobileChunkRenderer {
 
             GlStateManager.pushMatrix();
 
-            GlStateManager.glEnableClientState(32884);
-            OpenGlHelper.setClientActiveTexture(OpenGlHelper.defaultTexUnit);
-            GlStateManager.glEnableClientState(32888);
-            OpenGlHelper.setClientActiveTexture(OpenGlHelper.lightmapTexUnit);
-            GlStateManager.glEnableClientState(32888);
-            OpenGlHelper.setClientActiveTexture(OpenGlHelper.defaultTexUnit);
-            GlStateManager.glEnableClientState(32886);
+            GlStateManager.enableClientState(32884);
+            OpenGlHelper.glClientActiveTexture(getDefaultTexUnit());
+            GlStateManager.enableClientState(32888);
+            OpenGlHelper.glClientActiveTexture(getLightmapTexUnit());
+            GlStateManager.enableClientState(32888);
+            OpenGlHelper.glClientActiveTexture(getDefaultTexUnit());
+            GlStateManager.enableClientState(32886);
 
             GlStateManager.pushMatrix();
             vbo.bindBuffer();
@@ -297,15 +298,15 @@ public class MobileChunkRenderer {
 
                 switch (vertexformatelement$enumusage) {
                     case POSITION:
-                        GlStateManager.glDisableClientState(32884);
+                        GlStateManager.disableClientState(32884);
                         break;
                     case UV:
-                        OpenGlHelper.setClientActiveTexture(OpenGlHelper.defaultTexUnit + i);
-                        GlStateManager.glDisableClientState(32888);
-                        OpenGlHelper.setClientActiveTexture(OpenGlHelper.defaultTexUnit);
+                        OpenGlHelper.glClientActiveTexture(getDefaultTexUnit() + i);
+                        GlStateManager.disableClientState(32888);
+                        OpenGlHelper.glClientActiveTexture(getDefaultTexUnit());
                         break;
                     case COLOR:
-                        GlStateManager.glDisableClientState(32886);
+                        GlStateManager.disableClientState(32886);
                         GlStateManager.resetColor();
                 }
             }
@@ -313,12 +314,12 @@ public class MobileChunkRenderer {
         }
 
         private void setupArrayPointers() {
-            GlStateManager.glVertexPointer(3, 5126, 28, 0);
-            GlStateManager.glColorPointer(4, 5121, 28, 12);
-            GlStateManager.glTexCoordPointer(2, 5126, 28, 16);
-            OpenGlHelper.setClientActiveTexture(OpenGlHelper.lightmapTexUnit);
-            GlStateManager.glTexCoordPointer(2, 5122, 28, 24);
-            OpenGlHelper.setClientActiveTexture(OpenGlHelper.defaultTexUnit);
+            GlStateManager.vertexPointer(3, 5126, 28, 0);
+            GlStateManager.colorPointer(4, 5121, 28, 12);
+            GlStateManager.texCoordPointer(2, 5126, 28, 16);
+            OpenGlHelper.glClientActiveTexture(getLightmapTexUnit());
+            GlStateManager.texCoordPointer(2, 5122, 28, 24);
+            OpenGlHelper.glClientActiveTexture(getDefaultTexUnit());
         }
 
         public void remove() {
@@ -348,6 +349,14 @@ public class MobileChunkRenderer {
             GlStateManager.disableCull();
             RenderHelper.enableStandardItemLighting();
             GlStateManager.popMatrix();
+        }
+
+        public int getDefaultTexUnit() {
+            return OpenGlHelper.GL_TEXTURE0;
+        }
+
+        public int getLightmapTexUnit() {
+            return OpenGlHelper.GL_TEXTURE1;
         }
     }
 

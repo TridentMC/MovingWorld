@@ -1,44 +1,38 @@
 package com.elytradev.movingworld.common.network.message;
 
-import com.elytradev.concrete.network.Message;
-import com.elytradev.concrete.network.NetworkContext;
-import com.elytradev.concrete.network.annotation.field.MarshalledAs;
-import com.elytradev.concrete.network.annotation.type.ReceivedOn;
+
 import com.elytradev.movingworld.MovingWorldMod;
 import com.elytradev.movingworld.common.chunk.ChunkIO;
 import com.elytradev.movingworld.common.entity.EntityMovingWorld;
-import com.elytradev.movingworld.common.network.MovingWorldNetworking;
-import com.elytradev.movingworld.common.network.marshallers.ByteBufMarshaller;
-import com.elytradev.movingworld.common.network.marshallers.EntityMarshaller;
+import com.tridevmc.compound.network.message.Message;
+import com.tridevmc.compound.network.message.RegisteredMessage;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.LogicalSide;
 
 import java.io.IOException;
 
 /**
  * Sends MobileChunk block data to clients.
  */
-@ReceivedOn(Side.CLIENT)
+@RegisteredMessage(channel = "movingworld", destination = LogicalSide.CLIENT)
 public class MovingWorldBlockChangeMessage extends Message {
 
-    @MarshalledAs(EntityMarshaller.MARSHALLER_NAME)
     public EntityMovingWorld movingWorld;
-    @MarshalledAs(ByteBufMarshaller.MARSHALLER_NAME)
     public ByteBuf compressedChunkData;
 
-    public MovingWorldBlockChangeMessage(NetworkContext ctx) {
-        super(ctx);
+    public MovingWorldBlockChangeMessage() {
+        super();
     }
 
     public MovingWorldBlockChangeMessage(EntityMovingWorld movingWorld, ByteBuf compressedChunkData) {
-        super(MovingWorldNetworking.NETWORK);
+        super();
         this.movingWorld = movingWorld;
         this.compressedChunkData = compressedChunkData;
     }
 
     @Override
-    protected void handle(EntityPlayer sender) {
+    public void handle(EntityPlayer sender) {
         if (movingWorld == null || movingWorld.getMobileChunk() == null || compressedChunkData == null)
             return;
 

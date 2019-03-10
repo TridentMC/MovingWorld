@@ -3,6 +3,7 @@ package com.elytradev.movingworld.common.util;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,12 +20,12 @@ public class MaterialDensity {
     }
 
     public static void addDensity(Block block, float dens) {
-        blockDensityMap.put(Block.REGISTRY.getNameForObject(block).toString(), dens);
+        blockDensityMap.put(ForgeRegistries.BLOCKS.getKey(block).toString(), dens);
     }
 
     public static float getDensity(IBlockState state) {
         if (state == null) return DEFAULT_DENSITY;
-        Float f = blockDensityMap.get(Block.REGISTRY.getNameForObject(state.getBlock()));
+        Float f = blockDensityMap.get(ForgeRegistries.BLOCKS.getKey(state.getBlock()).toString());
         if (f != null) return f;
         return getDensity(state.getMaterial());
     }

@@ -2,12 +2,13 @@ package com.elytradev.movingworld.common.entity;
 
 import com.elytradev.movingworld.MovingWorldMod;
 import com.elytradev.movingworld.common.chunk.mobilechunk.MobileChunk;
+import com.tridevmc.compound.core.reflect.WrappedField;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraftforge.common.extensions.IForgeWorld;
 
 import java.util.HashSet;
 
@@ -16,6 +17,8 @@ public abstract class MovingWorldHandlerCommon {
     public MovingWorldHandlerCommon(EntityMovingWorld entityMovingWorld) {
         setMovingWorld(entityMovingWorld);
     }
+
+    private static final WrappedField<Float> MAX_ENTITY_RADIUS = WrappedField.create(IForgeWorld.class, "MAX_ENTITY_RADIUS");
 
     public abstract EntityMovingWorld getMovingWorld();
 
@@ -27,22 +30,21 @@ public abstract class MovingWorldHandlerCommon {
 
     public void onChunkUpdate() {
         MobileChunk chunk = getMovingWorld().getMobileChunk();
-        getMovingWorld().getCapabilities().clearBlockCount();
+        getMovingWorld().getMovingWorldCapabilities().clearBlockCount();
         for (int i = chunk.minX(); i < chunk.maxX(); i++) {
             for (int j = chunk.minY(); j < chunk.maxY(); j++) {
                 for (int k = chunk.minZ(); k < chunk.maxZ(); k++) {
                     BlockPos pos = new BlockPos(i, j, k);
                     IBlockState blockState = chunk.getBlockState(pos);
                     if (blockState != null && blockState.getMaterial() != Material.AIR) {
-                        getMovingWorld().getCapabilities().onChunkBlockAdded(blockState, pos);
+                        getMovingWorld().getMovingWorldCapabilities().onChunkBlockAdded(blockState, pos);
                     }
                 }
             }
         }
 
         getMovingWorld().setSize(Math.max(chunk.maxX() - chunk.minX(), chunk.maxZ() - chunk.minZ()), chunk.maxY() - chunk.minY());
-        World.MAX_ENTITY_RADIUS = Math.max(World.MAX_ENTITY_RADIUS, Math.max(getMovingWorld().width, getMovingWorld().height) + 2F);
-
+        MAX_ENTITY_RADIUS.setStaticValue((float) Math.max(IForgeWorld.MAX_ENTITY_RADIUS, Math.max(getMovingWorld().width, getMovingWorld().height) + 2F));
         try {
             getMovingWorld().fillAirBlocks(new HashSet<>(), new BlockPos(-1, -1, -1));
         } catch (StackOverflowError e) {
@@ -62,7 +64,7 @@ public abstract class MovingWorldHandlerCommon {
                 }
             }
         }
-        getMovingWorld().setFlying(getMovingWorld().getCapabilities().canFly());
-        getMovingWorld().getCapabilities().postBlockAdding();
+        getMovingWorld().setFlying(getMovingWorld().getMovingWorldCapabilities().canFly());
+        getMovingWorld().getMovingWorldCapabilities().postBlockAdding();
     }
 }

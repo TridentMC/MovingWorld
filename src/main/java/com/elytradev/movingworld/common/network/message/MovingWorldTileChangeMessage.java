@@ -1,60 +1,55 @@
 package com.elytradev.movingworld.common.network.message;
 
-import com.elytradev.concrete.network.Message;
-import com.elytradev.concrete.network.NetworkContext;
-import com.elytradev.concrete.network.annotation.field.MarshalledAs;
-import com.elytradev.concrete.network.annotation.type.ReceivedOn;
+
 import com.elytradev.movingworld.common.chunk.mobilechunk.MobileChunkClient;
 import com.elytradev.movingworld.common.entity.EntityMovingWorld;
-import com.elytradev.movingworld.common.network.MovingWorldNetworking;
-import com.elytradev.movingworld.common.network.marshallers.EntityMarshaller;
+import com.tridevmc.compound.network.message.Message;
+import com.tridevmc.compound.network.message.RegisteredMessage;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.LogicalSide;
+
 
 /**
  * Sends tile entity data in a MobileChunk to clients.
  */
-@ReceivedOn(Side.CLIENT)
+@RegisteredMessage(channel = "movingworld", destination = LogicalSide.CLIENT)
 public class MovingWorldTileChangeMessage extends Message {
 
-    @MarshalledAs(EntityMarshaller.MARSHALLER_NAME)
     public EntityMovingWorld movingWorld;
     public NBTTagCompound tileData;
 
-    public MovingWorldTileChangeMessage(NetworkContext ctx) {
-        super(ctx);
+    public MovingWorldTileChangeMessage() {
+        super();
     }
 
     public MovingWorldTileChangeMessage(EntityMovingWorld movingWorld, NBTTagCompound tileData) {
-        super(MovingWorldNetworking.NETWORK);
+        super();
         this.movingWorld = movingWorld;
         this.tileData = tileData;
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    protected void handle(EntityPlayer sender) {
+    public void handle(EntityPlayer sender) {
         if (movingWorld == null || tileData == null
                 || movingWorld.getMobileChunk() == null || !(movingWorld.getMobileChunk() instanceof MobileChunkClient))
             return;
 
-        NBTTagList list = tileData.getTagList("list", 10);
-        for (int i = 0; i < list.tagCount(); i++) {
-            NBTTagCompound nbt = list.getCompoundTagAt(i);
+        NBTTagList list = tileData.getList("list", 10);
+        for (int i = 0; i < list.size(); i++) {
+            NBTTagCompound nbt = list.getCompound(i);
             if (nbt == null) continue;
-            int x = nbt.getInteger("x");
-            int y = nbt.getInteger("y");
-            int z = nbt.getInteger("z");
+            int x = nbt.getInt("x");
+            int y = nbt.getInt("y");
+            int z = nbt.getInt("z");
             BlockPos pos = new BlockPos(x, y, z);
             try {
                 TileEntity te = movingWorld.getMobileChunk().getTileEntity(pos);
                 if (te != null)
-                    te.readFromNBT(nbt);
+                    te.read(nbt);
             } catch (Exception e) {
                 e.printStackTrace();
             }

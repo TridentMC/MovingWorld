@@ -14,6 +14,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
@@ -42,21 +43,21 @@ public class AssembleResult {
 
     public AssembleResult(NBTTagCompound tag, World world) {
         resultType = ResultType.fromByte(tag.getByte("res"));
-        blockCount = tag.getInteger("blockc");
-        tileEntityCount = tag.getInteger("tec");
+        blockCount = tag.getInt("blockc");
+        tileEntityCount = tag.getInt("tec");
         mass = tag.getFloat("mass");
-        offset = new BlockPos(-tag.getInteger("xO"),
-                tag.getInteger("yO"),
-                tag.getInteger("zO"));
-        if (tag.hasKey("list")) {
-            NBTTagList list = tag.getTagList("list", 10);
-            for (int i = 0; i < list.tagCount(); i++) {
-                NBTTagCompound comp = list.getCompoundTagAt(i);
+        offset = new BlockPos(-tag.getInt("xO"),
+                tag.getInt("yO"),
+                tag.getInt("zO"));
+        if (tag.contains("list")) {
+            NBTTagList list = tag.getList("list", 10);
+            for (int i = 0; i < list.size(); i++) {
+                NBTTagCompound comp = list.getCompound(i);
                 assembledBlocks.add(new LocatedBlock(comp, world));
             }
         }
-        if (tag.hasKey("marker")) {
-            NBTTagCompound comp = tag.getCompoundTag("marker");
+        if (tag.contains("marker")) {
+            NBTTagCompound comp = tag.getCompound("marker");
             movingWorldMarkingBlock = new LocatedBlock(comp, world);
         }
     }
@@ -96,10 +97,11 @@ public class AssembleResult {
         BlockPos riderDestination = new BlockPos(movingWorldMarkingBlock.blockPos.getX() - offset.getX(), movingWorldMarkingBlock.blockPos.getY() - offset.getY(), movingWorldMarkingBlock.blockPos.getZ() - offset.getZ());
 
         entity.setRiderDestination(facing, riderDestination);
-        entity.getMobileChunk().setCreationSpotBiomeGen(world.getBiome(movingWorldMarkingBlock.blockPos));
+        entity.getMobileChunk().setCreationSpotBiome(world.getBiome(movingWorldMarkingBlock.blockPos));
 
         boolean doTileDropsInWorld = world.getGameRules().getBoolean("doTileDrops");
-        world.getGameRules().setOrCreateGameRule("doTileDrops", "false");
+        MinecraftServer server = world.getServer();
+        world.getGameRules().setOrCreateGameRule("doTileDrops", "false", server);
 
         ArrayList<LocatedBlockList> separatedLbLists = assembledBlocks.getSortedAssemblyBlocks();
 
@@ -111,14 +113,14 @@ public class AssembleResult {
             }
         } catch (Exception e) {
             resultType = ResultType.RESULT_ERROR_OCCURED;
-            world.getGameRules().setOrCreateGameRule("doTileDrops", String.valueOf(doTileDropsInWorld));
+            world.getGameRules().setOrCreateGameRule("doTileDrops", String.valueOf(doTileDropsInWorld), server);
             MovingWorldMod.LOG.error("Result code: RESULT ERROR OCCURRED was reached when attempting to getEntity from assembly result. Printing stacktrace...");
             MovingWorldMod.LOG.error(e);
             e.printStackTrace();
             return null;
         }
 
-        world.getGameRules().setOrCreateGameRule("doTileDrops", String.valueOf(doTileDropsInWorld));
+        world.getGameRules().setOrCreateGameRule("doTileDrops", String.valueOf(doTileDropsInWorld),server);
 
         entity.getMobileChunk().setChunkModified();
         entity.getMobileChunk().onChunkLoad();
@@ -135,8 +137,8 @@ public class AssembleResult {
         LocatedBlockList setAirState2 = new LocatedBlockList();
 
         if (movingWorldMarkingBlock != null && movingWorldMarkingBlock.tileEntity instanceof TileMovingMarkingBlock
-            && ((TileMovingMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks != null &&
-            !((TileMovingMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks.isEmpty()) {
+                && ((TileMovingMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks != null &&
+                !((TileMovingMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks.isEmpty()) {
 
             setFluids = true;
         }
@@ -166,7 +168,7 @@ public class AssembleResult {
         }
 
         for (LocatedBlock lb : locatedBlocks) {
-            world.setBlockToAir(lb.blockPos);
+            world.removeBlock(lb.blockPos);
             world.removeTileEntity(lb.blockPos);
         }
 
@@ -229,25 +231,25 @@ public class AssembleResult {
         for (LocatedBlock lb : assembledBlocks) {
             NBTTagCompound comp = new NBTTagCompound();
             lb.writeToNBT(comp);
-            list.appendTag(comp);
+            list.add(comp);
         }
-        tag.setTag("list", list);
+        tag.put("list", list);
 
         if (movingWorldMarkingBlock != null) {
             NBTTagCompound comp = new NBTTagCompound();
             movingWorldMarkingBlock.writeToNBT(comp);
-            tag.setTag("marker", comp);
+            tag.put("marker", comp);
         }
     }
 
     public void writeNBTMetadata(NBTTagCompound tag) {
-        tag.setByte("res", getType().toByte());
-        tag.setInteger("blockc", getBlockCount());
-        tag.setInteger("tec", getTileEntityCount());
-        tag.setFloat("mass", getMass());
-        tag.setInteger("xO", offset.getX());
-        tag.setInteger("yO", offset.getY());
-        tag.setInteger("zO", offset.getZ());
+        tag.putByte("res", getType().toByte());
+        tag.putInt("blockc", getBlockCount());
+        tag.putInt("tec", getTileEntityCount());
+        tag.putFloat("mass", getMass());
+        tag.putInt("xO", offset.getX());
+        tag.putInt("yO", offset.getY());
+        tag.putInt("zO", offset.getZ());
     }
 
     public ByteBuf toByteBuf(ByteBuf buf) {

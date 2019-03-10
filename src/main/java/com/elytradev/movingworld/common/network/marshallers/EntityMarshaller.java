@@ -1,18 +1,17 @@
 package com.elytradev.movingworld.common.network.marshallers;
 
-import com.elytradev.concrete.network.Marshaller;
 import com.elytradev.movingworld.MovingWorldMod;
+import com.tridevmc.compound.network.marshallers.Marshaller;
+import com.tridevmc.compound.network.marshallers.RegisteredMarshaller;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.Entity;
 import net.minecraft.world.World;
 
-public class EntityMarshaller implements Marshaller<Entity> {
-
-    public static final String MARSHALLER_NAME = "com.elytradev.movingworld.common.network.marshallers.EntityMarshaller";
-    public static final EntityMarshaller INSTANCE = new EntityMarshaller();
+@RegisteredMarshaller(channel = "movingworld", ids = {"entity"}, acceptedTypes = {Entity.class})
+public class EntityMarshaller extends Marshaller<Entity> {
 
     @Override
-    public Entity unmarshal(ByteBuf in) {
+    public Entity readFrom(ByteBuf in) {
         if (in.readBoolean()) {
             int dimID = in.readInt();
             int entityID = in.readInt();
@@ -24,10 +23,10 @@ public class EntityMarshaller implements Marshaller<Entity> {
     }
 
     @Override
-    public void marshal(ByteBuf out, Entity entity) {
+    public void writeTo(ByteBuf out, Entity entity) {
         if (entity != null) {
             out.writeBoolean(true);
-            out.writeInt(entity.world.provider.getDimension());
+            out.writeInt(entity.world.getDimension().getType().getId());
             out.writeInt(entity.getEntityId());
         } else {
             out.writeBoolean(false);

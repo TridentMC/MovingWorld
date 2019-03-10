@@ -1,39 +1,33 @@
 package com.elytradev.movingworld.common.network.message;
 
-import com.elytradev.concrete.network.Message;
-import com.elytradev.concrete.network.NetworkContext;
-import com.elytradev.concrete.network.annotation.field.MarshalledAs;
-import com.elytradev.concrete.network.annotation.type.ReceivedOn;
+
 import com.elytradev.movingworld.common.entity.EntityMovingWorld;
-import com.elytradev.movingworld.common.network.MovingWorldNetworking;
-import com.elytradev.movingworld.common.network.marshallers.EntityMarshaller;
 import com.elytradev.movingworld.common.tile.TileMovingMarkingBlock;
+import com.tridevmc.compound.network.message.Message;
+import com.tridevmc.compound.network.message.RegisteredMessage;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.LogicalSide;
 
-/**
- * Created by darkevilmac on 1/29/2017.
- */
-@ReceivedOn(Side.SERVER)
+@RegisteredMessage(channel = "movingworld", destination = LogicalSide.SERVER)
 public class MovingWorldDataRequestMessage extends Message {
 
-    @MarshalledAs(EntityMarshaller.MARSHALLER_NAME)
     public EntityMovingWorld movingWorld;
 
-    public MovingWorldDataRequestMessage(NetworkContext ctx) {
-        super(ctx);
+    public MovingWorldDataRequestMessage() {
+        super();
     }
 
     public MovingWorldDataRequestMessage(EntityMovingWorld movingWorld) {
-        super(MovingWorldNetworking.NETWORK);
+        super();
         this.movingWorld = movingWorld;
     }
 
     @Override
-    protected void handle(EntityPlayer sender) {
+    public void handle(EntityPlayer sender) {
         if (movingWorld == null)
             return;
 
@@ -44,13 +38,13 @@ public class MovingWorldDataRequestMessage extends Message {
             if (te instanceof TileMovingMarkingBlock) {
                 ((TileMovingMarkingBlock) te).writeNBTForSending(nbt);
             } else {
-                te.writeToNBT(nbt);
+                te.write(nbt);
             }
-            list.appendTag(nbt);
+            list.add(nbt);
         }
-        tagCompound.setTag("list", list);
+        tagCompound.put("list", list);
 
-        // https://goo.gl/6VyCqo
-        new MovingWorldTileChangeMessage(movingWorld, tagCompound).sendTo(sender);
+        if (sender instanceof EntityPlayerMP)
+            new MovingWorldTileChangeMessage(movingWorld, tagCompound).sendTo((EntityPlayerMP) sender);
     }
 }

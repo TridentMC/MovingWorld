@@ -3,35 +3,33 @@ package com.elytradev.movingworld.common.asm.mixin.core.block.property;
 import com.elytradev.movingworld.api.rotation.IRotationProperty;
 import net.minecraft.block.BlockLever;
 import net.minecraft.block.BlockLog;
-import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.properties.PropertyEnum;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.EnumFacing;
-import org.spongepowered.asm.mixin.Mixin;
 
-@Mixin(PropertyEnum.class)
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.state.IProperty;
+import net.minecraft.util.EnumFacing;
+
 public class MixinPropertyEnum implements IRotationProperty {
 
     @Override
     public IBlockState rotate(IBlockState blockState, boolean ccw) {
         IProperty propertyEnum = (IProperty) this;
-        Object propertyValue = blockState.getValue(propertyEnum);
+        Object propertyValue = blockState.get(propertyEnum);
 
         if (propertyValue instanceof EnumFacing) {
             EnumFacing facing = (EnumFacing) propertyValue;
 
             if (facing.getHorizontalIndex() != -1) {
                 if (!ccw)
-                    blockState = blockState.withProperty(propertyEnum, facing.rotateY());
+                    blockState = blockState.with(propertyEnum, facing.rotateY());
                 else
-                    blockState = blockState.withProperty(propertyEnum, facing.rotateYCCW());
+                    blockState = blockState.with(propertyEnum, facing.rotateYCCW());
             }
         } else if (propertyValue instanceof EnumFacing.Axis) {
             EnumFacing.Axis axis = (EnumFacing.Axis) propertyValue;
 
             axis = axis == EnumFacing.Axis.X ? EnumFacing.Axis.Z : axis == EnumFacing.Axis.Z ? EnumFacing.Axis.X : axis;
 
-            blockState = blockState.withProperty(propertyEnum, axis);
+            blockState = blockState.with(propertyEnum, axis);
         } else if (propertyValue instanceof BlockLog.EnumAxis) {
             BlockLog.EnumAxis axis = (BlockLog.EnumAxis) blockState.getValue(propertyEnum);
 

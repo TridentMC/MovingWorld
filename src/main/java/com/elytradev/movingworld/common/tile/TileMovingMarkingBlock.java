@@ -155,7 +155,7 @@ public abstract class TileMovingMarkingBlock extends TileEntity implements IMovi
 
     @Override
     public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity packet) {
-        readFromNBT(packet.getNbtCompound());
+        read(packet.getNbtCompound());
     }
 
     public abstract MovingWorldAssemblyInteractor getNewAssemblyInteractor();
@@ -170,8 +170,8 @@ public abstract class TileMovingMarkingBlock extends TileEntity implements IMovi
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound tag) {
-        super.readFromNBT(tag);
+    public void read(NBTTagCompound tag) {
+        super.read(tag);
         getInfo().setName(tag.getString("name"));
         if (tag.hasKey("owner")) {
             getInfo().setOwner(UUID.fromString(tag.getString("owner")));

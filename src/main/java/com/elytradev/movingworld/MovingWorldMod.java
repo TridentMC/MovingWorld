@@ -4,14 +4,18 @@ import com.elytradev.movingworld.client.ClientProxy;
 import com.elytradev.movingworld.common.CommonProxy;
 import com.elytradev.movingworld.common.config.MainConfig;
 import com.elytradev.movingworld.common.network.MovingWorldNetworking;
+import com.tridevmc.compound.network.core.CompoundNetwork;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
@@ -31,6 +35,18 @@ public class MovingWorldMod {
 
     private MainConfig localConfig;
 
+    public MovingWorldMod() {
+        MovingWorldMod.INSTANCE = this;
+        PROXY = DistExecutor.runForDist(() -> ClientProxy::new, () -> CommonProxy::new);
+
+        FMLJavaModLoadingContext loadingContext = FMLJavaModLoadingContext.get();
+        loadingContext.getModEventBus().addListener(this::onSetup);
+    }
+
+    public void onSetup(FMLCommonSetupEvent e) {
+        CompoundNetwork.createNetwork("movingworld", "");
+    }
+
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent e) {
         MinecraftForge.EVENT_BUS.register(PROXY);
@@ -44,7 +60,7 @@ public class MovingWorldMod {
     @Mod.EventHandler
     public void init(FMLInitializationEvent e) {
         localConfig.postLoad();
-        MovingWorldNetworking.setupNetwork();
+        CompoundNetwork.createNetwork("movingworld", "1");
         localConfig.getShared().assemblePriorityConfig.loadAndSaveInit();
     }
 

@@ -1,32 +1,26 @@
 package com.elytradev.movingworld.common.network.message;
 
-import com.elytradev.concrete.network.Message;
-import com.elytradev.concrete.network.NetworkContext;
-import com.elytradev.concrete.network.annotation.field.MarshalledAs;
-import com.elytradev.concrete.network.annotation.type.ReceivedOn;
+
 import com.elytradev.movingworld.common.entity.EntityMovingWorld;
 import com.elytradev.movingworld.common.network.MovingWorldClientAction;
-import com.elytradev.movingworld.common.network.MovingWorldNetworking;
-import com.elytradev.movingworld.common.network.marshallers.EntityMarshaller;
+import com.tridevmc.compound.network.message.Message;
+import com.tridevmc.compound.network.message.RegisteredMessage;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.LogicalSide;
 
-/**
- * Created by darkevilmac on 1/29/2017.
- */
-@ReceivedOn(Side.SERVER)
+
+@RegisteredMessage(channel = "movingworld", destination = LogicalSide.SERVER)
 public class MovingWorldClientActionMessage extends Message {
 
-    @MarshalledAs(EntityMarshaller.MARSHALLER_NAME)
     public EntityMovingWorld movingWorld;
     public MovingWorldClientAction action;
 
-    public MovingWorldClientActionMessage(NetworkContext ctx) {
-        super(ctx);
+    public MovingWorldClientActionMessage() {
+        super();
     }
 
     public MovingWorldClientActionMessage(EntityMovingWorld movingWorld, MovingWorldClientAction action) {
-        super(MovingWorldNetworking.NETWORK);
+        super();
         this.movingWorld = movingWorld;
         this.action = action;
 
@@ -36,7 +30,7 @@ public class MovingWorldClientActionMessage extends Message {
     }
 
     @Override
-    protected void handle(EntityPlayer sender) {
+    public void handle(EntityPlayer sender) {
         if (movingWorld == null || sender != movingWorld.getControllingPassenger())
             return;
 

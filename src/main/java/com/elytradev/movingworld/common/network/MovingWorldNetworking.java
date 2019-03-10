@@ -6,7 +6,6 @@ import com.elytradev.movingworld.common.network.message.*;
 
 public class MovingWorldNetworking {
 
-    public static NetworkContext NETWORK;
 
     public static void setupNetwork() {
         //Init net code with builder.

@@ -1,7 +1,5 @@
 package com.elytradev.movingworld.common.chunk.mobilechunk;
 
-import com.elytradev.concrete.reflect.accessor.Accessor;
-import com.elytradev.concrete.reflect.accessor.Accessors;
 import com.elytradev.movingworld.MovingWorldMod;
 import com.elytradev.movingworld.api.IMovingTile;
 import com.elytradev.movingworld.common.chunk.LocatedBlock;
@@ -10,9 +8,11 @@ import com.elytradev.movingworld.common.entity.EntityMovingWorld;
 import com.elytradev.movingworld.common.util.AABBRotator;
 import com.elytradev.movingworld.common.util.Vec3dMod;
 import com.google.common.collect.HashBiMap;
+import com.tridevmc.compound.core.reflect.WrappedField;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Biomes;
 import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -20,24 +20,20 @@ import net.minecraft.util.ITickable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.EnumSkyBlock;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.EnumLightType;
+import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldType;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.world.chunk.ChunkSection;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.LogicalSide;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-public abstract class MobileChunk implements IBlockAccess {
+public abstract class MobileChunk implements IWorld {
 
-    public static final Accessor<Block> TILE_BLOCK_TYPE = Accessors.findField(TileEntity.class, "blockType", "field_145854_h");
-    public static final Accessor<Integer> TILE_METADATA = Accessors.findField(TileEntity.class, "blockMetadata", "field_145847_g");
+    public static final WrappedField<IBlockState> TILE_BLOCK_STATE = WrappedField.create(TileEntity.class, new String[]{"cachedBlockState", "field_195045_e"});
 
     public static final int CHUNK_SIZE = 16;
     public static final int CHUNK_MEMORY_USING = CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE * (4 + 2);    //(16*16*16 shorts and ints)
@@ -50,7 +46,7 @@ public abstract class MobileChunk implements IBlockAccess {
     public boolean isModified;
     public LocatedBlock marker;
     public ArrayList<IMovingTile> movingWorldTileEntities;
-    private Map<BlockPos, ExtendedBlockStorage> blockStorageMap;
+    private Map<BlockPos, ChunkSection> blockStorageMap;
     private boolean boundsInit;
     private BlockPos minBounds;
     private BlockPos maxBounds;
@@ -80,7 +76,7 @@ public abstract class MobileChunk implements IBlockAccess {
 
         blockCount = 0;
 
-        creationSpotBiome = Biome.getBiome(0); // Ocean biome id.
+        creationSpotBiome = Biomes.OCEAN; // Ocean biome id.
     }
 
     public FakeWorld getFakeWorld() {
@@ -148,15 +144,15 @@ public abstract class MobileChunk implements IBlockAccess {
         return new BlockPos(blockPosition.getX() & 15, blockPosition.getY() & 15, blockPosition.getZ() & 15);
     }
 
-    public ExtendedBlockStorage getBlockStorage(BlockPos pos) {
+    public ChunkSection getBlockStorage(BlockPos pos) {
         return blockStorageMap.get(shiftToStorageMapPos(pos));
     }
 
-    public ExtendedBlockStorage getBlockStorageOrCreate(BlockPos blockPos) {
+    public ChunkSection getBlockStorageOrCreate(BlockPos blockPos) {
         BlockPos shiftedPos = shiftToStorageMapPos(blockPos);
-        ExtendedBlockStorage storage = blockStorageMap.get(shiftedPos);
+        ChunkSection storage = blockStorageMap.get(shiftedPos);
         if (storage != null) return storage;
-        storage = new ExtendedBlockStorage(shiftedPos.getY(), false);
+        storage = new ChunkSection(shiftedPos.getY(), false);
         blockStorageMap.put(shiftedPos, storage);
         return storage;
     }
@@ -201,28 +197,23 @@ public abstract class MobileChunk implements IBlockAccess {
         return maxBounds.getZ();
     }
 
-    public void setCreationSpotBiomeGen(Biome biomeGen) {
-        creationSpotBiome = biomeGen;
+    public void setCreationSpotBiome(Biome biome) {
+        this.creationSpotBiome = biome;
+    }
+
+    public Biome getCreationSpotBiome() {
+        return this.creationSpotBiome;
     }
 
     public boolean addBlockWithState(BlockPos pos, IBlockState state) {
         if (state == null) return false;
 
-        Block block = state.getBlock();
-        int id = Block.getIdFromBlock(block);
-        int meta = block.getMetaFromState(state);
-
-        if (block == null) return false;
-
-        ExtendedBlockStorage storage = getBlockStorageOrCreate(pos);
+        ChunkSection storage = getBlockStorageOrCreate(pos);
         BlockPos internalStoragePos = shiftToInternalStoragePos(pos);
 
         IBlockState currentState = storage.get(internalStoragePos.getX(), internalStoragePos.getY(), internalStoragePos.getZ());
-        Block currentBlock = currentState.getBlock();
-        int currentID = Block.getIdFromBlock(currentBlock);
-        int currentMeta = currentBlock.getMetaFromState(currentState);
-        MovingWorldMod.LOG.debug(String.format("Adding block with state: %s, at position %s in a mobile chunk. \n The block id is: %s, and the metadata is: %s", state, pos, id, meta));
-        if (currentID == id && currentMeta == meta) {
+        MovingWorldMod.LOG.debug(String.format("Adding block with state: %s, at position %s in a mobile chunk. \n The block id is: %s, and the metadata is: %s", state, pos));
+        if (currentState.equals(state)) {
             return false;
         }
 
@@ -255,15 +246,14 @@ public abstract class MobileChunk implements IBlockAccess {
         setChunkModified();
 
         TileEntity tileentity;
-        if (block.hasTileEntity(state)) {
+        if (state.hasTileEntity()) {
             tileentity = getTileEntity(pos);
 
             if (tileentity == null) {
                 setTileEntity(pos, tileentity);
             } else {
                 tileentity.updateContainingBlockInfo();
-                TILE_BLOCK_TYPE.set(tileentity, block);
-                TILE_METADATA.set(tileentity, meta);
+                TILE_BLOCK_STATE.setValue(tileentity, state);
             }
         }
 
@@ -287,11 +277,10 @@ public abstract class MobileChunk implements IBlockAccess {
             return null;
         }
 
-        if (!state.getBlock().isCollidable() ||
-                (state.getBlock().isCollidable() && state.getCollisionBoundingBox(this.getFakeWorld(), pos) == null))
+        if (!state.getBlock().isCollidable())
             return null;
 
-        AxisAlignedBB axisAlignedBB = this.getBlockState(pos).getCollisionBoundingBox(this.getFakeWorld(), pos);
+        AxisAlignedBB axisAlignedBB = this.getBlockState(pos).getCollisionShape(this.getFakeWorld(), pos).getBoundingBox();
         chunkBoundingBoxes.put(pos, axisAlignedBB);
 
         double maxDX = (double) maxX();
@@ -397,11 +386,11 @@ public abstract class MobileChunk implements IBlockAccess {
     }
 
     public boolean setBlockState(BlockPos pos, IBlockState state) {
-        ExtendedBlockStorage storage = getBlockStorage(pos);
+        ChunkSection storage = getBlockStorage(pos);
         if (storage == null) return addBlockWithState(pos, state);
 
         IBlockState checkState = getBlockState(pos);
-        if (checkState.getBlock().equals(state.getBlock()) && checkState.getBlock().getMetaFromState(checkState) == state.getBlock().getMetaFromState(state)) {
+        if (checkState.getBlock().equals(state.getBlock())) {
             return false;
         }
         BlockPos internalStoragePos = shiftToInternalStoragePos(pos);
@@ -412,14 +401,13 @@ public abstract class MobileChunk implements IBlockAccess {
 
         storage.set(internalStoragePos.getX(), internalStoragePos.getY(), internalStoragePos.getZ(), state);
         state = storage.get(internalStoragePos.getX(), internalStoragePos.getY(), internalStoragePos.getZ());
-        Block block = state.getBlock();
 
-        if (block != null && block.hasTileEntity(state)) {
+        if (state.hasTileEntity()) {
             TileEntity tileentity = getTileEntity(pos);
 
             if (tileentity != null) {
                 tileentity.updateContainingBlockInfo();
-                TILE_METADATA.set(tileentity, block.getMetaFromState(state));
+                TILE_BLOCK_STATE.setValue(tileentity, state);
             }
         }
 
@@ -451,15 +439,14 @@ public abstract class MobileChunk implements IBlockAccess {
     }
 
     public boolean setBlockAsFilledAir(BlockPos pos) {
-        ExtendedBlockStorage storage = getBlockStorage(pos);
+        ChunkSection storage = getBlockStorage(pos);
         if (storage == null) return true;
 
         IBlockState state = getBlockState(pos);
-        Block block = state.getBlock();
-        if (block == Blocks.AIR && block.getMetaFromState(state) == 1) {
+        if (Objects.equals(state.getBlock(), Blocks.AIR)) {
             return true;
         }
-        if (block == null || state.getMaterial().equals(Material.AIR)) {
+        if (state.getMaterial().equals(Material.AIR)) {
             BlockPos internalStoragePos = shiftToInternalStoragePos(pos);
             storage.set(internalStoragePos.getX(), internalStoragePos.getY(), internalStoragePos.getZ(), Blocks.AIR.getDefaultState());
             return true;
@@ -482,7 +469,7 @@ public abstract class MobileChunk implements IBlockAccess {
                 return null;
             }
 
-            tileentity = block.createTileEntity(world, blockState);
+            tileentity = block.createTileEntity(blockState, world);
             setTileEntity(pos, tileentity);
 
             tileentity = chunkTileEntityMap.get(pos);
@@ -509,13 +496,12 @@ public abstract class MobileChunk implements IBlockAccess {
         newTile.setWorld(getFakeWorld());
 
         IBlockState blockState = getBlockState(pos);
-        Block block = blockState.getBlock();
-        if (block != null && block.hasTileEntity(blockState)) {
+        if (blockState != null && blockState.hasTileEntity()) {
             if (chunkTileEntityMap.containsKey(chunkPosition)) {
-                chunkTileEntityMap.get(chunkPosition).invalidate(); //RIP
+                chunkTileEntityMap.get(chunkPosition).remove(); //RIP
             }
 
-            TILE_METADATA.set(newTile, block.getMetaFromState(blockState));
+            TILE_BLOCK_STATE.setValue(newTile, blockState);
             chunkTileEntityMap.put(chunkPosition, newTile);
 
             if (newTile instanceof IMovingTile) {
@@ -545,7 +531,7 @@ public abstract class MobileChunk implements IBlockAccess {
                     updatableTiles.remove(tileentity);
                 }
 
-                tileentity.invalidate();
+                tileentity.remove();
             }
         }
     }
@@ -570,10 +556,10 @@ public abstract class MobileChunk implements IBlockAccess {
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public int getCombinedLight(BlockPos pos, int l) {
-        int lv = EnumSkyBlock.SKY.defaultLightValue;
-        return lv << 20 | l << 4;
+    @OnlyIn(Dist.CLIENT)
+    public int getNeighborAwareLightSubtracted(BlockPos pos, int amount) {
+        int lv = EnumLightType.SKY.defaultLightValue;
+        return lv << 20 | amount << 4;
     }
 
     @Override
@@ -584,11 +570,7 @@ public abstract class MobileChunk implements IBlockAccess {
 
     public boolean isBlockTakingWaterVolume(BlockPos pos) {
         IBlockState blockState = getBlockState(pos);
-        Block block = blockState.getBlock();
-        if (block == null || blockState.getMaterial().equals(Material.AIR)) {
-            if (block.getMetaFromState(blockState) == 1) return false;
-        }
-        return true;
+        return !blockState.getMaterial().equals(Material.AIR);
     }
 
     public int getHeight() {
@@ -598,7 +580,7 @@ public abstract class MobileChunk implements IBlockAccess {
     @Override
     public IBlockState getBlockState(BlockPos pos) {
         BlockPos internalStoragePos = shiftToInternalStoragePos(pos);
-        ExtendedBlockStorage storage = getBlockStorage(pos);
+        ChunkSection storage = getBlockStorage(pos);
         IBlockState state = storage != null ?
                 storage.get(internalStoragePos.getX(), internalStoragePos.getY(), internalStoragePos.getZ()) : null;
         if (state == null || storage == null)
@@ -614,25 +596,6 @@ public abstract class MobileChunk implements IBlockAccess {
     @Override
     public int getStrongPower(BlockPos pos, EnumFacing direction) {
         return 0;
-    }
-
-    @Override
-    public WorldType getWorldType() {
-        return world.getWorldType();
-    }
-
-    @Override
-    public boolean isSideSolid(BlockPos pos, EnumFacing side, boolean _default) {
-        int x = pos.getX();
-        int y = pos.getY();
-        int z = pos.getZ();
-        if (x < -30000000 || z < -30000000 || x >= 30000000 || z >= 30000000) {
-            return _default;
-        }
-
-        IBlockState state = getBlockState(pos);
-
-        return state.isSideSolid(this, new BlockPos(x, y, z), side);
     }
 
     public final int getMemoryUsage() {
@@ -665,7 +628,7 @@ public abstract class MobileChunk implements IBlockAccess {
         return container.maxX > maxVec.x || container.maxY > maxVec.y || container.maxZ > maxVec.z;
     }
 
-    public abstract Side side();
+    public abstract LogicalSide side();
 
     public void markTileDirty(BlockPos pos) {
         setChunkModified();
