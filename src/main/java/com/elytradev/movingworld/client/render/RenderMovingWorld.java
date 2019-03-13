@@ -31,13 +31,13 @@ public class RenderMovingWorld extends Render<EntityMovingWorld> {
         float rz = entity.frontDirection.getHorizontalIndex() == 0 ? 1f : entity.frontDirection.getHorizontalIndex() == 2 ? -1f : 0f;
 
         GlStateManager.pushMatrix();
-        GlStateManager.translate((float) x, (float) y, (float) z);
-        GlStateManager.rotate(yaw, 0F, 1F, 0F);
-        GlStateManager.rotate(pitch, rx, 0f, rz);
+        GlStateManager.translated(x, y, z);
+        GlStateManager.rotatef(yaw, 0F, 1F, 0F);
+        GlStateManager.rotatef(pitch, rx, 0f, rz);
 
         float fx = entity.getMobileChunk().getCenterX();
         float fz = entity.getMobileChunk().getCenterZ();
-        GlStateManager.translate(-fx, -entity.getMobileChunk().minY(), -fz); //minY is always 0
+        GlStateManager.translated(-fx, -entity.getMobileChunk().minY(), -fz); //minY is always 0
 
         bindEntityTexture(entity);
         ((MobileChunkClient) entity.getMobileChunk()).getRenderer().render(partialTicks);

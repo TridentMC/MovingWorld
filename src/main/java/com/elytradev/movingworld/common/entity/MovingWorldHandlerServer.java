@@ -1,7 +1,7 @@
 package com.elytradev.movingworld.common.entity;
 
 import com.elytradev.movingworld.MovingWorldMod;
-import com.elytradev.movingworld.common.chunk.ChunkIO;
+import com.elytradev.movingworld.common.chunk.CompressedChunkData;
 import com.elytradev.movingworld.common.chunk.mobilechunk.MobileChunkServer;
 import com.elytradev.movingworld.common.network.message.MovingWorldBlockChangeMessage;
 import com.elytradev.movingworld.common.network.message.MovingWorldTileChangeMessage;
@@ -12,6 +12,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.LogicalSide;
 
 public abstract class MovingWorldHandlerServer extends MovingWorldHandlerCommon {
     protected boolean firstChunkUpdate;
@@ -27,7 +28,7 @@ public abstract class MovingWorldHandlerServer extends MovingWorldHandlerCommon 
     }
 
     private MobileChunkServer getMobileChunkServer() {
-        if (this.getMovingWorld() != null && this.getMovingWorld().getMobileChunk() != null && this.getMovingWorld().getMobileChunk().side().isServer())
+        if (this.getMovingWorld() != null && this.getMovingWorld().getMobileChunk() != null && this.getMovingWorld().getMobileChunk().side() == LogicalSide.SERVER)
             return (MobileChunkServer) this.getMovingWorld().getMobileChunk();
         else
             return null;
@@ -37,37 +38,37 @@ public abstract class MovingWorldHandlerServer extends MovingWorldHandlerCommon 
     public void onChunkUpdate() {
         super.onChunkUpdate();
         if (getMobileChunkServer() != null) {
+            MobileChunkServer mobileChunkServer = getMobileChunkServer();
             if (!firstChunkUpdate) {
-                if (!getMobileChunkServer().getBlockQueue().isEmpty()) {
-                    new MovingWorldBlockChangeMessage(getMovingWorld(),
-                            ChunkIO.writeCompressed(getMovingWorld().getMobileChunk(), getMobileChunkServer().getBlockQueue())).sendToAllWatching(getMovingWorld());
+                if (!mobileChunkServer.getBlockQueue().isEmpty()) {
+                    new MovingWorldBlockChangeMessage(getMovingWorld(), new CompressedChunkData(mobileChunkServer, false)).sendToAllTracking(getMovingWorld());
 
                     MovingWorldMod.LOG.debug("MobileChunk block change detected, sending packet to all players watching " + getMovingWorld().toString());
                 }
-                if (!getMobileChunkServer().getTileQueue().isEmpty()) {
+                if (!mobileChunkServer.getTileQueue().isEmpty()) {
                     NBTTagCompound tagCompound = new NBTTagCompound();
                     NBTTagList list = new NBTTagList();
-                    for (BlockPos tilePosition : getMobileChunkServer().getTileQueue()) {
+                    for (BlockPos tilePosition : mobileChunkServer.getTileQueue()) {
                         NBTTagCompound nbt = new NBTTagCompound();
-                        if (getMobileChunkServer().getTileEntity(tilePosition) == null)
+                        if (mobileChunkServer.getTileEntity(tilePosition) == null)
                             continue;
 
-                        TileEntity te = getMobileChunkServer().getTileEntity(tilePosition);
+                        TileEntity te = mobileChunkServer.getTileEntity(tilePosition);
                         if (te instanceof TileMovingMarkingBlock) {
                             ((TileMovingMarkingBlock) te).writeNBTForSending(nbt);
                         } else {
-                            te.writeToNBT(nbt);
+                            te.write(nbt);
                         }
-                        list.appendTag(nbt);
+                        list.add(nbt);
                     }
-                    tagCompound.setTag("list", list);
+                    tagCompound.put("list", list);
 
-                    new MovingWorldTileChangeMessage(getMovingWorld(), tagCompound).sendToAllWatching(getMovingWorld());
+                    new MovingWorldTileChangeMessage(getMovingWorld(), tagCompound).sendToAllTracking(getMovingWorld());
                     MovingWorldMod.LOG.debug("MobileChunk tile change detected, sending packet to all players watching " + getMovingWorld().toString());
                 }
             }
-            getMobileChunkServer().getTileQueue().clear();
-            getMobileChunkServer().getBlockQueue().clear();
+            mobileChunkServer.getTileQueue().clear();
+            mobileChunkServer.getBlockQueue().clear();
         }
         firstChunkUpdate = false;
     }

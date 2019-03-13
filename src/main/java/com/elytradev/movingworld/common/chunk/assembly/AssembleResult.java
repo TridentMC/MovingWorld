@@ -69,13 +69,13 @@ public class AssembleResult {
     void assembleBlock(LocatedBlock lb) {
         assembledBlocks.add(lb);
         blockCount = assembledBlocks.size();
-        if (lb.tileEntity != null) {
+        if (lb.tile != null) {
             tileEntityCount++;
         }
-        mass += MaterialDensity.getDensity(lb.blockState);
-        offset = new BlockPos(Math.min(offset.getX(), lb.blockPos.getX()),
-                Math.min(offset.getY(), lb.blockPos.getY()),
-                Math.min(offset.getZ(), lb.blockPos.getZ()));
+        mass += MaterialDensity.getDensity(lb.state);
+        offset = new BlockPos(Math.min(offset.getX(), lb.pos.getX()),
+                Math.min(offset.getY(), lb.pos.getY()),
+                Math.min(offset.getZ(), lb.pos.getZ()));
     }
 
     public void clear() {
@@ -94,10 +94,10 @@ public class AssembleResult {
         }
 
         EnumFacing facing = assemblyInteractor.getFrontDirection(movingWorldMarkingBlock);
-        BlockPos riderDestination = new BlockPos(movingWorldMarkingBlock.blockPos.getX() - offset.getX(), movingWorldMarkingBlock.blockPos.getY() - offset.getY(), movingWorldMarkingBlock.blockPos.getZ() - offset.getZ());
+        BlockPos riderDestination = new BlockPos(movingWorldMarkingBlock.pos.getX() - offset.getX(), movingWorldMarkingBlock.pos.getY() - offset.getY(), movingWorldMarkingBlock.pos.getZ() - offset.getZ());
 
         entity.setRiderDestination(facing, riderDestination);
-        entity.getMobileChunk().setCreationSpotBiome(world.getBiome(movingWorldMarkingBlock.blockPos));
+        entity.getMobileChunk().setCreationSpotBiome(world.getBiome(movingWorldMarkingBlock.pos));
 
         boolean doTileDropsInWorld = world.getGameRules().getBoolean("doTileDrops");
         MinecraftServer server = world.getServer();
@@ -136,9 +136,9 @@ public class AssembleResult {
 
         LocatedBlockList setAirState2 = new LocatedBlockList();
 
-        if (movingWorldMarkingBlock != null && movingWorldMarkingBlock.tileEntity instanceof TileMovingMarkingBlock
-                && ((TileMovingMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks != null &&
-                !((TileMovingMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks.isEmpty()) {
+        if (movingWorldMarkingBlock != null && movingWorldMarkingBlock.tile instanceof TileMovingMarkingBlock
+                && ((TileMovingMarkingBlock) movingWorldMarkingBlock.tile).removedFluidBlocks != null &&
+                !((TileMovingMarkingBlock) movingWorldMarkingBlock.tile).removedFluidBlocks.isEmpty()) {
 
             setFluids = true;
         }
@@ -146,14 +146,14 @@ public class AssembleResult {
         TileEntity tileentity;
         BlockPos iPos;
         for (LocatedBlock lb : locatedBlocks) {
-            iPos = new BlockPos(lb.blockPos.getX() - offset.getX(), lb.blockPos.getY() - offset.getY(), lb.blockPos.getZ() - offset.getZ());
+            iPos = new BlockPos(lb.pos.getX() - offset.getX(), lb.pos.getY() - offset.getY(), lb.pos.getZ() - offset.getZ());
 
-            tileentity = lb.tileEntity;
-            if (tileentity != null || lb.blockState.getBlock().hasTileEntity(lb.blockState) && (tileentity = world.getTileEntity(lb.blockPos)) != null) {
+            tileentity = lb.tile;
+            if (tileentity != null || lb.state.getBlock().hasTileEntity(lb.state) && (tileentity = world.getTileEntity(lb.pos)) != null) {
                 tileentity.validate();
             }
-            if (entityMovingWorld.getMobileChunk().addBlockWithState(iPos, lb.blockState)) {
-                if (lb.tileEntity != null && movingWorldMarkingBlock.tileEntity != null && lb.blockPos.equals(movingWorldMarkingBlock.blockPos)) {
+            if (entityMovingWorld.getMobileChunk().addBlockWithState(iPos, lb.state)) {
+                if (lb.tile != null && movingWorldMarkingBlock.tile != null && lb.pos.equals(movingWorldMarkingBlock.pos)) {
                     entityMovingWorld.getMobileChunk().marker = lb;
                 }
                 setAirState2.add(lb);
@@ -163,23 +163,23 @@ public class AssembleResult {
         }
 
         for (LocatedBlock lb : setAirState2) {
-            world.setBlockState(lb.blockPos, Blocks.AIR.getDefaultState(), 2);
-            world.removeTileEntity(lb.blockPos);
+            world.setBlockState(lb.pos, Blocks.AIR.getDefaultState(), 2);
+            world.removeTileEntity(lb.pos);
         }
 
         for (LocatedBlock lb : locatedBlocks) {
-            world.removeBlock(lb.blockPos);
-            world.removeTileEntity(lb.blockPos);
+            world.removeBlock(lb.pos);
+            world.removeTileEntity(lb.pos);
         }
 
         if (setFluids) {
-            ((TileMovingMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks.stream()
-                    .filter(fluid -> fluid != null && world.isAirBlock(fluid.blockPos))
-                    .forEach(fluid -> world.setBlockState(fluid.blockPos, fluid.blockState, 2));
+            ((TileMovingMarkingBlock) movingWorldMarkingBlock.tile).removedFluidBlocks.stream()
+                    .filter(fluid -> fluid != null && world.isAirBlock(fluid.pos))
+                    .forEach(fluid -> world.setBlockState(fluid.pos, fluid.state, 2));
 
-            ((TileMovingMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks.stream()
-                    .filter(fluid -> fluid != null && world.isAirBlock(fluid.blockPos))
-                    .forEach(fluid -> world.setBlockState(fluid.blockPos, fluid.blockState, 3));
+            ((TileMovingMarkingBlock) movingWorldMarkingBlock.tile).removedFluidBlocks.stream()
+                    .filter(fluid -> fluid != null && world.isAirBlock(fluid.pos))
+                    .forEach(fluid -> world.setBlockState(fluid.pos, fluid.state, 3));
         }
 
 
@@ -212,13 +212,13 @@ public class AssembleResult {
     public void checkConsistent(World world) {
         boolean warn = false;
         for (LocatedBlock lb : assembledBlocks) {
-            IBlockState blockState = world.getBlockState(lb.blockPos);
+            IBlockState blockState = world.getBlockState(lb.pos);
             Block block = blockState.getBlock();
-            if (block != lb.blockState.getBlock()) {
+            if (block != lb.state.getBlock()) {
                 resultType = ResultType.RESULT_INCONSISTENT;
                 return;
             }
-            if (blockState != lb.blockState) {
+            if (blockState != lb.state) {
                 warn = true;
             }
         }

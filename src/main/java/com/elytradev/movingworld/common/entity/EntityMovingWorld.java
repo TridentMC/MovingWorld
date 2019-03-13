@@ -841,9 +841,9 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
         if (mobileChunk.marker != null) {
             NBTTagCompound markerComp = new NBTTagCompound();
-            markerComp.putInt("markerPosX", mobileChunk.marker.blockPos.getX());
-            markerComp.putInt("markerPosY", mobileChunk.marker.blockPos.getY());
-            markerComp.putInt("markerPosZ", mobileChunk.marker.blockPos.getZ());
+            markerComp.putInt("markerPosX", mobileChunk.marker.pos.getX());
+            markerComp.putInt("markerPosY", mobileChunk.marker.pos.getY());
+            markerComp.putInt("markerPosZ", mobileChunk.marker.pos.getZ());
             tag.put("markerInfo", markerComp);
         }
 

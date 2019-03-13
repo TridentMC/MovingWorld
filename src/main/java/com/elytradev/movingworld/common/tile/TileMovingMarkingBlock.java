@@ -1,7 +1,5 @@
 package com.elytradev.movingworld.common.tile;
 
-import static com.elytradev.movingworld.common.chunk.mobilechunk.MobileChunk.TILE_METADATA;
-
 import com.elytradev.movingworld.api.IMovingTile;
 import com.elytradev.movingworld.common.chunk.LocatedBlock;
 import com.elytradev.movingworld.common.chunk.MovingWorldAssemblyInteractor;
@@ -10,16 +8,21 @@ import com.elytradev.movingworld.common.chunk.assembly.ChunkAssembler;
 import com.elytradev.movingworld.common.entity.EntityMovingWorld;
 import com.elytradev.movingworld.common.entity.MovingWorldInfo;
 import com.elytradev.movingworld.common.util.LocatedBlockList;
-import java.util.UUID;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
+
+import javax.annotation.Nonnull;
+import java.util.UUID;
+
+import static com.elytradev.movingworld.common.chunk.mobilechunk.MobileChunk.TILE_METADATA;
 
 public abstract class TileMovingMarkingBlock extends TileEntity implements IMovingTile {
 
@@ -27,19 +30,21 @@ public abstract class TileMovingMarkingBlock extends TileEntity implements IMovi
     private AssembleResult assembleResult, prevResult;
 
 
-    public TileMovingMarkingBlock() {
-        super();
-        setParentMovingWorld(null);
-        assembleResult = prevResult = null;
+    public TileMovingMarkingBlock(TileEntityType<?> type) {
+        super(type);
+        this.setParentMovingWorld(null);
+        this.assembleResult = this.prevResult = null;
     }
 
+    @Nonnull
     public abstract MovingWorldAssemblyInteractor getInteractor();
 
-    public abstract void setInteractor(MovingWorldAssemblyInteractor interactor);
+    public abstract void setInteractor(@Nonnull MovingWorldAssemblyInteractor interactor);
 
+    @Nonnull
     public abstract MovingWorldInfo getInfo();
 
-    public abstract void setInfo(MovingWorldInfo info);
+    public abstract void setInfo(@Nonnull MovingWorldInfo info);
 
     public abstract int getMaxBlocks();
 
@@ -86,7 +91,7 @@ public abstract class TileMovingMarkingBlock extends TileEntity implements IMovi
                     returnVal = true;
                 case RESULT_BLOCK_OVERFLOW:
                     c = new TextComponentString(
-                        "Cannot create moving world with more than " + getMaxBlocks() + " blocks");
+                            "Cannot create moving world with more than " + getMaxBlocks() + " blocks");
                     player.sendStatusMessage(c, true);
                     break;
                 case RESULT_MISSING_MARKER:
@@ -164,7 +169,7 @@ public abstract class TileMovingMarkingBlock extends TileEntity implements IMovi
      * Called during/after mountMovingWorld();
      *
      * @param stage can be 1, 2, or 3 this represents the stage of the method we're at. more information can be viewed
-     * at the github repo to see when your code will be executed. http://github.com/elytra/MovingWorld
+     *              at the github repo to see when your code will be executed. http://github.com/elytra/MovingWorld
      */
     public void mountedMovingWorld(EntityPlayer player, EntityMovingWorld movingWorld, MountStage stage) {
     }

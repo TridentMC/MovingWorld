@@ -85,7 +85,7 @@ public class ChunkAssembler {
 
                 LocatedBlock lb = new LocatedBlock(blockState, worldObj.getTileEntity(worldPos), mobileChunkPos);
                 assemblyInteractor.blockAssembled(lb);
-                if (assemblyInteractor.isTileMovingWorldMarker(lb.tileEntity) || assemblyInteractor.isBlockMovingWorldMarker(lb.blockState.getBlock())) {
+                if (assemblyInteractor.isTileMovingWorldMarker(lb.tile) || assemblyInteractor.isBlockMovingWorldMarker(lb.state.getBlock())) {
                     if (movingWorldMarker == null)
                         movingWorldMarker = lb;
                 }
@@ -144,7 +144,7 @@ public class ChunkAssembler {
 
         LocatedBlock lb = new LocatedBlock(blockState, worldObj.getTileEntity(pos), pos);
         assemblyInteractor.blockAssembled(lb);
-        if (assemblyInteractor.isBlockMovingWorldMarker(block) || assemblyInteractor.isTileMovingWorldMarker(lb.tileEntity)) {
+        if (assemblyInteractor.isBlockMovingWorldMarker(block) || assemblyInteractor.isTileMovingWorldMarker(lb.tile)) {
             if (movingWorldMarker == null)
                 movingWorldMarker = lb;
         }

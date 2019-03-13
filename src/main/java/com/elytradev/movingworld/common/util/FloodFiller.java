@@ -36,7 +36,7 @@ public class FloodFiller {
         Iterator<LocatedBlock> lbIterator = lbList.iterator();
 
         while (lbIterator.hasNext()) {
-            BlockPos lbPos = lbIterator.next().blockPos;
+            BlockPos lbPos = lbIterator.next().pos;
 
             if (lbPos.getX() > (mobileChunk.maxX() - 1) || lbPos.getX() < mobileChunk.minX() ||
                     lbPos.getY() > (mobileChunk.maxY() - 1) || lbPos.getY() < mobileChunk.minY() ||

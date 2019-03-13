@@ -1,5 +1,6 @@
 package com.elytradev.movingworld.common.chunk;
 
+import com.google.common.base.MoreObjects;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -7,56 +8,59 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class LocatedBlock {
     public static final LocatedBlock AIR = new LocatedBlock(Blocks.AIR.getDefaultState(), BlockPos.ORIGIN);
 
-    public final IBlockState blockState;
-    public final TileEntity tileEntity;
-    public final BlockPos blockPos;
-    public final BlockPos bPosNoOffset;
+    public final IBlockState state;
+    public final TileEntity tile;
+    public final BlockPos pos;
+    public final BlockPos posNoOffset;
 
-    public LocatedBlock(IBlockState blockState, BlockPos blockPos) {
-        this(blockState, null, blockPos);
+    public LocatedBlock(IBlockState state, BlockPos pos) {
+        this(state, null, pos);
     }
 
-    public LocatedBlock(IBlockState blockState, TileEntity tileentity, BlockPos blockPos) {
-        this(blockState, tileentity, blockPos, null);
+    public LocatedBlock(IBlockState state, TileEntity tileentity, BlockPos pos) {
+        this(state, tileentity, pos, null);
     }
 
-    public LocatedBlock(IBlockState blockState, TileEntity tileentity, BlockPos blockPos, BlockPos bPosNoOffset) {
-        this.blockState = blockState;
-        this.blockPos = blockPos;
-        this.bPosNoOffset = bPosNoOffset;
-        tileEntity = tileentity;
+    public LocatedBlock(IBlockState state, TileEntity tile, BlockPos pos, BlockPos posNoOffset) {
+        this.state = state;
+        this.tile = tile;
+        this.pos = pos;
+        this.posNoOffset = posNoOffset;
     }
 
     public LocatedBlock(NBTTagCompound tag, World world) {
-        blockState = Block.getBlockById(tag.getInteger("block")).getDefaultState().getBlock().getStateFromMeta(tag.getInteger("meta"));
-        blockPos = new BlockPos(tag.getInteger("x"), tag.getInteger("y"), tag.getInteger("z"));
-        bPosNoOffset = null;
-        tileEntity = world == null ? null : world.getTileEntity(new BlockPos(blockPos.getX(), blockPos.getY(), blockPos.getZ()));
+        state = Block.getStateById(tag.getInt("block"));
+        pos = BlockPos.fromLong(tag.getLong("pos"));
+        posNoOffset = null;
+        tile = world == null ? null : world.getTileEntity(pos);
     }
 
     @Override
     public String toString() {
-        return new StringBuilder("LocatedBlock [block=").append(blockState.getBlock()).append(", state=").append(blockState.toString()).append(", blockPos=[").append(blockPos.getX()).append(", ").append(blockPos.getY()).append(", ").append(blockPos.getZ()).append("]]").toString();
+        return MoreObjects.toStringHelper(this)
+                .add("state", state)
+                .add("tile", tile)
+                .add("pos", pos)
+                .add("posNoOffset", posNoOffset)
+                .toString();
     }
 
     @Override
     public LocatedBlock clone() {
-        return new LocatedBlock(blockState, tileEntity, blockPos, bPosNoOffset);
+        return new LocatedBlock(state, tile, pos, posNoOffset);
     }
 
     public String getBlockName() {
-        return Block.REGISTRY.getNameForObject(blockState.getBlock()).toString();
+        return ForgeRegistries.BLOCKS.getKey(state.getBlock()).toString();
     }
 
     public void writeToNBT(NBTTagCompound tag) {
-        tag.setShort("block", (short) Block.getIdFromBlock(blockState.getBlock()));
-        tag.setInteger("meta", blockState.getBlock().getMetaFromState(blockState));
-        tag.setInteger("x", blockPos.getX());
-        tag.setInteger("y", blockPos.getY());
-        tag.setInteger("z", blockPos.getZ());
+        tag.putInt("block", Block.getStateId(state));
+        tag.putLong("pos", pos.toLong());
     }
 }

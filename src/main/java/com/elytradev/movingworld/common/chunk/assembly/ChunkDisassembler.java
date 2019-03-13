@@ -78,8 +78,8 @@ public class ChunkDisassembler {
         movingWorld.disassembling = true;
         tileMarker = null;
         if (movingWorld.getMobileChunk().marker != null
-            && movingWorld.getMobileChunk().marker.tileEntity instanceof TileMovingMarkingBlock)
-            tileMarker = (TileMovingMarkingBlock) movingWorld.getMobileChunk().marker.tileEntity;
+            && movingWorld.getMobileChunk().marker.tile instanceof TileMovingMarkingBlock)
+            tileMarker = (TileMovingMarkingBlock) movingWorld.getMobileChunk().marker.tile;
 
         removedFluidBlocks = new LocatedBlockList();
         World world = movingWorld.getEntityWorld();
@@ -152,9 +152,9 @@ public class ChunkDisassembler {
         for (LocatedBlockList pList : sortedPostList) {
             if (pList != null && !pList.isEmpty())
                 for (LocatedBlock locatedBlockInstance : pList) {
-                    pos = locatedBlockInstance.blockPos;
+                    pos = locatedBlockInstance.pos;
                     MovingWorldMod.LOG.debug("Post-rejoining block: " + locatedBlockInstance.toString());
-                    world.setBlockState(pos, locatedBlockInstance.blockState, 2);
+                    world.setBlockState(pos, locatedBlockInstance.state, 2);
                     assemblyInteractor.blockDisassembled(locatedBlockInstance);
                     DisassembleBlockEvent event = new DisassembleBlockEvent(movingWorld, locatedBlockInstance);
                     MinecraftForge.EVENT_BUS.post(event);
@@ -168,7 +168,7 @@ public class ChunkDisassembler {
 
         movingWorld.setDead();
 
-        if (this.result.movingWorldMarkingBlock == null || !assemblyInteractor.isTileMovingWorldMarker(this.result.movingWorldMarkingBlock.tileEntity)) {
+        if (this.result.movingWorldMarkingBlock == null || !assemblyInteractor.isTileMovingWorldMarker(this.result.movingWorldMarkingBlock.tile)) {
             this.result.resultType = AssembleResult.ResultType.RESULT_MISSING_MARKER;
         } else {
             result.checkConsistent(world);
@@ -192,13 +192,13 @@ public class ChunkDisassembler {
         for (LocatedBlock locatedBlock : locatedBlocks) {
             locatedBlock = rotateBlock(locatedBlock, currentRot);
 
-            int i = locatedBlock.bPosNoOffset.getX();
-            int j = locatedBlock.bPosNoOffset.getY();
-            int k = locatedBlock.bPosNoOffset.getZ();
+            int i = locatedBlock.posNoOffset.getX();
+            int j = locatedBlock.posNoOffset.getY();
+            int k = locatedBlock.posNoOffset.getZ();
 
-            pos = locatedBlock.blockPos;
-            blockState = locatedBlock.blockState;
-            tileentity = locatedBlock.tileEntity;
+            pos = locatedBlock.pos;
+            blockState = locatedBlock.state;
+            tileentity = locatedBlock.tile;
             blockState = assemblyInteractor.blockRotated(blockState, currentRot);
 
             owBlockState = world.getBlockState(pos);
@@ -206,7 +206,7 @@ public class ChunkDisassembler {
             if (owBlock != null)
                 assemblyInteractor.blockOverwritten(owBlock);
 
-            if (!fillList.containsLBOfPos(locatedBlock.bPosNoOffset)) {
+            if (!fillList.containsLBOfPos(locatedBlock.posNoOffset)) {
                 if (world.getBlockState(pos).getMaterial().isLiquid()) {
                     if (!removedFluidBlocks.containsLBOfPos(pos))
                         removedFluidBlocks.add(new LocatedBlock(owBlockState, pos));

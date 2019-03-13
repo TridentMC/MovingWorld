@@ -9,8 +9,8 @@ public class MixinBlockSkull implements IRotationBlock {
 
     @Override
     public LocatedBlock rotate(LocatedBlock locatedBlock, boolean ccw) {
-        //if (locatedBlock.tileEntity instanceof TileEntitySkull) {
-        //    TileEntitySkull tile = (TileEntitySkull) locatedBlock.tileEntity;
+        //if (locatedBlock.tile instanceof TileEntitySkull) {
+        //    TileEntitySkull tile = (TileEntitySkull) locatedBlock.tile;
         //    Accessor<Integer> skullRotation = Accessors.findField(TileEntitySkull.class, "skullRotation", "field_145910_i");
         //    int skullRot = skullRotation.get(tile);
         //    for (int i = 0; i < 4; i++) {

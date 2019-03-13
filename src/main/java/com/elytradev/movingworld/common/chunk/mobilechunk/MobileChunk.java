@@ -385,6 +385,10 @@ public abstract class MobileChunk implements IWorld {
         this.boundingBoxes = newBoundingBoxes;
     }
 
+    public boolean setBlockState(LocatedBlock locatedBlock){
+        return this.setBlockState(locatedBlock.pos, locatedBlock.state);
+    }
+
     public boolean setBlockState(BlockPos pos, IBlockState state) {
         ChunkSection storage = getBlockStorage(pos);
         if (storage == null) return addBlockWithState(pos, state);

@@ -45,9 +45,9 @@ public class MovingWorldAssemblyInteractor {
      * Called when a block is disassembled from your moving world.
      */
     public void blockDisassembled(LocatedBlock locatedBlock) {
-        if (locatedBlock.tileEntity != null && locatedBlock.tileEntity.getWorld() != null
-                && locatedBlock.tileEntity.getWorld().getTileEntity(locatedBlock.blockPos) != null)
-            locatedBlock.tileEntity.getWorld().getTileEntity(locatedBlock.blockPos).markDirty();
+        if (locatedBlock.tile != null && locatedBlock.tile.getWorld() != null
+                && locatedBlock.tile.getWorld().getTileEntity(locatedBlock.pos) != null)
+            locatedBlock.tile.getWorld().getTileEntity(locatedBlock.pos).markDirty();
     }
 
     /**
@@ -84,10 +84,10 @@ public class MovingWorldAssemblyInteractor {
 
     public CanAssemble isBlockAllowed(World world, LocatedBlock lb) {
         CanAssemble canAssemble = new CanAssemble(false, false);
-        IBlockState state = lb.blockState;
+        IBlockState state = lb.state;
 
         canAssemble.justCancel = !(!state.getMaterial().equals(Material.AIR) && !state.getMaterial().isLiquid() && MovingWorldMod.INSTANCE.getNetworkConfig().isStateAllowed(state));
-        canAssemble.justCancel = canAssemble.justCancel || !MovingWorldMod.INSTANCE.getNetworkConfig().isTileAllowed(lb.tileEntity);
+        canAssemble.justCancel = canAssemble.justCancel || !MovingWorldMod.INSTANCE.getNetworkConfig().isTileAllowed(lb.tile);
 
         return canAssemble;
     }
@@ -101,7 +101,7 @@ public class MovingWorldAssemblyInteractor {
     }
 
     public EnumFacing getFrontDirection(LocatedBlock marker) {
-        return marker.blockState.getValue(BlockMovingWorldMarker.FACING).getOpposite();
+        return marker.state.getValue(BlockMovingWorldMarker.FACING).getOpposite();
     }
 
     /**

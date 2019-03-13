@@ -22,15 +22,15 @@ public class LocatedBlockList extends ArrayList<LocatedBlock> {
 
     @Override
     public boolean add(LocatedBlock locatedBlock) {
-        if (!posMap.containsKey(locatedBlock.blockPos))
-            posMap.put(locatedBlock.blockPos, locatedBlock);
+        if (!posMap.containsKey(locatedBlock.pos))
+            posMap.put(locatedBlock.pos, locatedBlock);
         return super.add(locatedBlock);
     }
 
     @Override
     public void add(int index, LocatedBlock locatedBlock) {
-        if (!posMap.containsKey(locatedBlock.blockPos))
-            posMap.put(locatedBlock.blockPos, locatedBlock);
+        if (!posMap.containsKey(locatedBlock.pos))
+            posMap.put(locatedBlock.pos, locatedBlock);
         super.add(index, locatedBlock);
     }
 

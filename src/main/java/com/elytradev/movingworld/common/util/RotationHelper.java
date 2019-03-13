@@ -12,8 +12,8 @@ import net.minecraft.util.math.Vec3i;
 public class RotationHelper {
 
     public static LocatedBlock rotateBlock(LocatedBlock locatedBlock, boolean ccw) {
-        IBlockState blockState = locatedBlock.blockState;
-        if (locatedBlock != null && locatedBlock.blockState != null) {
+        IBlockState blockState = locatedBlock.state;
+        if (locatedBlock != null && locatedBlock.state != null) {
             if (blockState.getBlock() != null && blockState.getBlock() instanceof IRotationBlock) {
                 locatedBlock = ((IRotationBlock) blockState.getBlock()).rotate(locatedBlock, ccw);
 
@@ -32,7 +32,7 @@ public class RotationHelper {
             }
         }
 
-        return new LocatedBlock(blockState, locatedBlock.tileEntity, locatedBlock.blockPos, locatedBlock.bPosNoOffset);
+        return new LocatedBlock(blockState, locatedBlock.tile, locatedBlock.pos, locatedBlock.posNoOffset);
     }
 
     public static int rotateInteger(int integer, int min, int max, boolean ccw) {
