@@ -4,7 +4,9 @@ import com.google.common.collect.Lists;
 import com.tridevmc.compound.config.ConfigType;
 import com.tridevmc.compound.config.ConfigValue;
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraftforge.fml.config.ModConfig;
 
@@ -40,7 +42,7 @@ public class MovingWorldConfig {
     @ConfigValue(comment = "A list of tiles that are allowed on a Moving World.")
     public List<TileEntityType> tileWhitelist = Lists.newArrayList();
 
-    @ConfigValue(comment = "(Currently unimplemented) A list of tiles that are allowed to tick while they're part of a MobileChunk, might cause explosive loss of data, type 2 diabetes, and cancer. Use with caution.")
+    @ConfigValue(comment = "A list of tiles that are allowed to tick while they're part of a MobileChunk.")
     public List<TileEntityType> updatableTiles = Lists.newArrayList(TileEntityType.FURNACE, TileEntityType.HOPPER, TileEntityType.BANNER, TileEntityType.ENCHANTING_TABLE, TileEntityType.DAYLIGHT_DETECTOR);
 
     @ConfigValue(comment = "A list of pairs of a block with a density value. Entries in this list override the 'materialDensities' list.")
@@ -49,4 +51,27 @@ public class MovingWorldConfig {
     @ConfigValue(comment = "A list of pairs of a material with a density value. The first value is the name of a block. All objects with the same material will get this density value, unless overridden.")
     public List<BlockDensityData> materialDensities = Lists.newArrayList(new BlockDensityData(Blocks.AIR, 0.0F), new BlockDensityData(Blocks.WHITE_WOOL, 0.1F));
 
+    public boolean canOverwriteState(IBlockState state) {
+        return this.overwritableBlocks.contains(state.getBlock());
+    }
+
+    public boolean isStateAllowed(IBlockState state) {
+        if (this.useWhitelist) {
+            return this.blockWhitelist.contains(state.getBlock());
+        } else {
+            return !this.blockBlacklist.contains(state.getBlock());
+        }
+    }
+
+    public boolean isTileAllowed(TileEntity tile) {
+        if (this.useTileWhitelist) {
+            return this.tileWhitelist.contains(tile.getType());
+        } else {
+            return !this.tileBlacklist.contains(tile.getType());
+        }
+    }
+
+    public boolean isTileUpdatable(TileEntity tile) {
+        return this.updatableTiles.contains(tile.getType());
+    }
 }

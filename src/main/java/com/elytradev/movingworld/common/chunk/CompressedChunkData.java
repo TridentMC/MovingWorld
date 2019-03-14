@@ -2,7 +2,6 @@ package com.elytradev.movingworld.common.chunk;
 
 import com.elytradev.movingworld.MovingWorldMod;
 import com.elytradev.movingworld.common.chunk.mobilechunk.MobileChunk;
-import com.elytradev.movingworld.common.chunk.mobilechunk.MobileChunkServer;
 import com.elytradev.movingworld.common.util.LocatedBlockList;
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
@@ -26,13 +25,13 @@ import java.util.zip.GZIPOutputStream;
 
 public class CompressedChunkData {
 
-    private final MobileChunkServer chunk;
+    private final MobileChunk chunk;
 
     private LocatedBlockList locatedBlocks = new LocatedBlockList();
     private DataOutputStream stream;
     private ByteBuf out;
 
-    public CompressedChunkData(MobileChunkServer mobileChunk, boolean sendAll) {
+    public CompressedChunkData(MobileChunk mobileChunk, boolean sendAll) {
         this.chunk = mobileChunk;
         try {
             if (sendAll) {
@@ -55,13 +54,21 @@ public class CompressedChunkData {
         }
     }
 
+    public CompressedChunkData(byte[] from) {
+        this(Unpooled.copiedBuffer(from));
+    }
+
     public void writeTo(ByteBuf buf) {
         buf.writeInt(buf.readableBytes());
         buf.writeBytes(this.out);
     }
 
+    public byte[] getBytes() {
+        return this.out.array();
+    }
+
     public void loadBlocks(MobileChunk chunk) {
-        locatedBlocks.forEach(chunk::setBlockState);
+        this.locatedBlocks.forEach(chunk::setBlockState);
     }
 
     private void read(DataInput from) throws IOException {
@@ -82,25 +89,20 @@ public class CompressedChunkData {
 
     private void readCompressed(ByteBuf from) throws IOException {
         DataInputStream in = new DataInputStream(new GZIPInputStream(new ByteBufInputStream(from)));
-        read(in);
+        this.read(in);
         in.close();
     }
 
     private int write() throws IOException {
-        Collection<BlockPos> blocks = chunk.getBlockQueue();
-        stream.writeShort(blocks.size());
-        for (BlockPos p : blocks) {
-            writeBlock(chunk.getBlockState(p), p);
-        }
-        return blocks.size();
+        return this.writePositions(this.chunk.getBlockQueue());
     }
 
     private int writeAll() throws IOException {
         List<BlockPos> nonEmptyPositions = Lists.newArrayList();
-        for (int i = chunk.minX(); i < chunk.maxX(); i++) {
-            for (int j = chunk.minY(); j < chunk.maxY(); j++) {
-                for (int k = chunk.minZ(); k < chunk.maxZ(); k++) {
-                    IBlockState state = chunk.getBlockState(new BlockPos(i, j, k));
+        for (int i = this.chunk.minX(); i < this.chunk.maxX(); i++) {
+            for (int j = this.chunk.minY(); j < this.chunk.maxY(); j++) {
+                for (int k = this.chunk.minZ(); k < this.chunk.maxZ(); k++) {
+                    IBlockState state = this.chunk.getBlockState(new BlockPos(i, j, k));
                     if (state != null && state.getBlock() != Blocks.AIR) {
                         nonEmptyPositions.add(new BlockPos(i, j, k));
                     }
@@ -109,30 +111,33 @@ public class CompressedChunkData {
         }
         MovingWorldMod.LOG.debug("Writing mobile chunk data: " + nonEmptyPositions.size() + " blocks");
 
-        stream.writeShort(nonEmptyPositions.size());
-        for (BlockPos pos : nonEmptyPositions) {
-            writeBlock(chunk.getBlockState(pos), pos);
-        }
+        return this.writePositions(nonEmptyPositions);
+    }
 
-        return nonEmptyPositions.size();
+    private int writePositions(Collection<BlockPos> positions) throws IOException {
+        this.stream.writeShort(positions.size());
+        for (BlockPos pos : positions) {
+            this.writeBlock(this.chunk.getBlockState(pos), pos);
+        }
+        return positions.size();
     }
 
     private void writeBlock(IBlockState state, BlockPos pos) throws IOException {
-        stream.writeByte(pos.getX());
-        stream.writeByte(pos.getY());
-        stream.writeByte(pos.getZ());
-        stream.writeInt(Block.getStateId(state));
+        this.stream.writeByte(pos.getX());
+        this.stream.writeByte(pos.getY());
+        this.stream.writeByte(pos.getZ());
+        this.stream.writeInt(Block.getStateId(state));
     }
 
     private void writeCompressed() throws IOException {
         this.stream = this.createStream();
-        int size = write();
+        int size = this.write();
         this.postCompress(this.out, size);
     }
 
     private void writeAllCompressed() throws IOException {
         this.stream = this.createStream();
-        int size = writeAll();
+        int size = this.writeAll();
         this.postCompress(this.out, size);
     }
 
@@ -143,8 +148,8 @@ public class CompressedChunkData {
     }
 
     private void postCompress(ByteBuf data, int size) throws IOException {
-        stream.flush();
-        stream.close();
+        this.stream.flush();
+        this.stream.close();
 
         int byteswritten = data.writerIndex();
         float f = (float) byteswritten / (size * 9);
@@ -154,6 +159,5 @@ public class CompressedChunkData {
             MovingWorldMod.LOG.warn("MobileChunk probably contains too many blocks");
         }
     }
-
 
 }

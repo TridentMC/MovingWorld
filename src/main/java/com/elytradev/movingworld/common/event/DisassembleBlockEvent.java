@@ -2,7 +2,7 @@ package com.elytradev.movingworld.common.event;
 
 import com.elytradev.movingworld.common.chunk.LocatedBlock;
 import com.elytradev.movingworld.common.entity.EntityMovingWorld;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.eventbus.api.Event;
 
 public class DisassembleBlockEvent extends Event {
 

@@ -12,26 +12,42 @@ import com.tridevmc.compound.core.reflect.WrappedField;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.fluid.Fluid;
+import net.minecraft.fluid.IFluidState;
 import net.minecraft.init.Biomes;
 import net.minecraft.init.Blocks;
+import net.minecraft.particles.IParticleData;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.EnumLightType;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.world.*;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.border.WorldBorder;
 import net.minecraft.world.chunk.ChunkSection;
+import net.minecraft.world.chunk.IChunk;
+import net.minecraft.world.chunk.IChunkProvider;
+import net.minecraft.world.dimension.Dimension;
+import net.minecraft.world.gen.Heightmap;
+import net.minecraft.world.storage.ISaveHandler;
+import net.minecraft.world.storage.WorldInfo;
+import net.minecraft.world.storage.WorldSavedDataStorage;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.LogicalSide;
 
+import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.Predicate;
 
-public abstract class MobileChunk implements IWorld {
+public abstract class MobileChunk implements IWorld, IWorldReader {
 
     public static final WrappedField<IBlockState> TILE_BLOCK_STATE = WrappedField.create(TileEntity.class, new String[]{"cachedBlockState", "field_195045_e"});
 
@@ -58,52 +74,52 @@ public abstract class MobileChunk implements IWorld {
 
     public MobileChunk(World world, EntityMovingWorld entitymovingWorld) {
         this.world = world;
-        entityMovingWorld = entitymovingWorld;
-        blockStorageMap = new HashMap<>(1);
-        chunkTileEntityMap = new HashMap<>(2);
-        updatableTiles = new ArrayList<>();
-        boundingBoxes = HashBiMap.create();
-        chunkBoundingBoxes = HashBiMap.create();
-        movingWorldTileEntities = new ArrayList<>();
-        marker = null;
+        this.entityMovingWorld = entitymovingWorld;
+        this.blockStorageMap = new HashMap<>(1);
+        this.chunkTileEntityMap = new HashMap<>(2);
+        this.updatableTiles = new ArrayList<>();
+        this.boundingBoxes = HashBiMap.create();
+        this.chunkBoundingBoxes = HashBiMap.create();
+        this.movingWorldTileEntities = new ArrayList<>();
+        this.marker = null;
 
-        isChunkLoaded = false;
-        isModified = false;
+        this.isChunkLoaded = false;
+        this.isModified = false;
 
-        boundsInit = false;
-        minBounds = new BlockPos(-1, -1, -1);
-        maxBounds = new BlockPos(-1, -1, -1);
+        this.boundsInit = false;
+        this.minBounds = new BlockPos(-1, -1, -1);
+        this.maxBounds = new BlockPos(-1, -1, -1);
 
-        blockCount = 0;
+        this.blockCount = 0;
 
-        creationSpotBiome = Biomes.OCEAN; // Ocean biome id.
+        this.creationSpotBiome = Biomes.OCEAN; // Ocean biome id.
     }
 
     public FakeWorld getFakeWorld() {
-        if (fakeWorld != null) return fakeWorld;
-        fakeWorld = FakeWorld.getFakeWorld(this);
-        return fakeWorld;
+        if (this.fakeWorld != null) return this.fakeWorld;
+        this.fakeWorld = FakeWorld.getFakeWorld(this);
+        return this.fakeWorld;
     }
 
     public EntityMovingWorld getEntityMovingWorld() {
-        return entityMovingWorld;
+        return this.entityMovingWorld;
     }
 
     public BlockPos getBlockPosFromBounds(AxisAlignedBB bb) {
-        return boundingBoxes.inverse().get(bb);
+        return this.boundingBoxes.inverse().get(bb);
     }
 
     public Vec3d getWorldPosForChunkPos(BlockPos pos) {
-        Vec3d movingWorldPos = new Vec3d(entityMovingWorld.posX, entityMovingWorld.posY, entityMovingWorld.posZ);
-        movingWorldPos = movingWorldPos.subtract((double) maxX() / 2, (double) maxY() / 2, (double) maxZ() / 2);
+        Vec3d movingWorldPos = new Vec3d(this.entityMovingWorld.posX, this.entityMovingWorld.posY, this.entityMovingWorld.posZ);
+        movingWorldPos = movingWorldPos.subtract((double) this.maxX() / 2, (double) this.maxY() / 2, (double) this.maxZ() / 2);
         Vec3d returnPos = new Vec3d(pos.getX(), pos.getY(), pos.getZ());
         returnPos.add(movingWorldPos);
         return returnPos;
     }
 
     public Vec3d getWorldPosForChunkPos(Vec3d vec) {
-        Vec3d movingWorldPos = new Vec3d(entityMovingWorld.posX, entityMovingWorld.posY, entityMovingWorld.posZ);
-        movingWorldPos = movingWorldPos.subtract((double) maxX() / 2, (double) maxY() / 2, (double) maxZ() / 2);
+        Vec3d movingWorldPos = new Vec3d(this.entityMovingWorld.posX, this.entityMovingWorld.posY, this.entityMovingWorld.posZ);
+        movingWorldPos = movingWorldPos.subtract((double) this.maxX() / 2, (double) this.maxY() / 2, (double) this.maxZ() / 2);
         Vec3d returnPos = new Vec3d(vec.x, vec.y, vec.z);
         returnPos.add(movingWorldPos);
         return returnPos;
@@ -111,8 +127,8 @@ public abstract class MobileChunk implements IWorld {
 
 
     public Vec3d getChunkPosForWorldPos(Vec3d pos) {
-        Vec3d movingWorldPos = new Vec3d(entityMovingWorld.posX, entityMovingWorld.posY, entityMovingWorld.posZ);
-        movingWorldPos = movingWorldPos.subtract((double) maxX() / 2, (double) maxY() / 2, (double) maxZ() / 2);
+        Vec3d movingWorldPos = new Vec3d(this.entityMovingWorld.posX, this.entityMovingWorld.posY, this.entityMovingWorld.posZ);
+        movingWorldPos = movingWorldPos.subtract((double) this.maxX() / 2, (double) this.maxY() / 2, (double) this.maxZ() / 2);
         Vec3d returnPos = new Vec3d(pos.x, pos.y, pos.z);
         returnPos = returnPos.subtract(movingWorldPos);
         return returnPos;
@@ -128,8 +144,8 @@ public abstract class MobileChunk implements IWorld {
 
         Vec3d minVec = new Vec3d(minX, minY, minZ);
         Vec3d maxVec = new Vec3d(maxX, maxY, maxZ);
-        minVec = getChunkPosForWorldPos(minVec);
-        maxVec = getChunkPosForWorldPos(maxVec);
+        minVec = this.getChunkPosForWorldPos(minVec);
+        maxVec = this.getChunkPosForWorldPos(maxVec);
 
         axisAlignedBB = new AxisAlignedBB(minVec.x, minVec.y, minVec.z, maxVec.x, maxVec.y, maxVec.z);
 
@@ -145,56 +161,56 @@ public abstract class MobileChunk implements IWorld {
     }
 
     public ChunkSection getBlockStorage(BlockPos pos) {
-        return blockStorageMap.get(shiftToStorageMapPos(pos));
+        return this.blockStorageMap.get(this.shiftToStorageMapPos(pos));
     }
 
     public ChunkSection getBlockStorageOrCreate(BlockPos blockPos) {
-        BlockPos shiftedPos = shiftToStorageMapPos(blockPos);
-        ChunkSection storage = blockStorageMap.get(shiftedPos);
+        BlockPos shiftedPos = this.shiftToStorageMapPos(blockPos);
+        ChunkSection storage = this.blockStorageMap.get(shiftedPos);
         if (storage != null) return storage;
         storage = new ChunkSection(shiftedPos.getY(), false);
-        blockStorageMap.put(shiftedPos, storage);
+        this.blockStorageMap.put(shiftedPos, storage);
         return storage;
     }
 
     public int getBlockCount() {
-        return blockCount;
+        return this.blockCount;
     }
 
     public float getCenterX() {
-        return (minBounds.getX() + maxBounds.getX()) / 2F;
+        return (this.minBounds.getX() + this.maxBounds.getX()) / 2F;
     }
 
     public float getCenterY() {
-        return (minBounds.getY() + maxBounds.getY()) / 2F;
+        return (this.minBounds.getY() + this.maxBounds.getY()) / 2F;
     }
 
     public float getCenterZ() {
-        return (minBounds.getZ() + maxBounds.getZ()) / 2F;
+        return (this.minBounds.getZ() + this.maxBounds.getZ()) / 2F;
     }
 
     public int minX() {
-        return minBounds.getX();
+        return this.minBounds.getX();
     }
 
     public int maxX() {
-        return maxBounds.getX();
+        return this.maxBounds.getX();
     }
 
     public int minY() {
-        return minBounds.getY();
+        return this.minBounds.getY();
     }
 
     public int maxY() {
-        return maxBounds.getY();
+        return this.maxBounds.getY();
     }
 
     public int minZ() {
-        return minBounds.getZ();
+        return this.minBounds.getZ();
     }
 
     public int maxZ() {
-        return maxBounds.getZ();
+        return this.maxBounds.getZ();
     }
 
     public void setCreationSpotBiome(Biome biome) {
@@ -208,8 +224,8 @@ public abstract class MobileChunk implements IWorld {
     public boolean addBlockWithState(BlockPos pos, IBlockState state) {
         if (state == null) return false;
 
-        ChunkSection storage = getBlockStorageOrCreate(pos);
-        BlockPos internalStoragePos = shiftToInternalStoragePos(pos);
+        ChunkSection storage = this.getBlockStorageOrCreate(pos);
+        BlockPos internalStoragePos = this.shiftToInternalStoragePos(pos);
 
         IBlockState currentState = storage.get(internalStoragePos.getX(), internalStoragePos.getY(), internalStoragePos.getZ());
         MovingWorldMod.LOG.debug(String.format("Adding block with state: %s, at position %s in a mobile chunk. \n The block id is: %s, and the metadata is: %s", state, pos));
@@ -219,18 +235,18 @@ public abstract class MobileChunk implements IWorld {
 
         storage.set(internalStoragePos.getX(), internalStoragePos.getY(), internalStoragePos.getZ(), state);
 
-        if (boundsInit) {
-            int minX = Math.min(minBounds.getX(), pos.getX());
-            int minY = Math.min(minBounds.getY(), pos.getY());
-            int minZ = Math.min(minBounds.getZ(), pos.getZ());
-            int maxX = Math.max(maxBounds.getX(), pos.getX() + 1);
-            int maxY = Math.max(maxBounds.getY(), pos.getY() + 1);
-            int maxZ = Math.max(maxBounds.getZ(), pos.getZ() + 1);
+        if (this.boundsInit) {
+            int minX = Math.min(this.minBounds.getX(), pos.getX());
+            int minY = Math.min(this.minBounds.getY(), pos.getY());
+            int minZ = Math.min(this.minBounds.getZ(), pos.getZ());
+            int maxX = Math.max(this.maxBounds.getX(), pos.getX() + 1);
+            int maxY = Math.max(this.maxBounds.getY(), pos.getY() + 1);
+            int maxZ = Math.max(this.maxBounds.getZ(), pos.getZ() + 1);
 
-            minBounds = new BlockPos(minX, minY, minZ);
-            maxBounds = new BlockPos(maxX, maxY, maxZ);
+            this.minBounds = new BlockPos(minX, minY, minZ);
+            this.maxBounds = new BlockPos(maxX, maxY, maxZ);
         } else {
-            boundsInit = true;
+            this.boundsInit = true;
             int minX = pos.getX();
             int minY = pos.getY();
             int minZ = pos.getZ();
@@ -238,22 +254,22 @@ public abstract class MobileChunk implements IWorld {
             int maxY = pos.getY() + 1;
             int maxZ = pos.getZ() + 1;
 
-            minBounds = new BlockPos(minX, minY, minZ);
-            maxBounds = new BlockPos(maxX, maxY, maxZ);
+            this.minBounds = new BlockPos(minX, minY, minZ);
+            this.maxBounds = new BlockPos(maxX, maxY, maxZ);
         }
 
-        blockCount++;
-        setChunkModified();
+        this.blockCount++;
+        this.setChunkModified();
 
         TileEntity tileentity;
         if (state.hasTileEntity()) {
-            tileentity = getTileEntity(pos);
+            tileentity = this.getTileEntity(pos);
 
             if (tileentity == null) {
-                setTileEntity(pos, tileentity);
+                this.setTileEntity(pos, tileentity);
             } else {
                 tileentity.updateContainingBlockInfo();
-                TILE_BLOCK_STATE.setValue(tileentity, state);
+                TILE_BLOCK_STATE.set(tileentity, state);
             }
         }
 
@@ -261,18 +277,18 @@ public abstract class MobileChunk implements IWorld {
     }
 
     public void calculateBounds() {
-        for (int i = minX(); i < maxX(); i++) {
-            for (int j = minY(); j < maxY(); j++) {
-                for (int k = minZ(); k < maxZ(); k++) {
+        for (int i = this.minX(); i < this.maxX(); i++) {
+            for (int j = this.minY(); j < this.maxY(); j++) {
+                for (int k = this.minZ(); k < this.maxZ(); k++) {
                     BlockPos pos = new BlockPos(i, j, k);
-                    calculateBlockBounds(pos);
+                    this.calculateBlockBounds(pos);
                 }
             }
         }
     }
 
     public AxisAlignedBB calculateBlockBounds(BlockPos pos) {
-        IBlockState state = getBlockState(pos);
+        IBlockState state = this.getBlockState(pos);
         if (state == null || (state.getMaterial().equals(Material.AIR))) {
             return null;
         }
@@ -281,25 +297,25 @@ public abstract class MobileChunk implements IWorld {
             return null;
 
         AxisAlignedBB axisAlignedBB = this.getBlockState(pos).getCollisionShape(this.getFakeWorld(), pos).getBoundingBox();
-        chunkBoundingBoxes.put(pos, axisAlignedBB);
+        this.chunkBoundingBoxes.put(pos, axisAlignedBB);
 
-        double maxDX = (double) maxX();
-        double maxDY = (double) maxY();
-        double maxDZ = (double) maxZ();
+        double maxDX = (double) this.maxX();
+        double maxDY = (double) this.maxY();
+        double maxDZ = (double) this.maxZ();
 
         maxDX = maxDX / 2 * -1;
         maxDY = maxDY / 2 * -1;
         maxDZ = maxDZ / 2 * -1;
 
-        axisAlignedBB = axisAlignedBB.offset(entityMovingWorld.posX + maxDX - 0.5, entityMovingWorld.posY + maxDY, entityMovingWorld.posZ + maxDZ - 0.5);
-        boundingBoxes.put(pos, axisAlignedBB);
+        axisAlignedBB = axisAlignedBB.offset(this.entityMovingWorld.posX + maxDX - 0.5, this.entityMovingWorld.posY + maxDY, this.entityMovingWorld.posZ + maxDZ - 0.5);
+        this.boundingBoxes.put(pos, axisAlignedBB);
 
         return axisAlignedBB;
     }
 
     public List<AxisAlignedBB> getBoxes() {
         ArrayList<AxisAlignedBB> boxes = new ArrayList<>();
-        boxes.addAll(boundingBoxes.values());
+        boxes.addAll(this.boundingBoxes.values());
 
         return boxes;
     }
@@ -315,13 +331,13 @@ public abstract class MobileChunk implements IWorld {
         AxisAlignedBB boxUnion = startBox.union(endBox);
 
         if (!chunkPos) {
-            for (AxisAlignedBB axisAlignedBB : boundingBoxes.values()) {
+            for (AxisAlignedBB axisAlignedBB : this.boundingBoxes.values()) {
                 if (axisAlignedBB.intersects(boxUnion)) {
                     axisAlignedBBs.add(axisAlignedBB);
                 }
             }
         } else {
-            for (AxisAlignedBB axisAlignedBB : chunkBoundingBoxes.values()) {
+            for (AxisAlignedBB axisAlignedBB : this.chunkBoundingBoxes.values()) {
                 if (axisAlignedBB.intersects(boxUnion)) {
                     axisAlignedBBs.add(axisAlignedBB);
                 }
@@ -335,13 +351,13 @@ public abstract class MobileChunk implements IWorld {
         ArrayList<AxisAlignedBB> axisAlignedBBs = new ArrayList<>();
 
         if (!chunkPos) {
-            for (AxisAlignedBB axisAlignedBB : boundingBoxes.values()) {
+            for (AxisAlignedBB axisAlignedBB : this.boundingBoxes.values()) {
                 if (axisAlignedBB.intersects(box)) {
                     axisAlignedBBs.add(axisAlignedBB);
                 }
             }
         } else {
-            for (AxisAlignedBB axisAlignedBB : chunkBoundingBoxes.values()) {
+            for (AxisAlignedBB axisAlignedBB : this.chunkBoundingBoxes.values()) {
                 if (axisAlignedBB.intersects(box)) {
                     axisAlignedBBs.add(axisAlignedBB);
                 }
@@ -357,17 +373,17 @@ public abstract class MobileChunk implements IWorld {
     public void updateBlockBounds(float rotationYaw) {
         HashBiMap<BlockPos, AxisAlignedBB> newBoundingBoxes = HashBiMap.create();
 
-        for (AxisAlignedBB bb : chunkBoundingBoxes.values()) {
+        for (AxisAlignedBB bb : this.chunkBoundingBoxes.values()) {
             if (bb != null) {
-                BlockPos offset = chunkBoundingBoxes.inverse().get(bb);
+                BlockPos offset = this.chunkBoundingBoxes.inverse().get(bb);
                 float rotationRadians = (float) Math.toRadians(rotationYaw);
 
                 AxisAlignedBB axisAlignedBB = bb;
-                BlockPos pos = chunkBoundingBoxes.inverse().get(bb);
+                BlockPos pos = this.chunkBoundingBoxes.inverse().get(bb);
 
-                double maxDX = (double) maxX();
-                double maxDY = (double) maxY();
-                double maxDZ = (double) maxZ();
+                double maxDX = (double) this.maxX();
+                double maxDY = (double) this.maxY();
+                double maxDZ = (double) this.maxZ();
 
                 maxDX = maxDX / 2 * -1;
                 maxDY = maxDY / 2 * -1 + 1;
@@ -376,7 +392,7 @@ public abstract class MobileChunk implements IWorld {
 
                 axisAlignedBB = AABBRotator.rotateAABBAroundY(axisAlignedBB, offset.getX(), offset.getZ(), rotationRadians);
                 Vec3dMod vec3 = new Vec3dMod(maxDX, maxDY, maxDZ).rotateAroundY(rotationRadians);
-                axisAlignedBB = axisAlignedBB.offset(entityMovingWorld.posX + vec3.x, entityMovingWorld.posY + vec3.y, entityMovingWorld.posZ + vec3.z);
+                axisAlignedBB = axisAlignedBB.offset(this.entityMovingWorld.posX + vec3.x, this.entityMovingWorld.posY + vec3.y, this.entityMovingWorld.posZ + vec3.z);
 
                 newBoundingBoxes.put(pos, axisAlignedBB);
             }
@@ -385,48 +401,48 @@ public abstract class MobileChunk implements IWorld {
         this.boundingBoxes = newBoundingBoxes;
     }
 
-    public boolean setBlockState(LocatedBlock locatedBlock){
+    public boolean setBlockState(LocatedBlock locatedBlock) {
         return this.setBlockState(locatedBlock.pos, locatedBlock.state);
     }
 
     public boolean setBlockState(BlockPos pos, IBlockState state) {
-        ChunkSection storage = getBlockStorage(pos);
-        if (storage == null) return addBlockWithState(pos, state);
+        ChunkSection storage = this.getBlockStorage(pos);
+        if (storage == null) return this.addBlockWithState(pos, state);
 
-        IBlockState checkState = getBlockState(pos);
+        IBlockState checkState = this.getBlockState(pos);
         if (checkState.getBlock().equals(state.getBlock())) {
             return false;
         }
-        BlockPos internalStoragePos = shiftToInternalStoragePos(pos);
+        BlockPos internalStoragePos = this.shiftToInternalStoragePos(pos);
 
         if (storage.get(internalStoragePos.getX(), internalStoragePos.getY(), internalStoragePos.getZ()) == null) {
-            blockCount++;
+            this.blockCount++;
         }
 
         storage.set(internalStoragePos.getX(), internalStoragePos.getY(), internalStoragePos.getZ(), state);
         state = storage.get(internalStoragePos.getX(), internalStoragePos.getY(), internalStoragePos.getZ());
 
         if (state.hasTileEntity()) {
-            TileEntity tileentity = getTileEntity(pos);
+            TileEntity tileentity = this.getTileEntity(pos);
 
             if (tileentity != null) {
                 tileentity.updateContainingBlockInfo();
-                TILE_BLOCK_STATE.setValue(tileentity, state);
+                TILE_BLOCK_STATE.set(tileentity, state);
             }
         }
 
-        if (boundsInit) {
-            int minX = Math.min(minBounds.getX(), pos.getX());
-            int minY = Math.min(minBounds.getY(), pos.getY());
-            int minZ = Math.min(minBounds.getZ(), pos.getZ());
-            int maxX = Math.max(maxBounds.getX(), pos.getX() + 1);
-            int maxY = Math.max(maxBounds.getY(), pos.getY() + 1);
-            int maxZ = Math.max(maxBounds.getZ(), pos.getZ() + 1);
+        if (this.boundsInit) {
+            int minX = Math.min(this.minBounds.getX(), pos.getX());
+            int minY = Math.min(this.minBounds.getY(), pos.getY());
+            int minZ = Math.min(this.minBounds.getZ(), pos.getZ());
+            int maxX = Math.max(this.maxBounds.getX(), pos.getX() + 1);
+            int maxY = Math.max(this.maxBounds.getY(), pos.getY() + 1);
+            int maxZ = Math.max(this.maxBounds.getZ(), pos.getZ() + 1);
 
-            minBounds = new BlockPos(minX, minY, minZ);
-            maxBounds = new BlockPos(maxX, maxY, maxZ);
+            this.minBounds = new BlockPos(minX, minY, minZ);
+            this.maxBounds = new BlockPos(maxX, maxY, maxZ);
         } else {
-            boundsInit = true;
+            this.boundsInit = true;
             int minX = pos.getX();
             int minY = pos.getY();
             int minZ = pos.getZ();
@@ -434,28 +450,12 @@ public abstract class MobileChunk implements IWorld {
             int maxY = pos.getY() + 1;
             int maxZ = pos.getZ() + 1;
 
-            minBounds = new BlockPos(minX, minY, minZ);
-            maxBounds = new BlockPos(maxX, maxY, maxZ);
+            this.minBounds = new BlockPos(minX, minY, minZ);
+            this.maxBounds = new BlockPos(maxX, maxY, maxZ);
         }
 
-        setChunkModified();
+        this.setChunkModified();
         return true;
-    }
-
-    public boolean setBlockAsFilledAir(BlockPos pos) {
-        ChunkSection storage = getBlockStorage(pos);
-        if (storage == null) return true;
-
-        IBlockState state = getBlockState(pos);
-        if (Objects.equals(state.getBlock(), Blocks.AIR)) {
-            return true;
-        }
-        if (state.getMaterial().equals(Material.AIR)) {
-            BlockPos internalStoragePos = shiftToInternalStoragePos(pos);
-            storage.set(internalStoragePos.getX(), internalStoragePos.getY(), internalStoragePos.getZ(), Blocks.AIR.getDefaultState());
-            return true;
-        }
-        return false;
     }
 
     /**
@@ -463,20 +463,20 @@ public abstract class MobileChunk implements IWorld {
      */
     @Override
     public TileEntity getTileEntity(BlockPos pos) {
-        TileEntity tileentity = chunkTileEntityMap.get(pos);
+        TileEntity tileentity = this.chunkTileEntityMap.get(pos);
 
         if (tileentity == null) {
-            IBlockState blockState = getBlockState(pos);
+            IBlockState blockState = this.getBlockState(pos);
             Block block = blockState.getBlock();
 
             if (block == null || !block.hasTileEntity(blockState)) {
                 return null;
             }
 
-            tileentity = block.createTileEntity(blockState, world);
-            setTileEntity(pos, tileentity);
+            tileentity = block.createTileEntity(blockState, this.world);
+            this.setTileEntity(pos, tileentity);
 
-            tileentity = chunkTileEntityMap.get(pos);
+            tileentity = this.chunkTileEntityMap.get(pos);
         }
 
         return tileentity;
@@ -484,11 +484,11 @@ public abstract class MobileChunk implements IWorld {
 
     public void setTileEntity(BlockPos pos, TileEntity tileentity) {
         if (tileentity == null) {
-            removeChunkBlockTileEntity(pos);
+            this.removeChunkBlockTileEntity(pos);
             return;
         }
 
-        setChunkBlockTileEntity(pos, tileentity);
+        this.setChunkBlockTileEntity(pos, tileentity);
     }
 
     /**
@@ -497,23 +497,23 @@ public abstract class MobileChunk implements IWorld {
     private void setChunkBlockTileEntity(BlockPos pos, TileEntity newTile) {
         BlockPos chunkPosition = new BlockPos(pos.getX(), pos.getY(), pos.getZ());
         newTile.setPos(pos);
-        newTile.setWorld(getFakeWorld());
+        newTile.setWorld(this.getFakeWorld());
 
-        IBlockState blockState = getBlockState(pos);
+        IBlockState blockState = this.getBlockState(pos);
         if (blockState != null && blockState.hasTileEntity()) {
-            if (chunkTileEntityMap.containsKey(chunkPosition)) {
-                chunkTileEntityMap.get(chunkPosition).remove(); //RIP
+            if (this.chunkTileEntityMap.containsKey(chunkPosition)) {
+                this.chunkTileEntityMap.get(chunkPosition).remove(); //RIP
             }
 
-            TILE_BLOCK_STATE.setValue(newTile, blockState);
-            chunkTileEntityMap.put(chunkPosition, newTile);
+            TILE_BLOCK_STATE.set(newTile, blockState);
+            this.chunkTileEntityMap.put(chunkPosition, newTile);
 
             if (newTile instanceof IMovingTile) {
-                if (!movingWorldTileEntities.contains(newTile))
-                    movingWorldTileEntities.add((IMovingTile) newTile);
-                ((IMovingTile) newTile).setParentMovingWorld(entityMovingWorld, chunkPosition);
-            } else if (newTile instanceof ITickable && MovingWorldMod.INSTANCE.getNetworkConfig().isTileUpdatable(newTile.getClass())) {
-                updatableTiles.add(newTile);
+                if (!this.movingWorldTileEntities.contains(newTile))
+                    this.movingWorldTileEntities.add((IMovingTile) newTile);
+                ((IMovingTile) newTile).setParentMovingWorld(this.entityMovingWorld, chunkPosition);
+            } else if (newTile instanceof ITickable && MovingWorldMod.CONFIG.isTileUpdatable(newTile)) {
+                this.updatableTiles.add(newTile);
             }
         }
     }
@@ -523,16 +523,16 @@ public abstract class MobileChunk implements IWorld {
      */
     public void removeChunkBlockTileEntity(BlockPos pos) {
         BlockPos chunkPosition = new BlockPos(pos.getX(), pos.getY(), pos.getZ());
-        if (isChunkLoaded) {
-            TileEntity tileentity = chunkTileEntityMap.remove(chunkPosition);
+        if (this.isChunkLoaded) {
+            TileEntity tileentity = this.chunkTileEntityMap.remove(chunkPosition);
             if (tileentity != null) {
                 if (tileentity instanceof IMovingTile) {
-                    if (!movingWorldTileEntities.contains(tileentity))
-                        movingWorldTileEntities.add((IMovingTile) tileentity);
+                    if (!this.movingWorldTileEntities.contains(tileentity))
+                        this.movingWorldTileEntities.add((IMovingTile) tileentity);
                     ((IMovingTile) tileentity).setParentMovingWorld(null, pos);
                 }
-                if (tileentity instanceof ITickable && MovingWorldMod.INSTANCE.getNetworkConfig().isTileUpdatable(tileentity.getClass())) {
-                    updatableTiles.remove(tileentity);
+                if (tileentity instanceof ITickable && MovingWorldMod.CONFIG.isTileUpdatable(tileentity)) {
+                    this.updatableTiles.remove(tileentity);
                 }
 
                 tileentity.remove();
@@ -544,19 +544,19 @@ public abstract class MobileChunk implements IWorld {
      * Called when this Chunk is loaded by the ChunkProvider
      */
     public void onChunkLoad() {
-        isChunkLoaded = true;
-        world.addTileEntities(chunkTileEntityMap.values());
+        this.isChunkLoaded = true;
+        this.world.addTileEntities(this.chunkTileEntityMap.values());
     }
 
     /**
      * Called when this Chunk is unloaded by the ChunkProvider
      */
     public void onChunkUnload() {
-        isChunkLoaded = false;
+        this.isChunkLoaded = false;
     }
 
     public void setChunkModified() {
-        isModified = true;
+        this.isModified = true;
     }
 
     @Override
@@ -568,12 +568,12 @@ public abstract class MobileChunk implements IWorld {
 
     @Override
     public boolean isAirBlock(BlockPos pos) {
-        IBlockState state = getBlockState(pos);
+        IBlockState state = this.getBlockState(pos);
         return state == null || state.getMaterial().equals(Material.AIR);
     }
 
     public boolean isBlockTakingWaterVolume(BlockPos pos) {
-        IBlockState blockState = getBlockState(pos);
+        IBlockState blockState = this.getBlockState(pos);
         return !blockState.getMaterial().equals(Material.AIR);
     }
 
@@ -583,8 +583,8 @@ public abstract class MobileChunk implements IWorld {
 
     @Override
     public IBlockState getBlockState(BlockPos pos) {
-        BlockPos internalStoragePos = shiftToInternalStoragePos(pos);
-        ChunkSection storage = getBlockStorage(pos);
+        BlockPos internalStoragePos = this.shiftToInternalStoragePos(pos);
+        ChunkSection storage = this.getBlockStorage(pos);
         IBlockState state = storage != null ?
                 storage.get(internalStoragePos.getX(), internalStoragePos.getY(), internalStoragePos.getZ()) : null;
         if (state == null || storage == null)
@@ -594,7 +594,7 @@ public abstract class MobileChunk implements IWorld {
 
     @Override
     public Biome getBiome(BlockPos pos) {
-        return creationSpotBiome;
+        return this.creationSpotBiome;
     }
 
     @Override
@@ -603,15 +603,15 @@ public abstract class MobileChunk implements IWorld {
     }
 
     public final int getMemoryUsage() {
-        return 2 + blockCount * 9; // (3 bytes + 2 bytes (short) + 4 bytes (int) = 9 bytes per block) + 2 bytes (short)
+        return 2 + this.blockCount * 9; // (3 bytes + 2 bytes (short) + 4 bytes (int) = 9 bytes per block) + 2 bytes (short)
     }
 
     public boolean needsCustomCollision(AxisAlignedBB axisAlignedBB) {
 
         boolean retVal = false;
 
-        for (AxisAlignedBB bb : boundingBoxes.values()) {
-            if (bbContainsBB(axisAlignedBB, bb)) {
+        for (AxisAlignedBB bb : this.boundingBoxes.values()) {
+            if (this.bbContainsBB(axisAlignedBB, bb)) {
                 retVal = true;
                 break;
             }
@@ -635,6 +635,223 @@ public abstract class MobileChunk implements IWorld {
     public abstract LogicalSide side();
 
     public void markTileDirty(BlockPos pos) {
-        setChunkModified();
+        this.setChunkModified();
     }
+
+    @Override
+    public long getSeed() {
+        return this.world.getSeed();
+    }
+
+    @Override
+    public ITickList<Block> getPendingBlockTicks() {
+        return new EmptyTickList<>();
+    }
+
+    @Override
+    public ITickList<Fluid> getPendingFluidTicks() {
+        return new EmptyTickList<>();
+    }
+
+    @Override
+    public IChunk getChunk(int chunkX, int chunkZ) {
+        return new FakeChunk(this, chunkX, chunkZ, new Biome[]{this.getCreationSpotBiome()});
+    }
+
+    @Override
+    public World getWorld() {
+        return this.fakeWorld;
+    }
+
+    @Override
+    public WorldInfo getWorldInfo() {
+        return this.world.getWorldInfo();
+    }
+
+    @Override
+    public DifficultyInstance getDifficultyForLocation(BlockPos pos) {
+        return this.world.getDifficultyForLocation(pos);
+    }
+
+    @Override
+    public IChunkProvider getChunkProvider() {
+        return this.world.getChunkProvider();
+    }
+
+    @Override
+    public ISaveHandler getSaveHandler() {
+        return this.world.getSaveHandler();
+    }
+
+    @Override
+    public Random getRandom() {
+        return this.world.getRandom();
+    }
+
+    @Override
+    public void notifyNeighbors(BlockPos pos, Block blockIn) {
+        Vec3d worldPosForChunkPos = this.getWorldPosForChunkPos(pos);
+        this.world.notifyNeighbors(new BlockPos(worldPosForChunkPos.x, worldPosForChunkPos.y, worldPosForChunkPos.z), blockIn);
+    }
+
+    @Override
+    public BlockPos getSpawnPoint() {
+        return BlockPos.ORIGIN;
+    }
+
+    @Override
+    public void playSound(@Nullable EntityPlayer player, BlockPos pos, SoundEvent soundIn, SoundCategory category, float volume, float pitch) {
+        Vec3d worldPosForChunkPos = this.getWorldPosForChunkPos(pos);
+        this.world.playSound(player, new BlockPos(worldPosForChunkPos.x, worldPosForChunkPos.y, worldPosForChunkPos.z), soundIn, category, volume, pitch);
+    }
+
+    @Override
+    public void addParticle(IParticleData particleData, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+        Vec3d worldPosForChunkPos = this.getWorldPosForChunkPos(new Vec3d(x, y, z));
+        this.world.addParticle(particleData, worldPosForChunkPos.x, worldPosForChunkPos.y, worldPosForChunkPos.z, xSpeed, ySpeed, zSpeed);
+    }
+
+    @Nullable
+    @Override
+    public WorldSavedDataStorage getSavedDataStorage() {
+        return this.world.getSavedDataStorage();
+    }
+
+    @Override
+    public int getCombinedLight(BlockPos pos, int lightValue) {
+        return EnumLightType.SKY.defaultLightValue;
+    }
+
+    @Override
+    public int getLightFor(EnumLightType type, BlockPos pos) {
+        return EnumLightType.SKY.defaultLightValue;
+    }
+
+    @Override
+    public int getLightSubtracted(BlockPos pos, int amount) {
+        return EnumLightType.SKY.defaultLightValue;
+    }
+
+    @Override
+    public boolean isChunkLoaded(int x, int z, boolean allowEmpty) {
+        return true;
+    }
+
+    @Override
+    public boolean canSeeSky(BlockPos pos) {
+        for (int i = pos.getY() + 1; i < this.maxBounds.getY(); i++) {
+            if (!this.getBlockState(pos).isAir())
+                return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int getHeight(Heightmap.Type heightmapType, int x, int z) {
+        return 0;
+    }
+
+    @Nullable
+    @Override
+    public EntityPlayer getClosestPlayer(double x, double y, double z, double distance, Predicate<Entity> predicate) {
+        Vec3d worldPosForChunkPos = this.getWorldPosForChunkPos(new Vec3d(x, y, z));
+        return this.world.getClosestPlayer(worldPosForChunkPos.x, worldPosForChunkPos.y, worldPosForChunkPos.z, distance, predicate);
+    }
+
+    @Override
+    public int getSkylightSubtracted() {
+        return this.world.getSkylightSubtracted();
+    }
+
+    @Override
+    public WorldBorder getWorldBorder() {
+        return this.world.getWorldBorder();
+    }
+
+    @Override
+    public boolean checkNoEntityCollision(@Nullable Entity entityIn, VoxelShape shape) {
+        return false;
+    }
+
+    @Override
+    public boolean isRemote() {
+        return this.world.isRemote();
+    }
+
+    @Override
+    public int getSeaLevel() {
+        return 0;
+    }
+
+    @Override
+    public Dimension getDimension() {
+        return this.world.getDimension();
+    }
+
+    @Override
+    public IFluidState getFluidState(BlockPos pos) {
+        return null;
+    }
+
+    @Override
+    public boolean setBlockState(BlockPos pos, IBlockState newState, int flags) {
+        return this.setBlockState(pos, newState);
+    }
+
+    @Override
+    public boolean spawnEntity(Entity entityIn) {
+        Vec3d positionVector = entityIn.getPositionVector();
+        positionVector = this.getWorldPosForChunkPos(positionVector);
+        entityIn.setPosition(positionVector.x, positionVector.y, positionVector.z);
+        return this.world.spawnEntity(entityIn);
+    }
+
+    @Override
+    public boolean removeBlock(BlockPos pos) {
+        ChunkSection storage = this.getBlockStorage(pos);
+        if (storage == null) return true;
+
+        IBlockState state = this.getBlockState(pos);
+        if (Objects.equals(state.getBlock(), Blocks.AIR)) {
+            return true;
+        }
+        if (state.getMaterial().equals(Material.AIR)) {
+            BlockPos internalStoragePos = this.shiftToInternalStoragePos(pos);
+            storage.set(internalStoragePos.getX(), internalStoragePos.getY(), internalStoragePos.getZ(), Blocks.AIR.getDefaultState());
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void setLightFor(EnumLightType type, BlockPos pos, int lightValue) {
+    }
+
+    @Override
+    public boolean destroyBlock(BlockPos pos, boolean dropBlock) {
+        Vec3d worldPosForChunkPos = this.getWorldPosForChunkPos(pos);
+        BlockPos offsetPos = new BlockPos(worldPosForChunkPos.x, worldPosForChunkPos.y, worldPosForChunkPos.z);
+
+        IBlockState blockState = this.getBlockState(pos);
+        if (blockState.isAir(this, pos)) {
+            return false;
+        } else {
+            IFluidState fluidState = this.getFluidState(pos);
+            this.world.playEvent(2001, offsetPos, Block.getStateId(blockState));
+            if (dropBlock) {
+                blockState.dropBlockAsItem(this.world, offsetPos, 0);
+            }
+
+            return this.setBlockState(pos, fluidState.getBlockState(), 3);
+        }
+    }
+
+    public Collection<BlockPos> getBlockQueue() {
+        return Collections.emptyList();
+    }
+
+    public Collection<BlockPos> getTileQueue() {
+        return Collections.emptyList();
+    }
+
 }

@@ -1,33 +1,48 @@
 package com.elytradev.movingworld.common.util;
 
-import com.elytradev.movingworld.MovingWorldMod;
 import com.elytradev.movingworld.api.rotation.IRotationBlock;
 import com.elytradev.movingworld.api.rotation.IRotationProperty;
 import com.elytradev.movingworld.common.chunk.LocatedBlock;
+import com.elytradev.movingworld.common.rotation.RotationEnumProperty;
+import com.elytradev.movingworld.common.rotation.RotationIntegerProperty;
+import com.google.common.collect.Maps;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.state.EnumProperty;
 import net.minecraft.state.IProperty;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.Vec3i;
+import net.minecraft.state.IntegerProperty;
+
+import java.util.Map;
+import java.util.Optional;
 
 public class RotationHelper {
 
-    public static LocatedBlock rotateBlock(LocatedBlock locatedBlock, boolean ccw) {
-        IBlockState blockState = locatedBlock.state;
-        if (locatedBlock != null && locatedBlock.state != null) {
-            if (blockState.getBlock() != null && blockState.getBlock() instanceof IRotationBlock) {
-                locatedBlock = ((IRotationBlock) blockState.getBlock()).rotate(locatedBlock, ccw);
+    public static final RotationHelper INSTANCE = new RotationHelper();
 
-                if (((IRotationBlock) blockState.getBlock()).fullRotation())
+    private final Map<Class<? extends IProperty>, IRotationProperty> rotationProperties = Maps.newHashMap();
+    private final Map<Class<? extends Block>, IRotationBlock> rotationBlocks = Maps.newHashMap();
+
+    private RotationHelper() {
+        this.rotationProperties.put(EnumProperty.class, new RotationEnumProperty());
+        this.rotationProperties.put(IntegerProperty.class, new RotationIntegerProperty());
+    }
+
+    public LocatedBlock rotateBlock(LocatedBlock locatedBlock, boolean ccw) {
+        IBlockState blockState = locatedBlock.state;
+        if (locatedBlock.state != null) {
+            IRotationBlock rotationBlock = this.getRotationBlock(locatedBlock.getBlock());
+            if (rotationBlock != null) {
+                locatedBlock = rotationBlock.rotate(locatedBlock, ccw);
+
+                if (rotationBlock.fullRotation())
                     return locatedBlock;
             }
 
             for (IProperty prop : blockState.getProperties()) {
-                if (prop instanceof IRotationProperty) {
+                IRotationProperty rotationProperty = this.getRotationProperty(prop);
+                if (rotationProperty != null) {
                     // Custom rotation property found.
-                    MovingWorldMod.LOG.debug("Rotate state in " + blockState.getBlock().getLocalizedName() + " " + blockState.getValue(prop));
-                    IRotationProperty rotationProperty = (IRotationProperty) prop;
                     blockState = rotationProperty.rotate(blockState, ccw);
-                    MovingWorldMod.LOG.debug("Rotate state out " + blockState.getBlock().getLocalizedName() + " " + blockState.getValue(prop));
                 }
             }
         }
@@ -35,7 +50,51 @@ public class RotationHelper {
         return new LocatedBlock(blockState, locatedBlock.tile, locatedBlock.pos, locatedBlock.posNoOffset);
     }
 
-    public static int rotateInteger(int integer, int min, int max, boolean ccw) {
+    public void registerRotationProperty(Class<? extends IProperty> property, IRotationProperty rotationProperty) {
+        this.rotationProperties.put(property, rotationProperty);
+    }
+
+    public void registerRotationBlock(Class<? extends Block> block, IRotationBlock rotationBlock) {
+        this.rotationBlocks.put(block, rotationBlock);
+    }
+
+    public IRotationProperty getRotationProperty(IProperty property) {
+        if (property instanceof IRotationProperty) {
+            return (IRotationProperty) property;
+        } else {
+            IRotationProperty rotationProperty = this.rotationProperties.get(property.getClass());
+            if (rotationProperty == null) {
+                Optional<IRotationProperty> first = this.rotationProperties.entrySet().stream()
+                        .filter(e -> e.getKey().isAssignableFrom(property.getClass()))
+                        .map(Map.Entry::getValue)
+                        .findFirst();
+
+                rotationProperty = first.orElse(null);
+            }
+
+            return rotationProperty;
+        }
+    }
+
+    public IRotationBlock getRotationBlock(Block block) {
+        if (block instanceof IRotationBlock) {
+            return (IRotationBlock) block;
+        } else {
+            IRotationBlock rotationBlock = this.rotationBlocks.get(block.getClass());
+            if (rotationBlock == null) {
+                Optional<IRotationBlock> first = this.rotationBlocks.entrySet().stream()
+                        .filter(e -> e.getKey().isAssignableFrom(block.getClass()))
+                        .map(Map.Entry::getValue)
+                        .findFirst();
+
+                rotationBlock = first.orElse(null);
+            }
+
+            return rotationBlock;
+        }
+    }
+
+    public int rotateInteger(int integer, int min, int max, boolean ccw) {
         int result = integer;
 
         if (!ccw) {
@@ -51,25 +110,6 @@ public class RotationHelper {
         }
 
         return result;
-    }
-
-    public static Vec3i getDirectionVec(EnumFacing facing) {
-        switch (facing) {
-            case DOWN:
-                return new Vec3i(0, -1, 0);
-            case UP:
-                return new Vec3i(0, 1, 0);
-            case NORTH:
-                return new Vec3i(0, 0, -1);
-            case SOUTH:
-                return new Vec3i(0, 0, 1);
-            case WEST:
-                return new Vec3i(-1, 0, 0);
-            case EAST:
-                return new Vec3i(1, 0, 0);
-        }
-
-        return null;
     }
 
 }

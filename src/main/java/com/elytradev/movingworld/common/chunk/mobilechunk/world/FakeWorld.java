@@ -42,7 +42,7 @@ public class FakeWorld extends World {
 
     @Override
     public TileEntity getTileEntity(BlockPos pos) {
-        return getMobileChunk().getTileEntity(pos);
+        return this.getMobileChunk().getTileEntity(pos);
     }
 
     @Override
@@ -52,92 +52,91 @@ public class FakeWorld extends World {
 
     @Override
     public IBlockState getBlockState(BlockPos pos) {
-        return getMobileChunk().getBlockState(pos);
+        return this.getMobileChunk().getBlockState(pos);
     }
 
     @Override
     public boolean setBlockState(BlockPos pos, IBlockState state) {
-        getMobileChunk().setBlockState(pos, state);
+        this.getMobileChunk().setBlockState(pos, state);
         return false;
     }
 
     @Override
     public boolean setBlockState(BlockPos pos, IBlockState state, int flags) {
-        getMobileChunk().setBlockState(pos, state);
+        this.getMobileChunk().setBlockState(pos, state);
         return false;
     }
 
     @Override
     public void setTileEntity(BlockPos pos, @Nullable TileEntity tileEntityIn) {
-        getMobileChunk().setTileEntity(pos, tileEntityIn);
+        this.getMobileChunk().setTileEntity(pos, tileEntityIn);
     }
 
     @Override
     public void markChunkDirty(BlockPos pos, TileEntity unusedTileEntity) {
-        getMobileChunk().setChunkModified();
-        if (getMobileChunk().side() == LogicalSide.SERVER) {
-            getMobileChunk().markTileDirty(pos);
+        this.getMobileChunk().setChunkModified();
+        if (this.getMobileChunk().side() == LogicalSide.SERVER) {
+            this.getMobileChunk().markTileDirty(pos);
         }
     }
 
     private boolean isValidPosition(BlockPos pos) {
-        return pos.getX() >= getMobileChunk().minX() && pos.getZ() >= getMobileChunk().minZ() && pos.getX() < getMobileChunk().maxX() && pos.getZ() < getMobileChunk().maxZ() && pos.getY() >= 0 && pos.getY() < getMobileChunk().maxY();
+        return pos.getX() >= this.getMobileChunk().minX() && pos.getZ() >= this.getMobileChunk().minZ() && pos.getX() < this.getMobileChunk().maxX() && pos.getZ() < this.getMobileChunk().maxZ() && pos.getY() >= 0 && pos.getY() < this.getMobileChunk().maxY();
     }
 
     @Override
     public boolean isBlockLoaded(BlockPos pos, boolean allowEmpty) {
-        return isValidPosition(pos);
+        return this.isValidPosition(pos);
     }
 
     @Override
     public boolean isChunkLoaded(int x, int z, boolean allowEmpty) {
-        return true;
+        return this.isValidPosition(new BlockPos(x << 4, 0, z << 4));
     }
-
 
     @Override
     public float getBrightness(BlockPos pos) {
-        return this.getBlockState(pos).getLightValue(getMobileChunk(), pos);
+        return this.getBlockState(pos).getLightValue(this.getMobileChunk(), pos);
     }
 
     @Override
     public long getGameTime() {
-        return getMobileChunk().world.getGameTime();
+        return this.getMobileChunk().world.getGameTime();
     }
 
     @Override
     public long getDayTime() {
-        return getMobileChunk().world.getDayTime();
+        return this.getMobileChunk().world.getDayTime();
     }
 
     @Override
     public Scoreboard getScoreboard() {
-        return null;
+        return this.getMobileChunk().world.getScoreboard();
     }
 
     @Override
     public RecipeManager getRecipeManager() {
-        return null;
+        return this.getMobileChunk().world.getRecipeManager();
     }
 
     @Override
     public NetworkTagManager getTags() {
-        return null;
+        return this.getMobileChunk().world.getTags();
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
     public int getCombinedLight(BlockPos pos, int lightValue) {
-        return getMobileChunk().getCombinedLight(pos, lightValue);
+        return this.getMobileChunk().getNeighborAwareLightSubtracted(pos, lightValue);
     }
 
     @Override
     public Chunk getChunk(int chunkX, int chunkZ) {
-        return new FakeChunk(getMobileChunk(), chunkX, chunkZ, new Biome[]{mobileChunk.getCreationSpotBiome()});
+        return new FakeChunk(this.getMobileChunk(), chunkX, chunkZ, new Biome[]{this.mobileChunk.getCreationSpotBiome()});
     }
 
     public MobileChunk getMobileChunk() {
-        return mobileChunk;
+        return this.mobileChunk;
     }
 
     public void setMobileChunk(MobileChunk mobileChunk) {

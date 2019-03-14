@@ -8,6 +8,9 @@ import com.elytradev.movingworld.common.chunk.assembly.ChunkAssembler;
 import com.elytradev.movingworld.common.entity.EntityMovingWorld;
 import com.elytradev.movingworld.common.entity.MovingWorldInfo;
 import com.elytradev.movingworld.common.util.LocatedBlockList;
+import com.tridevmc.compound.core.reflect.WrappedField;
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -22,9 +25,9 @@ import net.minecraft.world.World;
 import javax.annotation.Nonnull;
 import java.util.UUID;
 
-import static com.elytradev.movingworld.common.chunk.mobilechunk.MobileChunk.TILE_METADATA;
-
 public abstract class TileMovingMarkingBlock extends TileEntity implements IMovingTile {
+
+    private static final WrappedField<IBlockState> TILE_STATE = WrappedField.create(TileEntity.class, new String[]{"cachedBlockState", "field_195045_e"});
 
     public LocatedBlockList removedFluidBlocks; // A list of fluid blocks that were destroyed last disassemble, used to fill back in when we reassemble.
     private AssembleResult assembleResult, prevResult;
@@ -49,15 +52,15 @@ public abstract class TileMovingMarkingBlock extends TileEntity implements IMovi
     public abstract int getMaxBlocks();
 
     public AssembleResult getPrevAssembleResult() {
-        return prevResult;
+        return this.prevResult;
     }
 
     public void setPrevAssembleResult(AssembleResult result) {
-        prevResult = result;
+        this.prevResult = result;
     }
 
     public AssembleResult getAssembleResult() {
-        return assembleResult;
+        return this.assembleResult;
     }
 
     public void setAssembleResult(AssembleResult assembleResult) {
@@ -72,26 +75,26 @@ public abstract class TileMovingMarkingBlock extends TileEntity implements IMovi
     public boolean assembleMovingWorld(EntityPlayer player) {
         boolean returnVal = false;
 
-        if (!world.isRemote) {
-            prevResult = assembleResult;
-            ChunkAssembler assembler = new ChunkAssembler(world, pos, getMaxBlocks());
-            MovingWorldAssemblyInteractor interactor = getNewAssemblyInteractor();
-            assembleResult = assembler.doAssemble(interactor);
+        if (!this.world.isRemote) {
+            this.prevResult = this.assembleResult;
+            ChunkAssembler assembler = new ChunkAssembler(this.world, this.pos, this.getMaxBlocks());
+            MovingWorldAssemblyInteractor interactor = this.getNewAssemblyInteractor();
+            this.assembleResult = assembler.doAssemble(interactor);
 
-            assembledMovingWorld(player, returnVal);
+            this.assembledMovingWorld(player, returnVal);
 
-            setInteractor(interactor);
+            this.setInteractor(interactor);
             TextComponentString c;
-            switch (assembleResult.getType()) {
+            switch (this.assembleResult.getType()) {
                 case RESULT_OK:
-                    c = new TextComponentString("Assembled " + getInfo().getName() + "!");
+                    c = new TextComponentString("Assembled " + this.getInfo().getName() + "!");
                     player.sendStatusMessage(c, true);
                     break;
                 case RESULT_OK_WITH_WARNINGS:
                     returnVal = true;
                 case RESULT_BLOCK_OVERFLOW:
                     c = new TextComponentString(
-                            "Cannot create moving world with more than " + getMaxBlocks() + " blocks");
+                            "Cannot create moving world with more than " + this.getMaxBlocks() + " blocks");
                     player.sendStatusMessage(c, true);
                     break;
                 case RESULT_MISSING_MARKER:
@@ -117,50 +120,50 @@ public abstract class TileMovingMarkingBlock extends TileEntity implements IMovi
     }
 
     public boolean mountMovingWorld(EntityPlayer player, EntityMovingWorld movingWorld) {
-        if (!world.isRemote) {
-            if (assembleResult != null && assembleResult.isOK()) {
-                assembleResult.checkConsistent(world);
-                mountedMovingWorld(player, movingWorld, MountStage.PREMSG);
-                if (assembleResult.getType() == AssembleResult.ResultType.RESULT_INCONSISTENT) {
+        if (!this.world.isRemote) {
+            if (this.assembleResult != null && this.assembleResult.isOK()) {
+                this.assembleResult.checkConsistent(this.world);
+                this.mountedMovingWorld(player, movingWorld, MountStage.PREMSG);
+                if (this.assembleResult.getType() == AssembleResult.ResultType.RESULT_INCONSISTENT) {
                     return false;
                 }
-                if (assembleResult.getType() == AssembleResult.ResultType.RESULT_OK_WITH_WARNINGS) {
+                if (this.assembleResult.getType() == AssembleResult.ResultType.RESULT_OK_WITH_WARNINGS) {
                     ITextComponent c = new TextComponentString("Moving world contains changes");
                     player.sendStatusMessage(c, true);
                 }
 
-                mountedMovingWorld(player, movingWorld, MountStage.PRERIDE);
+                this.mountedMovingWorld(player, movingWorld, MountStage.PRERIDE);
 
-                EntityMovingWorld entity = assembleResult.getEntity(world, movingWorld);
+                EntityMovingWorld entity = this.assembleResult.getEntity(this.world, movingWorld);
                 if (entity != null) {
-                    entity.setInfo(getInfo());
-                    if (world.spawnEntity(entity)) {
+                    entity.setInfo(this.getInfo());
+                    if (this.world.spawnEntity(entity)) {
                         player.startRiding(entity);
-                        assembleResult = null;
+                        this.assembleResult = null;
                         return true;
                     }
                 }
-                mountedMovingWorld(player, entity, MountStage.POSTRIDE);
+                this.mountedMovingWorld(player, entity, MountStage.POSTRIDE);
             }
         }
         return false;
     }
 
     public void undoCompilation(EntityPlayer player) {
-        assembleResult = prevResult;
-        prevResult = null;
+        this.assembleResult = this.prevResult;
+        this.prevResult = null;
     }
 
     @Override
     public SPacketUpdateTileEntity getUpdatePacket() {
         NBTTagCompound compound = new NBTTagCompound();
-        writeNBTForSending(compound);
-        return new SPacketUpdateTileEntity(pos, 0, compound);
+        this.writeNBTForSending(compound);
+        return new SPacketUpdateTileEntity(this.pos, 0, compound);
     }
 
     @Override
     public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity packet) {
-        read(packet.getNbtCompound());
+        this.read(packet.getNbtCompound());
     }
 
     public abstract MovingWorldAssemblyInteractor getNewAssemblyInteractor();
@@ -177,88 +180,88 @@ public abstract class TileMovingMarkingBlock extends TileEntity implements IMovi
     @Override
     public void read(NBTTagCompound tag) {
         super.read(tag);
-        getInfo().setName(tag.getString("name"));
-        if (tag.hasKey("owner")) {
-            getInfo().setOwner(UUID.fromString(tag.getString("owner")));
+        this.getInfo().setName(tag.getString("name"));
+        if (tag.contains("owner")) {
+            this.getInfo().setOwner(UUID.fromString(tag.getString("owner")));
         }
-        TILE_METADATA.set(this, tag.getInteger("meta"));
-        if (tag.hasKey("ship") && world != null) {
-            int id = tag.getInteger("ship");
-            Entity entity = world.getEntityByID(id);
+        TILE_STATE.set(this, Block.getStateById(tag.getInt("state")));
+        if (tag.contains("ship") && this.world != null) {
+            int id = tag.getInt("ship");
+            Entity entity = this.world.getEntityByID(id);
             if (entity instanceof EntityMovingWorld) {
-                setParentMovingWorld((EntityMovingWorld) entity);
+                this.setParentMovingWorld((EntityMovingWorld) entity);
             }
         }
-        if (tag.hasKey("res")) {
-            assembleResult = new AssembleResult(tag.getCompoundTag("res"), world);
-            assembleResult.assemblyInteractor = getNewAssemblyInteractor().fromNBT(tag.getCompoundTag("res"), world);
+        if (tag.contains("res")) {
+            this.assembleResult = new AssembleResult(tag.getCompound("res"), this.world);
+            this.assembleResult.assemblyInteractor = this.getNewAssemblyInteractor().fromNBT(tag.getCompound("res"), this.world);
         }
-        if (tag.hasKey("removedFluidCompounds")) {
-            removedFluidBlocks = new LocatedBlockList();
-            NBTTagCompound removedFluidCompound = tag.getCompoundTag("removedFluidCompounds");
+        if (tag.contains("removedFluidCompounds")) {
+            this.removedFluidBlocks = new LocatedBlockList();
+            NBTTagCompound removedFluidCompound = tag.getCompound("removedFluidCompounds");
             int tagIndex = 0;
 
-            while (removedFluidCompound.hasKey("block#" + tagIndex)) {
-                NBTTagCompound lbTag = removedFluidCompound.getCompoundTag("block#" + tagIndex);
-                LocatedBlock locatedBlock = new LocatedBlock(lbTag, world);
+            while (removedFluidCompound.contains("block#" + tagIndex)) {
+                NBTTagCompound lbTag = removedFluidCompound.getCompound("block#" + tagIndex);
+                LocatedBlock locatedBlock = new LocatedBlock(lbTag, this.world);
 
-                removedFluidBlocks.add(locatedBlock);
+                this.removedFluidBlocks.add(locatedBlock);
                 tagIndex++;
             }
-            tag.setTag("removedFluidCompounds", new NBTTagCompound());
+            tag.put("removedFluidCompounds", new NBTTagCompound());
         }
     }
 
     @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound tag) {
-        tag = super.writeToNBT(tag);
+    public NBTTagCompound write(NBTTagCompound tag) {
+        tag = super.write(tag);
 
-        tag.setString("name", getInfo().getName());
-        if (getInfo().getOwner() != null) {
-            tag.setString("owner", getInfo().getOwner().toString());
+        tag.putString("name", this.getInfo().getName());
+        if (this.getInfo().getOwner() != null) {
+            tag.putString("owner", this.getInfo().getOwner().toString());
         }
 
-        tag.setInteger("meta", TILE_METADATA.get(this));
-        tag.setString("name", getInfo().getName());
-        if (getParentMovingWorld() != null && !getParentMovingWorld().isDead) {
-            tag.setInteger("movingWorld", getParentMovingWorld().getEntityId());
+        tag.putInt("state", Block.getStateId(TILE_STATE.get(this)));
+        tag.putString("name", this.getInfo().getName());
+        if (this.getParentMovingWorld() != null && !this.getParentMovingWorld().removed) {
+            tag.putInt("movingWorld", this.getParentMovingWorld().getEntityId());
         }
-        if (assembleResult != null) {
+        if (this.assembleResult != null) {
             NBTTagCompound comp = new NBTTagCompound();
-            assembleResult.writeNBTFully(comp);
-            assembleResult.assemblyInteractor.writeNBTFully(comp);
-            tag.setTag("res", comp);
+            this.assembleResult.writeNBTFully(comp);
+            this.assembleResult.assemblyInteractor.writeNBTFully(comp);
+            tag.put("res", comp);
             // Where the hell did this go in the transition to MovingWorld? Lost to the ether I suppose.
         }
-        if (removedFluidBlocks != null && !removedFluidBlocks.isEmpty()) {
+        if (this.removedFluidBlocks != null && !this.removedFluidBlocks.isEmpty()) {
             NBTTagCompound removedFluidCompound = new NBTTagCompound();
-            for (int i = 0; i < removedFluidBlocks.size(); i++) {
-                LocatedBlock locatedBlock = removedFluidBlocks.get(i);
+            for (int i = 0; i < this.removedFluidBlocks.size(); i++) {
+                LocatedBlock locatedBlock = this.removedFluidBlocks.get(i);
                 NBTTagCompound lbTag = new NBTTagCompound();
                 locatedBlock.writeToNBT(lbTag);
 
-                removedFluidCompound.setTag("block#" + i, lbTag);
+                removedFluidCompound.put("block#" + i, lbTag);
             }
-            tag.setTag("removedFluidCompounds", removedFluidCompound);
+            tag.put("removedFluidCompounds", removedFluidCompound);
         }
 
         return tag;
     }
 
     public void writeNBTForSending(NBTTagCompound tag) {
-        super.writeToNBT(tag);
-        tag.setInteger("meta", TILE_METADATA.get(this));
-        tag.setString("name", getInfo().getName());
+        super.write(tag);
+        tag.putInt("state", Block.getStateId(TILE_STATE.get(this)));
+        tag.putString("name", this.getInfo().getName());
 
-        if (getParentMovingWorld() != null && !getParentMovingWorld().isDead) {
-            tag.setInteger("movingWorld", getParentMovingWorld().getEntityId());
+        if (this.getParentMovingWorld() != null && !this.getParentMovingWorld().removed) {
+            tag.putInt("movingWorld", this.getParentMovingWorld().getEntityId());
         }
 
-        if (assembleResult != null) {
+        if (this.assembleResult != null) {
             NBTTagCompound comp = new NBTTagCompound();
-            assembleResult.writeNBTMetadata(comp);
-            assembleResult.assemblyInteractor.writeNBTMetadata(comp);
-            tag.setTag("res", comp);
+            this.assembleResult.writeNBTMetadata(comp);
+            this.assembleResult.assemblyInteractor.writeNBTMetadata(comp);
+            tag.put("res", comp);
         }
     }
 

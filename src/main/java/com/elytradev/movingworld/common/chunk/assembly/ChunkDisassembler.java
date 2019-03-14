@@ -29,17 +29,17 @@ public class ChunkDisassembler {
     private TileMovingMarkingBlock tileMarker;
 
     public ChunkDisassembler(EntityMovingWorld EntityMovingWorld) {
-        movingWorld = EntityMovingWorld;
-        overwrite = false;
+        this.movingWorld = EntityMovingWorld;
+        this.overwrite = false;
     }
 
     public boolean canDisassemble(MovingWorldAssemblyInteractor assemblyInteractor) {
-        if (overwrite) {
+        if (this.overwrite) {
             return true;
         }
-        World world = movingWorld.world;
-        MobileChunk chunk = movingWorld.getMobileChunk();
-        float yaw = Math.round(movingWorld.rotationYaw / 90F) * 90F;
+        World world = this.movingWorld.world;
+        MobileChunk chunk = this.movingWorld.getMobileChunk();
+        float yaw = Math.round(this.movingWorld.rotationYaw / 90F) * 90F;
         yaw = (float) Math.toRadians(yaw);
 
         float ox = -chunk.getCenterX();
@@ -58,14 +58,14 @@ public class ChunkDisassembler {
                     vec = new Vec3dMod(i + ox, j + oy, k + oz);
                     vec = vec.rotateAroundY(yaw);
 
-                    pos = new BlockPos(MathHelperMod.round_double(vec.x + movingWorld.posX),
-                            MathHelperMod.round_double(vec.y + movingWorld.posY),
-                            MathHelperMod.round_double(vec.z + movingWorld.posZ));
+                    pos = new BlockPos(MathHelperMod.round_double(vec.x + this.movingWorld.posX),
+                            MathHelperMod.round_double(vec.y + this.movingWorld.posY),
+                            MathHelperMod.round_double(vec.z + this.movingWorld.posZ));
 
                     state = world.getBlockState(pos);
                     block = state.getBlock();
                     if ((block != null && !block.isAir(state, world, pos) && !block.getMaterial(state).isLiquid() && !assemblyInteractor.canOverwriteState(state))
-                            || (MathHelperMod.round_double(vec.y + movingWorld.posY) > world.getActualHeight())) {
+                            || (MathHelperMod.round_double(vec.y + this.movingWorld.posY) > world.getActualHeight())) {
                         return false;
                     }
                 }
@@ -75,26 +75,26 @@ public class ChunkDisassembler {
     }
 
     public AssembleResult doDisassemble(MovingWorldAssemblyInteractor assemblyInteractor) {
-        movingWorld.disassembling = true;
-        tileMarker = null;
-        if (movingWorld.getMobileChunk().marker != null
-            && movingWorld.getMobileChunk().marker.tile instanceof TileMovingMarkingBlock)
-            tileMarker = (TileMovingMarkingBlock) movingWorld.getMobileChunk().marker.tile;
+        this.movingWorld.disassembling = true;
+        this.tileMarker = null;
+        if (this.movingWorld.getMobileChunk().marker != null
+                && this.movingWorld.getMobileChunk().marker.tile instanceof TileMovingMarkingBlock)
+            this.tileMarker = (TileMovingMarkingBlock) this.movingWorld.getMobileChunk().marker.tile;
 
-        removedFluidBlocks = new LocatedBlockList();
-        World world = movingWorld.getEntityWorld();
-        MobileChunk chunk = movingWorld.getMobileChunk();
+        this.removedFluidBlocks = new LocatedBlockList();
+        World world = this.movingWorld.getEntityWorld();
+        MobileChunk chunk = this.movingWorld.getMobileChunk();
         LocatedBlockList fillableBlocks = new FloodFiller().floodFillMobileChunk(chunk);
         this.result = new AssembleResult();
-        result.offset = new BlockPos(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
+        this.result.offset = new BlockPos(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
 
-        int currentRot = Math.round(movingWorld.rotationYaw / 90F);
-        movingWorld.rotationYaw = currentRot * 90F;
-        movingWorld.rotationPitch = 0F;
+        int currentRot = Math.round(this.movingWorld.rotationYaw / 90F);
+        this.movingWorld.rotationYaw = currentRot * 90F;
+        this.movingWorld.rotationPitch = 0F;
         float yaw = currentRot * MathHelperMod.PI_HALF;
 
         boolean flag = world.getGameRules().getBoolean("doTileDrops");
-        world.getGameRules().setOrCreateGameRule("doTileDrops", "false");
+        world.getGameRules().setOrCreateGameRule("doTileDrops", "false", world.getServer());
 
         LocatedBlockList postList = new LocatedBlockList(4);
 
@@ -114,7 +114,7 @@ public class ChunkDisassembler {
                     for (int k = chunk.minZ(); k < chunk.maxZ(); k++) {
                         blockState = chunk.getBlockState(new BlockPos(i, j, k));
                         if (blockState.getBlock() == Blocks.AIR) {
-                            if (blockState.getBlock().getMetaFromState(blockState) == 1) continue;
+                            continue;
                         } else if (blockState.getBlock().isAir(blockState, world, new BlockPos(i, j, k)))
                             continue;
                         tileentity = chunk.getTileEntity(new BlockPos(i, j, k));
@@ -122,9 +122,9 @@ public class ChunkDisassembler {
                         vec = new Vec3dMod(i + ox, j + oy, k + oz);
                         vec = vec.rotateAroundY(yaw);
 
-                        pos = new BlockPos(MathHelperMod.round_double(vec.x + movingWorld.posX),
-                                MathHelperMod.round_double(vec.y + movingWorld.posY),
-                                MathHelperMod.round_double(vec.z + movingWorld.posZ));
+                        pos = new BlockPos(MathHelperMod.round_double(vec.x + this.movingWorld.posX),
+                                MathHelperMod.round_double(vec.y + this.movingWorld.posY),
+                                MathHelperMod.round_double(vec.z + this.movingWorld.posZ));
 
                         lbList.add(new LocatedBlock(blockState, tileentity, pos, new BlockPos(i, j, k)));
                     }
@@ -135,17 +135,17 @@ public class ChunkDisassembler {
 
             for (LocatedBlockList locatedBlockList : separatedLbLists) {
                 if (locatedBlockList != null && !locatedBlockList.isEmpty()) {
-                    postList = processLocatedBlockList(world, locatedBlockList, postList, assemblyInteractor, fillableBlocks, currentRot);
+                    postList = this.processLocatedBlockList(world, locatedBlockList, postList, assemblyInteractor, fillableBlocks, currentRot);
                 }
             }
         } catch (Exception exception) {
-            world.getGameRules().setOrCreateGameRule("doTileDrops", String.valueOf(flag));
+            world.getGameRules().setOrCreateGameRule("doTileDrops", String.valueOf(flag), world.getServer());
             MovingWorldMod.LOG.error("Exception while disassembling, reverting doTileDrops... ", exception);
             this.result.resultType = AssembleResult.ResultType.RESULT_ERROR_OCCURED;
             return this.result;
         }
 
-        world.getGameRules().setOrCreateGameRule("doTileDrops", String.valueOf(flag));
+        world.getGameRules().setOrCreateGameRule("doTileDrops", String.valueOf(flag), world.getServer());
 
         ArrayList<LocatedBlockList> sortedPostList = postList.getSortedDisassemblyBlocks();
 
@@ -156,27 +156,27 @@ public class ChunkDisassembler {
                     MovingWorldMod.LOG.debug("Post-rejoining block: " + locatedBlockInstance.toString());
                     world.setBlockState(pos, locatedBlockInstance.state, 2);
                     assemblyInteractor.blockDisassembled(locatedBlockInstance);
-                    DisassembleBlockEvent event = new DisassembleBlockEvent(movingWorld, locatedBlockInstance);
+                    DisassembleBlockEvent event = new DisassembleBlockEvent(this.movingWorld, locatedBlockInstance);
                     MinecraftForge.EVENT_BUS.post(event);
                     this.result.assembleBlock(locatedBlockInstance);
                 }
         }
 
-        if (tileMarker != null) {
-            tileMarker.removedFluidBlocks = removedFluidBlocks;
+        if (this.tileMarker != null) {
+            this.tileMarker.removedFluidBlocks = this.removedFluidBlocks;
         }
 
-        movingWorld.setDead();
+        this.movingWorld.remove();
 
         if (this.result.movingWorldMarkingBlock == null || !assemblyInteractor.isTileMovingWorldMarker(this.result.movingWorldMarkingBlock.tile)) {
             this.result.resultType = AssembleResult.ResultType.RESULT_MISSING_MARKER;
         } else {
-            result.checkConsistent(world);
+            this.result.checkConsistent(world);
         }
         assemblyInteractor.chunkDissasembled(this.result);
         this.result.assemblyInteractor = assemblyInteractor;
 
-        return result;
+        return this.result;
     }
 
     LocatedBlockList processLocatedBlockList(World world, LocatedBlockList locatedBlocks, LocatedBlockList postList, MovingWorldAssemblyInteractor assemblyInteractor, LocatedBlockList fillList, int currentRot) {
@@ -190,7 +190,7 @@ public class ChunkDisassembler {
         Block owBlock;
 
         for (LocatedBlock locatedBlock : locatedBlocks) {
-            locatedBlock = rotateBlock(locatedBlock, currentRot);
+            locatedBlock = this.rotateBlock(locatedBlock, currentRot);
 
             int i = locatedBlock.posNoOffset.getX();
             int j = locatedBlock.posNoOffset.getY();
@@ -208,8 +208,8 @@ public class ChunkDisassembler {
 
             if (!fillList.containsLBOfPos(locatedBlock.posNoOffset)) {
                 if (world.getBlockState(pos).getMaterial().isLiquid()) {
-                    if (!removedFluidBlocks.containsLBOfPos(pos))
-                        removedFluidBlocks.add(new LocatedBlock(owBlockState, pos));
+                    if (!this.removedFluidBlocks.containsLBOfPos(pos))
+                        this.removedFluidBlocks.add(new LocatedBlock(owBlockState, pos));
                 }
                 if (!world.setBlockState(pos, blockState, 2) || blockState.getBlock() != world.getBlockState(pos).getBlock()) {
                     retPostList.add(new LocatedBlock(blockState, tileentity, pos));
@@ -225,14 +225,14 @@ public class ChunkDisassembler {
                     ((IMovingTile) tileentity).setParentMovingWorld(null, new BlockPos(i, j, k));
                 }
                 NBTTagCompound tileTag = new NBTTagCompound();
-                tileentity.writeToNBT(tileTag);
+                tileentity.write(tileTag);
                 world.setTileEntity(pos, tileentity);
-                world.getTileEntity(pos).readFromNBT(tileTag);
+                world.getTileEntity(pos).read(tileTag);
                 tileentity.validate();
                 tileentity = world.getTileEntity(pos);
 
-                if (tileMarker != null && tileMarker.getPos().equals(tileentity.getPos())) {
-                    tileMarker = (TileMovingMarkingBlock) tileentity;
+                if (this.tileMarker != null && this.tileMarker.getPos().equals(tileentity.getPos())) {
+                    this.tileMarker = (TileMovingMarkingBlock) tileentity;
                 }
             }
 
@@ -241,9 +241,9 @@ public class ChunkDisassembler {
 
             LocatedBlock lb = new LocatedBlock(blockState, tileentity, pos);
             assemblyInteractor.blockDisassembled(lb);
-            DisassembleBlockEvent event = new DisassembleBlockEvent(movingWorld, lb);
+            DisassembleBlockEvent event = new DisassembleBlockEvent(this.movingWorld, lb);
             MinecraftForge.EVENT_BUS.post(event);
-            result.assembleBlock(lb);
+            this.result.assembleBlock(lb);
         }
 
         return retPostList;
@@ -253,7 +253,7 @@ public class ChunkDisassembler {
         deltaRot &= 3;
         if (deltaRot != 0) {
             for (int r = 0; r < deltaRot; r++) {
-                locatedBlock = RotationHelper.rotateBlock(locatedBlock, true);
+                locatedBlock = RotationHelper.INSTANCE.rotateBlock(locatedBlock, true);
             }
         }
         return locatedBlock;

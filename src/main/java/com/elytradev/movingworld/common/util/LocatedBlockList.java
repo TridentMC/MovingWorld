@@ -61,7 +61,7 @@ public class LocatedBlockList extends ArrayList<LocatedBlock> {
 
         if (!thisList.isEmpty()) {
             for (LocatedBlock lb : thisList) {
-                if (MovingWorldMod.INSTANCE.getNetworkConfig().getShared().assemblePriorityConfig.getHighPriorityAssembly().contains(lb.getBlockName())) {
+                if (MovingWorldMod.ASSEMBLY_CONFIG.highPriorityAssemblyBlocks.contains(lb.getBlock())) {
                     lbList.add(lb);
                 }
             }
@@ -77,7 +77,7 @@ public class LocatedBlockList extends ArrayList<LocatedBlock> {
 
         if (!thisList.isEmpty()) {
             for (LocatedBlock lb : thisList) {
-                if (MovingWorldMod.INSTANCE.getNetworkConfig().getShared().assemblePriorityConfig.getHighPriorityDisassembly().contains(lb.getBlockName())) {
+                if (MovingWorldMod.ASSEMBLY_CONFIG.highPriorityDisassemblyBlocks.contains(lb.getBlock())) {
                     lbList.add(lb);
                 }
             }
@@ -93,7 +93,7 @@ public class LocatedBlockList extends ArrayList<LocatedBlock> {
 
         if (!thisList.isEmpty()) {
             for (LocatedBlock lb : thisList) {
-                if (MovingWorldMod.INSTANCE.getNetworkConfig().getShared().assemblePriorityConfig.getLowPriorityAssembly().contains(lb.getBlockName())) {
+                if (MovingWorldMod.ASSEMBLY_CONFIG.lowPriorityAssemblyBlocks.contains(lb.getBlock())) {
                     lbList.add(lb);
                 }
             }
@@ -109,7 +109,7 @@ public class LocatedBlockList extends ArrayList<LocatedBlock> {
 
         if (!thisList.isEmpty()) {
             for (LocatedBlock lb : thisList) {
-                if (MovingWorldMod.INSTANCE.getNetworkConfig().getShared().assemblePriorityConfig.getLowPriorityDisassembly().contains(lb.getBlockName())) {
+                if (MovingWorldMod.ASSEMBLY_CONFIG.lowPriorityDisassemblyBlocks.contains(lb.getBlock())) {
                     lbList.add(lb);
                 }
             }
@@ -125,8 +125,8 @@ public class LocatedBlockList extends ArrayList<LocatedBlock> {
 
         if (!thisList.isEmpty()) {
             for (LocatedBlock lb : thisList) {
-                if (!MovingWorldMod.INSTANCE.getNetworkConfig().getShared().assemblePriorityConfig.getHighPriorityAssembly().contains(lb.getBlockName())
-                        && !MovingWorldMod.INSTANCE.getNetworkConfig().getShared().assemblePriorityConfig.getLowPriorityAssembly().contains(lb.getBlockName())) {
+                if (!MovingWorldMod.ASSEMBLY_CONFIG.highPriorityAssemblyBlocks.contains(lb.getBlock())
+                        && !MovingWorldMod.ASSEMBLY_CONFIG.lowPriorityAssemblyBlocks.contains(lb.getBlock())) {
                     lbList.add(lb);
                 }
             }
@@ -142,8 +142,8 @@ public class LocatedBlockList extends ArrayList<LocatedBlock> {
 
         if (!thisList.isEmpty()) {
             for (LocatedBlock lb : thisList) {
-                if (!MovingWorldMod.INSTANCE.getNetworkConfig().getShared().assemblePriorityConfig.getHighPriorityDisassembly().contains(lb.getBlockName())
-                        && !MovingWorldMod.INSTANCE.getNetworkConfig().getShared().assemblePriorityConfig.getLowPriorityDisassembly().contains(lb.getBlockName())) {
+                if (!MovingWorldMod.ASSEMBLY_CONFIG.highPriorityDisassemblyBlocks.contains(lb.getBlock())
+                        && !MovingWorldMod.ASSEMBLY_CONFIG.lowPriorityDisassemblyBlocks.contains(lb.getBlock())) {
                     lbList.add(lb);
                 }
             }

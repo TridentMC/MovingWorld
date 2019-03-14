@@ -5,7 +5,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.LogicalSide;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -17,22 +17,24 @@ public class MobileChunkServer extends MobileChunk {
 
     public MobileChunkServer(World world, EntityMovingWorld entityMovingWorld) {
         super(world, entityMovingWorld);
-        blockQueue = new HashSet<>();
-        tileQueue = new HashSet<>();
+        this.blockQueue = new HashSet<>();
+        this.tileQueue = new HashSet<>();
     }
 
+    @Override
     public Collection<BlockPos> getBlockQueue() {
-        return blockQueue;
+        return this.blockQueue;
     }
 
+    @Override
     public Collection<BlockPos> getTileQueue() {
-        return tileQueue;
+        return this.tileQueue;
     }
 
     @Override
     public boolean addBlockWithState(BlockPos pos, IBlockState blockState) {
         if (super.addBlockWithState(pos, blockState)) {
-            blockQueue.add(pos);
+            this.blockQueue.add(pos);
             return true;
         }
         return false;
@@ -41,7 +43,7 @@ public class MobileChunkServer extends MobileChunk {
     @Override
     public boolean setBlockState(BlockPos pos, IBlockState state) {
         if (super.setBlockState(pos, state)) {
-            blockQueue.add(pos);
+            this.blockQueue.add(pos);
             return true;
         }
         return false;
@@ -49,24 +51,24 @@ public class MobileChunkServer extends MobileChunk {
 
     @Override
     public void setTileEntity(BlockPos pos, TileEntity tileentity) {
-        tileQueue.add(pos);
+        this.tileQueue.add(pos);
         super.setTileEntity(pos, tileentity);
     }
 
     @Override
     public void removeChunkBlockTileEntity(BlockPos pos) {
-        tileQueue.add(pos);
+        this.tileQueue.add(pos);
         super.removeChunkBlockTileEntity(pos);
     }
 
     @Override
     public void markTileDirty(BlockPos pos) {
-        tileQueue.add(pos);
+        this.tileQueue.add(pos);
         super.markTileDirty(pos);
     }
 
     @Override
-    public Side side() {
-        return Side.SERVER;
+    public LogicalSide side() {
+        return LogicalSide.SERVER;
     }
 }

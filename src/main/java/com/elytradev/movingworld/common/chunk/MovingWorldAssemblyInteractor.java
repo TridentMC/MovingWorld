@@ -29,7 +29,7 @@ public class MovingWorldAssemblyInteractor {
     }
 
     public boolean doDiagonalAssembly() {
-        return MovingWorldMod.INSTANCE.getNetworkConfig().getShared().diagonalAssembly;
+        return MovingWorldMod.CONFIG.diagonalAssembly;
     }
 
     public void toByteBuf(ByteBuf byteBuf) {
@@ -54,7 +54,7 @@ public class MovingWorldAssemblyInteractor {
      * @return returns if it is an over writable block in the config.
      */
     public boolean canOverwriteState(IBlockState state) {
-        return MovingWorldMod.INSTANCE.getNetworkConfig().canOverwriteState(state);
+        return MovingWorldMod.CONFIG.canOverwriteState(state);
     }
 
     /**
@@ -86,8 +86,8 @@ public class MovingWorldAssemblyInteractor {
         CanAssemble canAssemble = new CanAssemble(false, false);
         IBlockState state = lb.state;
 
-        canAssemble.justCancel = !(!state.getMaterial().equals(Material.AIR) && !state.getMaterial().isLiquid() && MovingWorldMod.INSTANCE.getNetworkConfig().isStateAllowed(state));
-        canAssemble.justCancel = canAssemble.justCancel || !MovingWorldMod.INSTANCE.getNetworkConfig().isTileAllowed(lb.tile);
+        canAssemble.justCancel = !(!state.getMaterial().equals(Material.AIR) && !state.getMaterial().isLiquid() && MovingWorldMod.CONFIG.isStateAllowed(state));
+        canAssemble.justCancel = canAssemble.justCancel || !MovingWorldMod.CONFIG.isTileAllowed(lb.tile);
 
         return canAssemble;
     }
@@ -101,7 +101,7 @@ public class MovingWorldAssemblyInteractor {
     }
 
     public EnumFacing getFrontDirection(LocatedBlock marker) {
-        return marker.state.getValue(BlockMovingWorldMarker.FACING).getOpposite();
+        return marker.state.get(BlockMovingWorldMarker.FACING).getOpposite();
     }
 
     /**

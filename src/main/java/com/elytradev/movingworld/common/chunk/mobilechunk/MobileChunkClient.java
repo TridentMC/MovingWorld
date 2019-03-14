@@ -7,14 +7,15 @@ import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.LogicalSide;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@SideOnly(Side.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class MobileChunkClient extends MobileChunk {
     public Map<BlockPos, TileEntity> fastTESRS = Maps.newHashMap();
     public Map<BlockPos, TileEntity> normalTESRS = Maps.newHashMap();
@@ -22,27 +23,27 @@ public class MobileChunkClient extends MobileChunk {
 
     public MobileChunkClient(World world, EntityMovingWorld movingWorld) {
         super(world, movingWorld);
-        renderer = new MobileChunkRenderer(this);
+        this.renderer = new MobileChunkRenderer(this);
     }
 
     public MobileChunkRenderer getRenderer() {
-        return renderer;
+        return this.renderer;
     }
 
     @Override
     public void onChunkUnload() {
-        List<TileEntity> iterator = new ArrayList<>(chunkTileEntityMap.values());
+        List<TileEntity> iterator = new ArrayList<>(this.chunkTileEntityMap.values());
         for (TileEntity te : iterator) {
-            removeChunkBlockTileEntity(te.getPos());
+            this.removeChunkBlockTileEntity(te.getPos());
         }
         super.onChunkUnload();
-        renderer.markRemoved();
+        this.renderer.markRemoved();
     }
 
     @Override
     public void setChunkModified() {
         super.setChunkModified();
-        renderer.markDirty();
+        this.renderer.markDirty();
     }
 
     @Override
@@ -51,24 +52,22 @@ public class MobileChunkClient extends MobileChunk {
 
         if (tileentity == null) {
             // Removed a tile, remove it from the render lists as well.
-            if (fastTESRS.containsKey(pos))
-                fastTESRS.remove(pos);
-            if (normalTESRS.containsKey(pos))
-                normalTESRS.remove(pos);
+            this.fastTESRS.remove(pos);
+            this.normalTESRS.remove(pos);
         } else {
             // Add a tesr, after confirming it has one, and that it's fast.
             if (TileEntityRendererDispatcher.instance.getRenderer(tileentity) != null) {
                 if (tileentity.hasFastRenderer()) {
-                    fastTESRS.put(pos, tileentity);
+                    this.fastTESRS.put(pos, tileentity);
                 } else {
-                    normalTESRS.put(pos, tileentity);
+                    this.normalTESRS.put(pos, tileentity);
                 }
             }
         }
     }
 
     @Override
-    public Side side() {
-        return Side.CLIENT;
+    public LogicalSide side() {
+        return LogicalSide.CLIENT;
     }
 }
