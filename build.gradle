@@ -76,14 +76,6 @@ dependencies {
     compile "com.tridevmc.compound:compound-all:${compoundVersion}"
 }
 
-sourceSets {
-    main {
-        java {
-            include 'com/tridevmc/compound/**'
-        }
-    }
-}
-
 repositories {
     jcenter()
     mavenCentral()
