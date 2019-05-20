@@ -1,5 +1,6 @@
 package com.tridevmc.movingworld.common.chunk.mobilechunk;
 
+import com.tridevmc.compound.core.reflect.WrappedField;
 import com.tridevmc.movingworld.MovingWorldMod;
 import com.tridevmc.movingworld.api.IMovingTile;
 import com.tridevmc.movingworld.common.chunk.LocatedBlock;
@@ -8,7 +9,6 @@ import com.tridevmc.movingworld.common.entity.EntityMovingWorld;
 import com.tridevmc.movingworld.common.util.AABBRotator;
 import com.tridevmc.movingworld.common.util.Vec3dMod;
 import com.google.common.collect.HashBiMap;
-import com.tridevmc.compound.core.reflect.WrappedField;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
