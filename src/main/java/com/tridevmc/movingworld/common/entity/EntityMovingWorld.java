@@ -45,6 +45,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 
@@ -197,6 +198,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     public abstract void initMovingWorldCommon();
 
+    @Nonnull
     public MobileChunk getMobileChunk() {
         return this.mobileChunk;
     }

@@ -51,6 +51,14 @@ public class MovingWorldConfig {
     @ConfigValue(comment = "A list of pairs of a material with a density value. The first value is the name of a block. All objects with the same material will get this density value, unless overridden.")
     public List<BlockDensityData> materialDensities = Lists.newArrayList(new BlockDensityData(Blocks.AIR, 0.0F), new BlockDensityData(Blocks.WHITE_WOOL, 0.1F));
 
+    public void addBlacklistedBlock(Block block) {
+        this.blockBlacklist.add(block);
+    }
+
+    public void addWhitelistedBlock(Block block) {
+        this.blockWhitelist.add(block);
+    }
+
     public boolean canOverwriteState(IBlockState state) {
         return this.overwritableBlocks.contains(state.getBlock());
     }
