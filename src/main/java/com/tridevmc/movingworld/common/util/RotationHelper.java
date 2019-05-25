@@ -1,11 +1,11 @@
 package com.tridevmc.movingworld.common.util;
 
+import com.google.common.collect.Maps;
 import com.tridevmc.movingworld.api.rotation.IRotationBlock;
 import com.tridevmc.movingworld.api.rotation.IRotationProperty;
 import com.tridevmc.movingworld.common.chunk.LocatedBlock;
 import com.tridevmc.movingworld.common.rotation.RotationEnumProperty;
 import com.tridevmc.movingworld.common.rotation.RotationIntegerProperty;
-import com.google.common.collect.Maps;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.state.EnumProperty;
@@ -42,7 +42,7 @@ public class RotationHelper {
                 IRotationProperty rotationProperty = this.getRotationProperty(prop);
                 if (rotationProperty != null) {
                     // Custom rotation property found.
-                    blockState = rotationProperty.rotate(blockState, ccw);
+                    blockState = rotationProperty.rotate(prop, blockState, ccw);
                 }
             }
         }

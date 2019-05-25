@@ -92,7 +92,7 @@ public abstract class MobileChunk implements IWorld, IWorldReader {
 
         this.blockCount = 0;
 
-        this.creationSpotBiome = Biomes.OCEAN; // Ocean biome id.
+        this.creationSpotBiome = Biomes.OCEAN;
     }
 
     public FakeWorld getFakeWorld() {
@@ -228,7 +228,7 @@ public abstract class MobileChunk implements IWorld, IWorldReader {
         BlockPos internalStoragePos = this.shiftToInternalStoragePos(pos);
 
         IBlockState currentState = storage.get(internalStoragePos.getX(), internalStoragePos.getY(), internalStoragePos.getZ());
-        MovingWorldMod.LOG.debug(String.format("Adding block with state: %s, at position %s in a mobile chunk. \n The block id is: %s, and the metadata is: %s", state, pos));
+        MovingWorldMod.LOG.debug(String.format("Adding block with state: %s, at position %s in a mobile chunk.", state, pos));
         if (currentState.equals(state)) {
             return false;
         }

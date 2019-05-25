@@ -1,5 +1,6 @@
 package com.tridevmc.movingworld.common.entity;
 
+import com.google.common.collect.Lists;
 import com.tridevmc.movingworld.api.IMovingTile;
 import com.tridevmc.movingworld.common.chunk.CompressedChunkData;
 import com.tridevmc.movingworld.common.chunk.LocatedBlock;
@@ -12,7 +13,6 @@ import com.tridevmc.movingworld.common.chunk.mobilechunk.MobileChunkServer;
 import com.tridevmc.movingworld.common.util.AABBRotator;
 import com.tridevmc.movingworld.common.util.MathHelperMod;
 import com.tridevmc.movingworld.common.util.Vec3dMod;
-import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFlowingFluid;
@@ -188,6 +188,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     @Override
     protected void registerData() {
+        super.registerData();
         this.dataManager.register(IS_FLYING, false);
         this.initMovingWorld();
     }
@@ -341,7 +342,11 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     @Override
     public void tick() {
-        super.tick();
+        if (!this.world.isRemote) {
+            this.setFlag(6, this.isGlowing());
+        }
+
+        this.baseTick();
 
         this.prevPosX = this.posX;
         this.prevPosY = this.posY;
@@ -920,8 +925,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         data.writeInt(this.riderDestination.getZ());
         data.writeInt(this.frontDirection.getHorizontalIndex());
 
-        data.writeShort(this.info.getName().length());
-        data.writeBytes(this.info.getName().getBytes());
+        data.writeString(this.info.getName());
 
         CompressedChunkData compressedChunkData = new CompressedChunkData(this.mobileChunk, true);
         compressedChunkData.writeTo(data);
@@ -953,7 +957,10 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         this.riderDestination = new BlockPos(rX, rY, rZ);
         this.frontDirection = EnumFacing.byHorizontalIndex(data.readInt());
 
-        new CompressedChunkData(data).loadBlocks(this.mobileChunk);
+        this.info.setName(data.readString(32767));
+
+        CompressedChunkData chunkData = new CompressedChunkData(data);
+        chunkData.loadBlocks(this.mobileChunk);
 
         this.mobileChunk.onChunkLoad();
         this.readMovingWorldSpawnData(data);

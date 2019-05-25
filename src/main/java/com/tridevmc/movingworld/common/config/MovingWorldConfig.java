@@ -72,6 +72,8 @@ public class MovingWorldConfig {
     }
 
     public boolean isTileAllowed(TileEntity tile) {
+        if (tile == null)
+            return true;
         if (this.useTileWhitelist) {
             return this.tileWhitelist.contains(tile.getType());
         } else {
