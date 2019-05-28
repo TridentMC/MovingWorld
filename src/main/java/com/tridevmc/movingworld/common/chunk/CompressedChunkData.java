@@ -11,7 +11,6 @@ import io.netty.buffer.Unpooled;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
 
 import java.io.DataInput;
@@ -49,25 +48,33 @@ public class CompressedChunkData {
         this.chunk = null;
 
         try {
-            PacketBuffer packetBuffer = new PacketBuffer(from);
-            byte[] bytes = packetBuffer.readByteArray();
-            this.readCompressed(Unpooled.wrappedBuffer(bytes));
+            this.readCompressed(from.readBytes(from.readInt()));
         } catch (IOException e) {
             MovingWorldMod.LOG.error("Failed to load mobile chunk data from compressed data. {}", e);
         }
     }
 
     public CompressedChunkData(byte[] from) {
-        this(Unpooled.copiedBuffer(from));
+        this.chunk = null;
+
+        try {
+            this.readCompressed(Unpooled.wrappedBuffer(from));
+        } catch (IOException e){
+            MovingWorldMod.LOG.error("Failed to load mobile chunk data from compressed data. {}", e);
+        }
     }
 
     public void writeTo(ByteBuf buf) {
-        PacketBuffer packetBuffer = new PacketBuffer(buf);
-        packetBuffer.writeByteArray(this.out.array());
+        byte[] data = new byte[out.writerIndex()];
+        out.getBytes(0, data);
+        buf.writeInt(data.length);
+        buf.writeBytes(data);
     }
 
     public byte[] getBytes() {
-        return this.out.array();
+        byte[] data = new byte[out.writerIndex()];
+        out.getBytes(0, data);
+        return data;
     }
 
     public void loadBlocks(MobileChunk chunk) {
