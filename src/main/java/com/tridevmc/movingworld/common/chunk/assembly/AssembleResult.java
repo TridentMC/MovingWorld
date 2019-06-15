@@ -10,13 +10,13 @@ import com.tridevmc.movingworld.common.util.LocatedBlockList;
 import com.tridevmc.movingworld.common.util.MaterialDensity;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Blocks;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -41,7 +41,7 @@ public class AssembleResult {
         mass = buf.readFloat();
     }
 
-    public AssembleResult(NBTTagCompound tag, World world) {
+    public AssembleResult(CompoundNBT tag, World world) {
         resultType = ResultType.fromByte(tag.getByte("res"));
         blockCount = tag.getInt("blockc");
         tileEntityCount = tag.getInt("tec");
@@ -50,14 +50,14 @@ public class AssembleResult {
                 tag.getInt("yO"),
                 tag.getInt("zO"));
         if (tag.contains("list")) {
-            NBTTagList list = tag.getList("list", 10);
+            ListNBT list = tag.getList("list", 10);
             for (int i = 0; i < list.size(); i++) {
-                NBTTagCompound comp = list.getCompound(i);
+                CompoundNBT comp = list.getCompound(i);
                 assembledBlocks.add(new LocatedBlock(comp, world));
             }
         }
         if (tag.contains("marker")) {
-            NBTTagCompound comp = tag.getCompound("marker");
+            CompoundNBT comp = tag.getCompound("marker");
             movingWorldMarkingBlock = new LocatedBlock(comp, world);
         }
     }
@@ -82,7 +82,7 @@ public class AssembleResult {
         resultType = ResultType.RESULT_NONE;
         movingWorldMarkingBlock = null;
         assembledBlocks.clear();
-        offset = new BlockPos(BlockPos.ORIGIN);
+        offset = new BlockPos(BlockPos.ZERO);
     }
 
     public EntityMovingWorld getEntity(World world, EntityMovingWorld entity) {
@@ -93,7 +93,7 @@ public class AssembleResult {
             return null;
         }
 
-        EnumFacing facing = assemblyInteractor.getFrontDirection(movingWorldMarkingBlock);
+        Direction facing = assemblyInteractor.getFrontDirection(movingWorldMarkingBlock);
         BlockPos riderDestination = new BlockPos(movingWorldMarkingBlock.pos.getX() - offset.getX(), movingWorldMarkingBlock.pos.getY() - offset.getY(), movingWorldMarkingBlock.pos.getZ() - offset.getZ());
 
         entity.setRiderDestination(facing, riderDestination);
@@ -168,7 +168,7 @@ public class AssembleResult {
         }
 
         for (LocatedBlock lb : locatedBlocks) {
-            world.removeBlock(lb.pos);
+            world.removeBlock(lb.pos, false);
             world.removeTileEntity(lb.pos);
         }
 
@@ -212,7 +212,7 @@ public class AssembleResult {
     public void checkConsistent(World world) {
         boolean warn = false;
         for (LocatedBlock lb : assembledBlocks) {
-            IBlockState blockState = world.getBlockState(lb.pos);
+            BlockState blockState = world.getBlockState(lb.pos);
             Block block = blockState.getBlock();
             if (block != lb.state.getBlock()) {
                 resultType = ResultType.RESULT_INCONSISTENT;
@@ -225,24 +225,24 @@ public class AssembleResult {
         resultType = warn ? ResultType.RESULT_OK_WITH_WARNINGS : ResultType.RESULT_OK;
     }
 
-    public void writeNBTFully(NBTTagCompound tag) {
+    public void writeNBTFully(CompoundNBT tag) {
         writeNBTMetadata(tag);
-        NBTTagList list = new NBTTagList();
+        ListNBT list = new ListNBT();
         for (LocatedBlock lb : assembledBlocks) {
-            NBTTagCompound comp = new NBTTagCompound();
+            CompoundNBT comp = new CompoundNBT();
             lb.writeToNBT(comp);
             list.add(comp);
         }
         tag.put("list", list);
 
         if (movingWorldMarkingBlock != null) {
-            NBTTagCompound comp = new NBTTagCompound();
+            CompoundNBT comp = new CompoundNBT();
             movingWorldMarkingBlock.writeToNBT(comp);
             tag.put("marker", comp);
         }
     }
 
-    public void writeNBTMetadata(NBTTagCompound tag) {
+    public void writeNBTMetadata(CompoundNBT tag) {
         tag.putByte("res", getType().toByte());
         tag.putInt("blockc", getBlockCount());
         tag.putInt("tec", getTileEntityCount());

@@ -3,9 +3,9 @@ package com.tridevmc.movingworld.common.entity;
 import com.tridevmc.movingworld.MovingWorldMod;
 import com.tridevmc.movingworld.common.chunk.mobilechunk.MobileChunk;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.EnumHand;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -21,7 +21,7 @@ public abstract class MovingWorldHandlerCommon {
 
     public abstract void setMovingWorld(EntityMovingWorld movingWorld);
 
-    public boolean processInitialInteract(EntityPlayer player, EnumHand hand) {
+    public boolean processInitialInteract(PlayerEntity player, Hand hand) {
         return !player.isSneaking();
     }
 
@@ -35,7 +35,7 @@ public abstract class MovingWorldHandlerCommon {
             for (int j = chunk.minY(); j < chunk.maxY(); j++) {
                 for (int k = chunk.minZ(); k < chunk.maxZ(); k++) {
                     BlockPos pos = new BlockPos(i, j, k);
-                    IBlockState blockState = chunk.getBlockState(pos);
+                    BlockState blockState = chunk.getBlockState(pos);
                     if (blockState != null && blockState.getMaterial() != Material.AIR) {
                         capabilities.onChunkBlockAdded(blockState, pos);
                     }
@@ -44,7 +44,7 @@ public abstract class MovingWorldHandlerCommon {
         }
 
         movingWorld.setSize(Math.max(chunk.maxX() - chunk.minX(), chunk.maxZ() - chunk.minZ()), chunk.maxY() - chunk.minY());
-        world.increaseMaxEntityRadius(Math.max(movingWorld.width, movingWorld.height) + 2F);
+        world.increaseMaxEntityRadius(Math.max(movingWorld.getWidth(), movingWorld.getHeight()) + 2F);
         try {
             movingWorld.fillAirBlocks(new HashSet<>(), new BlockPos(-1, -1, -1));
         } catch (StackOverflowError e) {

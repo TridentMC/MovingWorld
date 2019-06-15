@@ -5,7 +5,7 @@ import com.tridevmc.movingworld.common.entity.EntityMovingWorld;
 import com.tridevmc.movingworld.common.network.MovingWorldClientAction;
 import com.tridevmc.compound.network.message.Message;
 import com.tridevmc.compound.network.message.RegisteredMessage;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.fml.LogicalSide;
 
 
@@ -30,7 +30,7 @@ public class MovingWorldClientActionMessage extends Message {
     }
 
     @Override
-    public void handle(EntityPlayer sender) {
+    public void handle(PlayerEntity sender) {
         if (movingWorld == null || sender != movingWorld.getControllingPassenger())
             return;
 

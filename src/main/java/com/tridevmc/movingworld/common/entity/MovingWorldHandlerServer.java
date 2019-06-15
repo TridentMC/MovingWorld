@@ -6,11 +6,11 @@ import com.tridevmc.movingworld.common.chunk.mobilechunk.MobileChunkServer;
 import com.tridevmc.movingworld.common.network.message.MovingWorldBlockChangeMessage;
 import com.tridevmc.movingworld.common.network.message.MovingWorldTileChangeMessage;
 import com.tridevmc.movingworld.common.tile.TileMovingMarkingBlock;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.LogicalSide;
 
@@ -23,7 +23,7 @@ public abstract class MovingWorldHandlerServer extends MovingWorldHandlerCommon 
     }
 
     @Override
-    public boolean processInitialInteract(EntityPlayer player, EnumHand hand) {
+    public boolean processInitialInteract(PlayerEntity player, Hand hand) {
         return false;
     }
 
@@ -46,10 +46,10 @@ public abstract class MovingWorldHandlerServer extends MovingWorldHandlerCommon 
                     MovingWorldMod.LOG.debug("MobileChunk block change detected, sending packet to all players watching " + getMovingWorld().toString());
                 }
                 if (!mobileChunkServer.getTileQueue().isEmpty()) {
-                    NBTTagCompound tagCompound = new NBTTagCompound();
-                    NBTTagList list = new NBTTagList();
+                    CompoundNBT tagCompound = new CompoundNBT();
+                    ListNBT list = new ListNBT();
                     for (BlockPos tilePosition : mobileChunkServer.getTileQueue()) {
-                        NBTTagCompound nbt = new NBTTagCompound();
+                        CompoundNBT nbt = new CompoundNBT();
                         if (mobileChunkServer.getTileEntity(tilePosition) == null)
                             continue;
 

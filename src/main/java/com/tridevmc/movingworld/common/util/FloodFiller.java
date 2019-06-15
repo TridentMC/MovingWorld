@@ -2,8 +2,8 @@ package com.tridevmc.movingworld.common.util;
 
 import com.tridevmc.movingworld.common.chunk.LocatedBlock;
 import com.tridevmc.movingworld.common.chunk.mobilechunk.MobileChunk;
-import net.minecraft.block.BlockAir;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.AirBlock;
+import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.ArrayList;
@@ -54,12 +54,12 @@ public class FloodFiller {
         while (!posStack.isEmpty()) {
             BlockPos pos = posStack.get(posStack.size() - 1);
             posStack.remove(posStack.size() - 1);
-            IBlockState state = mobileChunk.getBlockState(pos);
+            BlockState state = mobileChunk.getBlockState(pos);
             int x = pos.getX();
             int y = pos.getY();
             int z = pos.getZ();
 
-            if (state == null || state.getBlock() instanceof BlockAir) {
+            if (state == null || state.getBlock() instanceof AirBlock) {
                 if (x > mobileChunk.maxX() || x < mobileChunk.minX() - 1 ||
                         y > mobileChunk.maxY() + 1 || y < mobileChunk.minY() - 1 ||
                         z > mobileChunk.maxZ() || z < mobileChunk.minZ() - 1

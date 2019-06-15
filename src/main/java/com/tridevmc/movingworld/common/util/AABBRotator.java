@@ -1,6 +1,7 @@
 package com.tridevmc.movingworld.common.util;
 
 
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
 
 public class AABBRotator {
@@ -20,24 +21,24 @@ public class AABBRotator {
     }
 
     /**
-     * @param aabb The axis aligned boundingbox to rotate
-     * @param ang  The angle to rotate the aabb in radians
+     * @param bb  The axis aligned boundingbox to rotate
+     * @param ang The angle to rotate the aabb in radians
      */
-    public static AxisAlignedBB rotateAABBAroundY(AxisAlignedBB aabb, double xoff, double zoff, float ang) {
-        double y0 = aabb.minY;
-        double y1 = aabb.maxY;
+    public static AxisAlignedBB rotateAABBAroundY(AxisAlignedBB bb, double xoff, double zoff, float ang) {
+        double y0 = bb.minY;
+        double y1 = bb.maxY;
 
-        vec00 = vec00.setX(aabb.minX - xoff);
-        vec00 = vec00.setZ(aabb.minZ - zoff);
+        vec00 = vec00.setX(bb.minX - xoff);
+        vec00 = vec00.setZ(bb.minZ - zoff);
 
-        vec01 = vec01.setX(aabb.minX - xoff);
-        vec01 = vec01.setZ(aabb.maxZ - zoff);
+        vec01 = vec01.setX(bb.minX - xoff);
+        vec01 = vec01.setZ(bb.maxZ - zoff);
 
-        vec10 = vec10.setX(aabb.maxX - xoff);
-        vec10 = vec10.setZ(aabb.minZ - zoff);
+        vec10 = vec10.setX(bb.maxX - xoff);
+        vec10 = vec10.setZ(bb.minZ - zoff);
 
-        vec11 = vec11.setX(aabb.maxX - xoff);
-        vec11 = vec11.setZ(aabb.maxZ - zoff);
+        vec11 = vec11.setX(bb.maxX - xoff);
+        vec11 = vec11.setZ(bb.maxZ - zoff);
 
         vec00 = vec00.rotateAroundY(ang);
         vec01 = vec01.rotateAroundY(ang);
@@ -56,9 +57,19 @@ public class AABBRotator {
         vech1 = vech1.setX((vec01.x + vec11.x) / 2D);
         vech1 = vech1.setZ((vec01.z + vec11.z) / 2D);
 
-        aabb = new AxisAlignedBB(minX(), y0, minZ(), maxX(), y1, maxZ()).offset(xoff, 0F, zoff);
+        bb = new AxisAlignedBB(minX(), y0, minZ(), maxX(), y1, maxZ()).offset(xoff, 0F, zoff);
 
-        return aabb;
+        return bb;
+    }
+
+    public static AxisAlignedBB rotateAABB(Direction.Axis axis, AxisAlignedBB bb, float angle) {
+        return rotateAABB(axis, bb, new Vec3dMod(bb.getCenter()), angle);
+    }
+
+    public static AxisAlignedBB rotateAABB(Direction.Axis axis, AxisAlignedBB bb, Vec3dMod around, float angle) {
+        Vec3dMod min = new Vec3dMod(bb.minX, bb.minY, bb.minZ).rotate(axis, around, angle);
+        Vec3dMod max = new Vec3dMod(bb.maxX, bb.maxY, bb.maxZ).rotate(axis, around, angle);
+        return new AxisAlignedBB(min, max);
     }
 
     private static double minX() {
@@ -76,4 +87,6 @@ public class AABBRotator {
     private static double maxZ() {
         return Math.max(Math.max(Math.max(vec0h.z, vec1h.z), vech0.z), vech1.z);
     }
+
+
 }

@@ -1,7 +1,7 @@
 package com.tridevmc.movingworld.common.chunk.mobilechunk;
 
 import com.tridevmc.movingworld.common.entity.EntityMovingWorld;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -32,7 +32,7 @@ public class MobileChunkServer extends MobileChunk {
     }
 
     @Override
-    public boolean addBlockWithState(BlockPos pos, IBlockState blockState) {
+    public boolean addBlockWithState(BlockPos pos, BlockState blockState) {
         if (super.addBlockWithState(pos, blockState)) {
             this.blockQueue.add(pos);
             return true;
@@ -41,7 +41,7 @@ public class MobileChunkServer extends MobileChunk {
     }
 
     @Override
-    public boolean setBlockState(BlockPos pos, IBlockState state) {
+    public boolean setBlockState(BlockPos pos, BlockState state) {
         if (super.setBlockState(pos, state)) {
             this.blockQueue.add(pos);
             return true;

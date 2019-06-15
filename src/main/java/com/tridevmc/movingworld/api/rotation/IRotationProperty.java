@@ -1,6 +1,6 @@
 package com.tridevmc.movingworld.api.rotation;
 
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.state.IProperty;
 
 /**
@@ -17,6 +17,6 @@ public interface IRotationProperty {
      * @param ccw        counterClockwise?
      * @return The blockstate post rotation.
      */
-    IBlockState rotate(IProperty property, IBlockState blockState, boolean ccw);
+    BlockState rotate(IProperty property, BlockState blockState, boolean ccw);
 
 }

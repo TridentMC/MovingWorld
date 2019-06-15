@@ -9,8 +9,8 @@ import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Blocks;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
 
 import java.io.DataInput;
@@ -87,7 +87,7 @@ public class CompressedChunkData {
         MovingWorldMod.LOG.debug("Reading mobile chunk data: " + count + " blocks");
 
         int x, y, z;
-        IBlockState state;
+        BlockState state;
         for (int i = 0; i < count; i++) {
             x = from.readByte();
             y = from.readByte();
@@ -112,7 +112,7 @@ public class CompressedChunkData {
         for (int i = this.chunk.minX(); i < this.chunk.maxX(); i++) {
             for (int j = this.chunk.minY(); j < this.chunk.maxY(); j++) {
                 for (int k = this.chunk.minZ(); k < this.chunk.maxZ(); k++) {
-                    IBlockState state = this.chunk.getBlockState(new BlockPos(i, j, k));
+                    BlockState state = this.chunk.getBlockState(new BlockPos(i, j, k));
                     if (state != null && state.getBlock() != Blocks.AIR) {
                         nonEmptyPositions.add(new BlockPos(i, j, k));
                     }
@@ -132,7 +132,7 @@ public class CompressedChunkData {
         return positions.size();
     }
 
-    private void writeBlock(IBlockState state, BlockPos pos) throws IOException {
+    private void writeBlock(BlockState state, BlockPos pos) throws IOException {
         this.stream.writeByte(pos.getX());
         this.stream.writeByte(pos.getY());
         this.stream.writeByte(pos.getZ());

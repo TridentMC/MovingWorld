@@ -1,18 +1,18 @@
 package com.tridevmc.movingworld.common.rotation;
 
 import com.tridevmc.movingworld.api.rotation.IRotationProperty;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.state.IProperty;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 
 public class RotationEnumProperty implements IRotationProperty {
 
     @Override
-    public IBlockState rotate(IProperty property, IBlockState blockState, boolean ccw) {
+    public BlockState rotate(IProperty property, BlockState blockState, boolean ccw) {
         Object propertyValue = blockState.get(property);
 
-        if (propertyValue instanceof EnumFacing) {
-            EnumFacing facing = (EnumFacing) propertyValue;
+        if (propertyValue instanceof Direction) {
+            Direction facing = (Direction) propertyValue;
 
             if (facing.getHorizontalIndex() != -1) {
                 if (!ccw)
@@ -20,10 +20,10 @@ public class RotationEnumProperty implements IRotationProperty {
                 else
                     blockState = blockState.with(property, facing.rotateYCCW());
             }
-        } else if (propertyValue instanceof EnumFacing.Axis) {
-            EnumFacing.Axis axis = (EnumFacing.Axis) propertyValue;
+        } else if (propertyValue instanceof Direction.Axis) {
+            Direction.Axis axis = (Direction.Axis) propertyValue;
 
-            axis = axis == EnumFacing.Axis.X ? EnumFacing.Axis.Z : axis == EnumFacing.Axis.Z ? EnumFacing.Axis.X : axis;
+            axis = axis == Direction.Axis.X ? Direction.Axis.Z : axis == Direction.Axis.Z ? Direction.Axis.X : axis;
 
             blockState = blockState.with(property, axis);
         }

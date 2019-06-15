@@ -1,9 +1,9 @@
 package com.tridevmc.movingworld.common.entity;
 
 import com.tridevmc.movingworld.common.util.MaterialDensity;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
 
 public abstract class MovingWorldCapabilities {
@@ -27,7 +27,7 @@ public abstract class MovingWorldCapabilities {
         return blockCount;
     }
 
-    public void onChunkBlockAdded(IBlockState blockState, BlockPos pos) {
+    public void onChunkBlockAdded(BlockState blockState, BlockPos pos) {
         blockCount++;
         if (autoCalcMass)
             mass += MaterialDensity.getDensity(blockState);
@@ -79,10 +79,10 @@ public abstract class MovingWorldCapabilities {
         this.canFly = canFly;
     }
 
-    public void readFromNBT(NBTTagCompound tag) {
+    public void readFromNBT(CompoundNBT tag) {
     }
 
-    public void writeToNBT(NBTTagCompound tag) {
+    public void writeToNBT(CompoundNBT tag) {
     }
 
 }

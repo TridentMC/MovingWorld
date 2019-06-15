@@ -10,9 +10,9 @@ import com.tridevmc.movingworld.common.event.DisassembleBlockEvent;
 import com.tridevmc.movingworld.common.tile.TileMovingMarkingBlock;
 import com.tridevmc.movingworld.common.util.*;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Blocks;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -47,7 +47,7 @@ public class ChunkDisassembler {
         float oz = -chunk.getCenterZ();
 
         Vec3dMod vec;
-        IBlockState state;
+        BlockState state;
         Block block;
         BlockPos pos;
         for (int i = chunk.minX(); i < chunk.maxX(); i++) {
@@ -106,7 +106,7 @@ public class ChunkDisassembler {
 
         Vec3dMod vec;
         TileEntity tileentity;
-        IBlockState blockState;
+        BlockState blockState;
         BlockPos pos;
         try {
             for (int i = chunk.minX(); i < chunk.maxX(); i++) {
@@ -184,9 +184,9 @@ public class ChunkDisassembler {
         retPostList.addAll(postList);
 
         TileEntity tileentity;
-        IBlockState blockState;
+        BlockState blockState;
         BlockPos pos;
-        IBlockState owBlockState;
+        BlockState owBlockState;
         Block owBlock;
 
         for (LocatedBlock locatedBlock : locatedBlocks) {
@@ -224,7 +224,7 @@ public class ChunkDisassembler {
                 if (tileentity instanceof IMovingTile) {
                     ((IMovingTile) tileentity).setParentMovingWorld(null, new BlockPos(i, j, k));
                 }
-                NBTTagCompound tileTag = new NBTTagCompound();
+                CompoundNBT tileTag = new CompoundNBT();
                 tileentity.write(tileTag);
                 world.setTileEntity(pos, tileentity);
                 world.getTileEntity(pos).read(tileTag);

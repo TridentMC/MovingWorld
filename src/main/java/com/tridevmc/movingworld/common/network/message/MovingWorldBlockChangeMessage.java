@@ -5,7 +5,7 @@ import com.tridevmc.movingworld.common.chunk.CompressedChunkData;
 import com.tridevmc.movingworld.common.entity.EntityMovingWorld;
 import com.tridevmc.compound.network.message.Message;
 import com.tridevmc.compound.network.message.RegisteredMessage;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.fml.LogicalSide;
 
 /**
@@ -28,7 +28,7 @@ public class MovingWorldBlockChangeMessage extends Message {
     }
 
     @Override
-    public void handle(EntityPlayer sender) {
+    public void handle(PlayerEntity sender) {
         if (movingWorld == null || movingWorld.getMobileChunk() == null || compressedChunkData == null)
             return;
         compressedChunkData.loadBlocks(movingWorld.getMobileChunk());

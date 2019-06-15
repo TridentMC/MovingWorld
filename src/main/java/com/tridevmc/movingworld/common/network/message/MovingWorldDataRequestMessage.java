@@ -5,10 +5,10 @@ import com.tridevmc.movingworld.common.entity.EntityMovingWorld;
 import com.tridevmc.movingworld.common.tile.TileMovingMarkingBlock;
 import com.tridevmc.compound.network.message.Message;
 import com.tridevmc.compound.network.message.RegisteredMessage;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.fml.LogicalSide;
 
@@ -27,14 +27,14 @@ public class MovingWorldDataRequestMessage extends Message {
     }
 
     @Override
-    public void handle(EntityPlayer sender) {
+    public void handle(PlayerEntity sender) {
         if (movingWorld == null)
             return;
 
-        NBTTagCompound tagCompound = new NBTTagCompound();
-        NBTTagList list = new NBTTagList();
+        CompoundNBT tagCompound = new CompoundNBT();
+        ListNBT list = new ListNBT();
         for (TileEntity te : movingWorld.getMobileChunk().chunkTileEntityMap.values()) {
-            NBTTagCompound nbt = new NBTTagCompound();
+            CompoundNBT nbt = new CompoundNBT();
             if (te instanceof TileMovingMarkingBlock) {
                 ((TileMovingMarkingBlock) te).writeNBTForSending(nbt);
             } else {
@@ -44,7 +44,7 @@ public class MovingWorldDataRequestMessage extends Message {
         }
         tagCompound.put("list", list);
 
-        if (sender instanceof EntityPlayerMP)
-            new MovingWorldTileChangeMessage(movingWorld, tagCompound).sendTo((EntityPlayerMP) sender);
+        if (sender instanceof ServerPlayerEntity)
+            new MovingWorldTileChangeMessage(movingWorld, tagCompound).sendTo((ServerPlayerEntity) sender);
     }
 }

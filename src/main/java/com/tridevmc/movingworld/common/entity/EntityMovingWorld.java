@@ -1,6 +1,7 @@
 package com.tridevmc.movingworld.common.entity;
 
 import com.google.common.collect.Lists;
+import com.tridevmc.movingworld.MovingWorldMod;
 import com.tridevmc.movingworld.api.IMovingTile;
 import com.tridevmc.movingworld.common.chunk.CompressedChunkData;
 import com.tridevmc.movingworld.common.chunk.LocatedBlock;
@@ -10,32 +11,30 @@ import com.tridevmc.movingworld.common.chunk.assembly.ChunkDisassembler;
 import com.tridevmc.movingworld.common.chunk.mobilechunk.MobileChunk;
 import com.tridevmc.movingworld.common.chunk.mobilechunk.MobileChunkClient;
 import com.tridevmc.movingworld.common.chunk.mobilechunk.MobileChunkServer;
-import com.tridevmc.movingworld.common.util.AABBRotator;
 import com.tridevmc.movingworld.common.util.MathHelperMod;
 import com.tridevmc.movingworld.common.util.Vec3dMod;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockFlowingFluid;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.FlowingFluidBlock;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.MoverType;
-import net.minecraft.entity.item.EntityBoat;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
+import net.minecraft.client.renderer.texture.ITickable;
+import net.minecraft.entity.*;
+import net.minecraft.entity.item.BoatEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.ITickable;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -52,19 +51,20 @@ import java.util.*;
 /**
  * All moving sections of blocks extend from this class.
  */
-public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdditionalSpawnData {
+public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdditionalSpawnData {
 
     public static final DataParameter<Boolean> IS_FLYING = EntityDataManager
             .createKey(EntityMovingWorld.class, DataSerializers.BOOLEAN);
-    public EntityPlayer controllingPassenger;
+    public PlayerEntity controllingPassenger;
 
     public float motionYaw;
-    public EnumFacing frontDirection;
+    public Direction frontDirection;
     public BlockPos riderDestination;
     public Entity prevRiddenByEntity;
     public boolean disassembling = false;
     protected float groundFriction, horFriction, vertFriction;
     protected int[] layeredBlockVolumeCount;
+
     // Related to actual movement. We don't ever really change these variables, they're changed by classes derived from EntityMovingWorld
     protected boolean noControl;
     protected boolean syncPosWithServer;
@@ -76,13 +76,16 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     protected double controlPitch, controlYaw;
     @OnlyIn(Dist.CLIENT)
     protected double controlVelX, controlVelY, controlVelZ;
+
+    private EntitySize size = new EntitySize(1, 1, false);
+    private NonAlignedBoundingBox realBoundingBox;
     private int disassembleTimer = 100;
     private MobileChunk mobileChunk;
     private MovingWorldInfo info;
     private ChunkDisassembler disassembler;
 
-    public EntityMovingWorld(World world) {
-        super(world);
+    public EntityMovingWorld(EntityType<? extends EntityMovingWorld> type, World world) {
+        super(type, world);
         this.info = new MovingWorldInfo();
         if (world.isRemote) {
             this.initClient();
@@ -93,7 +96,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         this.motionYaw = 0F;
 
         this.layeredBlockVolumeCount = null;
-        this.frontDirection = EnumFacing.NORTH;
+        this.frontDirection = Direction.NORTH;
 
         this.groundFriction = 0.9F;
         this.horFriction = 0.994F;
@@ -115,12 +118,12 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         for (int x = i; x < j; ++x) {
             for (int y = k; y < l; ++y) {
                 for (int z = i1; z < j1; ++z) {
-                    IBlockState blockState = world.getBlockState(new BlockPos(x, y, z));
+                    BlockState blockState = world.getBlockState(new BlockPos(x, y, z));
 
                     if ((blockState.getMaterial() == Material.WATER
                             || blockState.getMaterial() == Material.LAVA)
-                            && blockState.getBlock() instanceof BlockFlowingFluid) {
-                        int j2 = blockState.get(BlockFlowingFluid.LEVEL);
+                            && blockState.getBlock() instanceof FlowingFluidBlock) {
+                        int j2 = blockState.get(FlowingFluidBlock.LEVEL);
                         double d0;
 
                         if (j2 < 8) {
@@ -235,7 +238,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     }
 
     @Override
-    public boolean processInitialInteract(EntityPlayer entityplayer, EnumHand hand) {
+    public boolean processInitialInteract(PlayerEntity entityplayer, Hand hand) {
         return this.getHandler().processInitialInteract(entityplayer, hand);
     }
 
@@ -256,33 +259,39 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     }
 
     @Override
-    public EntityBoat.Type getBoatType() {
+    public BoatEntity.Type getBoatType() {
         return Type.OAK;
     }
 
     public void setRotatedBoundingBox() {
         if (this.mobileChunk == null) {
-            float hw = this.width / 2F;
+            float hw = this.getWidth() / 2F;
             this.setBoundingBox(
-                    new AxisAlignedBB(this.posX - hw, this.posY, this.posZ - hw, this.posX + hw, this.posY + this.height, this.posZ + hw));
+                    new AxisAlignedBB(this.posX - hw, this.posY, this.posZ - hw, this.posX + hw, this.posY + this.size.height, this.posZ + hw));
         } else {
+            AxisAlignedBB bb = new AxisAlignedBB(this.posX - this.mobileChunk.getCenterX(), this.posY, this.posZ - this.mobileChunk.getCenterZ(),
+                    this.posX + this.mobileChunk.getCenterX(), this.posY + this.getHeight(), this.posZ + this.mobileChunk.getCenterZ());
+            this.setBoundingBox(bb);
+        }
+    }
+
+    public void setSize(float w, float h) {
+        if (w != this.size.width || h != this.size.height) {
+            this.size = new EntitySize(w, h, false);
+            float hw = w / 2F;
             this.setBoundingBox(
-                    new AxisAlignedBB(this.posX - this.mobileChunk.getCenterX(), this.posY, this.posZ - this.mobileChunk.getCenterZ(),
-                            this.posX + this.mobileChunk.getCenterX(), this.posY + this.height, this.posZ + this.mobileChunk.getCenterZ()));
-            this.setBoundingBox(AABBRotator.rotateAABBAroundY(this.getBoundingBox(), this.posX, this.posZ,
-                    (float) Math.toRadians(this.rotationYaw)));
+                    new AxisAlignedBB(this.posX - hw, this.posY, this.posZ - hw, this.posX + hw, this.posY + this.size.height, this.posZ + hw));
         }
     }
 
     @Override
-    public void setSize(float w, float h) {
-        if (w != this.width || h != this.height) {
-            this.width = w;
-            this.height = h;
-            float hw = w / 2F;
-            this.setBoundingBox(
-                    new AxisAlignedBB(this.posX - hw, this.posY, this.posZ - hw, this.posX + hw, this.posY + this.height, this.posZ + hw));
-        }
+    public EntitySize getSize(Pose pose) {
+        return this.size;
+    }
+
+    @Override
+    public void move(MoverType typeIn, Vec3d pos) {
+        super.move(typeIn, pos);
     }
 
     @Override
@@ -297,9 +306,8 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             this.rotationPitch = pitch;
             this.controlPosRotationIncrements = 0;
             this.setPosition(x, y, z);
-            this.motionX = this.controlVelX = 0.0D;
-            this.motionY = this.controlVelY = 0.0D;
-            this.motionZ = this.controlVelZ = 0.0D;
+            this.setMotion(new Vec3d(0, 0, 0));
+            this.controlVelX = this.controlVelY = this.controlVelZ = 0;
         } else {
             if (this.noControl) {
                 this.controlPosRotationIncrements = inc + 5;
@@ -322,18 +330,32 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             this.controlZ = z;
             this.controlYaw = yaw;
             this.controlPitch = pitch;
-            this.motionX = this.controlVelX;
-            this.motionY = this.controlVelY;
-            this.motionZ = this.controlVelZ;
+            this.setMotion(new Vec3d(controlVelX, controlVelY, controlVelZ));
         }
     }
 
     @Override
     @OnlyIn(Dist.CLIENT)
     public void setVelocity(double x, double y, double z) {
-        this.controlVelX = this.motionX = x;
-        this.controlVelY = this.motionY = y;
-        this.controlVelZ = this.motionZ = z;
+        this.setMotion(new Vec3d(x, y, z));
+        this.controlVelX = x;
+        this.controlVelY = y;
+        this.controlVelZ = z;
+    }
+
+    @Override
+    public void setBoundingBox(AxisAlignedBB bb) {
+        super.setBoundingBox(bb);
+        this.setRealBoundingBox(new NonAlignedBoundingBox(bb, this.rotationYaw));
+    }
+
+    public NonAlignedBoundingBox getRealBoundingBox() {
+        return realBoundingBox;
+    }
+
+    public void setRealBoundingBox(NonAlignedBoundingBox realBoundingBox) {
+        if (!this.getRealBoundingBox().equals(realBoundingBox))
+            this.realBoundingBox = realBoundingBox;
     }
 
     public boolean posChanged() {
@@ -352,9 +374,9 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         this.prevPosY = this.posY;
         this.prevPosZ = this.posZ;
 
-        double horvel = Math.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
+        double horVel = Math.sqrt(this.getMotion().x * this.getMotion().x + this.getMotion().z * this.getMotion().z);
         if (this.world.isRemote) {
-            this.spawnParticles(horvel);
+            this.spawnParticles(horVel);
         }
 
         if (this.world.isRemote && (this.noControl || this.syncPosWithServer)) {
@@ -363,7 +385,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
                 this.syncPosWithServer = false;
             }
         } else {
-            this.handleServerUpdate(horvel);
+            this.handleServerUpdate(horVel);
         }
 
         if (this.disassembling) {
@@ -389,88 +411,100 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             this.controlPosRotationIncrements--;
             this.setPosition(dx, dy, dz);
             this.setRotation(this.rotationYaw, this.rotationPitch);
-            this.world.tickEntity(this, false);
+
+            // TODO: no replacement method in 1.14?
+            //this.world.tickEntity(this, false);
         } else {
-            this.setPosition(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
-            this.world.tickEntity(this, false);
+            this.setPosition(this.posX + this.getMotion().x, this.posY + this.getMotion().y, this.posZ + this.getMotion().z);
+            // TODO: no replacement method in 1.14?
+            // this.world.tickEntity(this, false);
 
             if (this.onGround) {
-                this.motionX *= this.groundFriction;
-                this.motionY *= this.groundFriction;
-                this.motionZ *= this.groundFriction;
+                this.setMotion(this.getMotion().mul(this.groundFriction, this.groundFriction, this.groundFriction));
             }
 
-            this.motionX *= this.horFriction;
-            this.motionY *= this.vertFriction;
-            this.motionZ *= this.horFriction;
+            this.setMotion(this.getMotion().mul(this.horFriction, this.vertFriction, this.horFriction));
         }
         this.setRotatedBoundingBox();
     }
 
     protected void handleServerUpdate(double horvel) {
-        if (this.getMobileChunk() != null) {
-            if (!this.getMobileChunk().movingWorldTileEntities.isEmpty()) {
-                for (IMovingTile movingWorldTileEntity : this.getMobileChunk().movingWorldTileEntities) {
-                    movingWorldTileEntity.tick(this.getMobileChunk());
-                }
+        if (!this.getMobileChunk().movingWorldTileEntities.isEmpty()) {
+            for (IMovingTile movingWorldTileEntity : this.getMobileChunk().movingWorldTileEntities) {
+                movingWorldTileEntity.tick(this.getMobileChunk());
             }
-            if (!this.getMobileChunk().updatableTiles.isEmpty()) {
-                for (TileEntity tickable : Lists.newArrayList(this.getMobileChunk().updatableTiles)) {
-                    tickable.setWorld(this.mobileChunk.getFakeWorld());
-                    ((ITickable) tickable).tick();
-                    tickable.setWorld(this.mobileChunk.world);
-                }
+        }
+        if (!this.getMobileChunk().updatableTiles.isEmpty()) {
+            for (TileEntity tickable : Lists.newArrayList(this.getMobileChunk().updatableTiles)) {
+                tickable.setWorld(this.mobileChunk.getFakeWorld());
+                ((ITickable) tickable).tick();
+                tickable.setWorld(this.mobileChunk.world);
             }
         }
 
         //START outer forces
         float gravity = 0.05F;
         if (!this.isFlying()) {
-            this.motionY -= gravity;
+            this.setMotion(this.getMotion().subtract(0, gravity, 0));
         }
         //END outer forces
 
         this.handleControl(horvel);
 
         //START limit motion
-        double newhorvel = Math.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
-        double maxvel = this.getMovingWorldCapabilities().getSpeedLimit();
-        if (newhorvel > maxvel) {
-            double d = maxvel / newhorvel;
-            this.motionX *= d;
-            this.motionZ *= d;
-            newhorvel = maxvel;
+        double newHorVel = Math.sqrt(this.getMotion().x * this.getMotion().x + this.getMotion().z * this.getMotion().z);
+        double maxVel = this.getMovingWorldCapabilities().getSpeedLimit();
+        if (newHorVel > maxVel) {
+            double d = maxVel / newHorVel;
+            this.setMotion(this.getMotion().mul(d, 1, d));
+            newHorVel = maxVel;
         }
-        this.motionY = MathHelperMod.clamp_double(this.motionY, -maxvel, maxvel);
+        this.setMotion(new Vec3d(this.getMotion().x, MathHelperMod.clamp_double(this.getMotion().y, -maxVel, maxVel), this.getMotion().z));
         //END limit motion
 
         if (this.onGround) {
-            this.motionX *= this.groundFriction;
-            this.motionY *= this.groundFriction;
-            this.motionZ *= this.groundFriction;
+            this.setMotion(this.getMotion().mul(this.groundFriction, this.groundFriction, this.groundFriction));
         }
-        this.rotationPitch = this.rotationPitch
-                + (this.motionYaw * this.getMovingWorldCapabilities().getBankingMultiplier() - this.rotationPitch) * 0.15f;
-        this.motionYaw *= 0.7F;
-        this.rotationYaw += this.motionYaw;
-        this.setRotatedBoundingBox();
-        this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ);
+        this.handleRotation();
+        this.move(MoverType.SELF, this.getMotion());
         this.posY = Math.min(this.posY, this.world.getHeight());
-        this.motionX *= this.horFriction;
-        this.motionY *= this.vertFriction;
-        this.motionZ *= this.horFriction;
+        this.setMotion(this.getMotion().mul(this.horFriction, this.vertFriction, this.horFriction));
 
         this.handleServerUpdatePreRotation();
-
         this.setRotation(this.rotationYaw, this.rotationPitch);
-
         this.handleCollision(this.posX, this.posY, this.posZ);
     }
 
     public void handleServerUpdatePreRotation() {
-        // No implementation basically just a hook for archimedes ships.
+    }
 
-        // dis mai code i do wut i wan
+    private void handleRotation() {
+        if (motionYaw == 0) {
+            return;
+        }
+        //TODO: Convert to non aligned bounding boxes.
+
+        //List<VoxelShape> collisionBoxes = this.world.getCollisionBoxes(this, this.getBoundingBox()).collect(Collectors.toList());
+        //if (collisionBoxes.isEmpty()) {
+        //    float newRotationPitch = this.rotationPitch
+        //            + (this.motionYaw * this.getMovingWorldCapabilities().getBankingMultiplier() - this.rotationPitch) * 0.15f;
+        //    float newMotionYaw = motionYaw * 0.7F;
+        //    float newRotationYaw = newMotionYaw + this.rotationYaw;
+        //    AxisAlignedBB newBB = new AxisAlignedBB(this.posX - this.mobileChunk.getCenterX(), this.posY, this.posZ - this.mobileChunk.getCenterZ(),
+        //            this.posX + this.mobileChunk.getCenterX(), this.posY + this.height, this.posZ + this.mobileChunk.getCenterZ());
+        //    collisionBoxes = this.world.getCollisionBoxes(this, newBB).collect(Collectors.toList());
+
+        //    if (collisionBoxes.isEmpty()) {
+        //        if (this.rotationYaw != newRotationYaw)
+        //            this.setBoundingBox(newBB);
+        //        this.rotationPitch = newRotationPitch;
+        //        this.motionYaw = newMotionYaw;
+        //        this.rotationYaw = newRotationYaw;
+        //        return;
+        //    }
+        //}
+        this.motionYaw = 0;
+        this.rotationPitch = this.rotationPitch + (this.motionYaw * this.getMovingWorldCapabilities().getBankingMultiplier() - this.rotationPitch) * 0.15f;
     }
 
     @Override
@@ -514,7 +548,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
                 BlockPos blockPos = new BlockPos(x1, MathHelper.floor(y1 + this.getMountedYOffset() + passenger.getYOffset()),
                         z1);
-                IBlockState state = this.mobileChunk.getBlockState(blockPos);
+                BlockState state = this.mobileChunk.getBlockState(blockPos);
                 if (state.isOpaqueCube(this.mobileChunk, blockPos)) {
                     x1 = riderDestination.getX();
                     y1 = riderDestination.getY();
@@ -583,8 +617,8 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         if (passenger.getRidingEntity() != this) {
             throw new IllegalStateException("Use x.startRiding(y), not y.addPassenger(x)");
         } else {
-            if (this.controllingPassenger == null && passenger instanceof EntityPlayer) {
-                this.controllingPassenger = (EntityPlayer) passenger;
+            if (this.controllingPassenger == null && passenger instanceof PlayerEntity) {
+                this.controllingPassenger = (PlayerEntity) passenger;
             }
         }
     }
@@ -600,7 +634,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
                     if (!Objects.equals(entity, this.getControllingPassenger()) && entity.canBePushed()) {
                         if (entity instanceof EntityMovingWorld) {
                             entity.applyEntityCollision(this);
-                        } else if (entity instanceof EntityBoat) {
+                        } else if (entity instanceof BoatEntity) {
                             double d0 = cPosX - entity.posX;
                             double d1 = cPosZ - entity.posZ;
                             double d2 = MathHelper.absMax(d0, d1);
@@ -630,20 +664,21 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
             for (int l = 0; l < 4; ++l) {
                 int i1 = MathHelper.floor(cPosX + ((l % 2) - 0.5D) * 0.8D);
-                int j1 = MathHelper.floor(cPosZ + ((l / 2) - 0.5D) * 0.8D);
+                int j1 = MathHelper.floor(cPosZ + ((((double) l) / 2) - 0.5D) * 0.8D);
 
                 for (int k1 = 0; k1 < 2; ++k1) {
                     int l1 = MathHelper.floor(cPosY) + k1;
-                    IBlockState blockState = this.world.getBlockState(new BlockPos(i1, l1, j1));
+                    BlockState blockState = this.world.getBlockState(new BlockPos(i1, l1, j1));
                     Block block = blockState.getBlock();
 
                     if (block == Blocks.SNOW) {
-                        this.world.removeBlock(new BlockPos(i1, l1, j1));
+                        this.world.destroyBlock(new BlockPos(i1, l1, j1), false);
                         this.collidedHorizontally = false;
                     } else if (block == Blocks.LILY_PAD) {
                         this.world.destroyBlock(new BlockPos(i1, l1, j1), true);
                         this.collidedHorizontally = false;
-                    } else {
+                    } else if (!blockState.isAir()) {
+                        MovingWorldMod.LOG.info("Collided with " + block.getTranslationKey());
                         didCollide = true;
                     }
                 }
@@ -655,10 +690,10 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     @Override
     public boolean handleWaterMovement() {
-        float f = this.width;
-        this.width = 0F;
+        float f = this.getWidth();
+        this.setSize(0, this.getHeight());
         boolean ret = super.handleWaterMovement();
-        this.width = f;
+        this.setSize(f, this.getHeight());
         return ret;
     }
 
@@ -711,7 +746,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     }
 
     @Override
-    protected void updateFallState(double y, boolean onGroundIn, IBlockState state, BlockPos pos) {
+    protected void updateFallState(double y, boolean onGroundIn, BlockState state, BlockPos pos) {
     }
 
     @Override
@@ -719,7 +754,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     }
 
     public float getHorizontalVelocity() {
-        return (float) Math.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
+        return (float) Math.sqrt(this.getMotion().getX() * this.getMotion().getX() + this.getMotion().getZ() * this.getMotion().getZ());
     }
 
     public void alignToGrid(boolean doPosAdjustment) {
@@ -738,7 +773,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             this.setPositionAndUpdate(ix - vec.x, iy - vec.y, iz - vec.z);
         }
 
-        this.motionX = this.motionY = this.motionZ = 0D;
+        this.setMotion(new Vec3d(0, 0, 0));
     }
 
     public boolean disassemble(boolean overwrite) {
@@ -764,7 +799,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
 
     public void dropAsItems() {
         TileEntity tileentity;
-        IBlockState blockState;
+        BlockState blockState;
         for (int i = this.mobileChunk.minX(); i < this.mobileChunk.maxX(); i++) {
             for (int j = this.mobileChunk.minY(); j < this.mobileChunk.maxY(); j++) {
                 for (int k = this.mobileChunk.minZ(); k < this.mobileChunk.maxZ(); k++) {
@@ -781,9 +816,9 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
                     blockState = this.mobileChunk.getBlockState(new BlockPos(i, j, k));
 
                     if (blockState.getBlock() != Blocks.AIR) {
-                        blockState.getBlock().dropBlockAsItemWithChance(blockState, this.world,
-                                new BlockPos(MathHelper.floor(this.posX), MathHelper.floor(this.posY),
-                                        MathHelper.floor(this.posZ)), 1F, 1);
+                        Block.spawnDrops(blockState, world, new BlockPos(MathHelper.floor(this.posX),
+                                MathHelper.floor(this.posY),
+                                MathHelper.floor(this.posZ)));
                     }
                 }
             }
@@ -801,7 +836,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         }
 
         set.add(pos);
-        if (this.mobileChunk.removeBlock(pos)) {
+        if (this.mobileChunk.removeBlock(pos, true)) {
             this.fillAirBlocks(set, pos.add(0, 1, 0));
             //fillAirBlocks(set, x, y - 1, z);
             this.fillAirBlocks(set, pos.add(-1, 0, 0));
@@ -811,13 +846,13 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         }
     }
 
-    public void setRiderDestination(EnumFacing frontDirection, BlockPos riderDestination) {
+    public void setRiderDestination(Direction frontDirection, BlockPos riderDestination) {
         this.frontDirection = frontDirection;
         this.riderDestination = riderDestination;
     }
 
     @Override
-    protected void writeAdditional(NBTTagCompound tag) {
+    protected void writeAdditional(CompoundNBT tag) {
         CompressedChunkData compressedChunkData = new CompressedChunkData(this.mobileChunk, true);
         tag.putByteArray("chunk", compressedChunkData.getBytes());
         tag.putInt("riderDestinationX", this.riderDestination.getX());
@@ -826,9 +861,9 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         tag.putInt("front", this.frontDirection.getHorizontalIndex());
 
         if (!this.mobileChunk.chunkTileEntityMap.isEmpty()) {
-            NBTTagList tileEntities = new NBTTagList();
+            ListNBT tileEntities = new ListNBT();
             for (TileEntity tileentity : this.mobileChunk.chunkTileEntityMap.values()) {
-                NBTTagCompound comp = new NBTTagCompound();
+                CompoundNBT comp = new CompoundNBT();
                 tileentity.write(comp);
                 tileEntities.add(comp);
             }
@@ -836,7 +871,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         }
 
         if (this.mobileChunk.marker != null) {
-            NBTTagCompound markerComp = new NBTTagCompound();
+            CompoundNBT markerComp = new CompoundNBT();
             markerComp.putInt("markerPosX", this.mobileChunk.marker.pos.getX());
             markerComp.putInt("markerPosY", this.mobileChunk.marker.pos.getY());
             markerComp.putInt("markerPosZ", this.mobileChunk.marker.pos.getZ());
@@ -851,10 +886,10 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         this.writeMovingWorldNBT(tag);
     }
 
-    public abstract void writeMovingWorldNBT(NBTTagCompound tag);
+    public abstract void writeMovingWorldNBT(CompoundNBT tag);
 
     @Override
-    protected void readAdditional(NBTTagCompound tag) {
+    protected void readAdditional(CompoundNBT tag) {
         if (this.mobileChunk == null) {
             if (this.world != null) {
                 if (this.world.isRemote) {
@@ -872,20 +907,20 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             int rY = s >>> 4 & 0xF;
             int rZ = s >>> 8 & 0xF;
             this.riderDestination = new BlockPos(rX, rY, rZ);
-            this.frontDirection = EnumFacing.NORTH;
+            this.frontDirection = Direction.NORTH;
         } else {
             int rX = tag.getInt("riderDestinationX");
             int rY = tag.getInt("riderDestinationY");
             int rZ = tag.getInt("riderDestinationZ");
             this.riderDestination = new BlockPos(rX, rY, rZ);
-            this.frontDirection = EnumFacing.byHorizontalIndex(tag.getInt("front"));
+            this.frontDirection = Direction.byHorizontalIndex(tag.getInt("front"));
         }
 
-        NBTTagList tiles = tag.getList("tileent", 10);
+        ListNBT tiles = tag.getList("tileent", 10);
         if (tiles != null) {
             for (int i = 0; i < tiles.size(); i++) {
                 try {
-                    NBTTagCompound comp = tiles.getCompound(i);
+                    CompoundNBT comp = tiles.getCompound(i);
                     TileEntity tileentity = TileEntity.create(comp);
                     this.mobileChunk.setTileEntity(tileentity.getPos(), tileentity);
                 } catch (Exception e) {
@@ -895,7 +930,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         }
 
         if (tag.contains("markerInfo")) {
-            NBTTagCompound markerComp = (NBTTagCompound) tag.get("markerInfo");
+            CompoundNBT markerComp = (CompoundNBT) tag.get("markerInfo");
             BlockPos markerPos = new BlockPos(markerComp.getInt("markerPosX"),
                     markerComp.getInt("markerPosY"),
                     markerComp.getInt("markerPosZ"));
@@ -912,7 +947,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         this.readMovingWorldNBT(tag);
     }
 
-    public abstract void readMovingWorldNBT(NBTTagCompound tag);
+    public abstract void readMovingWorldNBT(CompoundNBT tag);
 
     @OnlyIn(Dist.CLIENT)
     public void spawnParticles(double horvel) {
@@ -940,8 +975,8 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
     @Override
     protected void doWaterSplashEffect() {
         float sqrtMotion = MathHelper.sqrt(
-                this.motionX * this.motionX * 0.20000000298023224D + this.motionY * this.motionY
-                        + this.motionZ * this.motionZ * 0.20000000298023224D) * 0.2F;
+                this.getMotion().x * this.getMotion().x * 0.20000000298023224D + this.getMotion().y * this.getMotion().y
+                        + this.getMotion().z * this.getMotion().z * 0.20000000298023224D) * 0.2F;
         sqrtMotion = sqrtMotion > 1.0F ? 1.0F : sqrtMotion;
         this.playSound(this.getSplashSound(), sqrtMotion,
                 1.0F + (this.rand.nextFloat() - this.rand.nextFloat()) * 0.4F);
@@ -955,7 +990,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         int rY = data.readInt();
         int rZ = data.readInt();
         this.riderDestination = new BlockPos(rX, rY, rZ);
-        this.frontDirection = EnumFacing.byHorizontalIndex(data.readInt());
+        this.frontDirection = Direction.byHorizontalIndex(data.readInt());
 
         this.info.setName(data.readString(32767));
 

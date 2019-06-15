@@ -8,10 +8,10 @@ import com.tridevmc.movingworld.common.tile.TileMovingMarkingBlock;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.block.BlockState;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.world.World;
 
 /**
@@ -24,7 +24,7 @@ public class MovingWorldAssemblyInteractor {
         return new MovingWorldAssemblyInteractor();
     }
 
-    public MovingWorldAssemblyInteractor fromNBT(NBTTagCompound tag, World world) {
+    public MovingWorldAssemblyInteractor fromNBT(CompoundNBT tag, World world) {
         return new MovingWorldAssemblyInteractor();
     }
 
@@ -53,7 +53,7 @@ public class MovingWorldAssemblyInteractor {
     /**
      * @return returns if it is an over writable block in the config.
      */
-    public boolean canOverwriteState(IBlockState state) {
+    public boolean canOverwriteState(BlockState state) {
         return MovingWorldMod.CONFIG.canOverwriteState(state);
     }
 
@@ -66,7 +66,7 @@ public class MovingWorldAssemblyInteractor {
     /**
      * Called when a block is rotated during disassembling.
      */
-    public IBlockState blockRotated(IBlockState blockState, int deltarot) {
+    public BlockState blockRotated(BlockState blockState, int deltarot) {
         return blockState;
     }
 
@@ -84,7 +84,7 @@ public class MovingWorldAssemblyInteractor {
 
     public CanAssemble isBlockAllowed(World world, LocatedBlock lb) {
         CanAssemble canAssemble = new CanAssemble(false, false);
-        IBlockState state = lb.state;
+        BlockState state = lb.state;
 
         canAssemble.justCancel = !(!state.getMaterial().equals(Material.AIR) && !state.getMaterial().isLiquid() && MovingWorldMod.CONFIG.isStateAllowed(state));
         canAssemble.justCancel = canAssemble.justCancel || !MovingWorldMod.CONFIG.isTileAllowed(lb.tile);
@@ -100,21 +100,21 @@ public class MovingWorldAssemblyInteractor {
         return tile instanceof TileMovingMarkingBlock;
     }
 
-    public EnumFacing getFrontDirection(LocatedBlock marker) {
+    public Direction getFrontDirection(LocatedBlock marker) {
         return marker.state.get(BlockMovingWorldMarker.FACING).getOpposite();
     }
 
     /**
      * Recommended to call writeNBTMetadata first, then write the rest of your data.
      */
-    public void writeNBTFully(NBTTagCompound tag) {
+    public void writeNBTFully(CompoundNBT tag) {
     }
 
 
     /**
      * Write metadata to NBT.
      */
-    public void writeNBTMetadata(NBTTagCompound tag) {
+    public void writeNBTMetadata(CompoundNBT tag) {
     }
 
 }

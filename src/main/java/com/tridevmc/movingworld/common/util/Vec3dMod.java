@@ -1,9 +1,13 @@
 package com.tridevmc.movingworld.common.util;
 
 
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Point3d;
 
 /**
  * Adds rotateRoll.
@@ -106,6 +110,25 @@ public class Vec3dMod extends Vec3d {
         double d0 = this.x * (double) f1 + this.y * (double) f2;
         double d1 = this.y * (double) f1 - this.x * (double) f2;
         return this.makeNewVec(d0, d1, this.z);
+    }
+
+    public Vec3dMod rotate(Direction.Axis axis, Vec3d origin, float angle) {
+        angle = (float) Math.toRadians(angle);
+        Matrix4d matrix = new Matrix4d();
+        switch (axis) {
+            case X:
+                matrix.rotX(angle);
+                break;
+            case Y:
+                matrix.rotY(angle);
+                break;
+            case Z:
+                matrix.rotZ(angle);
+                break;
+        }
+        Point3d point = new Point3d(origin.x - x, origin.y - y, origin.z - z);
+        matrix.transform(point);
+        return new Vec3dMod(origin.x + point.x, origin.y + point.y, origin.z + point.z);
     }
 
 }

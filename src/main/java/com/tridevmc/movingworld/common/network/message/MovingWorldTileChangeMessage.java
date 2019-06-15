@@ -5,9 +5,9 @@ import com.tridevmc.movingworld.common.chunk.mobilechunk.MobileChunkClient;
 import com.tridevmc.movingworld.common.entity.EntityMovingWorld;
 import com.tridevmc.compound.network.message.Message;
 import com.tridevmc.compound.network.message.RegisteredMessage;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.LogicalSide;
@@ -20,27 +20,27 @@ import net.minecraftforge.fml.LogicalSide;
 public class MovingWorldTileChangeMessage extends Message {
 
     public EntityMovingWorld movingWorld;
-    public NBTTagCompound tileData;
+    public CompoundNBT tileData;
 
     public MovingWorldTileChangeMessage() {
         super();
     }
 
-    public MovingWorldTileChangeMessage(EntityMovingWorld movingWorld, NBTTagCompound tileData) {
+    public MovingWorldTileChangeMessage(EntityMovingWorld movingWorld, CompoundNBT tileData) {
         super();
         this.movingWorld = movingWorld;
         this.tileData = tileData;
     }
 
     @Override
-    public void handle(EntityPlayer sender) {
+    public void handle(PlayerEntity sender) {
         if (movingWorld == null || tileData == null
                 || movingWorld.getMobileChunk() == null || !(movingWorld.getMobileChunk() instanceof MobileChunkClient))
             return;
 
-        NBTTagList list = tileData.getList("list", 10);
+        ListNBT list = tileData.getList("list", 10);
         for (int i = 0; i < list.size(); i++) {
-            NBTTagCompound nbt = list.getCompound(i);
+            CompoundNBT nbt = list.getCompound(i);
             if (nbt == null) continue;
             int x = nbt.getInt("x");
             int y = nbt.getInt("y");

@@ -7,7 +7,7 @@ import com.tridevmc.movingworld.common.chunk.LocatedBlock;
 import com.tridevmc.movingworld.common.rotation.RotationEnumProperty;
 import com.tridevmc.movingworld.common.rotation.RotationIntegerProperty;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.state.EnumProperty;
 import net.minecraft.state.IProperty;
 import net.minecraft.state.IntegerProperty;
@@ -28,7 +28,7 @@ public class RotationHelper {
     }
 
     public LocatedBlock rotateBlock(LocatedBlock locatedBlock, boolean ccw) {
-        IBlockState blockState = locatedBlock.state;
+        BlockState blockState = locatedBlock.state;
         if (locatedBlock.state != null) {
             IRotationBlock rotationBlock = this.getRotationBlock(locatedBlock.getBlock());
             if (rotationBlock != null) {

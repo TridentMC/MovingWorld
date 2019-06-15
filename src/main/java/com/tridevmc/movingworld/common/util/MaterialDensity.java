@@ -1,8 +1,8 @@
 package com.tridevmc.movingworld.common.util;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.HashMap;
@@ -23,7 +23,7 @@ public class MaterialDensity {
         blockDensityMap.put(ForgeRegistries.BLOCKS.getKey(block).toString(), dens);
     }
 
-    public static float getDensity(IBlockState state) {
+    public static float getDensity(BlockState state) {
         if (state == null) return DEFAULT_DENSITY;
         Float f = blockDensityMap.get(ForgeRegistries.BLOCKS.getKey(state.getBlock()).toString());
         if (f != null) return f;

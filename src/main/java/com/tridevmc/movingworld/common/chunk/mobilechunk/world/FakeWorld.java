@@ -3,35 +3,42 @@ package com.tridevmc.movingworld.common.chunk.mobilechunk.world;
 import com.tridevmc.movingworld.common.chunk.mobilechunk.FakeChunk;
 import com.tridevmc.movingworld.common.chunk.mobilechunk.MobileChunk;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.crafting.RecipeManager;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.tags.NetworkTagManager;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.EmptyTickList;
+import net.minecraft.world.IEnviromentBlockReader;
 import net.minecraft.world.ITickList;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.IChunkProvider;
+import net.minecraft.world.storage.MapData;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.LogicalSide;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 /**
  * A wrapper for MobileChunks, used to give blocks accurate information about it's neighbors.
  */
-public class FakeWorld extends World {
+public class FakeWorld extends World implements IEnviromentBlockReader {
 
     private MobileChunk mobileChunk;
 
     private FakeWorld(boolean remote, World parentWorld) {
-        super(parentWorld.getSaveHandler(), parentWorld.getSavedDataStorage(), parentWorld.getWorldInfo(),
-                parentWorld.getDimension(), parentWorld.profiler, remote);
+        super(parentWorld.getWorldInfo(), parentWorld.getDimension().getType(), (world, dimension) -> parentWorld.getChunkProvider(), parentWorld.getProfiler(), remote);
     }
 
     public static FakeWorld getFakeWorld(MobileChunk chunk) {
@@ -45,31 +52,46 @@ public class FakeWorld extends World {
         return this.getMobileChunk().getTileEntity(pos);
     }
 
-    @Override
-    public IChunkProvider createChunkProvider() {
-        return null;
-    }
 
     @Override
-    public IBlockState getBlockState(BlockPos pos) {
+    public BlockState getBlockState(BlockPos pos) {
         return this.getMobileChunk().getBlockState(pos);
     }
 
     @Override
-    public boolean setBlockState(BlockPos pos, IBlockState state) {
-        this.getMobileChunk().setBlockState(pos, state);
-        return false;
+    public void playSound(@Nullable PlayerEntity player, double x, double y, double z, SoundEvent soundIn, SoundCategory category, float volume, float pitch) {
+        Vec3d at = mobileChunk.getWorldPosForChunkPos(new Vec3d(x, y, z));
+        mobileChunk.world.playSound(player, at.x, at.y, at.z, soundIn, category, volume, pitch);
     }
 
     @Override
-    public boolean setBlockState(BlockPos pos, IBlockState state, int flags) {
-        this.getMobileChunk().setBlockState(pos, state);
-        return false;
+    public void playMovingSound(@Nullable PlayerEntity p_217384_1_, Entity p_217384_2_, SoundEvent p_217384_3_, SoundCategory p_217384_4_, float p_217384_5_, float p_217384_6_) {
+        mobileChunk.world.playMovingSound(p_217384_1_, p_217384_2_, p_217384_3_, p_217384_4_, p_217384_5_, p_217384_6_);
+    }
+
+    @Override
+    public boolean setBlockState(BlockPos pos, BlockState state) {
+        return this.getMobileChunk().setBlockState(pos, state);
+    }
+
+    @Override
+    public void notifyBlockUpdate(BlockPos pos, BlockState oldState, BlockState newState, int flags) {
+    }
+
+    @Override
+    public boolean setBlockState(BlockPos pos, BlockState state, int flags) {
+        return this.getMobileChunk().setBlockState(pos, state, flags);
     }
 
     @Override
     public void setTileEntity(BlockPos pos, @Nullable TileEntity tileEntityIn) {
         this.getMobileChunk().setTileEntity(pos, tileEntityIn);
+    }
+
+    @Nullable
+    @Override
+    public Entity getEntityByID(int id) {
+        return null;
     }
 
     @Override
@@ -85,16 +107,6 @@ public class FakeWorld extends World {
     }
 
     @Override
-    public boolean isBlockLoaded(BlockPos pos, boolean allowEmpty) {
-        return this.isValidPosition(pos);
-    }
-
-    @Override
-    public boolean isChunkLoaded(int x, int z, boolean allowEmpty) {
-        return this.isValidPosition(new BlockPos(x << 4, 0, z << 4));
-    }
-
-    @Override
     public float getBrightness(BlockPos pos) {
         return this.getBlockState(pos).getLightValue(this.getMobileChunk(), pos);
     }
@@ -107,6 +119,27 @@ public class FakeWorld extends World {
     @Override
     public long getDayTime() {
         return this.getMobileChunk().world.getDayTime();
+    }
+
+    @Nullable
+    @Override
+    public MapData func_217406_a(String p_217406_1_) {
+        return mobileChunk.world.func_217406_a(p_217406_1_);
+    }
+
+    @Override
+    public void func_217399_a(MapData p_217399_1_) {
+        mobileChunk.world.func_217399_a(p_217399_1_);
+    }
+
+    @Override
+    public int getNextMapId() {
+        return mobileChunk.world.getNextMapId();
+    }
+
+    @Override
+    public void sendBlockBreakProgress(int breakerId, BlockPos pos, int progress) {
+        // NO-OP
     }
 
     @Override
@@ -132,7 +165,7 @@ public class FakeWorld extends World {
 
     @Override
     public Chunk getChunk(int chunkX, int chunkZ) {
-        return new FakeChunk(this.getMobileChunk(), chunkX, chunkZ, new Biome[]{this.mobileChunk.getCreationSpotBiome()});
+        return new FakeChunk(this.getMobileChunk(), new ChunkPos(chunkX, chunkZ), new Biome[]{this.mobileChunk.getCreationSpotBiome()});
     }
 
     public MobileChunk getMobileChunk() {
@@ -151,5 +184,15 @@ public class FakeWorld extends World {
     @Override
     public ITickList<Fluid> getPendingFluidTicks() {
         return new EmptyTickList<>();
+    }
+
+    @Override
+    public void playEvent(@Nullable PlayerEntity player, int type, BlockPos pos, int data) {
+
+    }
+
+    @Override
+    public List<? extends PlayerEntity> getPlayers() {
+        return null;
     }
 }

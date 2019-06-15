@@ -6,7 +6,7 @@ import com.tridevmc.movingworld.common.chunk.MovingWorldAssemblyInteractor;
 import com.tridevmc.movingworld.common.chunk.MovingWorldSizeOverflowException;
 import com.tridevmc.movingworld.common.event.AssembleBlockEvent;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
@@ -76,7 +76,7 @@ public class ChunkAssembler {
 
                 closedSet.add(mobileChunkPos);
 
-                IBlockState blockState = worldObj.getBlockState(worldPos);
+                BlockState blockState = worldObj.getBlockState(worldPos);
                 CanAssemble canAssemble = canUseBlockForVehicle(new LocatedBlock(blockState, worldObj.getTileEntity(worldPos), worldPos), assemblyInteractor);
 
                 if (canAssemble.justCancel) {
@@ -133,7 +133,7 @@ public class ChunkAssembler {
         if (set.contains(pos)) return;
 
         set.add(pos);
-        IBlockState blockState = worldObj.getBlockState(pos);
+        BlockState blockState = worldObj.getBlockState(pos);
         Block block = blockState.getBlock();
 
         CanAssemble canAssemble = canUseBlockForVehicle(new LocatedBlock(blockState, worldObj.getTileEntity(pos), pos), assemblyInteractor);

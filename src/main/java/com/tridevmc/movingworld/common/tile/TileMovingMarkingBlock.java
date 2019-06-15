@@ -8,26 +8,21 @@ import com.tridevmc.movingworld.common.chunk.assembly.ChunkAssembler;
 import com.tridevmc.movingworld.common.entity.EntityMovingWorld;
 import com.tridevmc.movingworld.common.entity.MovingWorldInfo;
 import com.tridevmc.movingworld.common.util.LocatedBlockList;
-import com.tridevmc.compound.core.reflect.WrappedField;
-import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SPacketUpdateTileEntity;
+import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import java.util.UUID;
 
 public abstract class TileMovingMarkingBlock extends TileEntity implements IMovingTile {
-
-    private static final WrappedField<IBlockState> TILE_STATE = WrappedField.create(TileEntity.class, new String[]{"cachedBlockState", "field_195045_e"});
 
     public LocatedBlockList removedFluidBlocks; // A list of fluid blocks that were destroyed last disassemble, used to fill back in when we reassemble.
     private AssembleResult assembleResult, prevResult;
@@ -72,7 +67,7 @@ public abstract class TileMovingMarkingBlock extends TileEntity implements IMovi
      */
     public abstract EntityMovingWorld getMovingWorld(World worldObj);
 
-    public boolean assembleMovingWorld(EntityPlayer player) {
+    public boolean assembleMovingWorld(PlayerEntity player) {
         boolean returnVal = false;
 
         if (!this.world.isRemote) {
@@ -82,31 +77,31 @@ public abstract class TileMovingMarkingBlock extends TileEntity implements IMovi
             this.assembleResult = assembler.doAssemble(interactor);
 
             this.assembledMovingWorld(player, returnVal);
-
             this.setInteractor(interactor);
-            TextComponentString c;
+
+            StringTextComponent c;
             switch (this.assembleResult.getType()) {
                 case RESULT_OK:
-                    c = new TextComponentString("Assembled " + this.getInfo().getName() + "!");
+                    c = new StringTextComponent("Assembled " + this.getInfo().getName() + "!");
                     player.sendStatusMessage(c, true);
                     break;
                 case RESULT_OK_WITH_WARNINGS:
                     returnVal = true;
                 case RESULT_BLOCK_OVERFLOW:
-                    c = new TextComponentString(
+                    c = new StringTextComponent(
                             "Cannot create moving world with more than " + this.getMaxBlocks() + " blocks");
                     player.sendStatusMessage(c, true);
                     break;
                 case RESULT_MISSING_MARKER:
-                    c = new TextComponentString("Cannot create moving world with no moving world marker");
+                    c = new StringTextComponent("Cannot create moving world with no moving world marker");
                     player.sendStatusMessage(c, true);
                     break;
                 case RESULT_ERROR_OCCURED:
-                    c = new TextComponentString("An error occured while assembling moving world. See console log for details.");
+                    c = new StringTextComponent("An error occurred while assembling moving world. See console log for details.");
                     player.sendStatusMessage(c, true);
                     break;
                 case RESULT_NONE:
-                    c = new TextComponentString("Nothing was assembled");
+                    c = new StringTextComponent("Nothing was assembled");
                     player.sendStatusMessage(c, true);
                     break;
                 default:
@@ -115,11 +110,11 @@ public abstract class TileMovingMarkingBlock extends TileEntity implements IMovi
         return returnVal;
     }
 
-    public void assembledMovingWorld(EntityPlayer player, boolean returnVal) {
+    public void assembledMovingWorld(PlayerEntity player, boolean returnVal) {
         //No Implementation.
     }
 
-    public boolean mountMovingWorld(EntityPlayer player, EntityMovingWorld movingWorld) {
+    public boolean mountMovingWorld(PlayerEntity player, EntityMovingWorld movingWorld) {
         if (!this.world.isRemote) {
             if (this.assembleResult != null && this.assembleResult.isOK()) {
                 this.assembleResult.checkConsistent(this.world);
@@ -128,7 +123,7 @@ public abstract class TileMovingMarkingBlock extends TileEntity implements IMovi
                     return false;
                 }
                 if (this.assembleResult.getType() == AssembleResult.ResultType.RESULT_OK_WITH_WARNINGS) {
-                    ITextComponent c = new TextComponentString("Moving world contains changes");
+                    ITextComponent c = new StringTextComponent("Moving world contains changes");
                     player.sendStatusMessage(c, true);
                 }
 
@@ -137,7 +132,7 @@ public abstract class TileMovingMarkingBlock extends TileEntity implements IMovi
                 EntityMovingWorld entity = this.assembleResult.getEntity(this.world, movingWorld);
                 if (entity != null) {
                     entity.setInfo(this.getInfo());
-                    if (this.world.spawnEntity(entity)) {
+                    if (this.world.addEntity(entity)) {
                         player.startRiding(entity);
                         this.assembleResult = null;
                         return true;
@@ -149,20 +144,20 @@ public abstract class TileMovingMarkingBlock extends TileEntity implements IMovi
         return false;
     }
 
-    public void undoCompilation(EntityPlayer player) {
+    public void undoCompilation(PlayerEntity player) {
         this.assembleResult = this.prevResult;
         this.prevResult = null;
     }
 
     @Override
-    public SPacketUpdateTileEntity getUpdatePacket() {
-        NBTTagCompound compound = new NBTTagCompound();
+    public SUpdateTileEntityPacket getUpdatePacket() {
+        CompoundNBT compound = new CompoundNBT();
         this.writeNBTForSending(compound);
-        return new SPacketUpdateTileEntity(this.pos, 0, compound);
+        return new SUpdateTileEntityPacket(this.pos, 0, compound);
     }
 
     @Override
-    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity packet) {
+    public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket packet) {
         this.read(packet.getNbtCompound());
     }
 
@@ -174,17 +169,16 @@ public abstract class TileMovingMarkingBlock extends TileEntity implements IMovi
      * @param stage can be 1, 2, or 3 this represents the stage of the method we're at. more information can be viewed
      *              at the github repo to see when your code will be executed. http://github.com/elytra/MovingWorld
      */
-    public void mountedMovingWorld(EntityPlayer player, EntityMovingWorld movingWorld, MountStage stage) {
+    public void mountedMovingWorld(PlayerEntity player, EntityMovingWorld movingWorld, MountStage stage) {
     }
 
     @Override
-    public void read(NBTTagCompound tag) {
+    public void read(CompoundNBT tag) {
         super.read(tag);
         this.getInfo().setName(tag.getString("name"));
         if (tag.contains("owner")) {
             this.getInfo().setOwner(UUID.fromString(tag.getString("owner")));
         }
-        TILE_STATE.set(this, Block.getStateById(tag.getInt("state")));
         if (tag.contains("ship") && this.world != null) {
             int id = tag.getInt("ship");
             Entity entity = this.world.getEntityByID(id);
@@ -198,22 +192,22 @@ public abstract class TileMovingMarkingBlock extends TileEntity implements IMovi
         }
         if (tag.contains("removedFluidCompounds")) {
             this.removedFluidBlocks = new LocatedBlockList();
-            NBTTagCompound removedFluidCompound = tag.getCompound("removedFluidCompounds");
+            CompoundNBT removedFluidCompound = tag.getCompound("removedFluidCompounds");
             int tagIndex = 0;
 
             while (removedFluidCompound.contains("block#" + tagIndex)) {
-                NBTTagCompound lbTag = removedFluidCompound.getCompound("block#" + tagIndex);
+                CompoundNBT lbTag = removedFluidCompound.getCompound("block#" + tagIndex);
                 LocatedBlock locatedBlock = new LocatedBlock(lbTag, this.world);
 
                 this.removedFluidBlocks.add(locatedBlock);
                 tagIndex++;
             }
-            tag.put("removedFluidCompounds", new NBTTagCompound());
+            tag.put("removedFluidCompounds", new CompoundNBT());
         }
     }
 
     @Override
-    public NBTTagCompound write(NBTTagCompound tag) {
+    public CompoundNBT write(CompoundNBT tag) {
         tag = super.write(tag);
 
         tag.putString("name", this.getInfo().getName());
@@ -221,23 +215,22 @@ public abstract class TileMovingMarkingBlock extends TileEntity implements IMovi
             tag.putString("owner", this.getInfo().getOwner().toString());
         }
 
-        tag.putInt("state", Block.getStateId(TILE_STATE.get(this)));
         tag.putString("name", this.getInfo().getName());
         if (this.getParentMovingWorld() != null && !this.getParentMovingWorld().removed) {
             tag.putInt("movingWorld", this.getParentMovingWorld().getEntityId());
         }
         if (this.assembleResult != null) {
-            NBTTagCompound comp = new NBTTagCompound();
+            CompoundNBT comp = new CompoundNBT();
             this.assembleResult.writeNBTFully(comp);
             this.assembleResult.assemblyInteractor.writeNBTFully(comp);
             tag.put("res", comp);
             // Where the hell did this go in the transition to MovingWorld? Lost to the ether I suppose.
         }
         if (this.removedFluidBlocks != null && !this.removedFluidBlocks.isEmpty()) {
-            NBTTagCompound removedFluidCompound = new NBTTagCompound();
+            CompoundNBT removedFluidCompound = new CompoundNBT();
             for (int i = 0; i < this.removedFluidBlocks.size(); i++) {
                 LocatedBlock locatedBlock = this.removedFluidBlocks.get(i);
-                NBTTagCompound lbTag = new NBTTagCompound();
+                CompoundNBT lbTag = new CompoundNBT();
                 locatedBlock.writeToNBT(lbTag);
 
                 removedFluidCompound.put("block#" + i, lbTag);
@@ -248,9 +241,8 @@ public abstract class TileMovingMarkingBlock extends TileEntity implements IMovi
         return tag;
     }
 
-    public void writeNBTForSending(NBTTagCompound tag) {
+    public void writeNBTForSending(CompoundNBT tag) {
         super.write(tag);
-        tag.putInt("state", Block.getStateId(TILE_STATE.get(this)));
         tag.putString("name", this.getInfo().getName());
 
         if (this.getParentMovingWorld() != null && !this.getParentMovingWorld().removed) {
@@ -258,7 +250,7 @@ public abstract class TileMovingMarkingBlock extends TileEntity implements IMovi
         }
 
         if (this.assembleResult != null) {
-            NBTTagCompound comp = new NBTTagCompound();
+            CompoundNBT comp = new CompoundNBT();
             this.assembleResult.writeNBTMetadata(comp);
             this.assembleResult.assemblyInteractor.writeNBTMetadata(comp);
             tag.put("res", comp);

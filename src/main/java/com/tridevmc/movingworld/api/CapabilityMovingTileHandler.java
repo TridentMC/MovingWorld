@@ -2,12 +2,12 @@ package com.tridevmc.movingworld.api;
 
 import com.tridevmc.movingworld.common.chunk.mobilechunk.MobileChunk;
 import com.tridevmc.movingworld.common.entity.EntityMovingWorld;
-import net.minecraft.nbt.INBTBase;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.INBT;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.WorldServer;
+import net.minecraft.world.ServerWorld;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
@@ -25,8 +25,8 @@ public class CapabilityMovingTileHandler {
     private static void register() {
         CapabilityManager.INSTANCE.register(IMovingTile.class, new Capability.IStorage<IMovingTile>() {
             @Override
-            public INBTBase writeNBT(Capability<IMovingTile> capability, IMovingTile instance, EnumFacing side) {
-                NBTTagCompound compound = new NBTTagCompound();
+            public INBT writeNBT(Capability<IMovingTile> capability, IMovingTile instance, Direction side) {
+                CompoundNBT compound = new CompoundNBT();
 
                 if (instance.getChunkPos() == null || instance.getParentMovingWorld() == null) {
                     compound.putBoolean("Empty", true);
@@ -41,15 +41,15 @@ public class CapabilityMovingTileHandler {
             }
 
             @Override
-            public void readNBT(Capability<IMovingTile> capability, IMovingTile instance, EnumFacing side, INBTBase nbt) {
-                if (nbt instanceof NBTTagCompound) {
-                    NBTTagCompound compound = (NBTTagCompound) nbt;
+            public void readNBT(Capability<IMovingTile> capability, IMovingTile instance, Direction side, INBT nbt) {
+                if (nbt instanceof CompoundNBT) {
+                    CompoundNBT compound = (CompoundNBT) nbt;
 
                     if (!compound.getBoolean("Empty")) {
                         DimensionType dimension = DimensionType.getById(compound.getInt("Dimension"));
                         MinecraftServer server = LogicalSidedProvider.INSTANCE.get(LogicalSide.SERVER);
-                        WorldServer world = server.getWorld(dimension);
-                        instance.setParentMovingWorld((EntityMovingWorld) world.getEntityFromUuid(compound.getUniqueId("MovingWorldID")));
+                        ServerWorld world = server.getWorld(dimension);
+                        instance.setParentMovingWorld((EntityMovingWorld) world.getEntityByUuid(compound.getUniqueId("MovingWorldID")));
                         instance.setChunkPos(BlockPos.fromLong(compound.getLong("ChunkPos")));
                     }
                 }
