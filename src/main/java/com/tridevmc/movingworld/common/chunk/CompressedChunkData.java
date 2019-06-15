@@ -59,7 +59,7 @@ public class CompressedChunkData {
 
         try {
             this.readCompressed(Unpooled.wrappedBuffer(from));
-        } catch (IOException e){
+        } catch (IOException e) {
             MovingWorldMod.LOG.error("Failed to load mobile chunk data from compressed data. {}", e);
         }
     }

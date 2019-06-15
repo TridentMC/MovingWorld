@@ -120,7 +120,7 @@ public class AssembleResult {
             return null;
         }
 
-        world.getGameRules().setOrCreateGameRule("doTileDrops", String.valueOf(doTileDropsInWorld),server);
+        world.getGameRules().setOrCreateGameRule("doTileDrops", String.valueOf(doTileDropsInWorld), server);
 
         entity.getMobileChunk().setChunkModified();
         entity.getMobileChunk().onChunkLoad();

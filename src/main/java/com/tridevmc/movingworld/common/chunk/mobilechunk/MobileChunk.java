@@ -213,12 +213,12 @@ public abstract class MobileChunk implements IWorld, IWorldReader {
         return this.maxBounds.getZ();
     }
 
-    public void setCreationSpotBiome(Biome biome) {
-        this.creationSpotBiome = biome;
-    }
-
     public Biome getCreationSpotBiome() {
         return this.creationSpotBiome;
+    }
+
+    public void setCreationSpotBiome(Biome biome) {
+        this.creationSpotBiome = biome;
     }
 
     public boolean addBlockWithState(BlockPos pos, BlockState state) {

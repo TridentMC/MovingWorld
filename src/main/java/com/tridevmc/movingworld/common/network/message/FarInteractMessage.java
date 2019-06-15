@@ -1,8 +1,8 @@
 package com.tridevmc.movingworld.common.network.message;
 
-import com.tridevmc.movingworld.common.entity.EntityMovingWorld;
 import com.tridevmc.compound.network.message.Message;
 import com.tridevmc.compound.network.message.RegisteredMessage;
+import com.tridevmc.movingworld.common.entity.EntityMovingWorld;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Hand;
 import net.minecraftforge.fml.LogicalSide;

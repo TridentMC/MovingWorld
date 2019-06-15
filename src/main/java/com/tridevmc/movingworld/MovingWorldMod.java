@@ -1,11 +1,11 @@
 package com.tridevmc.movingworld;
 
+import com.tridevmc.compound.config.CompoundConfig;
+import com.tridevmc.compound.network.core.CompoundNetwork;
 import com.tridevmc.movingworld.client.ClientProxy;
 import com.tridevmc.movingworld.common.CommonProxy;
 import com.tridevmc.movingworld.common.config.MovingWorldConfig;
 import com.tridevmc.movingworld.common.config.priority.MovingWorldAssemblePriorityConfig;
-import com.tridevmc.compound.config.CompoundConfig;
-import com.tridevmc.compound.network.core.CompoundNetwork;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModContainer;

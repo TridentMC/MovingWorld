@@ -1,8 +1,8 @@
 package com.tridevmc.movingworld.common.chunk.mobilechunk;
 
+import com.google.common.collect.Maps;
 import com.tridevmc.movingworld.client.render.MobileChunkRenderer;
 import com.tridevmc.movingworld.common.entity.EntityMovingWorld;
-import com.google.common.collect.Maps;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;

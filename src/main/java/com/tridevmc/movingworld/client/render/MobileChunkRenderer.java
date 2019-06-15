@@ -34,6 +34,7 @@ import java.util.Map;
 
 @OnlyIn(Dist.CLIENT)
 public class MobileChunkRenderer {
+    public static boolean hasOptifine = ModList.get().isLoaded("optifine");
     /**
      * Boolean for whether this renderer needs to be updated or not
      */
@@ -41,7 +42,6 @@ public class MobileChunkRenderer {
     public boolean isRemoved;
     public LegacyRender legacyRender = new LegacyRender();
     public VBORender vboRender = new VBORender();
-    public static boolean hasOptifine = ModList.get().isLoaded("optifine");
     private boolean usingVBOs = useVBO();
     private MobileChunkClient chunk;
 
@@ -52,7 +52,7 @@ public class MobileChunkRenderer {
     }
 
     public boolean useVBO() {
-        return !hasOptifine;
+        return GLX.useVbo() && !hasOptifine;
     }
 
     public void render(float partialTicks) {
@@ -178,14 +178,14 @@ public class MobileChunkRenderer {
                 for (int z = chunk.minZ(); z < chunk.maxZ(); ++z) {
                     for (int x = chunk.minX(); x < chunk.maxX(); ++x) {
                         BlockPos pos = new BlockPos(x, y, z);
-                        BlockState blockState = chunk.getBlockState(pos);
-                        Block block = blockState.getBlock();
+                        BlockState state = chunk.getBlockState(pos);
+                        Block block = state.getBlock();
 
                         for (BlockRenderLayer blockRenderLayer : BlockRenderLayer.values()) {
-                            if (!block.canRenderInLayer(blockState, blockRenderLayer)
-                                    || blockState.getRenderType().equals(BlockRenderType.INVISIBLE)) continue;
+                            if (!block.canRenderInLayer(state, blockRenderLayer)
+                                    || state.getRenderType().equals(BlockRenderType.INVISIBLE)) continue;
 
-                            blockRenderMap.get(blockRenderLayer).add(new Tuple<>(pos, blockState));
+                            blockRenderMap.get(blockRenderLayer).add(new Tuple<>(pos, state));
                         }
                     }
                 }
@@ -236,14 +236,14 @@ public class MobileChunkRenderer {
                 for (int z = chunk.minZ(); z < chunk.maxZ(); ++z) {
                     for (int x = chunk.minX(); x < chunk.maxX(); ++x) {
                         BlockPos pos = new BlockPos(x, y, z);
-                        BlockState blockState = chunk.getBlockState(pos);
-                        Block block = blockState.getBlock();
+                        BlockState state = chunk.getBlockState(pos);
+                        Block block = state.getBlock();
 
                         for (BlockRenderLayer blockRenderLayer : BlockRenderLayer.values()) {
-                            if (!block.canRenderInLayer(blockState, blockRenderLayer)
-                                    || blockState.getRenderType().equals(BlockRenderType.INVISIBLE)) continue;
+                            if (!block.canRenderInLayer(state, blockRenderLayer)
+                                    || state.getRenderType().equals(BlockRenderType.INVISIBLE)) continue;
 
-                            blockRenderMap.get(blockRenderLayer).add(new Tuple<>(pos, blockState));
+                            blockRenderMap.get(blockRenderLayer).add(new Tuple<>(pos, state));
                         }
                     }
                 }
@@ -260,9 +260,7 @@ public class MobileChunkRenderer {
                 bufferBuilder.begin(7, DefaultVertexFormats.BLOCK);
                 for (Tuple<BlockPos, BlockState> datum : data) {
                     bufferBuilder.color(1.0F, 1.0F, 1.0F, 1.0F);
-                    //TODO: Generate model data and cache it maybe? Forge handles model data on it's own so
-                    //TODO: blocks wont actually be able to ask for an update we'll just have to assume every x ticks or something.
-                    blockDispatcher.renderBlock(datum.getB(), datum.getA(), chunk, bufferBuilder, chunk.getFakeWorld().getRandom(), EmptyModelData.INSTANCE);
+                    blockDispatcher.renderBlock(datum.getB(), datum.getA(), chunk.getFakeWorld(), bufferBuilder, chunk.getFakeWorld().getRandom(), EmptyModelData.INSTANCE);
                 }
                 bufferBuilder.sortVertexData((float) TileEntityRendererDispatcher.staticPlayerX,
                         (float) TileEntityRendererDispatcher.staticPlayerY,
@@ -277,15 +275,14 @@ public class MobileChunkRenderer {
             VertexBuffer vbo = vertexBuffers[layer.ordinal()];
             if (vbo == null)
                 return;
-
-            GlStateManager.pushMatrix();
+            Minecraft.getInstance().gameRenderer.enableLightmap();
 
             GlStateManager.enableClientState(32884);
-            GlStateManager.activeTexture(getDefaultTexUnit());
+            GLX.glClientActiveTexture(GLX.GL_TEXTURE0);
             GlStateManager.enableClientState(32888);
-            GlStateManager.activeTexture(getLightmapTexUnit());
+            GLX.glClientActiveTexture(GLX.GL_TEXTURE1);
             GlStateManager.enableClientState(32888);
-            GlStateManager.activeTexture(getDefaultTexUnit());
+            GLX.glClientActiveTexture(GLX.GL_TEXTURE0);
             GlStateManager.enableClientState(32886);
 
             GlStateManager.pushMatrix();
@@ -293,37 +290,37 @@ public class MobileChunkRenderer {
             setupArrayPointers();
             vbo.drawArrays(7);
             GlStateManager.popMatrix();
-            GLX.glBindBuffer(GLX.GL_ARRAY_BUFFER, 0);
+            VertexBuffer.unbindBuffer();
             GlStateManager.clearCurrentColor();
 
             for (VertexFormatElement vertexformatelement : DefaultVertexFormats.BLOCK.getElements()) {
-                VertexFormatElement.Usage elementUsage = vertexformatelement.getUsage();
+                VertexFormatElement.Usage vertexformatelement$usage = vertexformatelement.getUsage();
                 int i = vertexformatelement.getIndex();
-
-                switch (elementUsage) {
+                switch (vertexformatelement$usage) {
                     case POSITION:
                         GlStateManager.disableClientState(32884);
                         break;
                     case UV:
-                        GlStateManager.activeTexture(getDefaultTexUnit() + i);
+                        GLX.glClientActiveTexture(GLX.GL_TEXTURE0 + i);
                         GlStateManager.disableClientState(32888);
-                        GlStateManager.activeTexture(getDefaultTexUnit());
+                        GLX.glClientActiveTexture(GLX.GL_TEXTURE0);
                         break;
                     case COLOR:
                         GlStateManager.disableClientState(32886);
                         GlStateManager.clearCurrentColor();
                 }
             }
-            GlStateManager.popMatrix();
+
+            Minecraft.getInstance().gameRenderer.disableLightmap();
         }
 
         private void setupArrayPointers() {
             GlStateManager.vertexPointer(3, 5126, 28, 0);
             GlStateManager.colorPointer(4, 5121, 28, 12);
             GlStateManager.texCoordPointer(2, 5126, 28, 16);
-            GlStateManager.activeTexture(getLightmapTexUnit());
+            GLX.glClientActiveTexture(GLX.GL_TEXTURE1);
             GlStateManager.texCoordPointer(2, 5122, 28, 24);
-            GlStateManager.activeTexture(getDefaultTexUnit());
+            GLX.glClientActiveTexture(GLX.GL_TEXTURE0);
         }
 
         public void remove() {
@@ -353,14 +350,6 @@ public class MobileChunkRenderer {
             GlStateManager.disableCull();
             RenderHelper.enableStandardItemLighting();
             GlStateManager.popMatrix();
-        }
-
-        public int getDefaultTexUnit() {
-            return GLX.GL_TEXTURE0;
-        }
-
-        public int getLightmapTexUnit() {
-            return GLX.GL_TEXTURE1;
         }
     }
 

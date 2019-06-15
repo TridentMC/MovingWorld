@@ -1,8 +1,8 @@
 package com.tridevmc.movingworld.common.util;
 
+import com.google.common.collect.HashBiMap;
 import com.tridevmc.movingworld.MovingWorldMod;
 import com.tridevmc.movingworld.common.chunk.LocatedBlock;
-import com.google.common.collect.HashBiMap;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.ArrayList;

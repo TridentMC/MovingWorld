@@ -354,7 +354,7 @@ public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdd
     }
 
     public void setRealBoundingBox(NonAlignedBoundingBox realBoundingBox) {
-        if (!this.getRealBoundingBox().equals(realBoundingBox))
+        if (!Objects.equals(this.getRealBoundingBox(), realBoundingBox))
             this.realBoundingBox = realBoundingBox;
     }
 

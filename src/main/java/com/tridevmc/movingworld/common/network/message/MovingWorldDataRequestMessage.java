@@ -1,10 +1,10 @@
 package com.tridevmc.movingworld.common.network.message;
 
 
-import com.tridevmc.movingworld.common.entity.EntityMovingWorld;
-import com.tridevmc.movingworld.common.tile.TileMovingMarkingBlock;
 import com.tridevmc.compound.network.message.Message;
 import com.tridevmc.compound.network.message.RegisteredMessage;
+import com.tridevmc.movingworld.common.entity.EntityMovingWorld;
+import com.tridevmc.movingworld.common.tile.TileMovingMarkingBlock;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;

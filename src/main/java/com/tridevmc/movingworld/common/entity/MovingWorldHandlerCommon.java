@@ -2,8 +2,8 @@ package com.tridevmc.movingworld.common.entity;
 
 import com.tridevmc.movingworld.MovingWorldMod;
 import com.tridevmc.movingworld.common.chunk.mobilechunk.MobileChunk;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;

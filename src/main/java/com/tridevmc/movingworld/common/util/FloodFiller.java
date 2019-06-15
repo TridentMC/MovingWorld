@@ -41,7 +41,7 @@ public class FloodFiller {
             if (lbPos.getX() > (mobileChunk.maxX() - 1) || lbPos.getX() < mobileChunk.minX() ||
                     lbPos.getY() > (mobileChunk.maxY() - 1) || lbPos.getY() < mobileChunk.minY() ||
                     lbPos.getZ() > (mobileChunk.maxZ() - 1) || lbPos.getZ() < mobileChunk.minZ()
-                    ) {
+            ) {
                 lbIterator.remove();
             }
         }
@@ -63,7 +63,7 @@ public class FloodFiller {
                 if (x > mobileChunk.maxX() || x < mobileChunk.minX() - 1 ||
                         y > mobileChunk.maxY() + 1 || y < mobileChunk.minY() - 1 ||
                         z > mobileChunk.maxZ() || z < mobileChunk.minZ() - 1
-                        ) {
+                ) {
                     continue;
                 }
 
