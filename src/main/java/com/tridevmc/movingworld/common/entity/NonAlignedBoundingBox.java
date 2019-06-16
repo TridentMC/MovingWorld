@@ -19,35 +19,68 @@ import java.util.Objects;
 public class NonAlignedBoundingBox {
 
     private final AxisAlignedBB bb;
-    private final float angle;
+    private final float xAngle, yAngle, zAngle;
 
     private final Vec3dMod point0, point1, point2, point3, point4, point5, point6, point7;
 
-    public NonAlignedBoundingBox(AxisAlignedBB bb, float angle) {
+    public NonAlignedBoundingBox(AxisAlignedBB bb, float xAngle, float yAngle, float zAngle) {
         this.bb = bb;
-        this.angle = angle;
+        this.xAngle = xAngle;
+        this.yAngle = yAngle;
+        this.zAngle = zAngle;
 
-        this.point0 = new Vec3dMod(bb.minX, bb.minY, bb.minZ).rotate(Direction.Axis.Y, bb.getCenter(), angle);
-        this.point1 = new Vec3dMod(bb.maxX, bb.minY, bb.minZ).rotate(Direction.Axis.Y, bb.getCenter(), angle);
-        this.point2 = new Vec3dMod(bb.maxX, bb.minY, bb.maxZ).rotate(Direction.Axis.Y, bb.getCenter(), angle);
-        this.point3 = new Vec3dMod(bb.minX, bb.minY, bb.maxZ).rotate(Direction.Axis.Y, bb.getCenter(), angle);
-
-        this.point4 = new Vec3dMod(bb.minX, bb.maxY, bb.minZ).rotate(Direction.Axis.Y, bb.getCenter(), angle);
-        this.point5 = new Vec3dMod(bb.maxX, bb.maxY, bb.minZ).rotate(Direction.Axis.Y, bb.getCenter(), angle);
-        this.point6 = new Vec3dMod(bb.maxX, bb.maxY, bb.maxZ).rotate(Direction.Axis.Y, bb.getCenter(), angle);
-        this.point7 = new Vec3dMod(bb.minX, bb.maxY, bb.maxZ).rotate(Direction.Axis.Y, bb.getCenter(), angle);
+        this.point0 = new Vec3dMod(bb.minX, bb.minY, bb.minZ)
+                .rotate(Direction.Axis.X, bb.getCenter(), xAngle)
+                .rotate(Direction.Axis.Y, bb.getCenter(), yAngle)
+                .rotate(Direction.Axis.Z, bb.getCenter(), zAngle);
+        this.point1 = new Vec3dMod(bb.maxX, bb.minY, bb.minZ)
+                .rotate(Direction.Axis.X, bb.getCenter(), xAngle)
+                .rotate(Direction.Axis.Y, bb.getCenter(), yAngle)
+                .rotate(Direction.Axis.Z, bb.getCenter(), zAngle);
+        this.point2 = new Vec3dMod(bb.maxX, bb.minY, bb.maxZ)
+                .rotate(Direction.Axis.X, bb.getCenter(), xAngle)
+                .rotate(Direction.Axis.Y, bb.getCenter(), yAngle)
+                .rotate(Direction.Axis.Z, bb.getCenter(), zAngle);
+        this.point3 = new Vec3dMod(bb.minX, bb.minY, bb.maxZ)
+                .rotate(Direction.Axis.X, bb.getCenter(), xAngle)
+                .rotate(Direction.Axis.Y, bb.getCenter(), yAngle)
+                .rotate(Direction.Axis.Z, bb.getCenter(), zAngle);
+        this.point4 = new Vec3dMod(bb.minX, bb.maxY, bb.minZ)
+                .rotate(Direction.Axis.X, bb.getCenter(), xAngle)
+                .rotate(Direction.Axis.Y, bb.getCenter(), yAngle)
+                .rotate(Direction.Axis.Z, bb.getCenter(), zAngle);
+        this.point5 = new Vec3dMod(bb.maxX, bb.maxY, bb.minZ)
+                .rotate(Direction.Axis.X, bb.getCenter(), xAngle)
+                .rotate(Direction.Axis.Y, bb.getCenter(), yAngle)
+                .rotate(Direction.Axis.Z, bb.getCenter(), zAngle);
+        this.point6 = new Vec3dMod(bb.maxX, bb.maxY, bb.maxZ)
+                .rotate(Direction.Axis.X, bb.getCenter(), xAngle)
+                .rotate(Direction.Axis.Y, bb.getCenter(), yAngle)
+                .rotate(Direction.Axis.Z, bb.getCenter(), zAngle);
+        this.point7 = new Vec3dMod(bb.minX, bb.maxY, bb.maxZ)
+                .rotate(Direction.Axis.X, bb.getCenter(), xAngle)
+                .rotate(Direction.Axis.Y, bb.getCenter(), yAngle)
+                .rotate(Direction.Axis.Z, bb.getCenter(), zAngle);
     }
 
     public NonAlignedBoundingBox(AxisAlignedBB bb) {
-        this(bb, 0);
+        this(bb, 0, 0, 0);
     }
 
     public AxisAlignedBB getBb() {
         return bb;
     }
 
-    public float getAngle() {
-        return angle;
+    public float getXAngle() {
+        return xAngle;
+    }
+
+    public float getYAngle() {
+        return yAngle;
+    }
+
+    public float getZAngle() {
+        return zAngle;
     }
 
     public Vec3dMod getPoint0() {
@@ -124,20 +157,24 @@ public class NonAlignedBoundingBox {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         NonAlignedBoundingBox that = (NonAlignedBoundingBox) o;
-        return Float.compare(that.getAngle(), getAngle()) == 0 &&
+        return Float.compare(that.getXAngle(), getXAngle()) == 0 &&
+                Float.compare(that.getYAngle(), getYAngle()) == 0 &&
+                Float.compare(that.getZAngle(), getZAngle()) == 0 &&
                 Objects.equals(getBb(), that.getBb());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getBb(), getAngle());
+        return Objects.hash(getBb(), getXAngle(), getYAngle(), getZAngle());
     }
 
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
                 .add("bb", bb)
-                .add("angle", angle)
+                .add("xAngle", xAngle)
+                .add("yAngle", yAngle)
+                .add("zAngle", zAngle)
                 .add("point0", point0)
                 .add("point1", point1)
                 .add("point2", point2)

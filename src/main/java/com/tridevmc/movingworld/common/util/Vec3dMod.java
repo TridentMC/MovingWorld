@@ -113,6 +113,9 @@ public class Vec3dMod extends Vec3d {
     }
 
     public Vec3dMod rotate(Direction.Axis axis, Vec3d origin, float angle) {
+        if (angle == 0)
+            return new Vec3dMod(this);
+
         angle = (float) Math.toRadians(angle);
         Matrix4d matrix = new Matrix4d();
         switch (axis) {

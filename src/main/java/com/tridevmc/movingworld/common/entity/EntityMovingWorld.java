@@ -291,6 +291,7 @@ public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdd
 
     @Override
     public void move(MoverType typeIn, Vec3d pos) {
+        this.setRotatedBoundingBox();
         super.move(typeIn, pos);
     }
 
@@ -346,7 +347,7 @@ public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdd
     @Override
     public void setBoundingBox(AxisAlignedBB bb) {
         super.setBoundingBox(bb);
-        this.setRealBoundingBox(new NonAlignedBoundingBox(bb, this.rotationYaw));
+        this.setRealBoundingBox(new NonAlignedBoundingBox(bb, 0, this.rotationYaw, 0));
     }
 
     public NonAlignedBoundingBox getRealBoundingBox() {
@@ -757,6 +758,7 @@ public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdd
         int iz = MathHelperMod.round_double(vec.z + this.posZ);
 
         if (doPosAdjustment) {
+            this.setMotion(new Vec3d(0, 0, 0));
             this.setPositionAndUpdate(ix - vec.x, iy - vec.y, iz - vec.z);
         }
 
