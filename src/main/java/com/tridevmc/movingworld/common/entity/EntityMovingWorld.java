@@ -484,27 +484,14 @@ public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdd
         }
         //TODO: Convert to non aligned bounding boxes.
 
-        //List<VoxelShape> collisionBoxes = this.world.getCollisionBoxes(this, this.getBoundingBox()).collect(Collectors.toList());
-        //if (collisionBoxes.isEmpty()) {
-        //    float newRotationPitch = this.rotationPitch
-        //            + (this.motionYaw * this.getMovingWorldCapabilities().getBankingMultiplier() - this.rotationPitch) * 0.15f;
-        //    float newMotionYaw = motionYaw * 0.7F;
-        //    float newRotationYaw = newMotionYaw + this.rotationYaw;
-        //    AxisAlignedBB newBB = new AxisAlignedBB(this.posX - this.mobileChunk.getCenterX(), this.posY, this.posZ - this.mobileChunk.getCenterZ(),
-        //            this.posX + this.mobileChunk.getCenterX(), this.posY + this.height, this.posZ + this.mobileChunk.getCenterZ());
-        //    collisionBoxes = this.world.getCollisionBoxes(this, newBB).collect(Collectors.toList());
+        float newRotationPitch = this.rotationPitch
+                + (this.motionYaw * this.getMovingWorldCapabilities().getBankingMultiplier() - this.rotationPitch) * 0.15f;
+        float newMotionYaw = motionYaw * 0.7F;
+        float newRotationYaw = newMotionYaw + this.rotationYaw;
 
-        //    if (collisionBoxes.isEmpty()) {
-        //        if (this.rotationYaw != newRotationYaw)
-        //            this.setBoundingBox(newBB);
-        //        this.rotationPitch = newRotationPitch;
-        //        this.motionYaw = newMotionYaw;
-        //        this.rotationYaw = newRotationYaw;
-        //        return;
-        //    }
-        //}
-        this.motionYaw = 0;
-        this.rotationPitch = this.rotationPitch + (this.motionYaw * this.getMovingWorldCapabilities().getBankingMultiplier() - this.rotationPitch) * 0.15f;
+        this.rotationPitch = newRotationPitch;
+        this.motionYaw = newMotionYaw;
+        this.rotationYaw = newRotationYaw;
     }
 
     @Override

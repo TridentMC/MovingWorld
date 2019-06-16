@@ -275,7 +275,6 @@ public class MobileChunkRenderer {
             VertexBuffer vbo = vertexBuffers[layer.ordinal()];
             if (vbo == null)
                 return;
-            Minecraft.getInstance().gameRenderer.enableLightmap();
 
             GlStateManager.enableClientState(32884);
             GLX.glClientActiveTexture(GLX.GL_TEXTURE0);
@@ -310,8 +309,6 @@ public class MobileChunkRenderer {
                         GlStateManager.clearCurrentColor();
                 }
             }
-
-            Minecraft.getInstance().gameRenderer.disableLightmap();
         }
 
         private void setupArrayPointers() {
