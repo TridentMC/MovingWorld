@@ -3,7 +3,7 @@ package com.tridevmc.movingworld.common.entity;
 import java.util.UUID;
 
 /**
- * Extend from this class to make ship info for your own needs.
+ * Extend from this class to make moving world info for your own needs.
  */
 public class MovingWorldInfo {
 

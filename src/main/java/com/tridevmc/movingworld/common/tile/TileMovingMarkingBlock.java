@@ -63,7 +63,7 @@ public abstract class TileMovingMarkingBlock extends TileEntity implements IMovi
     }
 
     /**
-     * For getting a new INSTANCE of your ship type to create.
+     * For getting a new INSTANCE of your movingWorld type to create.
      */
     public abstract EntityMovingWorld getMovingWorld(World worldObj);
 
@@ -179,8 +179,8 @@ public abstract class TileMovingMarkingBlock extends TileEntity implements IMovi
         if (tag.contains("owner")) {
             this.getInfo().setOwner(UUID.fromString(tag.getString("owner")));
         }
-        if (tag.contains("ship") && this.world != null) {
-            int id = tag.getInt("ship");
+        if (tag.contains("movingWorld") && this.world != null) {
+            int id = tag.getInt("movingWorld");
             Entity entity = this.world.getEntityByID(id);
             if (entity instanceof EntityMovingWorld) {
                 this.setParentMovingWorld((EntityMovingWorld) entity);

@@ -16,7 +16,7 @@ import net.minecraft.world.World;
 
 /**
  * Used for storing information given by and taken by the (Dis)Assembler <p/> Mostly for use in
- * GUIs, the ship pretty much immediately forgets this thing.
+ * GUIs, the moving world entity pretty much immediately forgets this thing.
  */
 public class MovingWorldAssemblyInteractor {
 

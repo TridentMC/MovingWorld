@@ -193,7 +193,7 @@ public class AssembleResult {
         return resultType == ResultType.RESULT_OK || resultType == ResultType.RESULT_OK_WITH_WARNINGS;
     }
 
-    public LocatedBlock getShipMarker() {
+    public LocatedBlock getMovingWorldMarker() {
         return movingWorldMarkingBlock;
     }
 

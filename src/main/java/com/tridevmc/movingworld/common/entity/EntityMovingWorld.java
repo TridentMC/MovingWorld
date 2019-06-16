@@ -956,7 +956,7 @@ public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdd
     }
 
     /**
-     * Same as the code from the Entity Class but it doesn't spawn particles, as with larger ships
+     * Same as the code from the Entity Class but it doesn't spawn particles, as with larger moving worlds
      * it can cause a lot of lag.
      */
     @Override
