@@ -7,13 +7,11 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
 import javax.vecmath.Matrix4d;
-import javax.vecmath.Point3d;
-
-/**
- * Adds rotateRoll.
- */
+import javax.vecmath.Vector3d;
 
 public class Vec3dMod extends Vec3d {
+
+    private static final Vec3dMod ORIGIN = new Vec3dMod(Vec3d.ZERO);
 
     public Vec3dMod(Vec3d vec3) {
         super(vec3.x, vec3.y, vec3.z);
@@ -28,7 +26,7 @@ public class Vec3dMod extends Vec3d {
     }
 
     public static Vec3dMod getOrigin() {
-        return new Vec3dMod(0, 0, 0);
+        return ORIGIN;
     }
 
     public Vec3dMod setX(double x) {
@@ -112,6 +110,25 @@ public class Vec3dMod extends Vec3d {
         return this.makeNewVec(d0, d1, this.z);
     }
 
+    public Vec3dMod rotate(Vec3d origin, float xAngle, float yAngle, float zAngle) {
+        if (xAngle == 0 && yAngle == 0 && zAngle == 0) {
+            return new Vec3dMod(this);
+        }
+
+        Matrix4d matrix = new Matrix4d();
+        if (xAngle != 0) matrix.rotX(Math.toRadians(xAngle));
+        if (yAngle != 0) matrix.rotY(Math.toRadians(yAngle));
+        if (zAngle != 0) matrix.rotZ(Math.toRadians(zAngle));
+        Vector3d vec = new Vector3d(origin.x - x, origin.y - y, origin.z - z);
+        matrix.transform(vec);
+        Vec3dMod out = new Vec3dMod(origin.x + vec.x, origin.y + vec.y, origin.z + vec.z);
+        return out;
+    }
+
+    public Vec3dMod cross(Vec3d vec) {
+        return new Vec3dMod(super.crossProduct(vec));
+    }
+
     public Vec3dMod rotate(Direction.Axis axis, Vec3d origin, float angle) {
         if (angle == 0)
             return new Vec3dMod(this);
@@ -129,9 +146,9 @@ public class Vec3dMod extends Vec3d {
                 matrix.rotZ(angle);
                 break;
         }
-        Point3d point = new Point3d(origin.x - x, origin.y - y, origin.z - z);
-        matrix.transform(point);
-        return new Vec3dMod(origin.x + point.x, origin.y + point.y, origin.z + point.z);
+        Vector3d vec = new Vector3d(origin.x - x, origin.y - y, origin.z - z);
+        matrix.transform(vec);
+        return new Vec3dMod(origin.x + vec.x, origin.y + vec.y, origin.z + vec.z);
     }
 
 }

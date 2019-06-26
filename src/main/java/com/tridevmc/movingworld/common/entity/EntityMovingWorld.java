@@ -11,6 +11,7 @@ import com.tridevmc.movingworld.common.chunk.assembly.ChunkDisassembler;
 import com.tridevmc.movingworld.common.chunk.mobilechunk.MobileChunk;
 import com.tridevmc.movingworld.common.chunk.mobilechunk.MobileChunkClient;
 import com.tridevmc.movingworld.common.chunk.mobilechunk.MobileChunkServer;
+import com.tridevmc.movingworld.common.entity.collision.OrientedBoundingBox;
 import com.tridevmc.movingworld.common.util.MathHelperMod;
 import com.tridevmc.movingworld.common.util.Vec3dMod;
 import io.netty.buffer.ByteBuf;
@@ -35,10 +36,12 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
+import net.minecraft.util.ReuseableStream;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -47,6 +50,8 @@ import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * All moving sections of blocks extend from this class.
@@ -78,7 +83,7 @@ public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdd
     protected double controlVelX, controlVelY, controlVelZ;
 
     private EntitySize size = new EntitySize(1, 1, false);
-    private NonAlignedBoundingBox realBoundingBox;
+    private OrientedBoundingBox realBoundingBox;
     private int disassembleTimer = 100;
     private MobileChunk mobileChunk;
     private MovingWorldInfo info;
@@ -263,7 +268,7 @@ public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdd
         return Type.OAK;
     }
 
-    public void setRotatedBoundingBox() {
+    public void updateBoundingBox() {
         if (this.mobileChunk == null) {
             float hw = this.getWidth() / 2F;
             this.setBoundingBox(
@@ -290,9 +295,66 @@ public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdd
     }
 
     @Override
-    public void move(MoverType typeIn, Vec3d pos) {
-        this.setRotatedBoundingBox();
-        super.move(typeIn, pos);
+    public void move(MoverType type, Vec3d movement) {
+        this.updateBoundingBox();
+        if (noClip) {
+            super.move(type, movement);
+            return;
+        }
+
+        if (type == MoverType.PISTON) {
+            movement = this.handlePistonMovement(movement);
+            if (movement.equals(Vec3d.ZERO)) {
+                return;
+            }
+        }
+
+        this.world.getProfiler().startSection("move");
+        if (this.motionMultiplier.lengthSquared() > 1.0E-7D) {
+            movement = movement.mul(this.motionMultiplier);
+            this.motionMultiplier = Vec3d.ZERO;
+            this.setMotion(Vec3d.ZERO);
+        }
+
+        OrientedBoundingBox.CollisionResult movementResult = this.tryMove(movement, this.getRealBoundingBox(), new ReuseableStream<>(Stream.empty()));
+        if (movementResult.isColliding()) {
+            this.world.getProfiler().endSection();
+            this.setMotion(0, 0, 0);
+            return;
+        }
+        Vec3dMod allowedMovement = movementResult.getHitPoint();
+        if (allowedMovement.lengthSquared() > 1.0E-7D) {
+            this.setBoundingBox(this.getBoundingBox().offset(allowedMovement));
+            this.resetPositionToBB();
+        }
+
+        this.world.getProfiler().endSection();
+        this.world.getProfiler().startSection("rest");
+        this.collidedHorizontally = !MathHelper.epsilonEquals(movement.x, allowedMovement.x) || !MathHelper.epsilonEquals(movement.z, allowedMovement.z);
+        this.collidedVertically = movement.y != allowedMovement.y;
+        this.onGround = this.collidedVertically && movement.y < 0.0D;
+        this.collided = this.collidedHorizontally || this.collidedVertically;
+
+        Vec3d motion = this.getMotion();
+        if (movement.x != allowedMovement.x) {
+            this.setMotion(0.0D, motion.y, motion.z);
+        }
+
+        if (movement.z != allowedMovement.z) {
+            this.setMotion(motion.x, motion.y, 0.0D);
+        }
+
+        this.world.getProfiler().endSection();
+    }
+
+    public OrientedBoundingBox.CollisionResult tryMove(Vec3d move, OrientedBoundingBox collisionBox, ReuseableStream<VoxelShape> potentialHits) {
+        List<AxisAlignedBB> boxes = world.getCollisionShapes(this, collisionBox.getBb()
+                .grow(Math.max(collisionBox.getXSize(), collisionBox.getZSize()) / 4D)
+                .offset(move), Collections.emptySet())
+                .flatMap((v) -> v.toBoundingBoxList().stream())
+                .collect(Collectors.toList());
+        boxes.addAll(potentialHits.createStream().flatMap((v) -> v.toBoundingBoxList().stream()).collect(Collectors.toList()));
+        return collisionBox.getCollisionResult(boxes, move);
     }
 
     @Override
@@ -347,14 +409,14 @@ public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdd
     @Override
     public void setBoundingBox(AxisAlignedBB bb) {
         super.setBoundingBox(bb);
-        this.setRealBoundingBox(new NonAlignedBoundingBox(bb, 0, this.rotationYaw, 0));
+        this.setRealBoundingBox(new OrientedBoundingBox(bb.shrink(1D / 50D), 0, this.rotationYaw, 0));
     }
 
-    public NonAlignedBoundingBox getRealBoundingBox() {
+    public OrientedBoundingBox getRealBoundingBox() {
         return realBoundingBox;
     }
 
-    public void setRealBoundingBox(NonAlignedBoundingBox realBoundingBox) {
+    public void setRealBoundingBox(OrientedBoundingBox realBoundingBox) {
         if (!Objects.equals(this.getRealBoundingBox(), realBoundingBox))
             this.realBoundingBox = realBoundingBox;
     }
@@ -426,7 +488,7 @@ public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdd
 
             this.setMotion(this.getMotion().mul(this.horFriction, this.vertFriction, this.horFriction));
         }
-        this.setRotatedBoundingBox();
+        this.updateBoundingBox();
     }
 
     protected void handleServerUpdate(double horvel) {
@@ -489,6 +551,12 @@ public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdd
                 + (this.motionYaw * this.getMovingWorldCapabilities().getBankingMultiplier() - this.rotationPitch) * 0.15f;
         float newMotionYaw = motionYaw * 0.7F;
         float newRotationYaw = newMotionYaw + this.rotationYaw;
+        OrientedBoundingBox obb = new OrientedBoundingBox(this.getRealBoundingBox().getBb(), 0, newRotationYaw, 0);
+        OrientedBoundingBox.CollisionResult collisionResult = this.tryMove(Vec3dMod.getOrigin(), obb, new ReuseableStream<>(Stream.empty()));
+        if (collisionResult.hasFoundCollision()) {
+            this.motionYaw = 0;
+            return;
+        }
 
         this.rotationPitch = newRotationPitch;
         this.motionYaw = newMotionYaw;
