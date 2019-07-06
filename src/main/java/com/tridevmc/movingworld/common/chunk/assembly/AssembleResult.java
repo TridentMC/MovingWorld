@@ -18,6 +18,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
@@ -99,9 +100,10 @@ public class AssembleResult {
         entity.setRiderDestination(facing, riderDestination);
         entity.getMobileChunk().setCreationSpotBiome(world.getBiome(movingWorldMarkingBlock.pos));
 
-        boolean doTileDropsInWorld = world.getGameRules().getBoolean("doTileDrops");
+        GameRules.BooleanValue tileDropsRule = world.getGameRules().get(GameRules.DO_TILE_DROPS);
+        boolean tileDropsValue = tileDropsRule.get();
         MinecraftServer server = world.getServer();
-        world.getGameRules().setOrCreateGameRule("doTileDrops", "false", server);
+        tileDropsRule.set(false, server);
 
         ArrayList<LocatedBlockList> separatedLbLists = assembledBlocks.getSortedAssemblyBlocks();
 
@@ -113,14 +115,14 @@ public class AssembleResult {
             }
         } catch (Exception e) {
             resultType = ResultType.RESULT_ERROR_OCCURED;
-            world.getGameRules().setOrCreateGameRule("doTileDrops", String.valueOf(doTileDropsInWorld), server);
+            tileDropsRule.set(tileDropsValue, server);
             MovingWorldMod.LOG.error("Result code: RESULT ERROR OCCURRED was reached when attempting to getEntity from assembly result. Printing stacktrace...");
             MovingWorldMod.LOG.error(e);
             e.printStackTrace();
             return null;
         }
 
-        world.getGameRules().setOrCreateGameRule("doTileDrops", String.valueOf(doTileDropsInWorld), server);
+        tileDropsRule.set(tileDropsValue, server);
 
         entity.getMobileChunk().setChunkModified();
         entity.getMobileChunk().onChunkLoad();

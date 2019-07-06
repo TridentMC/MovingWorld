@@ -15,6 +15,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 
@@ -93,8 +94,9 @@ public class ChunkDisassembler {
         this.movingWorld.rotationPitch = 0F;
         float yaw = currentRot * MathHelperMod.PI_HALF;
 
-        boolean flag = world.getGameRules().getBoolean("doTileDrops");
-        world.getGameRules().setOrCreateGameRule("doTileDrops", "false", world.getServer());
+        boolean tileDropsValue = world.getGameRules().getBoolean(GameRules.DO_TILE_DROPS);
+        GameRules.BooleanValue tileDropsRule = world.getGameRules().get(GameRules.DO_TILE_DROPS);
+        tileDropsRule.set(false, world.getServer());
 
         LocatedBlockList postList = new LocatedBlockList(4);
 
@@ -139,14 +141,13 @@ public class ChunkDisassembler {
                 }
             }
         } catch (Exception exception) {
-            world.getGameRules().setOrCreateGameRule("doTileDrops", String.valueOf(flag), world.getServer());
+            tileDropsRule.set(tileDropsValue, world.getServer());
             MovingWorldMod.LOG.error("Exception while disassembling, reverting doTileDrops... ", exception);
             this.result.resultType = AssembleResult.ResultType.RESULT_ERROR_OCCURED;
             return this.result;
         }
 
-        world.getGameRules().setOrCreateGameRule("doTileDrops", String.valueOf(flag), world.getServer());
-
+        tileDropsRule.set(tileDropsValue, world.getServer());
         ArrayList<LocatedBlockList> sortedPostList = postList.getSortedDisassemblyBlocks();
 
         for (LocatedBlockList pList : sortedPostList) {
