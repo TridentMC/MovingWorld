@@ -21,6 +21,7 @@ out/
 *.iml
 *.ipr
 *.iws
+*.xml
 
 extern
 node_modules

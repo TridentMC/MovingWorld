@@ -536,7 +536,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             vec = vec.rotateAroundY(yaw);
 
             if ((flags & 1) == 1) {
-                vec.addVector(0, 0.25, 0);
+                vec.add(0, 0.25, 0);
             }
 
             passenger.setPosition(posX + vec.x, posY + vec.y + passenger.getYOffset(),
@@ -889,7 +889,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
             int rY = tag.getInteger("riderDestinationY");
             int rZ = tag.getInteger("riderDestinationZ");
             riderDestination = new BlockPos(rX, rY, rZ);
-            frontDirection = EnumFacing.getHorizontal(tag.getInteger("front"));
+            frontDirection = EnumFacing.byHorizontalIndex(tag.getInteger("front"));
         }
 
         NBTTagList tiles = tag.getTagList("tileent", 10);
@@ -972,7 +972,7 @@ public abstract class EntityMovingWorld extends EntityBoat implements IEntityAdd
         int rY = data.readInt();
         int rZ = data.readInt();
         riderDestination = new BlockPos(rX, rY, rZ);
-        frontDirection = EnumFacing.getHorizontal(data.readInt());
+        frontDirection = EnumFacing.byHorizontalIndex(data.readInt());
 
         byte[] ab = new byte[data.readShort()];
         data.readBytes(ab);

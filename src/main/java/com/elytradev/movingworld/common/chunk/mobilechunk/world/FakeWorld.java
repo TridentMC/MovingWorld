@@ -114,7 +114,7 @@ public class FakeWorld extends World {
     }
 
     @Override
-    public Chunk getChunkFromChunkCoords(int chunkX, int chunkZ) {
+    public Chunk getChunk(int chunkX, int chunkZ) {
         return new FakeChunk(mobileChunk, chunkX, chunkZ);
     }
 }

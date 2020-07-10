@@ -3,27 +3,24 @@ buildscript {
         jcenter()
         maven {
             name = "forge"
-            url = "http://files.minecraftforge.net/maven"
+            url = "https://files.minecraftforge.net/maven"
         }
         maven {
             name = 'sponge'
-            url = 'http://repo.spongepowered.org/maven'
+            url = 'https://repo.spongepowered.org/maven'
         }
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
         classpath 'org.spongepowered:mixingradle:' + project.mixinGradleVersion
-        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.3'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:4.0.4'
     }
 }
 
 repositories {
     maven {
-        name 'spongepowered'
-        url 'https://repo.spongepowered.org/maven/'
-    }
-    maven {
-        url = 'http://repo.elytradev.com/'
+        name = 'elytra'
+        url = 'https://repo.elytradev.com/'
     }
 }
 
@@ -71,8 +68,10 @@ dependencies {
         exclude module: 'guava'
     }
 
-    compile 'com.elytradev:concrete:' + project.concreteVersion + ':all'
-    shadow 'com.elytradev:concrete:' + project.concreteVersion + ':all'
+    compile 'com.elytradev.concrete:concrete-network:' + project.concreteVersion
+    shadow 'com.elytradev.concrete:concrete-network:' + project.concreteVersion
+    compile 'com.elytradev.concrete:concrete-reflect:' + project.concreteVersion
+    shadow 'com.elytradev.concrete:concrete-reflect:' + project.concreteVersion
 }
 
 shadowJar {
