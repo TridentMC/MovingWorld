@@ -76,14 +76,15 @@ dependencies {
 
 shadowJar {
     exclude 'dummyThing'
+    classifier = 'full'
 
     relocate 'com.elytradev.concrete', "com.elytradev.movingworld.repackage.com.elytradev.concrete"
-    dependencies {
+    /*dependencies {
         include(dependency('org.spongepowered:mixin'))
         include(dependency('com.elytradev:concrete'))
-    }
-
-    classifier = 'full'
+        include(dependency('com.elytradev.concrete:concrete-network'))
+        include(dependency('com.elytradev.concrete:concrete-reflect'))
+    }*/
 }
 
 reobf {
@@ -93,7 +94,11 @@ reobf {
     }
 }
 
-build.dependsOn(shadowJar)
+tasks.build.dependsOn reobfShadowJar
+
+artifacts {
+    archives shadowJar
+}
 
 jar {
     manifest {
