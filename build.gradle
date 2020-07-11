@@ -23,7 +23,7 @@ repositories {
         url 'https://repo.spongepowered.org/maven/'
     }
     maven {
-        url = 'http://repo.elytradev.com/'
+        url = 'http://repo.tridevmc.com/'
     }
 }
 
@@ -71,8 +71,8 @@ dependencies {
         exclude module: 'guava'
     }
 
-    compile 'com.elytradev:concrete:' + project.concreteVersion + ':all'
-    shadow 'com.elytradev:concrete:' + project.concreteVersion + ':all'
+    compile 'com.elytradev.concrete:concrete-all:' + project.concreteVersion
+    shadow 'com.elytradev.concrete:concrete-all:' + project.concreteVersion
 }
 
 shadowJar {
