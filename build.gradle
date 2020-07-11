@@ -68,6 +68,8 @@ dependencies {
         exclude module: 'guava'
     }
 
+    compile 'com.elytradev.concrete:concrete-common:' + project.concreteVersion
+    shadow 'com.elytradev.concrete:concrete-common:' + project.concreteVersion
     compile 'com.elytradev.concrete:concrete-network:' + project.concreteVersion
     shadow 'com.elytradev.concrete:concrete-network:' + project.concreteVersion
     compile 'com.elytradev.concrete:concrete-reflect:' + project.concreteVersion
