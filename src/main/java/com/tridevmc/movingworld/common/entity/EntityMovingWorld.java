@@ -317,39 +317,58 @@ public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdd
         }
 
         OrientedBoundingBox.CollisionResult movementResult = this.tryMove(movement, this.getRealBoundingBox(), new ReuseableStream<>(Stream.empty()));
-        if (movementResult.isColliding()) {
-            this.world.getProfiler().endSection();
-            this.setMotion(0, 0, 0);
-            return;
+        Vec3dMod allowedMovement = movementResult.getClampedMovement();
+        if(Double.compare(allowedMovement.x, movement.x) > 0) {
+            MovingWorldMod.LOG.info("Found negative difference for X, clamping to 0.");
+            allowedMovement = allowedMovement.setX(0);
         }
-        Vec3dMod allowedMovement = movementResult.getHitPoint();
+        if(Double.compare(allowedMovement.y, movement.y) > 0) {
+            MovingWorldMod.LOG.info("Found negative difference for Y, clamping to 0.");
+            allowedMovement = allowedMovement.setY(0);
+        }
+        if(Double.compare(allowedMovement.z, movement.z) > 0) {
+            MovingWorldMod.LOG.info("Found negative difference for Z, clamping to 0.");
+            allowedMovement = allowedMovement.setZ(0);
+        }
+
         if (allowedMovement.lengthSquared() > 1.0E-7D) {
-            this.setBoundingBox(this.getBoundingBox().offset(allowedMovement));
-            this.resetPositionToBB();
+            MovingWorldMod.LOG.info("Move={} Allowed={} Compare={}", movement.toString(), allowedMovement.toString(), movement.subtract(allowedMovement).toString());
+            this.setPosition(this.posX + allowedMovement.x, this.posY + allowedMovement.y, this.posZ + allowedMovement.z);
+            this.updateBoundingBox();
         }
 
         this.world.getProfiler().endSection();
         this.world.getProfiler().startSection("rest");
         this.collidedHorizontally = !MathHelper.epsilonEquals(movement.x, allowedMovement.x) || !MathHelper.epsilonEquals(movement.z, allowedMovement.z);
-        this.collidedVertically = movement.y != allowedMovement.y;
+        this.collidedVertically = !MathHelper.epsilonEquals(movement.y, allowedMovement.y);
         this.onGround = this.collidedVertically && movement.y < 0.0D;
         this.collided = this.collidedHorizontally || this.collidedVertically;
 
+        // Clamp motion.
         Vec3d motion = this.getMotion();
-        if (movement.x != allowedMovement.x) {
-            this.setMotion(0.0D, motion.y, motion.z);
-        }
+        //if (Double.compare(allowedMovement.x, movement.x) != 0D) {
+        //    MovingWorldMod.LOG.info("Clamped X motion, " + movement.x + " " + allowedMovement.x + " " + motion.x);
+        //    this.setMotion(0, motion.y, motion.z);
+        //    motion = this.getMotion();
+        //}
+//
+        //if (Double.compare(allowedMovement.y, movement.y) != 0D) {
+        //    MovingWorldMod.LOG.info("Clamped Y motion, " + movement.y + " " + allowedMovement.y + " " + motion.y);
+        //    this.setMotion(motion.x, 0, motion.z);
+        //    motion = this.getMotion();
+        //}
+//
+        //if (Double.compare(allowedMovement.z, movement.z) != 0D) {
+        //    MovingWorldMod.LOG.info("Clamped Z motion, " + movement.z + " " + allowedMovement.z + " " + motion.z);
+        //    this.setMotion(motion.x, motion.y, 0);
+        //}
 
-        if (movement.z != allowedMovement.z) {
-            this.setMotion(motion.x, motion.y, 0.0D);
-        }
 
         this.world.getProfiler().endSection();
     }
 
     public OrientedBoundingBox.CollisionResult tryMove(Vec3d move, OrientedBoundingBox collisionBox, ReuseableStream<VoxelShape> potentialHits) {
         List<AxisAlignedBB> boxes = world.getCollisionShapes(this, collisionBox.getBb()
-                .grow(Math.max(collisionBox.getXSize(), collisionBox.getZSize()) / 4D)
                 .offset(move), Collections.emptySet())
                 .flatMap((v) -> v.toBoundingBoxList().stream())
                 .collect(Collectors.toList());

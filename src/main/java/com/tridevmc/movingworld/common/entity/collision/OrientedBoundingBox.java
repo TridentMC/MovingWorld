@@ -2,7 +2,6 @@ package com.tridevmc.movingworld.common.entity.collision;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.tridevmc.movingworld.MovingWorldMod;
 import com.tridevmc.movingworld.common.util.Vec3dMod;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
@@ -106,9 +105,9 @@ public class OrientedBoundingBox {
         boolean willCollide = collisions.stream().anyMatch(CollisionResult::isWillCollide);
         boolean isColliding = collisions.stream().anyMatch(CollisionResult::isColliding);
         if (!willCollide && !isColliding)
-            return new CollisionResult().setHitPoint(new Vec3dMod(move)).setWillCollide(false).setColliding(false);
+            return new CollisionResult().setClampedMovement(new Vec3dMod(move)).setWillCollide(false).setColliding(false);
 
-        List<Vec3dMod> hits = collisions.stream().map(CollisionResult::getHitPoint).collect(Collectors.toList());
+        List<Vec3dMod> hits = collisions.stream().map(CollisionResult::getClampedMovement).collect(Collectors.toList());
         double minX = hits.stream().min(Comparator.comparingDouble(v -> Math.abs(v.x))).map(Vec3dMod::getX).get();
         double minY = hits.stream().min(Comparator.comparingDouble(v -> Math.abs(v.y))).map(Vec3dMod::getY).get();
         double minZ = hits.stream().min(Comparator.comparingDouble(v -> Math.abs(v.z))).map(Vec3dMod::getZ).get();
@@ -116,7 +115,7 @@ public class OrientedBoundingBox {
         return new CollisionResult()
                 .setWillCollide(willCollide)
                 .setColliding(isColliding)
-                .setHitPoint(new Vec3dMod(minX, minY, minZ));
+                .setClampedMovement(new Vec3dMod(minX, minY, minZ));
     }
 
     public CollisionResult getCollisionResult(AxisAlignedBB other, Vec3d move) {
@@ -162,7 +161,7 @@ public class OrientedBoundingBox {
                     this.getBb().getCenter().subtract(other.getBb().getCenter()).dotProduct(minDist.getA()) < 0
                             ? minDist.getA().mul(-1, -1, -1)
                             : minDist.getA());
-            out.setHitPoint(new Vec3dMod(movementAxis.mul(minDist.getB(), minDist.getB(), minDist.getB())));
+            out.setClampedMovement(new Vec3dMod(movementAxis.mul(minDist.getB(), minDist.getB(), minDist.getB())));
         }
 
         return out;
@@ -243,16 +242,16 @@ public class OrientedBoundingBox {
     }
 
     public class CollisionResult {
-        public Vec3dMod hitPoint = Vec3dMod.getOrigin();
+        public Vec3dMod clampedMovement = Vec3dMod.getOrigin();
         public boolean isColliding = true;
         public boolean willCollide = true;
 
-        public Vec3dMod getHitPoint() {
-            return hitPoint;
+        public Vec3dMod getClampedMovement() {
+            return clampedMovement;
         }
 
-        protected CollisionResult setHitPoint(Vec3dMod hitPoint) {
-            this.hitPoint = hitPoint;
+        protected CollisionResult setClampedMovement(Vec3dMod clampedMovement) {
+            this.clampedMovement = clampedMovement;
             return this;
         }
 
