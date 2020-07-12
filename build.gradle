@@ -81,7 +81,7 @@ shadowJar {
     relocate 'com.elytradev.concrete', "com.elytradev.movingworld.repackage.com.elytradev.concrete"
     dependencies {
         include(dependency('org.spongepowered:mixin'))
-        include(dependency('com.elytradev:concrete'))
+        include(dependency('com.elytradev.concrete:concrete-all'))
     }
 
     classifier = 'full'
