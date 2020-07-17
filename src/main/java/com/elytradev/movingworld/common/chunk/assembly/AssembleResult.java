@@ -18,6 +18,8 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 
 import java.util.ArrayList;
 
@@ -129,14 +131,13 @@ public class AssembleResult {
     }
 
     public void setWorldBlocksToAir(World world, EntityMovingWorld entityMovingWorld, LocatedBlockList locatedBlocks) {
-
         boolean setFluids = false;
 
         LocatedBlockList setAirState2 = new LocatedBlockList();
 
         if (movingWorldMarkingBlock != null && movingWorldMarkingBlock.tileEntity instanceof TileMovingMarkingBlock
-            && ((TileMovingMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks != null &&
-            !((TileMovingMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks.isEmpty()) {
+                && ((TileMovingMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks != null &&
+                !((TileMovingMarkingBlock) movingWorldMarkingBlock.tileEntity).removedFluidBlocks.isEmpty()) {
 
             setFluids = true;
         }
@@ -161,13 +162,23 @@ public class AssembleResult {
         }
 
         for (LocatedBlock lb : setAirState2) {
-            world.setBlockState(lb.blockPos, Blocks.AIR.getDefaultState(), 2);
-            world.removeTileEntity(lb.blockPos);
+            try {
+                world.removeTileEntity(lb.blockPos);
+                world.setBlockState(lb.blockPos, Blocks.AIR.getDefaultState(), 2);
+            } catch (Exception e) {
+                MovingWorldMod.LOG.warn("Failed to remove a block from the world, forcing...", e);
+                forceBlockRemoval(world, lb);
+            }
         }
 
         for (LocatedBlock lb : locatedBlocks) {
-            world.setBlockToAir(lb.blockPos);
-            world.removeTileEntity(lb.blockPos);
+            try {
+                world.removeTileEntity(lb.blockPos);
+                world.setBlockToAir(lb.blockPos);
+            } catch (Exception e) {
+                MovingWorldMod.LOG.warn("Failed to remove a block from the world, forcing...", e);
+                forceBlockRemoval(world, lb);
+            }
         }
 
         if (setFluids) {
@@ -179,8 +190,31 @@ public class AssembleResult {
                     .filter(fluid -> fluid != null && world.isAirBlock(fluid.blockPos))
                     .forEach(fluid -> world.setBlockState(fluid.blockPos, fluid.blockState, 3));
         }
+    }
 
-
+    private void forceBlockRemoval(World world, LocatedBlock block) {
+        world.setTileEntity(block.blockPos, null);
+        try {
+            world.setBlockState(block.blockPos, Blocks.AIR.getDefaultState(), 2); // Try and remove the block from the world, if this fails then some dev doesn't know what they're doing...
+        } catch (Exception e) {
+            MovingWorldMod.LOG.warn("Caught exception when removing a block from the world, attempting fallback method...", e);
+            try {
+                world.setBlockToAir(block.blockPos);
+            } catch (Exception secondE) {
+                MovingWorldMod.LOG.warn("Fallback failed, attempting manual removal without telling the block about it...", secondE);
+                try {
+                    Chunk chunk = world.getChunkFromBlockCoords(block.blockPos);
+                    ExtendedBlockStorage blockStorage = chunk.getBlockStorageArray()[block.blockPos.getY() >> 4];
+                    blockStorage.set(block.blockPos.getX() & 15, block.blockPos.getY() >> 4, block.blockPos.getZ() & 15, Blocks.AIR.getDefaultState());
+                    chunk.markDirty();
+                    // Just tell the world about it after the block isn't in storage anymore. In an ideal world this should always work...
+                    world.setBlockToAir(block.blockPos);
+                } catch (Exception thirdE) {
+                    MovingWorldMod.LOG.error("At this point I don't really know what to tell you, I've done everything I could yet I still failed.", thirdE);
+                    throw thirdE;
+                }
+            }
+        }
     }
 
     public ResultType getType() {
