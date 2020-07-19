@@ -7,9 +7,9 @@ import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Configuration;
 import org.apache.commons.lang3.ArrayUtils;
-
 import java.util.*;
 
 public class AssemblePriorityConfig {
@@ -146,11 +146,16 @@ public class AssemblePriorityConfig {
 
             for (Block checkBlock : allBlocks) {
                 IBlockState state = checkBlock.getDefaultState();
-                for (IProperty prop : state.getProperties().keySet()) {
-                    if (prop.getName().equals("powered")) {
-                        String poweredBlockName = Block.REGISTRY.getNameForObject(checkBlock).toString();
-                        poweredBlockNames.add(poweredBlockName);
-                        MovingWorldMod.LOG.info("Found powered block with name: " + poweredBlockName);
+                if (state != null) {
+                    for (IProperty prop : state.getProperties().keySet()) {
+                        if (prop.getName().equals("powered")) {
+                            ResourceLocation loc = Block.REGISTRY.getNameForObject(checkBlock);
+                            if (loc != null) {
+                                String poweredBlockName = loc.toString();
+                                poweredBlockNames.add(poweredBlockName);
+                                MovingWorldMod.LOG.info("Found powered block with name: " + poweredBlockName);
+                            }
+                        }
                     }
                 }
             }
@@ -162,13 +167,16 @@ public class AssemblePriorityConfig {
 
             String[] defaultHighPriorityAssemblyBlockNames = new String[defaultHighPriorityAssemblyBlocks.length];
             for (int i = 0; i < defaultHighPriorityAssemblyBlocks.length; i++) {
-                defaultHighPriorityAssemblyBlockNames[i] = Block.REGISTRY.getNameForObject(defaultHighPriorityAssemblyBlocks[i]).toString();
+                ResourceLocation loc = Block.REGISTRY.getNameForObject(defaultHighPriorityAssemblyBlocks[i]);
+                if (loc != null) {
+                    defaultHighPriorityAssemblyBlockNames[i] = loc.toString();
+                }
             }
 
-            config.get("mobile_chunk", "highpriorityassembly_blocks", defaultHighPriorityAssemblyBlockNames, "A list of blocks that should be set to air first, and then placed last when disassembled.").set(ArrayUtils.addAll(defaultHighPriorityAssemblyBlockNames, discoveredPoweredBlockNames));
+            config.get("mobile_chunk", "highpriorityassembly_blocks", defaultHighPriorityAssemblyBlockNames, "A list of blocks that should be set to air first, and then placed last when disassembled.").set(ArrayUtils.removeAllOccurences(ArrayUtils.addAll(defaultHighPriorityAssemblyBlockNames, discoveredPoweredBlockNames), null));
             config.get(Configuration.CATEGORY_GENERAL, "Rediscover powered blocks on next restart?", true).set(false);
 
-            highPriorityAssembly = Sets.newHashSet(ArrayUtils.addAll(defaultHighPriorityAssemblyBlockNames, discoveredPoweredBlockNames));
+            highPriorityAssembly = Sets.newHashSet(ArrayUtils.removeAllOccurences(ArrayUtils.addAll(defaultHighPriorityAssemblyBlockNames, discoveredPoweredBlockNames), null));
         }
     }
 
