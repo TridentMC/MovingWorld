@@ -42,28 +42,10 @@ public abstract class MovingWorldHandlerServer extends MovingWorldHandlerCommon 
             if (!firstChunkUpdate) {
                 if (!mobileChunkServer.getBlockQueue().isEmpty()) {
                     new MovingWorldBlockChangeMessage(getMovingWorld(), new CompressedChunkData(mobileChunkServer, false)).sendToAllTracking(getMovingWorld());
-
                     MovingWorldMod.LOG.debug("MobileChunk block change detected, sending packet to all players watching " + getMovingWorld().toString());
                 }
                 if (!mobileChunkServer.getTileQueue().isEmpty()) {
-                    CompoundNBT tagCompound = new CompoundNBT();
-                    ListNBT list = new ListNBT();
-                    for (BlockPos tilePosition : mobileChunkServer.getTileQueue()) {
-                        CompoundNBT nbt = new CompoundNBT();
-                        if (mobileChunkServer.getTileEntity(tilePosition) == null)
-                            continue;
-
-                        TileEntity te = mobileChunkServer.getTileEntity(tilePosition);
-                        if (te instanceof TileMovingMarkingBlock) {
-                            ((TileMovingMarkingBlock) te).writeNBTForSending(nbt);
-                        } else {
-                            te.write(nbt);
-                        }
-                        list.add(nbt);
-                    }
-                    tagCompound.put("list", list);
-
-                    new MovingWorldTileChangeMessage(getMovingWorld(), tagCompound).sendToAllTracking(getMovingWorld());
+                    new MovingWorldTileChangeMessage(getMovingWorld(), false).sendToAllTracking(getMovingWorld());
                     MovingWorldMod.LOG.debug("MobileChunk tile change detected, sending packet to all players watching " + getMovingWorld().toString());
                 }
             }

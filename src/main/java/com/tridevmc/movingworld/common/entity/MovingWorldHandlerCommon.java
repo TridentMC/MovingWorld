@@ -5,8 +5,10 @@ import com.tridevmc.movingworld.common.chunk.mobilechunk.MobileChunk;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 
 import java.util.HashSet;
@@ -20,6 +22,10 @@ public abstract class MovingWorldHandlerCommon {
     public abstract EntityMovingWorld getMovingWorld();
 
     public abstract void setMovingWorld(EntityMovingWorld movingWorld);
+
+    public ActionResultType applyPlayerInteraction(PlayerEntity player, Vector3d vec, Hand hand) {
+        return !player.isSneaking() ? ActionResultType.SUCCESS : ActionResultType.PASS;
+    }
 
     public boolean processInitialInteract(PlayerEntity player, Hand hand) {
         return !player.isSneaking();
@@ -67,4 +73,5 @@ public abstract class MovingWorldHandlerCommon {
         movingWorld.setFlying(movingWorld.getMovingWorldCapabilities().canFly());
         movingWorld.getMovingWorldCapabilities().postBlockAdding();
     }
+
 }

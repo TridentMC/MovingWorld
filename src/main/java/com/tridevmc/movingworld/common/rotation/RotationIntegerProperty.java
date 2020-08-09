@@ -3,15 +3,15 @@ package com.tridevmc.movingworld.common.rotation;
 import com.tridevmc.movingworld.api.rotation.IRotationProperty;
 import com.tridevmc.movingworld.common.util.RotationHelper;
 import net.minecraft.block.BlockState;
-import net.minecraft.state.IProperty;
 import net.minecraft.state.IntegerProperty;
+import net.minecraft.state.Property;
 
 import java.util.Objects;
 
-public class RotationIntegerProperty implements IRotationProperty {
+public class RotationIntegerProperty implements IRotationProperty<Integer> {
 
     @Override
-    public BlockState rotate(IProperty property, BlockState blockState, boolean ccw) {
+    public <V extends Integer> BlockState rotate(Property<Integer> property, BlockState blockState, boolean ccw) {
         IntegerProperty intProp = (IntegerProperty) property;
         int propVal = blockState.get(intProp);
 
@@ -25,7 +25,7 @@ public class RotationIntegerProperty implements IRotationProperty {
         return blockState;
     }
 
-    boolean isValidRotationProperty(IProperty property) {
+    boolean isValidRotationProperty(Property property) {
         IntegerProperty intProp = (IntegerProperty) property;
 
         return intProp.getAllowedValues().contains(0) && intProp.getAllowedValues().contains(15)

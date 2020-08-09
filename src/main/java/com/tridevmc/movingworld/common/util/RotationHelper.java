@@ -9,8 +9,8 @@ import com.tridevmc.movingworld.common.rotation.RotationIntegerProperty;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.state.EnumProperty;
-import net.minecraft.state.IProperty;
 import net.minecraft.state.IntegerProperty;
+import net.minecraft.state.Property;
 
 import java.util.Map;
 import java.util.Optional;
@@ -19,7 +19,7 @@ public class RotationHelper {
 
     public static final RotationHelper INSTANCE = new RotationHelper();
 
-    private final Map<Class<? extends IProperty>, IRotationProperty> rotationProperties = Maps.newHashMap();
+    private final Map<Class<? extends Property>, IRotationProperty> rotationProperties = Maps.newHashMap();
     private final Map<Class<? extends Block>, IRotationBlock> rotationBlocks = Maps.newHashMap();
 
     private RotationHelper() {
@@ -38,7 +38,7 @@ public class RotationHelper {
                     return locatedBlock;
             }
 
-            for (IProperty prop : blockState.getProperties()) {
+            for (Property prop : blockState.getProperties()) {
                 IRotationProperty rotationProperty = this.getRotationProperty(prop);
                 if (rotationProperty != null) {
                     // Custom rotation property found.
@@ -50,7 +50,7 @@ public class RotationHelper {
         return new LocatedBlock(blockState, locatedBlock.tile, locatedBlock.pos, locatedBlock.posNoOffset);
     }
 
-    public void registerRotationProperty(Class<? extends IProperty> property, IRotationProperty rotationProperty) {
+    public void registerRotationProperty(Class<? extends Property> property, IRotationProperty rotationProperty) {
         this.rotationProperties.put(property, rotationProperty);
     }
 
@@ -58,7 +58,7 @@ public class RotationHelper {
         this.rotationBlocks.put(block, rotationBlock);
     }
 
-    public IRotationProperty getRotationProperty(IProperty property) {
+    public IRotationProperty getRotationProperty(Property property) {
         if (property instanceof IRotationProperty) {
             return (IRotationProperty) property;
         } else {

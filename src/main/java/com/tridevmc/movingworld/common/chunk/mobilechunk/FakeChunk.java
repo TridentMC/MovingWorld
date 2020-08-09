@@ -5,12 +5,13 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.BiomeContainer;
 import net.minecraft.world.chunk.Chunk;
 
 import javax.annotation.Nullable;
 
 public class FakeChunk extends Chunk {
-    public FakeChunk(MobileChunk mobileChunk, ChunkPos chunkPos, Biome[] biomes) {
+    public FakeChunk(MobileChunk mobileChunk, ChunkPos chunkPos, BiomeContainer biomes) {
         super(mobileChunk.getFakeWorld(), chunkPos, biomes);
     }
 

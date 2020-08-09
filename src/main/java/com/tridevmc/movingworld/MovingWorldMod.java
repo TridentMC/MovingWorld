@@ -31,7 +31,7 @@ public class MovingWorldMod {
 
     public MovingWorldMod() {
         MovingWorldMod.INSTANCE = this;
-        PROXY = DistExecutor.runForDist(() -> ClientProxy::new, () -> CommonProxy::new);
+        PROXY = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new);
         MinecraftForge.EVENT_BUS.register(PROXY);
 
         FMLJavaModLoadingContext loadingContext = FMLJavaModLoadingContext.get();

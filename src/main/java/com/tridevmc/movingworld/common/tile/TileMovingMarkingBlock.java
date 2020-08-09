@@ -8,6 +8,7 @@ import com.tridevmc.movingworld.common.chunk.assembly.ChunkAssembler;
 import com.tridevmc.movingworld.common.entity.EntityMovingWorld;
 import com.tridevmc.movingworld.common.entity.MovingWorldInfo;
 import com.tridevmc.movingworld.common.util.LocatedBlockList;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -26,7 +27,6 @@ public abstract class TileMovingMarkingBlock extends TileEntity implements IMovi
 
     public LocatedBlockList removedFluidBlocks; // A list of fluid blocks that were destroyed last disassemble, used to fill back in when we reassemble.
     private AssembleResult assembleResult, prevResult;
-
 
     public TileMovingMarkingBlock(TileEntityType<?> type) {
         super(type);
@@ -158,7 +158,7 @@ public abstract class TileMovingMarkingBlock extends TileEntity implements IMovi
 
     @Override
     public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket packet) {
-        this.read(packet.getNbtCompound());
+        this.read(this.getBlockState(), packet.getNbtCompound());
     }
 
     public abstract MovingWorldAssemblyInteractor getNewAssemblyInteractor();
@@ -173,8 +173,8 @@ public abstract class TileMovingMarkingBlock extends TileEntity implements IMovi
     }
 
     @Override
-    public void read(CompoundNBT tag) {
-        super.read(tag);
+    public void read(BlockState state, CompoundNBT tag) {
+        super.read(state, tag);
         this.getInfo().setName(tag.getString("name"));
         if (tag.contains("owner")) {
             this.getInfo().setOwner(UUID.fromString(tag.getString("owner")));

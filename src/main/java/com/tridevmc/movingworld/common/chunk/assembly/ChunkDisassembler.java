@@ -59,14 +59,14 @@ public class ChunkDisassembler {
                     vec = new Vec3dMod(i + ox, j + oy, k + oz);
                     vec = vec.rotateAroundY(yaw);
 
-                    pos = new BlockPos(MathHelperMod.round_double(vec.x + this.movingWorld.posX),
-                            MathHelperMod.round_double(vec.y + this.movingWorld.posY),
-                            MathHelperMod.round_double(vec.z + this.movingWorld.posZ));
+                    pos = new BlockPos(MathHelperMod.round_double(vec.x + this.movingWorld.getPosX()),
+                            MathHelperMod.round_double(vec.y + this.movingWorld.getPosY()),
+                            MathHelperMod.round_double(vec.z + this.movingWorld.getPosZ()));
 
                     state = world.getBlockState(pos);
                     block = state.getBlock();
-                    if ((block != null && !block.isAir(state, world, pos) && !block.getMaterial(state).isLiquid() && !assemblyInteractor.canOverwriteState(state))
-                            || (MathHelperMod.round_double(vec.y + this.movingWorld.posY) > world.getActualHeight())) {
+                    if ((!block.isAir(state, world, pos) && !state.getMaterial().isLiquid() && !assemblyInteractor.canOverwriteState(state))
+                            || (MathHelperMod.round_double(vec.y + this.movingWorld.getPosY()) > world.getHeight())) {
                         return false;
                     }
                 }
@@ -124,9 +124,9 @@ public class ChunkDisassembler {
                         vec = new Vec3dMod(i + ox, j + oy, k + oz);
                         vec = vec.rotateAroundY(yaw);
 
-                        pos = new BlockPos(MathHelperMod.round_double(vec.x + this.movingWorld.posX),
-                                MathHelperMod.round_double(vec.y + this.movingWorld.posY),
-                                MathHelperMod.round_double(vec.z + this.movingWorld.posZ));
+                        pos = new BlockPos(MathHelperMod.round_double(vec.x + this.movingWorld.getPosY()),
+                                MathHelperMod.round_double(vec.y + this.movingWorld.getPosZ()),
+                                MathHelperMod.round_double(vec.z + this.movingWorld.getPosZ()));
 
                         lbList.add(new LocatedBlock(blockState, tileentity, pos, new BlockPos(i, j, k)));
                     }
@@ -204,8 +204,7 @@ public class ChunkDisassembler {
 
             owBlockState = world.getBlockState(pos);
             owBlock = owBlockState.getBlock();
-            if (owBlock != null)
-                assemblyInteractor.blockOverwritten(owBlock);
+            assemblyInteractor.blockOverwritten(owBlock);
 
             if (!fillList.containsLBOfPos(locatedBlock.posNoOffset)) {
                 if (world.getBlockState(pos).getMaterial().isLiquid()) {
@@ -228,7 +227,7 @@ public class ChunkDisassembler {
                 CompoundNBT tileTag = new CompoundNBT();
                 tileentity.write(tileTag);
                 world.setTileEntity(pos, tileentity);
-                world.getTileEntity(pos).read(tileTag);
+                world.getTileEntity(pos).read(blockState, tileTag);
                 tileentity.validate();
                 tileentity = world.getTileEntity(pos);
 

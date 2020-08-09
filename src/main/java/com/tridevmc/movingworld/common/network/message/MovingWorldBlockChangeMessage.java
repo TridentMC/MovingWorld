@@ -29,7 +29,7 @@ public class MovingWorldBlockChangeMessage extends Message {
 
     @Override
     public void handle(PlayerEntity sender) {
-        if (movingWorld == null || movingWorld.getMobileChunk() == null || compressedChunkData == null)
+        if (movingWorld == null || compressedChunkData == null)
             return;
         compressedChunkData.loadBlocks(movingWorld.getMobileChunk());
     }

@@ -8,12 +8,10 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-import javax.vecmath.Matrix4d;
-import javax.vecmath.Vector3d;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -45,14 +43,9 @@ public class OrientedBoundingBox {
                 new Vec3dMod(bb.maxX, bb.maxY, bb.maxZ).rotate(bb.getCenter(), xAngle, yAngle, zAngle),
                 new Vec3dMod(bb.minX, bb.maxY, bb.maxZ).rotate(bb.getCenter(), xAngle, yAngle, zAngle));
 
-        Matrix4d matrix = new Matrix4d();
-        matrix.rotX(Math.toRadians(xAngle));
-        matrix.rotY(Math.toRadians(yAngle));
-        matrix.rotZ(Math.toRadians(zAngle));
-        this.normals = Lists.newArrayList(new Vector3d(1, 0, 0), new Vector3d(0, 1, 0), new Vector3d(0, 0, 1)).stream().map(v -> {
-            matrix.transform(v);
-            return new Vec3dMod(v.x, v.y, v.z);
-        }).collect(Collectors.toList());
+        this.normals = Lists.newArrayList(new Vec3dMod(1, 0, 0), new Vec3dMod(0, 1, 0), new Vec3dMod(0, 0, 1)).stream()
+                .map(v -> v.rotate(Vector3d.ZERO, xAngle, yAngle, yAngle))
+                .collect(Collectors.toList());
     }
 
     public OrientedBoundingBox(AxisAlignedBB bb) {
@@ -68,14 +61,9 @@ public class OrientedBoundingBox {
                 new Vec3dMod(bb.maxX, bb.maxY, bb.maxZ),
                 new Vec3dMod(bb.minX, bb.maxY, bb.maxZ));
 
-        Matrix4d matrix = new Matrix4d();
-        matrix.rotX(Math.toRadians(xAngle));
-        matrix.rotY(Math.toRadians(yAngle));
-        matrix.rotZ(Math.toRadians(zAngle));
-        this.normals = Lists.newArrayList(new Vector3d(1, 0, 0), new Vector3d(0, 1, 0), new Vector3d(0, 0, 1)).stream().map(v -> {
-            matrix.transform(v);
-            return new Vec3dMod(v.x, v.y, v.z);
-        }).collect(Collectors.toList());
+        this.normals = Lists.newArrayList(new Vec3dMod(1, 0, 0), new Vec3dMod(0, 1, 0), new Vec3dMod(0, 0, 1)).stream()
+                .map(v -> v.rotate(Vector3d.ZERO, xAngle, yAngle, yAngle))
+                .collect(Collectors.toList());
     }
 
     private OrientedBoundingBox(OrientedBoundingBox boundingBox, Vec3dMod offset) {
@@ -100,7 +88,7 @@ public class OrientedBoundingBox {
         return bb.getZSize();
     }
 
-    public CollisionResult getCollisionResult(List<AxisAlignedBB> other, Vec3d move) {
+    public CollisionResult getCollisionResult(List<AxisAlignedBB> other, Vector3d move) {
         List<CollisionResult> collisions = other.stream().map((bb) -> this.getCollisionResult(bb, move)).collect(Collectors.toList());
         boolean willCollide = collisions.stream().anyMatch(CollisionResult::isWillCollide);
         boolean isColliding = collisions.stream().anyMatch(CollisionResult::isColliding);
@@ -118,11 +106,11 @@ public class OrientedBoundingBox {
                 .setClampedMovement(new Vec3dMod(minX, minY, minZ));
     }
 
-    public CollisionResult getCollisionResult(AxisAlignedBB other, Vec3d move) {
+    public CollisionResult getCollisionResult(AxisAlignedBB other, Vector3d move) {
         return this.getCollisionResult(new OrientedBoundingBox(other), move);
     }
 
-    public CollisionResult getCollisionResult(OrientedBoundingBox other, Vec3d move) {
+    public CollisionResult getCollisionResult(OrientedBoundingBox other, Vector3d move) {
         ImmutableList<Vec3dMod> axes = this.getAxes(other);
         CollisionResult out = new CollisionResult();
         List<Tuple<Vec3dMod, Double>> collisionDistances = Lists.newArrayList();
@@ -205,15 +193,15 @@ public class OrientedBoundingBox {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void drawLines(Vec3d offset) {
-        Vec3d point0 = this.getPoints().get(0).add(offset);
-        Vec3d point1 = this.getPoints().get(1).add(offset);
-        Vec3d point2 = this.getPoints().get(2).add(offset);
-        Vec3d point3 = this.getPoints().get(3).add(offset);
-        Vec3d point4 = this.getPoints().get(4).add(offset);
-        Vec3d point5 = this.getPoints().get(5).add(offset);
-        Vec3d point6 = this.getPoints().get(6).add(offset);
-        Vec3d point7 = this.getPoints().get(7).add(offset);
+    public void drawLines(Vector3d offset) {
+        Vector3d point0 = this.getPoints().get(0).add(offset);
+        Vector3d point1 = this.getPoints().get(1).add(offset);
+        Vector3d point2 = this.getPoints().get(2).add(offset);
+        Vector3d point3 = this.getPoints().get(3).add(offset);
+        Vector3d point4 = this.getPoints().get(4).add(offset);
+        Vector3d point5 = this.getPoints().get(5).add(offset);
+        Vector3d point6 = this.getPoints().get(6).add(offset);
+        Vector3d point7 = this.getPoints().get(7).add(offset);
 
         float red = 1, green = 1, blue = 1, alpha = 1;
 

@@ -11,20 +11,20 @@ import net.minecraft.item.crafting.RecipeManager;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.tags.NetworkTagManager;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Direction;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.EmptyTickList;
-import net.minecraft.world.IEnviromentBlockReader;
 import net.minecraft.world.ITickList;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.chunk.AbstractChunkProvider;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.storage.ISpawnWorldInfo;
 import net.minecraft.world.storage.MapData;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.LogicalSide;
 
 import javax.annotation.Nullable;
@@ -33,12 +33,12 @@ import java.util.List;
 /**
  * A wrapper for MobileChunks, used to give blocks accurate information about it's neighbors.
  */
-public class FakeWorld extends World implements IEnviromentBlockReader {
+public class FakeWorld extends World {
 
     private MobileChunk mobileChunk;
 
     private FakeWorld(boolean remote, World parentWorld) {
-        super(parentWorld.getWorldInfo(), parentWorld.getDimension().getType(), (world, dimension) -> parentWorld.getChunkProvider(), parentWorld.getProfiler(), remote);
+        super((ISpawnWorldInfo) parentWorld.getWorldInfo(), parentWorld.func_234923_W_(), parentWorld.func_234922_V_(), parentWorld.func_230315_m_(), parentWorld::getProfiler, remote, parentWorld.func_234925_Z_(), 0); // no way to get the seed for some reason. very cool update.
     }
 
     public static FakeWorld getFakeWorld(MobileChunk chunk) {
@@ -60,7 +60,7 @@ public class FakeWorld extends World implements IEnviromentBlockReader {
 
     @Override
     public void playSound(@Nullable PlayerEntity player, double x, double y, double z, SoundEvent soundIn, SoundCategory category, float volume, float pitch) {
-        Vec3d at = mobileChunk.getWorldPosForChunkPos(new Vec3d(x, y, z));
+        Vector3d at = mobileChunk.getWorldPosForChunkPos(new Vector3d(x, y, z));
         mobileChunk.world.playSound(player, at.x, at.y, at.z, soundIn, category, volume, pitch);
     }
 
@@ -113,23 +113,12 @@ public class FakeWorld extends World implements IEnviromentBlockReader {
 
     @Override
     public long getGameTime() {
-        return this.getMobileChunk().world.getGameTime();
+        return this.getParentWorld().getGameTime();
     }
 
     @Override
     public long getDayTime() {
-        return this.getMobileChunk().world.getDayTime();
-    }
-
-    @Nullable
-    @Override
-    public MapData func_217406_a(String p_217406_1_) {
-        return mobileChunk.world.func_217406_a(p_217406_1_);
-    }
-
-    @Override
-    public void func_217399_a(MapData p_217399_1_) {
-        mobileChunk.world.func_217399_a(p_217399_1_);
+        return this.getParentWorld().getDayTime();
     }
 
     @Override
@@ -144,23 +133,17 @@ public class FakeWorld extends World implements IEnviromentBlockReader {
 
     @Override
     public Scoreboard getScoreboard() {
-        return this.getMobileChunk().world.getScoreboard();
+        return this.getParentWorld().getScoreboard();
     }
 
     @Override
     public RecipeManager getRecipeManager() {
-        return this.getMobileChunk().world.getRecipeManager();
+        return this.getParentWorld().getRecipeManager();
     }
 
     @Override
     public NetworkTagManager getTags() {
-        return this.getMobileChunk().world.getTags();
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public int getCombinedLight(BlockPos pos, int lightValue) {
-        return this.getMobileChunk().getNeighborAwareLightSubtracted(pos, lightValue);
+        return this.getParentWorld().getTags();
     }
 
     @Override
@@ -176,6 +159,10 @@ public class FakeWorld extends World implements IEnviromentBlockReader {
         this.mobileChunk = mobileChunk;
     }
 
+    public World getParentWorld() {
+        return this.getMobileChunk().getWorld();
+    }
+
     @Override
     public ITickList<Block> getPendingBlockTicks() {
         return new EmptyTickList<>();
@@ -188,11 +175,37 @@ public class FakeWorld extends World implements IEnviromentBlockReader {
 
     @Override
     public void playEvent(@Nullable PlayerEntity player, int type, BlockPos pos, int data) {
-
+        // TODO: Offset and play in real world.
     }
 
     @Override
     public List<? extends PlayerEntity> getPlayers() {
+        return this.mobileChunk.world.getPlayers();
+    }
+
+    @Override
+    public MapData getMapData(String mapName) {
+        return mobileChunk.world.getMapData(mapName);
+    }
+
+    @Override
+    public void registerMapData(MapData mapDataIn) {
+        mobileChunk.world.registerMapData(mapDataIn);
+    }
+
+    @Override
+    public AbstractChunkProvider getChunkProvider() {
         return null;
+    }
+
+    @Override
+    public float func_230487_a_(Direction p_230487_1_, boolean p_230487_2_) {
+        return mobileChunk.world.func_230487_a_(p_230487_1_, p_230487_2_);
+    }
+
+    @Override
+    public Biome getNoiseBiomeRaw(int x, int y, int z) {
+        BlockPos pos = new BlockPos(mobileChunk.getWorldPosForChunkPos(new BlockPos(x, y, z)));
+        return getParentWorld().getNoiseBiomeRaw(pos.getX(), pos.getY(), pos.getZ());
     }
 }

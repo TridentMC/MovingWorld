@@ -1,6 +1,7 @@
 package com.tridevmc.movingworld.common.entity;
 
 import com.google.common.collect.Lists;
+import com.tridevmc.compound.core.reflect.WrappedField;
 import com.tridevmc.movingworld.MovingWorldMod;
 import com.tridevmc.movingworld.api.IMovingTile;
 import com.tridevmc.movingworld.common.chunk.CompressedChunkData;
@@ -32,16 +33,14 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.ReuseableStream;
+import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -58,6 +57,7 @@ import java.util.stream.Stream;
  */
 public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdditionalSpawnData {
 
+    public static final WrappedField<World> TILE_WORLD = WrappedField.create(TileEntity.class, "world", "field_145850_b");
     public static final DataParameter<Boolean> IS_FLYING = EntityDataManager
             .createKey(EntityMovingWorld.class, DataSerializers.BOOLEAN);
     public PlayerEntity controllingPassenger;
@@ -243,8 +243,8 @@ public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdd
     }
 
     @Override
-    public boolean processInitialInteract(PlayerEntity entityplayer, Hand hand) {
-        return this.getHandler().processInitialInteract(entityplayer, hand);
+    public ActionResultType applyPlayerInteraction(PlayerEntity player, Vector3d vec, Hand hand) {
+        return this.getHandler().applyPlayerInteraction(player, vec, hand);
     }
 
     @Override
@@ -269,13 +269,16 @@ public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdd
     }
 
     public void updateBoundingBox() {
+        double posX = this.getPosX();
+        double posY = this.getPosY();
+        double posZ = this.getPosZ();
         if (this.mobileChunk == null) {
             float hw = this.getWidth() / 2F;
             this.setBoundingBox(
-                    new AxisAlignedBB(this.posX - hw, this.posY, this.posZ - hw, this.posX + hw, this.posY + this.size.height, this.posZ + hw));
+                    new AxisAlignedBB(posX - hw, posY, posZ - hw, posX + hw, posY + this.size.height, posZ + hw));
         } else {
-            AxisAlignedBB bb = new AxisAlignedBB(this.posX - this.mobileChunk.getCenterX(), this.posY, this.posZ - this.mobileChunk.getCenterZ(),
-                    this.posX + this.mobileChunk.getCenterX(), this.posY + this.getHeight(), this.posZ + this.mobileChunk.getCenterZ());
+            AxisAlignedBB bb = new AxisAlignedBB(posX - this.mobileChunk.getCenterX(), posY, posZ - this.mobileChunk.getCenterZ(),
+                    posX + this.mobileChunk.getCenterX(), posY + this.getHeight(), posZ + this.mobileChunk.getCenterZ());
             this.setBoundingBox(bb);
         }
     }
@@ -285,7 +288,7 @@ public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdd
             this.size = new EntitySize(w, h, false);
             float hw = w / 2F;
             this.setBoundingBox(
-                    new AxisAlignedBB(this.posX - hw, this.posY, this.posZ - hw, this.posX + hw, this.posY + this.size.height, this.posZ + hw));
+                    new AxisAlignedBB(this.getPosX() - hw, this.getPosY(), this.getPosZ() - hw, this.getPosX() + hw, this.getPosY() + this.size.height, this.getPosZ() + hw));
         }
     }
 
@@ -295,7 +298,7 @@ public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdd
     }
 
     @Override
-    public void move(MoverType type, Vec3d movement) {
+    public void move(MoverType type, Vector3d movement) {
         this.updateBoundingBox();
         if (noClip) {
             super.move(type, movement);
@@ -304,7 +307,7 @@ public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdd
 
         if (type == MoverType.PISTON) {
             movement = this.handlePistonMovement(movement);
-            if (movement.equals(Vec3d.ZERO)) {
+            if (movement.equals(Vector3d.ZERO)) {
                 return;
             }
         }
@@ -312,28 +315,28 @@ public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdd
         this.world.getProfiler().startSection("move");
         if (this.motionMultiplier.lengthSquared() > 1.0E-7D) {
             movement = movement.mul(this.motionMultiplier);
-            this.motionMultiplier = Vec3d.ZERO;
-            this.setMotion(Vec3d.ZERO);
+            this.motionMultiplier = Vector3d.ZERO;
+            this.setMotion(Vector3d.ZERO);
         }
 
         OrientedBoundingBox.CollisionResult movementResult = this.tryMove(movement, this.getRealBoundingBox(), new ReuseableStream<>(Stream.empty()));
         Vec3dMod allowedMovement = movementResult.getClampedMovement();
-        if(Double.compare(allowedMovement.x, movement.x) > 0) {
+        if (Double.compare(allowedMovement.x, movement.x) > 0) {
             MovingWorldMod.LOG.info("Found negative difference for X, clamping to 0.");
             allowedMovement = allowedMovement.setX(0);
         }
-        if(Double.compare(allowedMovement.y, movement.y) > 0) {
+        if (Double.compare(allowedMovement.y, movement.y) > 0) {
             MovingWorldMod.LOG.info("Found negative difference for Y, clamping to 0.");
             allowedMovement = allowedMovement.setY(0);
         }
-        if(Double.compare(allowedMovement.z, movement.z) > 0) {
+        if (Double.compare(allowedMovement.z, movement.z) > 0) {
             MovingWorldMod.LOG.info("Found negative difference for Z, clamping to 0.");
             allowedMovement = allowedMovement.setZ(0);
         }
 
         if (allowedMovement.lengthSquared() > 1.0E-7D) {
             MovingWorldMod.LOG.info("Move={} Allowed={} Compare={}", movement.toString(), allowedMovement.toString(), movement.subtract(allowedMovement).toString());
-            this.setPosition(this.posX + allowedMovement.x, this.posY + allowedMovement.y, this.posZ + allowedMovement.z);
+            this.setPosition(this.getPosX() + allowedMovement.x, this.getPosY() + allowedMovement.y, this.getPosZ() + allowedMovement.z);
             this.updateBoundingBox();
         }
 
@@ -342,10 +345,10 @@ public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdd
         this.collidedHorizontally = !MathHelper.epsilonEquals(movement.x, allowedMovement.x) || !MathHelper.epsilonEquals(movement.z, allowedMovement.z);
         this.collidedVertically = !MathHelper.epsilonEquals(movement.y, allowedMovement.y);
         this.onGround = this.collidedVertically && movement.y < 0.0D;
-        this.collided = this.collidedHorizontally || this.collidedVertically;
+        //this.collided = this.collidedHorizontally || this.collidedVertically;
 
         // Clamp motion.
-        Vec3d motion = this.getMotion();
+        Vector3d motion = this.getMotion();
         //if (Double.compare(allowedMovement.x, movement.x) != 0D) {
         //    MovingWorldMod.LOG.info("Clamped X motion, " + movement.x + " " + allowedMovement.x + " " + motion.x);
         //    this.setMotion(0, motion.y, motion.z);
@@ -367,9 +370,8 @@ public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdd
         this.world.getProfiler().endSection();
     }
 
-    public OrientedBoundingBox.CollisionResult tryMove(Vec3d move, OrientedBoundingBox collisionBox, ReuseableStream<VoxelShape> potentialHits) {
-        List<AxisAlignedBB> boxes = world.getCollisionShapes(this, collisionBox.getBb()
-                .offset(move), Collections.emptySet())
+    public OrientedBoundingBox.CollisionResult tryMove(Vector3d move, OrientedBoundingBox collisionBox, ReuseableStream<VoxelShape> potentialHits) {
+        List<AxisAlignedBB> boxes = world.getCollisionShapes(this, collisionBox.getBb().offset(move))
                 .flatMap((v) -> v.toBoundingBoxList().stream())
                 .collect(Collectors.toList());
         boxes.addAll(potentialHits.createStream().flatMap((v) -> v.toBoundingBoxList().stream()).collect(Collectors.toList()));
@@ -381,22 +383,23 @@ public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdd
     public void setPositionAndRotationDirect(double x, double y, double z, float yaw, float pitch,
                                              int inc, boolean control) {
         if (control && this.getControllingPassenger() != null) {
-            this.prevPosX = this.posX = x;
-            this.prevPosY = this.posY = y;
-            this.prevPosZ = this.posZ = z;
+            this.setRawPosition(x, y, z);
+            this.prevPosX = x;
+            this.prevPosY = y;
+            this.prevPosZ = z;
             this.rotationYaw = yaw;
             this.rotationPitch = pitch;
             this.controlPosRotationIncrements = 0;
             this.setPosition(x, y, z);
-            this.setMotion(new Vec3d(0, 0, 0));
+            this.setMotion(new Vector3d(0, 0, 0));
             this.controlVelX = this.controlVelY = this.controlVelZ = 0;
         } else {
             if (this.noControl) {
                 this.controlPosRotationIncrements = inc + 5;
             } else {
-                double dx = x - this.posX;
-                double dy = y - this.posY;
-                double dz = z - this.posZ;
+                double dx = x - this.getPosX();
+                double dy = y - this.getPosY();
+                double dz = z - this.getPosZ();
                 double d = dx * dx + dy * dy + dz * dz;
 
                 if (d < 0.3D) {
@@ -412,14 +415,14 @@ public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdd
             this.controlZ = z;
             this.controlYaw = yaw;
             this.controlPitch = pitch;
-            this.setMotion(new Vec3d(controlVelX, controlVelY, controlVelZ));
+            this.setMotion(new Vector3d(controlVelX, controlVelY, controlVelZ));
         }
     }
 
     @Override
     @OnlyIn(Dist.CLIENT)
     public void setVelocity(double x, double y, double z) {
-        this.setMotion(new Vec3d(x, y, z));
+        this.setMotion(new Vector3d(x, y, z));
         this.controlVelX = x;
         this.controlVelY = y;
         this.controlVelZ = z;
@@ -441,7 +444,7 @@ public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdd
     }
 
     public boolean posChanged() {
-        return this.posX != this.prevPosX || this.posY != this.prevPosY || this.posZ != this.prevPosZ;
+        return this.getPosX() != this.prevPosX || this.getPosY() != this.prevPosY || this.getPosZ() != this.prevPosZ;
     }
 
     @Override
@@ -452,9 +455,9 @@ public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdd
 
         this.baseTick();
 
-        this.prevPosX = this.posX;
-        this.prevPosY = this.posY;
-        this.prevPosZ = this.posZ;
+        this.prevPosX = this.getPosX();
+        this.prevPosY = this.getPosY();
+        this.prevPosZ = this.getPosZ();
 
         double horVel = Math.sqrt(this.getMotion().x * this.getMotion().x + this.getMotion().z * this.getMotion().z);
         if (this.world.isRemote) {
@@ -483,9 +486,9 @@ public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdd
     @OnlyIn(Dist.CLIENT)
     protected void handleClientUpdate() {
         if (this.controlPosRotationIncrements > 0) {
-            double dx = this.posX + (this.controlX - this.posX) / this.controlPosRotationIncrements;
-            double dy = this.posY + (this.controlY - this.posY) / this.controlPosRotationIncrements;
-            double dz = this.posZ + (this.controlZ - this.posZ) / this.controlPosRotationIncrements;
+            double dx = this.getPosX() + (this.controlX - this.getPosX()) / this.controlPosRotationIncrements;
+            double dy = this.getPosY() + (this.controlY - this.getPosY()) / this.controlPosRotationIncrements;
+            double dz = this.getPosZ() + (this.controlZ - this.getPosZ()) / this.controlPosRotationIncrements;
             double ang = MathHelper.wrapDegrees(this.controlYaw - this.rotationYaw);
             this.rotationYaw = (float) (this.rotationYaw + ang / this.controlPosRotationIncrements);
             this.rotationPitch = (float) (this.rotationPitch
@@ -497,7 +500,7 @@ public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdd
             // TODO: no replacement method in 1.14?
             //this.world.tickEntity(this, false);
         } else {
-            this.setPosition(this.posX + this.getMotion().x, this.posY + this.getMotion().y, this.posZ + this.getMotion().z);
+            this.setPosition(this.getPosX() + this.getMotion().x, this.getPosY() + this.getMotion().y, this.getPosZ() + this.getMotion().z);
             // TODO: no replacement method in 1.14?
             // this.world.tickEntity(this, false);
 
@@ -518,9 +521,9 @@ public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdd
         }
         if (!this.getMobileChunk().updatableTiles.isEmpty()) {
             for (TileEntity tickable : Lists.newArrayList(this.getMobileChunk().updatableTiles)) {
-                tickable.setWorld(this.mobileChunk.getFakeWorld());
+                TILE_WORLD.set(tickable, this.mobileChunk.getFakeWorld());
                 ((ITickable) tickable).tick();
-                tickable.setWorld(this.mobileChunk.world);
+                TILE_WORLD.set(tickable, this.mobileChunk.world);
             }
         }
 
@@ -541,7 +544,7 @@ public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdd
             this.setMotion(this.getMotion().mul(d, 1, d));
             newHorVel = maxVel;
         }
-        this.setMotion(new Vec3d(this.getMotion().x, MathHelperMod.clamp_double(this.getMotion().y, -maxVel, maxVel), this.getMotion().z));
+        this.setMotion(new Vector3d(this.getMotion().x, MathHelperMod.clamp_double(this.getMotion().y, -maxVel, maxVel), this.getMotion().z));
         //END limit motion
 
         if (this.onGround) {
@@ -549,12 +552,12 @@ public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdd
         }
         this.handleRotation();
         this.move(MoverType.SELF, this.getMotion());
-        this.posY = Math.min(this.posY, this.world.getHeight());
+        this.setRawPosition(this.getPosX(), Math.min(this.getPosY(), this.world.getHeight()), this.getPosZ());
         this.setMotion(this.getMotion().mul(this.horFriction, this.vertFriction, this.horFriction));
 
         this.handleServerUpdatePreRotation();
         this.setRotation(this.rotationYaw, this.rotationPitch);
-        this.handleCollision(this.posX, this.posY, this.posZ);
+        this.handleCollision(this.getPosX(), this.getPosY(), this.getPosZ());
     }
 
     public void handleServerUpdatePreRotation() {
@@ -654,8 +657,8 @@ public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdd
                 vec.add(0, 0.25, 0);
             }
 
-            passenger.setPosition(this.posX + vec.x, this.posY + vec.y + passenger.getYOffset(),
-                    this.posZ + vec.z);
+            passenger.setPosition(this.getPosX() + vec.x, this.getPosY() + vec.y + passenger.getYOffset(),
+                    this.getPosZ() + vec.z);
 
             this.applyYawToEntity(passenger);
         }
@@ -710,8 +713,8 @@ public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdd
                         if (entity instanceof EntityMovingWorld) {
                             entity.applyEntityCollision(this);
                         } else if (entity instanceof BoatEntity) {
-                            double d0 = cPosX - entity.posX;
-                            double d1 = cPosZ - entity.posZ;
+                            double d0 = cPosX - entity.getPosX();
+                            double d1 = cPosZ - entity.getPosZ();
                             double d2 = MathHelper.absMax(d0, d1);
 
                             if (d2 >= 0.01D) {
@@ -764,10 +767,10 @@ public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdd
     }
 
     @Override
-    public boolean handleWaterMovement() {
+    protected boolean func_233566_aG_() {
         float f = this.getWidth();
         this.setSize(0, this.getHeight());
-        boolean ret = super.handleWaterMovement();
+        boolean ret = super.func_233566_aG_();
         this.setSize(f, this.getHeight());
         return ret;
     }
@@ -825,7 +828,8 @@ public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdd
     }
 
     @Override
-    public void fall(float distance, float damageMultiplier) {
+    public boolean onLivingFall(float distance, float damageMultiplier) {
+        return false;
     }
 
     public float getHorizontalVelocity() {
@@ -836,20 +840,20 @@ public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdd
         this.rotationYaw = Math.round(this.rotationYaw / 90F) * 90F;
         this.rotationPitch = 0F;
 
-        Vec3d vec = new Vec3d(-this.mobileChunk.getCenterX(), -this.mobileChunk.minY(),
+        Vector3d vec = new Vector3d(-this.mobileChunk.getCenterX(), -this.mobileChunk.minY(),
                 -this.mobileChunk.getCenterZ());
         vec = vec.rotateYaw((float) Math.toRadians(this.rotationYaw));
 
-        int ix = MathHelperMod.round_double(vec.x + this.posX);
-        int iy = MathHelperMod.round_double(vec.y + this.posY);
-        int iz = MathHelperMod.round_double(vec.z + this.posZ);
+        int ix = MathHelperMod.round_double(vec.x + this.getPosX());
+        int iy = MathHelperMod.round_double(vec.y + this.getPosY());
+        int iz = MathHelperMod.round_double(vec.z + this.getPosZ());
 
         if (doPosAdjustment) {
-            this.setMotion(new Vec3d(0, 0, 0));
+            this.setMotion(new Vector3d(0, 0, 0));
             this.setPositionAndUpdate(ix - vec.x, iy - vec.y, iz - vec.z);
         }
 
-        this.setMotion(new Vec3d(0, 0, 0));
+        this.setMotion(new Vector3d(0, 0, 0));
     }
 
     public boolean disassemble(boolean overwrite) {
@@ -874,14 +878,14 @@ public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdd
     public abstract MovingWorldAssemblyInteractor getNewAssemblyInteractor();
 
     public void dropAsItems() {
-        TileEntity tileentity;
-        BlockState blockState;
+        TileEntity tile;
+        BlockState state;
         for (int i = this.mobileChunk.minX(); i < this.mobileChunk.maxX(); i++) {
             for (int j = this.mobileChunk.minY(); j < this.mobileChunk.maxY(); j++) {
                 for (int k = this.mobileChunk.minZ(); k < this.mobileChunk.maxZ(); k++) {
-                    tileentity = this.mobileChunk.getTileEntity(new BlockPos(i, j, k));
-                    if (tileentity instanceof IInventory) {
-                        IInventory inv = (IInventory) tileentity;
+                    tile = this.mobileChunk.getTileEntity(new BlockPos(i, j, k));
+                    if (tile instanceof IInventory) {
+                        IInventory inv = (IInventory) tile;
                         for (int it = 0; it < inv.getSizeInventory(); it++) {
                             ItemStack is = inv.getStackInSlot(it);
                             if (is != null) {
@@ -889,12 +893,12 @@ public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdd
                             }
                         }
                     }
-                    blockState = this.mobileChunk.getBlockState(new BlockPos(i, j, k));
+                    state = this.mobileChunk.getBlockState(new BlockPos(i, j, k));
 
-                    if (blockState.getBlock() != Blocks.AIR) {
-                        Block.spawnDrops(blockState, world, new BlockPos(MathHelper.floor(this.posX),
-                                MathHelper.floor(this.posY),
-                                MathHelper.floor(this.posZ)));
+                    if (state.getBlock() != Blocks.AIR) {
+                        Block.spawnDrops(state, world, new BlockPos(MathHelper.floor(this.getPosX()),
+                                MathHelper.floor(this.getPosY()),
+                                MathHelper.floor(this.getPosZ())));
                     }
                 }
             }
@@ -938,12 +942,15 @@ public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdd
 
         if (!this.mobileChunk.chunkTileEntityMap.isEmpty()) {
             ListNBT tileEntities = new ListNBT();
-            for (TileEntity tileentity : this.mobileChunk.chunkTileEntityMap.values()) {
+            for (Map.Entry<BlockPos, TileEntity> tile : this.mobileChunk.chunkTileEntityMap.entrySet()) {
                 CompoundNBT comp = new CompoundNBT();
-                tileentity.write(comp);
+                int[] posArray = new int[]{tile.getKey().getX(), tile.getKey().getY(), tile.getKey().getZ()};
+                comp.putIntArray("pos", posArray);
+                comp.putInt("state", Block.getStateId(this.mobileChunk.getBlockState(tile.getKey())));
+                comp.put("tile", tile.getValue().write(new CompoundNBT()));
                 tileEntities.add(comp);
             }
-            tag.put("tileent", tileEntities);
+            tag.put("tiles", tileEntities);
         }
 
         if (this.mobileChunk.marker != null) {
@@ -992,16 +999,17 @@ public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdd
             this.frontDirection = Direction.byHorizontalIndex(tag.getInt("front"));
         }
 
-        ListNBT tiles = tag.getList("tileent", 10);
-        if (tiles != null) {
-            for (int i = 0; i < tiles.size(); i++) {
-                try {
-                    CompoundNBT comp = tiles.getCompound(i);
-                    TileEntity tileentity = TileEntity.create(comp);
-                    this.mobileChunk.setTileEntity(tileentity.getPos(), tileentity);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+        ListNBT tiles = tag.getList("tiles", 10);
+        for (int i = 0; i < tiles.size(); i++) {
+            try {
+                CompoundNBT comp = tiles.getCompound(i);
+                int[] posArray = comp.getIntArray("pos");
+                BlockPos pos = new BlockPos(posArray[0], posArray[1], posArray[2]);
+                BlockState state = Block.getStateById(comp.getInt("state"));
+                TileEntity tile = TileEntity.readTileEntity(state, comp.getCompound("tile"));
+                this.mobileChunk.setTileEntity(pos, tile);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
 
@@ -1079,9 +1087,9 @@ public abstract class EntityMovingWorld extends BoatEntity implements IEntityAdd
 
     @Override
     public boolean isInRangeToRender3d(double camX, double camY, double camZ) {
-        double d0 = this.posX - camX;
-        double d1 = this.posY - camY;
-        double d2 = this.posZ - camZ;
+        double d0 = this.getPosX() - camX;
+        double d1 = this.getPosY() - camY;
+        double d2 = this.getPosZ() - camZ;
         double d3 = d0 * d0 + d1 * d1 + d2 * d2;
         return this.isInRangeToRenderDist(d3);
     }

@@ -1,16 +1,18 @@
 package com.tridevmc.movingworld.client.render;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.tridevmc.movingworld.common.chunk.mobilechunk.MobileChunkClient;
 import com.tridevmc.movingworld.common.entity.EntityMovingWorld;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.client.renderer.culling.ICamera;
+import net.minecraft.client.renderer.culling.ClippingHelper;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 
 import javax.annotation.Nullable;
 
@@ -22,7 +24,7 @@ public class RenderMovingWorld extends EntityRenderer<EntityMovingWorld> {
 
     @Nullable
     @Override
-    protected ResourceLocation getEntityTexture(EntityMovingWorld entity) {
+    public ResourceLocation getEntityTexture(EntityMovingWorld entity) {
         return AtlasTexture.LOCATION_BLOCKS_TEXTURE;
     }
 
@@ -44,34 +46,30 @@ public class RenderMovingWorld extends EntityRenderer<EntityMovingWorld> {
         float fz = entity.getMobileChunk().getCenterZ();
         GlStateManager.translated(-fx, -entity.getMobileChunk().minY(), -fz); //minY is always 0
 
-        bindEntityTexture(entity);
         ((MobileChunkClient) entity.getMobileChunk()).getRenderer().render(partialTicks);
         GlStateManager.popMatrix();
-
-        AxisAlignedBB boundingBox = entity.getBoundingBox();
-        WorldRenderer.drawBoundingBox(boundingBox.minX, boundingBox.minY, boundingBox.minZ, boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ, 1, 1, 1, 1);
     }
 
     @Override
-    public void doRender(EntityMovingWorld entity, double x, double y, double z, float yaw, float partialTicks) {
-        renderVehicle(entity, x, y, z, partialTicks);
-        super.doRender(entity, x, y, z, yaw, partialTicks);
+    public void render(EntityMovingWorld entityIn, float entityYaw, float partialTicks, MatrixStack matrix, IRenderTypeBuffer buffer, int packedLightIn) {
+        renderVehicle(entityIn, x, y, z, partialTicks);
+        super.render(entityIn, entityYaw, partialTicks, matrix, buffer, packedLightIn);
     }
 
     @Override
-    public boolean shouldRender(EntityMovingWorld entity, ICamera camera, double camX, double camY, double camZ) {
+    public boolean shouldRender(EntityMovingWorld entity, ClippingHelper camera, double camX, double camY, double camZ) {
         return entity.isInRangeToRender3d(camX, camY, camZ);
     }
 
     private void renderBoxCorners(EntityMovingWorld entity, double x, double y, double z) {
         GlStateManager.pushMatrix();
         GlStateManager.enableBlend();
-        GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+        GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.param, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.param, GlStateManager.SourceFactor.ONE.param, GlStateManager.DestFactor.ZERO.param);
         GlStateManager.color4f(0.0F, 1.0F, 0.0F, 0.75F);
         GlStateManager.disableTexture();
         GlStateManager.lineWidth(6.0F);
 
-        entity.getRealBoundingBox().drawLines(new Vec3d(-entity.posX + x, -entity.posY + y, -entity.posZ + z));
+        //entity.getRealBoundingBox().drawLines(new Vector3d(-entity.posX + x, -entity.posY + y, -entity.posZ + z));
 
         GlStateManager.enableTexture();
         GlStateManager.disableBlend();

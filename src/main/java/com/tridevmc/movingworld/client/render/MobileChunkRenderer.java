@@ -17,7 +17,6 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -222,13 +221,13 @@ public class MobileChunkRenderer {
     }
 
     public class VBORender {
-        private final VertexBuffer[] vertexBuffers = new VertexBuffer[BlockRenderLayer.values().length];
+        private final VertexBuffer[] vertexBuffers = new VertexBuffer[RenderType.getBlockRenderTypes().size()];
 
         public void compile() {
             remove();
 
-            HashMap<BlockRenderLayer, List<Tuple<BlockPos, BlockState>>> blockRenderMap = Maps.newHashMap();
-            for (BlockRenderLayer blockRenderLayer : BlockRenderLayer.values()) {
+            HashMap<RenderType, List<Tuple<BlockPos, BlockState>>> blockRenderMap = Maps.newHashMap();
+            for (RenderType blockRenderLayer : RenderType.getBlockRenderTypes()) {
                 blockRenderMap.put(blockRenderLayer, new ArrayList<>());
             }
             // Collect block states.
@@ -237,10 +236,9 @@ public class MobileChunkRenderer {
                     for (int x = chunk.minX(); x < chunk.maxX(); ++x) {
                         BlockPos pos = new BlockPos(x, y, z);
                         BlockState state = chunk.getBlockState(pos);
-                        Block block = state.getBlock();
 
-                        for (BlockRenderLayer blockRenderLayer : BlockRenderLayer.values()) {
-                            if (!block.canRenderInLayer(state, blockRenderLayer)
+                        for (RenderType blockRenderLayer :  RenderType.getBlockRenderTypes()) {
+                            if (! RenderTypeLookup.canRenderInLayer(state, blockRenderLayer)
                                     || state.getRenderType().equals(BlockRenderType.INVISIBLE)) continue;
 
                             blockRenderMap.get(blockRenderLayer).add(new Tuple<>(pos, state));
@@ -249,8 +247,8 @@ public class MobileChunkRenderer {
                 }
             }
 
-            for (int i = 0; i < BlockRenderLayer.values().length; ++i) {
-                BlockRenderLayer renderLayer = BlockRenderLayer.values()[i];
+            for (int i = 0; i < RenderType.getBlockRenderTypes().size(); ++i) {
+                RenderType renderLayer = RenderType.getBlockRenderTypes().get(i);
                 this.vertexBuffers[i] = new VertexBuffer(DefaultVertexFormats.BLOCK);
 
                 List<Tuple<BlockPos, BlockState>> data = blockRenderMap.get(renderLayer);
@@ -271,7 +269,7 @@ public class MobileChunkRenderer {
             }
         }
 
-        private void renderLayer(BlockRenderLayer layer) {
+        private void renderLayer(RenderType layer) {
             VertexBuffer vbo = vertexBuffers[layer.ordinal()];
             if (vbo == null)
                 return;
@@ -321,7 +319,7 @@ public class MobileChunkRenderer {
         }
 
         public void remove() {
-            for (int i = 0; i < BlockRenderLayer.values().length; ++i) {
+            for (int i = 0; i < RenderType.getBlockRenderTypes().size(); ++i) {
                 if (vertexBuffers[i] != null) {
                     vertexBuffers[i].deleteGlBuffers();
                 }
@@ -340,8 +338,8 @@ public class MobileChunkRenderer {
             } else {
                 GlStateManager.shadeModel(7424);
             }
-            for (int i = 0; i < BlockRenderLayer.values().length; ++i) {
-                renderLayer(BlockRenderLayer.values()[i]);
+            for (int i = 0; i < RenderType.getBlockRenderTypes().size(); ++i) {
+                renderLayer(RenderType.getBlockRenderTypes().get(i));
             }
             GlStateManager.disableBlend();
             GlStateManager.disableCull();

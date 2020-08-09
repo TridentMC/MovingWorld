@@ -17,7 +17,7 @@ import net.minecraft.client.renderer.texture.ITickable;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.IFluidState;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.particles.IParticleData;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
@@ -26,8 +26,8 @@ import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.*;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biomes;
@@ -36,9 +36,7 @@ import net.minecraft.world.chunk.AbstractChunkProvider;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.IChunk;
-import net.minecraft.world.dimension.Dimension;
 import net.minecraft.world.gen.Heightmap;
-import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.LogicalSide;
@@ -109,27 +107,27 @@ public abstract class MobileChunk implements IWorld, IWorldReader {
         return this.boundingBoxes.inverse().get(bb);
     }
 
-    public Vec3d getWorldPosForChunkPos(BlockPos pos) {
-        Vec3d movingWorldPos = new Vec3d(this.entityMovingWorld.posX, this.entityMovingWorld.posY, this.entityMovingWorld.posZ);
+    public Vector3d getWorldPosForChunkPos(BlockPos pos) {
+        Vector3d movingWorldPos = this.entityMovingWorld.getPositionVec();
         movingWorldPos = movingWorldPos.subtract((double) this.maxX() / 2, (double) this.maxY() / 2, (double) this.maxZ() / 2);
-        Vec3d returnPos = new Vec3d(pos.getX(), pos.getY(), pos.getZ());
+        Vector3d returnPos = new Vector3d(pos.getX(), pos.getY(), pos.getZ());
         returnPos.add(movingWorldPos);
         return returnPos;
     }
 
-    public Vec3d getWorldPosForChunkPos(Vec3d vec) {
-        Vec3d movingWorldPos = new Vec3d(this.entityMovingWorld.posX, this.entityMovingWorld.posY, this.entityMovingWorld.posZ);
+    public Vector3d getWorldPosForChunkPos(Vector3d vec) {
+        Vector3d movingWorldPos = this.entityMovingWorld.getPositionVec();
         movingWorldPos = movingWorldPos.subtract((double) this.maxX() / 2, (double) this.maxY() / 2, (double) this.maxZ() / 2);
-        Vec3d returnPos = new Vec3d(vec.x, vec.y, vec.z);
+        Vector3d returnPos = new Vector3d(vec.x, vec.y, vec.z);
         returnPos.add(movingWorldPos);
         return returnPos;
     }
 
 
-    public Vec3d getChunkPosForWorldPos(Vec3d pos) {
-        Vec3d movingWorldPos = new Vec3d(this.entityMovingWorld.posX, this.entityMovingWorld.posY, this.entityMovingWorld.posZ);
+    public Vector3d getChunkPosForWorldPos(Vector3d pos) {
+        Vector3d movingWorldPos = this.entityMovingWorld.getPositionVec();
         movingWorldPos = movingWorldPos.subtract((double) this.maxX() / 2, (double) this.maxY() / 2, (double) this.maxZ() / 2);
-        Vec3d returnPos = new Vec3d(pos.x, pos.y, pos.z);
+        Vector3d returnPos = new Vector3d(pos.x, pos.y, pos.z);
         returnPos = returnPos.subtract(movingWorldPos);
         return returnPos;
     }
@@ -142,8 +140,8 @@ public abstract class MobileChunk implements IWorld, IWorldReader {
         double maxY = axisAlignedBB.maxY;
         double maxZ = axisAlignedBB.maxZ;
 
-        Vec3d minVec = new Vec3d(minX, minY, minZ);
-        Vec3d maxVec = new Vec3d(maxX, maxY, maxZ);
+        Vector3d minVec = new Vector3d(minX, minY, minZ);
+        Vector3d maxVec = new Vector3d(maxX, maxY, maxZ);
         minVec = this.getChunkPosForWorldPos(minVec);
         maxVec = this.getChunkPosForWorldPos(maxVec);
 
@@ -227,13 +225,13 @@ public abstract class MobileChunk implements IWorld, IWorldReader {
         ChunkSection storage = this.getBlockStorageOrCreate(pos);
         BlockPos internalStoragePos = this.shiftToInternalStoragePos(pos);
 
-        BlockState currentState = storage.get(internalStoragePos.getX(), internalStoragePos.getY(), internalStoragePos.getZ());
+        BlockState currentState = storage.getBlockState(internalStoragePos.getX(), internalStoragePos.getY(), internalStoragePos.getZ());
         MovingWorldMod.LOG.debug(String.format("Adding block with state: %s, at position %s in a mobile chunk.", state, pos));
         if (currentState.equals(state)) {
             return false;
         }
 
-        storage.set(internalStoragePos.getX(), internalStoragePos.getY(), internalStoragePos.getZ(), state);
+        storage.setBlockState(internalStoragePos.getX(), internalStoragePos.getY(), internalStoragePos.getZ(), state);
 
         if (this.boundsInit) {
             int minX = Math.min(this.minBounds.getX(), pos.getX());
@@ -307,7 +305,7 @@ public abstract class MobileChunk implements IWorld, IWorldReader {
         maxDY = maxDY / 2 * -1;
         maxDZ = maxDZ / 2 * -1;
 
-        axisAlignedBB = axisAlignedBB.offset(this.entityMovingWorld.posX + maxDX - 0.5, this.entityMovingWorld.posY + maxDY, this.entityMovingWorld.posZ + maxDZ - 0.5);
+        axisAlignedBB = axisAlignedBB.offset(this.entityMovingWorld.getPosX() + maxDX - 0.5, this.entityMovingWorld.getPosY() + maxDY, this.entityMovingWorld.getPosZ() + maxDZ - 0.5);
         this.boundingBoxes.put(pos, axisAlignedBB);
 
         return axisAlignedBB;
@@ -391,8 +389,8 @@ public abstract class MobileChunk implements IWorld, IWorldReader {
 
 
                 axisAlignedBB = AABBRotator.rotateAABBAroundY(axisAlignedBB, offset.getX(), offset.getZ(), rotationRadians);
-                Vec3dMod vec3 = new Vec3dMod(maxDX, maxDY, maxDZ).rotateAroundY(rotationRadians);
-                axisAlignedBB = axisAlignedBB.offset(this.entityMovingWorld.posX + vec3.x, this.entityMovingWorld.posY + vec3.y, this.entityMovingWorld.posZ + vec3.z);
+                Vector3d vec3 = new Vec3dMod(maxDX, maxDY, maxDZ).rotateAroundY(rotationRadians);
+                axisAlignedBB = axisAlignedBB.offset(this.entityMovingWorld.getPosX() + vec3.x, this.entityMovingWorld.getPosY() + vec3.y, this.entityMovingWorld.getPosZ() + vec3.z);
 
                 newBoundingBoxes.put(pos, axisAlignedBB);
             }
@@ -415,12 +413,12 @@ public abstract class MobileChunk implements IWorld, IWorldReader {
         }
         BlockPos internalStoragePos = this.shiftToInternalStoragePos(pos);
 
-        if (storage.get(internalStoragePos.getX(), internalStoragePos.getY(), internalStoragePos.getZ()) == null) {
+        if (storage.getBlockState(internalStoragePos.getX(), internalStoragePos.getY(), internalStoragePos.getZ()).getBlock() == Blocks.AIR) {
             this.blockCount++;
         }
 
-        storage.set(internalStoragePos.getX(), internalStoragePos.getY(), internalStoragePos.getZ(), state);
-        state = storage.get(internalStoragePos.getX(), internalStoragePos.getY(), internalStoragePos.getZ());
+        storage.setBlockState(internalStoragePos.getX(), internalStoragePos.getY(), internalStoragePos.getZ(), state);
+        state = storage.getBlockState(internalStoragePos.getX(), internalStoragePos.getY(), internalStoragePos.getZ());
 
         if (state.hasTileEntity()) {
             TileEntity tileentity = this.getTileEntity(pos);
@@ -469,7 +467,7 @@ public abstract class MobileChunk implements IWorld, IWorldReader {
             BlockState blockState = this.getBlockState(pos);
             Block block = blockState.getBlock();
 
-            if (block == null || !block.hasTileEntity(blockState)) {
+            if (!block.hasTileEntity(blockState)) {
                 return null;
             }
 
@@ -496,8 +494,7 @@ public abstract class MobileChunk implements IWorld, IWorldReader {
      */
     private void setChunkBlockTileEntity(BlockPos pos, TileEntity newTile) {
         BlockPos chunkPosition = new BlockPos(pos.getX(), pos.getY(), pos.getZ());
-        newTile.setPos(pos);
-        newTile.setWorld(this.getFakeWorld());
+        newTile.setWorldAndPos(this.getFakeWorld(), pos);
 
         BlockState blockState = this.getBlockState(pos);
         if (blockState != null && blockState.hasTileEntity()) {
@@ -586,7 +583,7 @@ public abstract class MobileChunk implements IWorld, IWorldReader {
         BlockPos internalStoragePos = this.shiftToInternalStoragePos(pos);
         ChunkSection storage = this.getBlockStorage(pos);
         BlockState state = storage != null ?
-                storage.get(internalStoragePos.getX(), internalStoragePos.getY(), internalStoragePos.getZ()) : null;
+                storage.getBlockState(internalStoragePos.getX(), internalStoragePos.getY(), internalStoragePos.getZ()) : null;
         if (state == null || storage == null)
             return Blocks.AIR.getDefaultState();
         return state;
@@ -622,9 +619,7 @@ public abstract class MobileChunk implements IWorld, IWorldReader {
 
     private boolean bbContainsBB(AxisAlignedBB container, AxisAlignedBB axisAlignedBB) {
         Vec3dMod minVec = new Vec3dMod(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ);
-        //Vec3d midVec = new Vec3((axisAlignedBB.maxX - axisAlignedBB.minX) / 2, (axisAlignedBB.maxY - axisAlignedBB.minY) / 2, (axisAlignedBB.maxZ - axisAlignedBB.minZ) / 2);
-        //midVec = midVec.add(minVec);
-        Vec3d maxVec = new Vec3d(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ);
+        Vector3d maxVec = new Vector3d(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ);
 
         if (container.minX < minVec.x || container.minY < minVec.y || container.minZ < minVec.z) {
             return true;
@@ -636,11 +631,6 @@ public abstract class MobileChunk implements IWorld, IWorldReader {
 
     public void markTileDirty(BlockPos pos) {
         this.setChunkModified();
-    }
-
-    @Override
-    public long getSeed() {
-        return this.world.getSeed();
     }
 
     @Override
@@ -664,11 +654,6 @@ public abstract class MobileChunk implements IWorld, IWorldReader {
     }
 
     @Override
-    public WorldInfo getWorldInfo() {
-        return this.world.getWorldInfo();
-    }
-
-    @Override
     public DifficultyInstance getDifficultyForLocation(BlockPos pos) {
         return this.world.getDifficultyForLocation(pos);
     }
@@ -684,31 +669,15 @@ public abstract class MobileChunk implements IWorld, IWorldReader {
     }
 
     @Override
-    public void notifyNeighbors(BlockPos pos, Block blockIn) {
-        Vec3d worldPosForChunkPos = this.getWorldPosForChunkPos(pos);
-        this.world.notifyNeighbors(new BlockPos(worldPosForChunkPos.x, worldPosForChunkPos.y, worldPosForChunkPos.z), blockIn);
-    }
-
-    @Override
-    public BlockPos getSpawnPoint() {
-        return BlockPos.ZERO;
-    }
-
-    @Override
     public void playSound(@Nullable PlayerEntity player, BlockPos pos, SoundEvent soundIn, SoundCategory category, float volume, float pitch) {
-        Vec3d worldPosForChunkPos = this.getWorldPosForChunkPos(pos);
+        Vector3d worldPosForChunkPos = this.getWorldPosForChunkPos(pos);
         this.world.playSound(player, new BlockPos(worldPosForChunkPos.x, worldPosForChunkPos.y, worldPosForChunkPos.z), soundIn, category, volume, pitch);
     }
 
     @Override
     public void addParticle(IParticleData particleData, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
-        Vec3d worldPosForChunkPos = this.getWorldPosForChunkPos(new Vec3d(x, y, z));
+        Vector3d worldPosForChunkPos = this.getWorldPosForChunkPos(new Vector3d(x, y, z));
         this.world.addParticle(particleData, worldPosForChunkPos.x, worldPosForChunkPos.y, worldPosForChunkPos.z, xSpeed, ySpeed, zSpeed);
-    }
-
-    @Override
-    public int getCombinedLight(BlockPos pos, int lightValue) {
-        return LightType.SKY.defaultLightValue;
     }
 
     @Override
@@ -729,7 +698,7 @@ public abstract class MobileChunk implements IWorld, IWorldReader {
     @Nullable
     @Override
     public PlayerEntity getClosestPlayer(double x, double y, double z, double distance, Predicate<Entity> predicate) {
-        Vec3d worldPosForChunkPos = this.getWorldPosForChunkPos(new Vec3d(x, y, z));
+        Vector3d worldPosForChunkPos = this.getWorldPosForChunkPos(new Vector3d(x, y, z));
         return this.world.getClosestPlayer(worldPosForChunkPos.x, worldPosForChunkPos.y, worldPosForChunkPos.z, distance, predicate);
     }
 
@@ -759,12 +728,7 @@ public abstract class MobileChunk implements IWorld, IWorldReader {
     }
 
     @Override
-    public Dimension getDimension() {
-        return this.world.getDimension();
-    }
-
-    @Override
-    public IFluidState getFluidState(BlockPos pos) {
+    public FluidState getFluidState(BlockPos pos) {
         return null;
     }
 
@@ -780,15 +744,15 @@ public abstract class MobileChunk implements IWorld, IWorldReader {
 
     @Override
     public List<Entity> getEntitiesInAABBexcluding(@Nullable Entity entityIn, AxisAlignedBB bb, @Nullable Predicate<? super Entity> predicate) {
-        AxisAlignedBB offsetBB = new AxisAlignedBB(getWorldPosForChunkPos(new Vec3d(bb.minX, bb.minY, bb.minZ)),
-                getWorldPosForChunkPos(new Vec3d(bb.maxX, bb.maxY, bb.maxZ)));
+        AxisAlignedBB offsetBB = new AxisAlignedBB(getWorldPosForChunkPos(new Vector3d(bb.minX, bb.minY, bb.minZ)),
+                getWorldPosForChunkPos(new Vector3d(bb.maxX, bb.maxY, bb.maxZ)));
         return world.getEntitiesInAABBexcluding(entityIn, offsetBB, predicate);
     }
 
     @Override
     public <T extends Entity> List<T> getEntitiesWithinAABB(Class<? extends T> clazz, AxisAlignedBB bb, @Nullable Predicate<? super T> predicate) {
-        AxisAlignedBB offsetBB = new AxisAlignedBB(getWorldPosForChunkPos(new Vec3d(bb.minX, bb.minY, bb.minZ)),
-                getWorldPosForChunkPos(new Vec3d(bb.maxX, bb.maxY, bb.maxZ)));
+        AxisAlignedBB offsetBB = new AxisAlignedBB(getWorldPosForChunkPos(new Vector3d(bb.minX, bb.minY, bb.minZ)),
+                getWorldPosForChunkPos(new Vector3d(bb.maxX, bb.maxY, bb.maxZ)));
         return world.getEntitiesWithinAABB(clazz, offsetBB, predicate);
     }
 
@@ -819,7 +783,7 @@ public abstract class MobileChunk implements IWorld, IWorldReader {
         }
         if (state.getMaterial().equals(Material.AIR)) {
             BlockPos internalStoragePos = this.shiftToInternalStoragePos(pos);
-            storage.set(internalStoragePos.getX(), internalStoragePos.getY(), internalStoragePos.getZ(), Blocks.AIR.getDefaultState());
+            storage.setBlockState(internalStoragePos.getX(), internalStoragePos.getY(), internalStoragePos.getZ(), Blocks.AIR.getDefaultState());
             return true;
         }
         return false;
@@ -832,14 +796,14 @@ public abstract class MobileChunk implements IWorld, IWorldReader {
 
     @Override
     public boolean destroyBlock(BlockPos pos, boolean dropBlock) {
-        Vec3d worldPosForChunkPos = this.getWorldPosForChunkPos(pos);
+        Vector3d worldPosForChunkPos = this.getWorldPosForChunkPos(pos);
         BlockPos offsetPos = new BlockPos(worldPosForChunkPos.x, worldPosForChunkPos.y, worldPosForChunkPos.z);
 
         BlockState blockState = this.getBlockState(pos);
         if (blockState.isAir(this, pos)) {
             return false;
         } else {
-            IFluidState fluidState = this.getFluidState(pos);
+            FluidState fluidState = this.getFluidState(pos);
             this.world.playEvent(2001, offsetPos, Block.getStateId(blockState));
             if (dropBlock) {
                 Block.spawnDrops(blockState, this.world, offsetPos);
@@ -851,7 +815,7 @@ public abstract class MobileChunk implements IWorld, IWorldReader {
 
     @Override
     public boolean addEntity(Entity entity) {
-        Vec3d positionVector = entity.getPositionVector();
+        Vector3d positionVector = entity.getPositionVec();
         positionVector = this.getWorldPosForChunkPos(positionVector);
         entity.setPosition(positionVector.x, positionVector.y, positionVector.z);
         return this.world.addEntity(entity);
